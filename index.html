@@ -112,7 +112,15 @@
     .auto-foto img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s; }
     .auto-card:hover .auto-foto img { transform: scale(1.04); }
 
-    .bron-label {
+    .nieuw-badge {
+        position: absolute; top: 10px; left: 10px;
+        background: #16a34a; color: #fff;
+        font-size: 11px; font-weight: 700;
+        padding: 3px 9px; border-radius: 4px;
+        letter-spacing: .5px; z-index: 2;
+        pointer-events: none;
+      }
+      .bron-label {
       position: absolute; top: 10px; left: 10px; padding: 3px 8px;
       border-radius: 4px; font-size: 11px; font-weight: 700; color: white;
       background: var(--mp-oranje);
@@ -607,6 +615,7 @@ function toonResultaten(lijst) {
         <img src="${a.imgSrc || ''}" alt="${a.titel}"
           onerror="this.src='https://placehold.co/600x380/e8e8e3/999?text=${encodeURIComponent(a.titel.split(' ').slice(0,2).join(' '))}'"
           loading="lazy" />
+        ${(new Date().toISOString().split('T')[0] === a.bijgewerkt) ? '<span class=\"nieuw-badge\">NIEUW</span>' : ''}
         <span class="bron-label">Marktplaats</span>
         <span class="live-dot">● LIVE</span>
       </div>
@@ -696,6 +705,7 @@ document.getElementById("modelInput").addEventListener("keydown", e => {
   if (e.key === "Enter") zoekNu();
 });
 document.addEventListener("keydown", e => { if (e.key === "Escape") sluitDetail(); });
+  document.addEventListener('DOMContentLoaded', () => zoekNu());
 </script>
 </body>
 </html>
