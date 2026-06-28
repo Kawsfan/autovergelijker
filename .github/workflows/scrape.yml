@@ -1,0 +1,30 @@
+name: Dagelijkse Auto Scraper
+
+on:
+  schedule:
+    - cron: '0 5 * * *'
+  workflow_dispatch:
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Scrape auto listings
+        run: node scripts/scrape.js
+
+      - name: Commit resultaten
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add data/listings.json
+          git diff --staged --quiet || git commit -m "Auto: listings bijgewerkt"
+          git push
