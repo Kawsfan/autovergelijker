@@ -5,3 +5,6 @@
   for = "/*"
   [headers.values]
     Access-Control-Allow-Origin = "*"
+
+[functions."scrape"]
+  schedule = "0 5 * * *"
