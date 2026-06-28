@@ -5,12 +5,3 @@
   for = "/*"
   [headers.values]
     Access-Control-Allow-Origin = "*"
-[build]
-  functions = "netlify/functions"
-[build]
-  functions = "netlify/functions"
-
-[[headers]]
-  for = "/*"
-  [headers.values]
-    Access-Control-Allow-Origin = "*"
