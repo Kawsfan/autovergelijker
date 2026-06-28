@@ -1,34 +1,43 @@
 // scripts/scrape.js - AutoVergelijker dagelijkse scraper
-// Strategie: __NEXT_DATA__ JSON parsing per merk (30 listings/pagina)
-// 20 merken × 3 paginas = 60 searches → verwacht 400-800 unieke listings
+// Strategie: Algemene Marktplaats paginering via __NEXT_DATA__ (30 listings/pagina)
+// 20 algemene paginas + 10 filter-paginas = ~400-600 unieke listings
 
 const fs = require('fs');
 const path = require('path');
 
+// Volledigere headers om op echte browser te lijken
 const HEADERS = {
-  'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120.0.0.0 Safari/537.36',
-  'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-  'Accept-Language': 'nl-NL,nl;q=0.9,en;q=0.7',
-  'Cache-Control': 'no-cache',
+  'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+  'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
+  'Accept-Language': 'nl-NL,nl;q=0.9',
+  'Accept-Encoding': 'gzip, deflate, br',
+  'Cache-Control': 'max-age=0',
+  'Sec-Fetch-Dest': 'document',
+  'Sec-Fetch-Mode': 'navigate',
+  'Sec-Fetch-Site': 'none',
+  'Sec-Fetch-User': '?1',
+  'Upgrade-Insecure-Requests': '1',
 };
 
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
-// 20 merken × 3 paginas = 60 zoekopdrachten, geen algemene pagina's (te veel overlap)
-const MERKEN = [
-  'volkswagen','toyota','ford','opel','bmw','mercedes-benz',
-  'audi','renault','peugeot','seat','skoda','honda',
-  'hyundai','kia','volvo','mazda','tesla','citroen',
-  'nissan','fiat'
-];
-
+// Algemene paginas (werken goed met __NEXT_DATA__)
+// 30 paginas x 30 listings = ~900 potentiele, ~400-600 uniek na dedup
 const SEARCH_URLS = [];
-for (const merk of MERKEN) {
-  for (let p = 1; p <= 3; p++) {
-    SEARCH_URLS.push(
-      `https://www.marktplaats.nl/l/auto-s/${merk}/?numberOfResultsPerPage=100${p > 1 ? '&currentPage=' + p : ''}`
-    );
-  }
+
+// 20 paginas algemeen (alle merken door elkaar)
+for (let p = 1; p <= 20; p++) {
+  SEARCH_URLS.push(
+    p === 1
+      ? 'https://www.marktplaats.nl/l/auto-s/?numberOfResultsPerPage=100'
+      : `https://www.marktplaats.nl/l/auto-s/?numberOfResultsPerPage=100&currentPage=${p}`
+  );
+}
+
+// 5 paginas voor populaire merken via zoekquery (andere URL structuur)
+const QUERIES = ['volkswagen', 'toyota', 'bmw', 'opel', 'ford'];
+for (const q of QUERIES) {
+  SEARCH_URLS.push(`https://www.marktplaats.nl/l/auto-s/?query=${q}&numberOfResultsPerPage=100`);
 }
 
 async function scrapeMarktplaats() {
@@ -37,47 +46,51 @@ async function scrapeMarktplaats() {
 
   for (let i = 0; i < SEARCH_URLS.length; i++) {
     const url = SEARCH_URLS[i];
-    const merkNaam = url.split('/auto-s/')[1]?.split('/')[0] || 'onbekend';
-    const pageNum = url.includes('currentPage=') ? url.match(/currentPage=(\d+)/)[1] : '1';
+    const label = url.includes('query=')
+      ? 'query:' + url.match(/query=([^&]+)/)[1]
+      : 'p' + (i + 1);
 
     try {
       const resp = await fetch(url, { headers: HEADERS });
       if (!resp.ok) {
-        console.log(`  ${merkNaam} p${pageNum}: HTTP ${resp.status}`);
+        console.log(`  ${label}: HTTP ${resp.status}`);
         continue;
       }
       const html = await resp.text();
-      const found = parseerNextData(html, gezien);
+      const found = parseerNextData(html, gezien, label);
       all.push(...found);
-      console.log(`  ${merkNaam} p${pageNum}: ${found.length} nieuw → totaal ${all.length}`);
+      console.log(`  ${label}: ${found.length} nieuw → totaal ${all.length}`);
     } catch (e) {
-      console.log(`  ${merkNaam} p${pageNum}: fout - ${e.message}`);
+      console.log(`  ${label}: fout - ${e.message}`);
     }
 
-    // Pauze: 2s normaal, 4s elke 10 verzoeken
-    await sleep((i + 1) % 10 === 0 ? 4000 : 2000);
+    // Pauze: 3s normaal, 6s elke 5 requests (om WAF te omzeilen)
+    await sleep((i + 1) % 5 === 0 ? 6000 : 3000);
   }
 
   return all;
 }
 
-function parseerNextData(html, gezien) {
-  const results = [];
+function parseerNextData(html, gezien, label) {
+  // Probeer __NEXT_DATA__ JSON
   const match = html.match(/<script id="__NEXT_DATA__" type="application\/json">([\s\S]+?)<\/script>/);
-  if (!match) {
-    console.log('    (geen __NEXT_DATA__ gevonden)');
-    return results;
+  if (match) {
+    try {
+      const data = JSON.parse(match[1]);
+      const items = data?.props?.pageProps?.searchRequestAndResponse?.listings || [];
+      if (items.length > 0) return parseItems(items, gezien);
+    } catch (e) {
+      console.log(`    (JSON parse fout: ${e.message})`);
+    }
   }
 
-  let items;
-  try {
-    const data = JSON.parse(match[1]);
-    items = data?.props?.pageProps?.searchRequestAndResponse?.listings || [];
-  } catch (e) {
-    console.log(`    (JSON parse fout: ${e.message})`);
-    return results;
-  }
+  // Fallback: regex op href links in SSR HTML
+  console.log(`    (geen/leeg __NEXT_DATA__, gebruik fallback regex)`);
+  return parseerFallback(html, gezien);
+}
 
+function parseItems(items, gezien) {
+  const results = [];
   for (const item of items) {
     const relUrl = item.vipUrl || '';
     if (!relUrl) continue;
@@ -108,13 +121,54 @@ function parseerNextData(html, gezien) {
       bijgewerkt: new Date().toISOString().split('T')[0]
     });
   }
+  return results;
+}
 
+function parseerFallback(html, gezien) {
+  const results = [];
+  const re = /href="(\/(v|m)\/auto-s\/[^/]+\/[am]\d+[^"]*?)"/g;
+  let m;
+  while ((m = re.exec(html)) !== null && results.length < 100) {
+    const href = m[1];
+    const fullUrl = 'https://www.marktplaats.nl' + href;
+    if (gezien.has(fullUrl)) continue;
+
+    // Zoek prijs in context
+    const ctx = html.substring(Math.max(0, m.index - 300), m.index + 1500);
+    const pm = ctx.match(/€\s*([\d.]+)(?:,-|\s)/);
+    if (!pm) continue;
+    const prijs = parseInt(pm[1].replace(/\./g, ''));
+    if (!prijs || prijs < 500) continue;
+
+    gezien.add(fullUrl);
+    const jm = ctx.match(/\b(20[0-2]\d|19[89]\d)\b/);
+    const km = ctx.match(/([\d.]+)\s*km/i);
+    const sl = href.match(/\/[am]\d+-(.+)$/);
+    const titel = sl
+      ? decodeURIComponent(sl[1]).replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase()).substring(0, 70)
+      : '';
+    if (!titel || titel.length < 5) continue;
+
+    results.push({
+      id: 'mp-fb-' + results.length,
+      bron: 'Marktplaats',
+      titel,
+      prijs,
+      jaar: jm ? parseInt(jm[1]) : null,
+      km: km ? parseInt(km[1].replace(/\./g, '')) : null,
+      brandstof: '', carrosserie: '', transmissie: '', kleur: '',
+      locatie: 'Nederland',
+      url: fullUrl,
+      imgSrc: '',
+      bijgewerkt: new Date().toISOString().split('T')[0]
+    });
+  }
   return results;
 }
 
 async function main() {
   console.log('🚗 AutoVergelijker scraper gestart:', new Date().toISOString());
-  console.log(`Totaal ${SEARCH_URLS.length} zoekopdrachten (20 merken × 3 paginas)`);
+  console.log(`${SEARCH_URLS.length} zoekopdrachten (20 algemene paginas + 5 query-paginas)`);
 
   const listings = await scrapeMarktplaats();
 
@@ -123,7 +177,7 @@ async function main() {
 
   const outPath = path.join(process.cwd(), 'data', 'listings.json');
   fs.writeFileSync(outPath, JSON.stringify(data, null, 2));
-  console.log(`\n✅ Klaar! ${listings.length} listings opgeslagen (${bronnen.join(', ')})`);
+  console.log(`\n✅ Klaar! ${listings.length} listings opgeslagen`);
 }
 
 main().catch(e => { console.error('❌ Fout:', e); process.exit(1); });
