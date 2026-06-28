@@ -1,44 +1,54 @@
-exports.handler = async function(event) {
-  const params = event.queryStringParameters || {};
-  const MERK_SLUG = {'Volkswagen':'volkswagen','BMW':'bmw','Toyota':'toyota','Ford':'ford','Audi':'audi','Peugeot':'peugeot','Renault':'renault','Hyundai':'hyundai','Kia':'kia','Tesla':'tesla','Volvo':'volvo','Skoda':'skoda','Mercedes-Benz':'mercedes-benz','Seat':'seat','Opel':'opel','Fiat':'fiat','Honda':'honda','Mazda':'mazda','Nissan':'nissan','Citroen':'citroen','Dacia':'dacia','Mini':'mini','Land Rover':'land-rover','Porsche':'porsche'};
-  let url = 'https://www.marktplaats.nl/l/auto-s/';
-  if (params.merk && MERK_SLUG[params.merk]) url += MERK_SLUG[params.merk] + '/';
-  if (params.carro) url += 'f/' + params.carro + '/';
-  if (params.brandstof) url += 'f/' + params.brandstof + '/';
-  const qp = [];
-  if (params.model) qp.push('query=' + encodeURIComponent(params.model));
-  if (params.prijsMax) qp.push('PriceCentsTo=' + (parseInt(params.prijsMax) * 100));
-  if (qp.length) url += '?' + qp.join('&');
-  try {
-    const resp = await fetch(url, {headers:{'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36','Accept':'text/html','Accept-Language':'nl-NL,nl;q=0.9','Cache-Control':'no-cache'},redirect:'follow'});
-    if (!resp.ok) return {statusCode:resp.status,headers:{'Content-Type':'application/json','Access-Control-Allow-Origin':'*'},body:JSON.stringify({error:'Status '+resp.status,bronUrl:url,listings:[]})};
-    const html = await resp.text();
-    return {statusCode:200,headers:{'Content-Type':'application/json','Access-Control-Allow-Origin':'*'},body:JSON.stringify({listings:parseerHTML(html),bronUrl:url})};
-  } catch(err) {
-    return {statusCode:500,headers:{'Content-Type':'application/json','Access-Control-Allow-Origin':'*'},body:JSON.stringify({error:err.message,bronUrl:url,listings:[]})};
+exports.handler=async function(event){
+  const p=event.queryStringParameters||{};
+  const CACHE='https://raw.githubusercontent.com/Kawsfan/autovergelijker/main/data/listings.json';
+  try{
+    const resp=await fetch(CACHE,{headers:{'Cache-Control':'no-cache'}});
+    if(!resp.ok)throw new Error('cache leeg');
+    const data=await resp.json();
+    let listings=data.listings||[];
+    if(p.merk){const m=p.merk.toLowerCase();listings=listings.filter(l=>l.titel.toLowerCase().includes(m));}
+    if(p.model){const m=p.model.toLowerCase();listings=listings.filter(l=>l.titel.toLowerCase().includes(m));}
+    if(p.carro)listings=listings.filter(l=>l.carrosserie===p.carro);
+    if(p.brandstof)listings=listings.filter(l=>l.brandstof===p.brandstof);
+    if(p.prijsMax)listings=listings.filter(l=>l.prijs<=parseInt(p.prijsMax));
+    if(p.bron)listings=listings.filter(l=>l.bron===p.bron);
+    if(p.jaarMin)listings=listings.filter(l=>l.jaar&&l.jaar>=parseInt(p.jaarMin));
+    if(p.jaarMax)listings=listings.filter(l=>l.jaar&&l.jaar<=parseInt(p.jaarMax));
+    const sort=p.sort||'prijs';
+    if(sort==='prijs')listings.sort((a,b)=>a.prijs-b.prijs);
+    else if(sort==='jaar')listings.sort((a,b)=>(b.jaar||0)-(a.jaar||0));
+    else if(sort==='km')listings.sort((a,b)=>(a.km||999999)-(b.km||999999));
+    listings=listings.slice(0,100);
+    return{statusCode:200,headers:{'Content-Type':'application/json','Access-Control-Allow-Origin':'*'},body:JSON.stringify({listings,totaal:listings.length,cacheDatum:data.bijgewerkt,bronnen:data.bronnen||[]})};
+  }catch(err){
+    return await liveMarktplaats(p);
   }
 };
-function parseerHTML(html){
-  const listings=[],gezien=new Set();
-  const re=/href="(\/(v|m)\/auto-s\/[^/]+\/[am]\d+[^"]*?)"/g;let m;
-  while((m=re.exec(html))!==null&&listings.length<40){
-    const href=m[1],fullUrl='https://www.marktplaats.nl'+href;
-    if(gezien.has(fullUrl))continue;gezien.add(fullUrl);
+async function liveMarktplaats(p){
+  const SLUG={'Volkswagen':'volkswagen','BMW':'bmw','Toyota':'toyota','Ford':'ford','Audi':'audi','Peugeot':'peugeot','Renault':'renault','Hyundai':'hyundai','Kia':'kia','Tesla':'tesla','Volvo':'volvo','Skoda':'skoda','Mercedes-Benz':'mercedes-benz','Seat':'seat','Opel':'opel','Fiat':'fiat','Honda':'honda','Mazda':'mazda','Nissan':'nissan','Citroen':'citroen','Dacia':'dacia','Mini':'mini','Land Rover':'land-rover','Porsche':'porsche'};
+  let url='https://www.marktplaats.nl/l/auto-s/';
+  if(p.merk&&SLUG[p.merk])url+=SLUG[p.merk]+'/';
+  const qp=[];if(p.model)qp.push('query='+encodeURIComponent(p.model));if(p.prijsMax)qp.push('PriceCentsTo='+(parseInt(p.prijsMax)*100));if(qp.length)url+='?'+qp.join('&');
+  try{
+    const r=await fetch(url,{headers:{'User-Agent':'Mozilla/5.0','Accept':'text/html','Accept-Language':'nl-NL,nl;q=0.9'},redirect:'follow'});
+    if(!r.ok)return err('Status '+r.status,url);
+    const html=await r.text();
+    return{statusCode:200,headers:{'Content-Type':'application/json','Access-Control-Allow-Origin':'*'},body:JSON.stringify({listings:parseMP(html),bronUrl:url,live:true})};
+  }catch(e){return err(e.message,url);}
+}
+function err(msg,bronUrl){return{statusCode:500,headers:{'Content-Type':'application/json','Access-Control-Allow-Origin':'*'},body:JSON.stringify({error:msg,bronUrl,listings:[]})};}
+function parseMP(html){
+  const r=[],g=new Set(),re=/href="(\/(v|m)\/auto-s\/[^/]+\/[am]\d+[^"]*)"/g;let m;
+  while((m=re.exec(html))!==null&&r.length<40){
+    const href=m[1],url='https://www.marktplaats.nl'+href;if(g.has(url))continue;g.add(url);
     const ctx=html.substring(Math.max(0,m.index-200),m.index+2000);
     const pm=ctx.match(/€\s*([\d.]+)(?:,-|\s)/);if(!pm)continue;
-    const prijs=parseInt(pm[1].replace(/\./g,''));if(!prijs||prijs<200||prijs>5000000)continue;
-    const jm=ctx.match(/\b(20[0-2]\d|19[89]\d)\b/);const jaar=jm?parseInt(jm[1]):null;
-    const km=ctx.match(/([\d.]{1,9})\s*km/i);
+    const prijs=parseInt(pm[1].replace(/\./g,''));if(!prijs||prijs<200)continue;
+    const jm=ctx.match(/\b(20[0-2]\d|19[89]\d)\b/),km=ctx.match(/([\d.]{1,9})\s*km/i);
     let bf='';if(/[Ee]lektrisch/.test(ctx))bf='Elektrisch';else if(/[Hh]ybride/.test(ctx))bf='Hybride';else if(/[Dd]iesel/.test(ctx))bf='Diesel';else if(/[Bb]enzine/.test(ctx))bf='Benzine';
-    let cr='';for(const[z,l]of[['Stationwagon','Stationwagon'],['Hatchback','Hatchback'],['SUV of Terreinwagen','SUV'],['Sedan','Sedan'],['Cabriolet','Cabrio'],['Coupe','Coupe'],['MPV','MPV']]){if(ctx.includes(z)){cr=l;break;}}
-    let tr='';if(/[Aa]utomaat/.test(ctx))tr='Automaat';else if(/[Hh]andgeschakeld/.test(ctx))tr='Handgeschakeld';
-    const sl=href.match(/\/[am]\d+-(.+)$/);let titel='';
-    if(sl)titel=decodeURIComponent(sl[1]).replace(/-/g,' ').replace(/\b\w/g,c=>c.toUpperCase()).trim().substring(0,70);
+    const sl=href.match(/\/[am]\d+-(.+)$/);let titel=sl?decodeURIComponent(sl[1]).replace(/-/g,' ').replace(/\b\w/g,c=>c.toUpperCase()).trim().substring(0,70):'';
     if(!titel||titel.length<4)continue;
     const img=ctx.match(/src="(https:\/\/images\.marktplaats\.com[^"]+)"/);
-    let loc='Nederland';
-    for(const s of['Amsterdam','Rotterdam','Utrecht','Den Haag','Eindhoven','Tilburg','Groningen','Breda','Nijmegen','Haarlem']){if(ctx.includes(s)){loc=s;break;}}
-    listings.push({id:'mp-'+listings.length,titel,prijs,jaar,km:km?parseInt(km[1].replace(/\./g,'')):null,brandstof:bf,carrosserie:cr,transmissie:tr,locatie:loc,url:fullUrl,imgSrc:img?img[1]:''});
-  }
-  return listings;
+    r.push({id:'mp-'+r.length,bron:'Marktplaats',titel,prijs,jaar:jm?parseInt(jm[1]):null,km:km?parseInt(km[1].replace(/\./g,'')):null,brandstof:bf,carrosserie:'',transmissie:'',locatie:'Nederland',url,imgSrc:img?img[1]:''});
+  }return r;
 }
