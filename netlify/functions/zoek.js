@@ -1,4 +1,4 @@
-export const handler = async function(event) {
+exports.handler = async function(event) {
   const params = event.queryStringParameters || {};
   const MERK_SLUG = {'Volkswagen':'volkswagen','BMW':'bmw','Toyota':'toyota','Ford':'ford','Audi':'audi','Peugeot':'peugeot','Renault':'renault','Hyundai':'hyundai','Kia':'kia','Tesla':'tesla','Volvo':'volvo','Skoda':'skoda','Mercedes-Benz':'mercedes-benz','Seat':'seat','Opel':'opel','Fiat':'fiat','Honda':'honda','Mazda':'mazda','Nissan':'nissan','Citroen':'citroen','Dacia':'dacia','Mini':'mini','Land Rover':'land-rover','Porsche':'porsche'};
   let url = 'https://www.marktplaats.nl/l/auto-s/';
@@ -30,4 +30,15 @@ function parseerHTML(html){
     const jm=ctx.match(/\b(20[0-2]\d|19[89]\d)\b/);const jaar=jm?parseInt(jm[1]):null;
     const km=ctx.match(/([\d.]{1,9})\s*km/i);
     let bf='';if(/[Ee]lektrisch/.test(ctx))bf='Elektrisch';else if(/[Hh]ybride/.test(ctx))bf='Hybride';else if(/[Dd]iesel/.test(ctx))bf='Diesel';else if(/[Bb]enzine/.test(ctx))bf='Benzine';
-    let cr='';for(const[z,l]of[['Stationwagon','Stationwagon'],['Hatchback','Hatchback'],['SUV of Terreinwagen','SUV'],['Sedan','Sedan'],['Cabriolet','Cabrio']
+    let cr='';for(const[z,l]of[['Stationwagon','Stationwagon'],['Hatchback','Hatchback'],['SUV of Terreinwagen','SUV'],['Sedan','Sedan'],['Cabriolet','Cabrio'],['Coupe','Coupe'],['MPV','MPV']]){if(ctx.includes(z)){cr=l;break;}}
+    let tr='';if(/[Aa]utomaat/.test(ctx))tr='Automaat';else if(/[Hh]andgeschakeld/.test(ctx))tr='Handgeschakeld';
+    const sl=href.match(/\/[am]\d+-(.+)$/);let titel='';
+    if(sl)titel=decodeURIComponent(sl[1]).replace(/-/g,' ').replace(/\b\w/g,c=>c.toUpperCase()).trim().substring(0,70);
+    if(!titel||titel.length<4)continue;
+    const img=ctx.match(/src="(https:\/\/images\.marktplaats\.com[^"]+)"/);
+    let loc='Nederland';
+    for(const s of['Amsterdam','Rotterdam','Utrecht','Den Haag','Eindhoven','Tilburg','Groningen','Breda','Nijmegen','Haarlem']){if(ctx.includes(s)){loc=s;break;}}
+    listings.push({id:'mp-'+listings.length,titel,prijs,jaar,km:km?parseInt(km[1].replace(/\./g,'')):null,brandstof:bf,carrosserie:cr,transmissie:tr,locatie:loc,url:fullUrl,imgSrc:img?img[1]:''});
+  }
+  return listings;
+}
