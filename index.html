@@ -113,14 +113,14 @@
     .auto-card:hover .auto-foto img { transform: scale(1.04); }
 
     .nieuw-badge {
-        position: absolute; top: 10px; left: 10px;
-        background: #16a34a; color: #fff;
-        font-size: 11px; font-weight: 700;
-        padding: 3px 9px; border-radius: 4px;
-        letter-spacing: .5px; z-index: 2;
-        pointer-events: none;
-      }
-      .bron-label {
+      position: absolute; top: 10px; left: 10px;
+      background: #16a34a; color: #fff;
+      font-size: 11px; font-weight: 700;
+      padding: 3px 9px; border-radius: 4px;
+      letter-spacing: .5px; z-index: 2;
+      pointer-events: none;
+    }
+    .bron-label {
       position: absolute; top: 10px; left: 10px; padding: 3px 8px;
       border-radius: 4px; font-size: 11px; font-weight: 700; color: white;
       background: var(--mp-oranje);
@@ -133,7 +133,7 @@
 
     .auto-info { padding: 14px; flex: 1; display: flex; flex-direction: column; }
     .auto-info h4 { font-size: 15px; font-weight: 700; margin-bottom: 2px; color: var(--donker); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .auto-info .versie { font-size: 12px; color: var(--subtekst); margin-bottom: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .auto-info .versie { font-size: 12px; color: var(--subtekst); margin-bottom: 10px; white-space: nowraw; overflow: hidden; text-overflow: ellipsis; }
 
     .auto-specs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
     .spec-pill { background: var(--grijs); border-radius: 4px; padding: 3px 7px; font-size: 11px; color: var(--subtekst); }
@@ -213,12 +213,6 @@
     .geen-resultaten p { font-size: 14px; line-height: 1.6; }
     .geen-resultaten a { color: var(--mp-oranje); font-weight: 600; }
 
-    /* STARTSCHERM */
-    .startscherm { text-align: center; padding: 80px 20px; color: var(--subtekst); grid-column: 1/-1; }
-    .startscherm .icon { font-size: 48px; display: block; margin-bottom: 16px; }
-    .startscherm h3 { font-size: 20px; font-weight: 700; color: var(--donker); margin-bottom: 8px; }
-    .startscherm p { font-size: 15px; }
-
     footer { background: var(--donker); color: rgba(255,255,255,0.5); text-align: center; padding: 20px; font-size: 13px; margin-top: 40px; }
     footer strong { color: rgba(255,255,255,0.8); }
 
@@ -241,7 +235,7 @@
   <p>Echte advertenties, echte foto's, rechtstreeks uit de bron</p>
 
   <div class="zoek-balk">
-    <select id="merkFilter">
+    <select id="merkFilter" onchange="zoekNu()">
       <option value="">Alle merken</option>
       <option>Volkswagen</option><option>BMW</option><option>Toyota</option>
       <option>Ford</option><option>Audi</option><option>Peugeot</option>
@@ -257,22 +251,22 @@
   </div>
 
   <div class="meer-filters">
-    <select id="carrosserieFilter">
+    <select id="carrosserieFilter" onchange="zoekNu()">
       <option value="">Alle carrosserietypes</option>
-      <option value="hatchback/481">Hatchback</option>
-      <option value="sedan/483">Sedan</option>
-      <option value="suv-of-terreinwagen/488">SUV</option>
-      <option value="stationwagon/484">Stationwagon</option>
-      <option value="cabriolet/485">Cabrio</option>
-      <option value="coupe/486">Coupé</option>
-      <option value="mpv/482">MPV</option>
+      <option value="hatchback">Hatchback</option>
+      <option value="sedan">Sedan</option>
+      <option value="suv">SUV</option>
+      <option value="stationwagon">Stationwagon</option>
+      <option value="cabriolet">Cabrio</option>
+      <option value="coupe">Coupé</option>
+      <option value="mpv">MPV</option>
     </select>
-    <select id="brandstofFilter">
+    <select id="brandstofFilter" onchange="zoekNu()">
       <option value="">Alle brandstoffen</option>
-      <option value="benzine/473">Benzine</option>
-      <option value="diesel/474">Diesel</option>
-      <option value="elektrisch/11756">Elektrisch</option>
-      <option value="hybride-elektrisch-benzine/13838">Hybride</option>
+      <option value="benzine">Benzine</option>
+      <option value="diesel">Diesel</option>
+      <option value="elektrisch">Elektrisch</option>
+      <option value="hybride">Hybride</option>
     </select>
     <input type="number" id="prijsMax" placeholder="Max. prijs €" />
   </div>
@@ -280,7 +274,7 @@
 
 <div class="status-balk">
   <span class="bron-badge">Marktplaats</span>
-  <span class="hint" id="statusTekst">Kies een merk of model en klik op Zoeken om live advertenties te laden.</span>
+  <span class="hint" id="statusTekst">Advertenties laden...</span>
 </div>
 
 <div class="main-layout">
@@ -299,11 +293,7 @@
     </div>
   </div>
   <div class="auto-grid" id="autoGrid">
-    <div class="startscherm">
-      <span class="icon">🚗</span>
-      <h3>Klaar om te zoeken</h3>
-      <p>Kies een merk, type of brandstof hierboven<br/>en klik op Zoeken om live Marktplaats-advertenties te laden.</p>
-    </div>
+    <div class="loader"><div class="spinner"></div><p>Advertenties laden...</p></div>
   </div>
 </div>
 
@@ -318,53 +308,84 @@
 </div>
 
 <footer>
-  <strong>AutoVergelijker</strong> — Live data van Marktplaats.nl · Klik op een advertentie om naar de originele pagina te gaan.
+  <strong>AutoVergelijker</strong> — Dagelijks bijgewerkte data van Marktplaats.nl · Klik op een advertentie om naar de originele pagina te gaan.
 </footer>
 
 <script>
-// ── MERK → MARKTPLAATS URL SLUG ──────────────────
-const MERK_SLUG = {
-  'Volkswagen':'volkswagen','BMW':'bmw','Toyota':'toyota','Ford':'ford',
-  'Audi':'audi','Peugeot':'peugeot','Renault':'renault','Hyundai':'hyundai',
-  'Kia':'kia','Tesla':'tesla','Volvo':'volvo','Skoda':'skoda',
-  'Mercedes-Benz':'mercedes-benz','Seat':'seat','Opel':'opel','Fiat':'fiat',
-  'Honda':'honda','Mazda':'mazda','Nissan':'nissan','Citroën':'citroen',
-  'Dacia':'dacia','Mini':'mini','Land Rover':'land-rover','Porsche':'porsche',
-};
-
 let alleResultaten = [];
 let huidigDetailId = null;
+const VANDAAG = new Date().toISOString().split('T')[0];
 
-// ── URL BOUWEN ────────────────────────────────────
-function bouwUrl(pagina = 0) {
-  const merk = document.getElementById("merkFilter").value;
-  const model = document.getElementById("modelInput").value.trim();
-  const carro = document.getElementById("carrosserieFilter").value;
-  const brandstof = document.getElementById("brandstofFilter").value;
-  const prijsMax = document.getElementById("prijsMax").value;
+// ── LADEN ─────────────────────────────────────────
+async function laadListings() {
+  try {
+    const resp = await fetch('/data/listings.json');
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    const data = await resp.json();
+    alleResultaten = data.listings || [];
 
-  let url = 'https://www.marktplaats.nl/l/auto-s/';
+    if (alleResultaten.length === 0) {
+      document.getElementById('autoGrid').innerHTML = `
+        <div class="geen-resultaten">
+          <span class="icon">🔄</span>
+          <h3>Nog geen advertenties</h3>
+          <p>De scraper draait dagelijks om 06:00. Kom morgen terug!<br/>
+          Of zoek direct op <a href="https://www.marktplaats.nl/l/auto-s/" target="_blank">Marktplaats</a>.</p>
+        </div>`;
+      document.getElementById('statusTekst').textContent = 'Nog geen advertenties beschikbaar';
+      return;
+    }
 
-  if (merk && MERK_SLUG[merk]) {
-    url += MERK_SLUG[merk] + '/';
+    const bijgewerkt = data.bijgewerkt
+      ? new Date(data.bijgewerkt).toLocaleDateString('nl-NL', { day: 'numeric', month: 'long' })
+      : '';
+    document.getElementById('statusTekst').textContent =
+      `${alleResultaten.length} advertenties geladen` + (bijgewerkt ? ` · Bijgewerkt: ${bijgewerkt}` : '');
+
+    zoekNu();
+  } catch (err) {
+    document.getElementById('autoGrid').innerHTML = `
+      <div class="geen-resultaten">
+        <span class="icon">⚠️</span>
+        <h3>Laden mislukt</h3>
+        <p>Vernieuw de pagina om het opnieuw te proberen.</p>
+      </div>`;
+    document.getElementById('statusTekst').textContent = 'Laden mislukt';
   }
+}
 
-  if (carro) {
-    url += 'f/' + carro + '/';
-  }
+// ── FILTEREN ──────────────────────────────────────
+function zoekNu() {
+  if (alleResultaten.length === 0) return;
 
-  if (brandstof) {
-    url += 'f/' + brandstof + '/';
-  }
+  const merk = document.getElementById('merkFilter').value.toLowerCase();
+  const model = document.getElementById('modelInput').value.trim().toLowerCase();
+  const carroVal = document.getElementById('carrosserieFilter').value.toLowerCase();
+  const brandstofVal = document.getElementById('brandstofFilter').value.toLowerCase();
+  const prijsMax = parseInt(document.getElementById('prijsMax').value) || 0;
 
-  const params = [];
-  if (model) params.push(`query=${encodeURIComponent(model)}`);
-  if (prijsMax) params.push(`PriceCentsTo=${parseInt(prijsMax) * 100}`);
-  if (pagina > 0) params.push(`offset=${pagina * 30}`);
+  let gefilterd = alleResultaten.filter(a => {
+    if (merk && !a.titel.toLowerCase().includes(merk)) return false;
+    if (model && !a.titel.toLowerCase().includes(model)) return false;
+    if (carroVal && !(a.carrosserie || '').toLowerCase().includes(carroVal)) return false;
+    if (brandstofVal) {
+      const bf = (a.brandstof || '').toLowerCase();
+      if (brandstofVal === 'hybride') {
+        if (!bf.includes('hybride')) return false;
+      } else if (!bf.includes(brandstofVal)) return false;
+    }
+    if (prijsMax && a.prijs > prijsMax) return false;
+    return true;
+  });
 
-  if (params.length) url += '?' + params.join('&');
+  const n = gefilterd.length;
+  const totaal = alleResultaten.length;
+  document.getElementById('statusTekst').textContent =
+    n === totaal
+      ? `${totaal} advertenties`
+      : `${n} van ${totaal} advertenties`;
 
-  return url;
+  toonResultaten(gefilterd);
 }
 
 // ── RESET ─────────────────────────────────────────
@@ -374,233 +395,23 @@ function resetFilters() {
   document.getElementById('carrosserieFilter').value = '';
   document.getElementById('brandstofFilter').value = '';
   document.getElementById('prijsMax').value = '';
-  document.getElementById('autoGrid').innerHTML = '';
-  document.getElementById('statusBalk').style.display = 'none';
   window.scrollTo({ top: 0, behavior: 'smooth' });
-}
-
-// ── ZOEKEN ────────────────────────────────────────
-async function zoekNu() {
-  const grid = document.getElementById("autoGrid");
-  const header = document.getElementById("resultatenHeader");
-
-  header.style.display = 'none';
-  grid.innerHTML = `<div class="loader"><div class="spinner"></div><p>Live advertenties ophalen van Marktplaats...</p></div>`;
-  document.getElementById("statusTekst").textContent = 'Bezig met laden...';
-
-  const merk = document.getElementById("merkFilter").value;
-  const model = document.getElementById("modelInput").value.trim();
-  const carro = document.getElementById("carrosserieFilter").value;
-  const brandstof = document.getElementById("brandstofFilter").value;
-  const prijsMax = document.getElementById("prijsMax").value;
-
-  const qp = new URLSearchParams();
-  if (merk) qp.set('merk', merk);
-  if (model) qp.set('model', model);
-  if (carro) qp.set('carro', carro);
-  if (brandstof) qp.set('brandstof', brandstof);
-  if (prijsMax) qp.set('prijsMax', prijsMax);
-
-  try {
-    const resp = await fetch(`/.netlify/functions/zoek?${qp}`, {
-      signal: AbortSignal.timeout(20000),
-    });
-
-    const data = await resp.json();
-    if (data.error) throw new Error(data.error);
-
-    alleResultaten = data.listings || [];
-
-    if (alleResultaten.length === 0) {
-      throw new Error('Geen advertenties gevonden voor deze filters');
-    }
-
-    toonResultaten(alleResultaten);
-    document.getElementById("statusTekst").textContent =
-      `${alleResultaten.length} advertenties geladen van Marktplaats`;
-
-  } catch (err) {
-    console.error('Fout:', err);
-    alleResultaten = [];
-    const mpUrl = bouwUrl();
-
-    grid.innerHTML = `
-      <div class="geen-resultaten">
-        <span class="icon">⚠️</span>
-        <h3>Ophalen mislukt</h3>
-        <p>Er is een tijdelijk probleem. Probeer het opnieuw.<br/>
-        <a href="${mpUrl}" target="_blank">Of zoek direct op Marktplaats →</a></p>
-        <p style="margin-top:12px;font-size:12px;color:#999">Fout: ${err.message}</p>
-      </div>`;
-    document.getElementById("statusTekst").textContent = 'Ophalen mislukt';
-    header.style.display = 'none';
-  }
-}
-
-// ── HTML PARSEN ───────────────────────────────────
-function parseerListings(html, bronUrl) {
-  const parser = new DOMParser();
-  const doc = parser.parseFromString(html, 'text/html');
-
-  const resultaten = [];
-  const gezienUrls = new Set();
-
-  // Zoek alle listing-links
-  const links = doc.querySelectorAll('a[href*="/v/auto-s/"], a[href*="/m/auto-s/"]');
-
-  links.forEach(link => {
-    try {
-      const href = link.getAttribute('href') || '';
-
-      // Alleen echte advertentie-links
-      if (!href.match(/\/(v|m)\/auto-s\/[^/]+\/[am]\d+/)) return;
-
-      const fullUrl = href.startsWith('http') ? href : 'https://www.marktplaats.nl' + href;
-      if (gezienUrls.has(fullUrl)) return;
-      gezienUrls.add(fullUrl);
-
-      const tekst = link.textContent.replace(/\s+/g, ' ').trim();
-      if (tekst.length < 15) return;
-
-      // Prijs
-      const prijsMatch = tekst.match(/€\s*([\d.]+),-/);
-      if (!prijsMatch) return;
-      const prijs = parseInt(prijsMatch[1].replace(/\./g, ''));
-      if (!prijs || prijs < 200) return;
-
-      // Bouwjaar
-      const jaarMatch = tekst.match(/\b(20[0-2]\d|19[89]\d)\b/);
-      const jaar = jaarMatch ? parseInt(jaarMatch[1]) : null;
-
-      // Kilometerstand
-      const kmMatch = tekst.match(/(\d[\d.]{0,8})\s*km/);
-      const km = kmMatch ? parseInt(kmMatch[1].replace(/\./g, '')) : null;
-
-      // Brandstof
-      let brandstof = '';
-      if (/Elektrisch/i.test(tekst)) brandstof = 'Elektrisch';
-      else if (/Hybride/i.test(tekst)) brandstof = 'Hybride';
-      else if (/Diesel/i.test(tekst)) brandstof = 'Diesel';
-      else if (/Benzine/i.test(tekst)) brandstof = 'Benzine';
-
-      // Carrosserie
-      let carrosserie = '';
-      const carTypes = [['Stationwagon','Stationwagon'],['Hatchback','Hatchback'],
-        ['SUV of Terreinwagen','SUV'],['Sedan','Sedan'],['Cabriolet','Cabrio'],
-        ['Coupé','Coupé'],['MPV','MPV']];
-      carTypes.forEach(([zoek, label]) => { if (tekst.includes(zoek) && !carrosserie) carrosserie = label; });
-
-      // Transmissie
-      let transmissie = '';
-      if (tekst.includes('Automaat')) transmissie = 'Automaat';
-      else if (tekst.includes('Handgeschakeld')) transmissie = 'Handgeschakeld';
-
-      // Titel — verwijder UI-tekst, pak eerste zinvolle regel
-      const schoon = tekst
-        .replace(/Bewaren in Mijn Favorieten/g, '')
-        .replace(/Direct leverbaar/g, '')
-        .replace(/Dagtopper/g, '')
-        .replace(/Topadvertentie/g, '')
-        .replace(/Vandaag/g, '')
-        .replace(/Details/g, '')
-        .replace(/Gereserveerd/g, '')
-        .replace(/Financiering mogelijk/g, '')
-        .replace(/NAP gecontroleerd/g, '')
-        .replace(/Dealer onderhouden/g, '')
-        .replace(/Onderhoudsboekje/g, '')
-        .replace(/Alle milieu.emissie zones/g, '')
-        .replace(/\s+/g, ' ')
-        .trim();
-
-      // Pak alles voor het €-teken als titel
-      let titel = schoon.split('€')[0].trim();
-      titel = titel.split(',')[0].replace(/[\n\r]/g, '').trim();
-      if (titel.length > 70) titel = titel.substring(0, 70);
-      if (titel.length < 5) return;
-
-      // Locatie
-      let locatie = 'Nederland';
-      const steden = ['Amsterdam','Rotterdam','Utrecht','Den Haag','Eindhoven',
-        'Tilburg','Groningen','Breda','Nijmegen','Haarlem','Leiden','Zwolle',
-        'Arnhem','Amersfoort','Enschede','Apeldoorn','Dordrecht','Maastricht',
-        'Tholen','Putten','Doesburg','Nuland','Barneveld','Heel Nederland'];
-      steden.forEach(s => { if (tekst.includes(s)) locatie = s; });
-
-      // Afbeelding
-      const img = link.querySelector('img');
-      let imgSrc = img?.getAttribute('src') || '';
-
-      // Fallback: imagin.studio model render als er geen echte foto is
-      if (!imgSrc || imgSrc.includes('placeholder')) {
-        const merk = MERK_SLUG[extractMerk(titel)] || '';
-        const modelSlug = extractModelSlug(titel, merk);
-        if (merk && modelSlug) {
-          imgSrc = `https://cdn.imagin.studio/getimage?customer=img&make=${merk}&modelFamily=${modelSlug}&modelYear=${jaar || 2020}&angle=23&width=600`;
-        }
-      }
-
-      resultaten.push({
-        id: 'mp-' + Date.now() + '-' + resultaten.length,
-        titel,
-        prijs,
-        jaar,
-        km,
-        brandstof,
-        carrosserie,
-        transmissie,
-        locatie,
-        url: fullUrl,
-        imgSrc,
-        bron: 'marktplaats',
-      });
-    } catch(e) {/* skip kapotte entries */}
-  });
-
-  return resultaten;
-}
-
-function extractMerk(titel) {
-  const merken = Object.keys(MERK_SLUG);
-  return merken.find(m => titel.toLowerCase().includes(m.toLowerCase())) || '';
-}
-
-function extractModelSlug(titel, merkSlug) {
-  const modellen = {
-    'volkswagen': ['golf','polo','passat','tiguan','t-roc','id.4','id.3','touareg','arteon'],
-    'bmw': ['3-series','5-series','1-series','x5','x3','x1','7-series','4-series','2-series'],
-    'toyota': ['corolla','yaris','rav4','prius','aygo','chr','camry','hilux'],
-    'ford': ['focus','fiesta','puma','kuga','mustang','mondeo','ranger','galaxy'],
-    'audi': ['a4','a3','a6','q5','q3','a1','a5','a8','q7','e-tron'],
-    'peugeot': ['208','308','3008','2008','508','408'],
-    'renault': ['clio','megane','kadjar','captur','zoe','scenic','laguna'],
-    'hyundai': ['i30','tucson','kona','i10','i20','ioniq','santa-fe'],
-    'kia': ['sportage','ceed','stonic','picanto','niro','ev6','sorento'],
-    'mercedes-benz': ['a-klasse','c-klasse','e-klasse','glc','gla','cla','s-klasse'],
-    'seat': ['leon','ibiza','ateca','arona','tarraco'],
-    'opel': ['astra','corsa','mokka','grandland','insignia'],
-    'volvo': ['xc60','xc40','v60','v40','xc90','s60'],
-    'skoda': ['octavia','fabia','superb','kodiaq','karoq','scala'],
-    'tesla': ['model-3','model-s','model-y','model-x'],
-    'fiat': ['500','panda','tipo','500x'],
-  };
-  const lijst = modellen[merkSlug] || [];
-  const lager = titel.toLowerCase();
-  return lijst.find(m => lager.includes(m)) || '';
+  if (alleResultaten.length > 0) toonResultaten(alleResultaten);
 }
 
 // ── TONEN ─────────────────────────────────────────
 function toonResultaten(lijst) {
-  const sort = document.getElementById("sortering").value;
+  const sort = document.getElementById('sortering').value;
   const gesorteerd = sorteer([...lijst], sort);
+  const header = document.getElementById('resultatenHeader');
 
-  document.getElementById("aantalTekst").textContent =
+  document.getElementById('aantalTekst').textContent =
     `${gesorteerd.length} advertentie${gesorteerd.length !== 1 ? 's' : ''} gevonden`;
-  document.getElementById("aantalSub").textContent =
-    `Live van Marktplaats.nl`;
-  document.getElementById("resultatenHeader").style.display = 'flex';
+  document.getElementById('aantalSub').textContent = 'Van Marktplaats.nl';
+  header.style.display = 'flex';
 
   if (!gesorteerd.length) {
-    document.getElementById("autoGrid").innerHTML = `
+    document.getElementById('autoGrid').innerHTML = `
       <div class="geen-resultaten">
         <span class="icon">🔍</span>
         <h3>Geen resultaten</h3>
@@ -609,19 +420,19 @@ function toonResultaten(lijst) {
     return;
   }
 
-  document.getElementById("autoGrid").innerHTML = gesorteerd.map(a => `
+  document.getElementById('autoGrid').innerHTML = gesorteerd.map(a => `
     <div class="auto-card" onclick="openDetail('${a.id}')">
       <div class="auto-foto">
         <img src="${a.imgSrc || ''}" alt="${a.titel}"
-          onerror="this.src='https://placehold.co/600x380/e8e8e3/999?text=${encodeURIComponent(a.titel.split(' ').slice(0,2).join(' '))}'"
+          onerror="this.src='https://placehold.co/600x380/e8e8e3/999?text=${encodeURIComponent((a.titel||'').split(' ').slice(0,2).join(' '))}'"
           loading="lazy" />
-        ${(new Date().toISOString().split('T')[0] === a.bijgewerkt) ? '<span class=\"nieuw-badge\">NIEUW</span>' : ''}
+        ${a.bijgewerkt === VANDAAG ? '<span class="nieuw-badge">NIEUW</span>' : ''}
         <span class="bron-label">Marktplaats</span>
         <span class="live-dot">● LIVE</span>
       </div>
       <div class="auto-info">
         <h4>${a.titel}</h4>
-        <div class="versie">${a.brandstof}${a.transmissie ? ' · ' + a.transmissie : ''}${a.carrosserie ? ' · ' + a.carrosserie : ''}</div>
+        <div class="versie">${[a.brandstof, a.transmissie, a.carrosserie].filter(Boolean).join(' · ') || '&nbsp;'}</div>
         <div class="auto-specs">
           ${a.jaar ? `<span class="spec-pill">📅 ${a.jaar}</span>` : ''}
           ${a.km != null ? `<span class="spec-pill">🛣️ ${a.km.toLocaleString('nl-NL')} km</span>` : ''}
@@ -632,7 +443,7 @@ function toonResultaten(lijst) {
             <div class="prijs">€ ${a.prijs.toLocaleString('nl-NL')}</div>
             <div class="prijs-sub">Marktplaats</div>
           </div>
-          <div class="locatie">📍 ${a.locatie}</div>
+          <div class="locatie">📍 ${a.locatie || 'Nederland'}</div>
         </div>
       </div>
     </div>`).join('');
@@ -646,7 +457,7 @@ function sorteer(lijst, sort) {
   return lijst;
 }
 
-function herSorteer() { toonResultaten(alleResultaten); }
+function herSorteer() { zoekNu(); }
 
 // ── DETAIL PANEL ──────────────────────────────────
 function openDetail(id) {
@@ -654,11 +465,11 @@ function openDetail(id) {
   if (!a) return;
   huidigDetailId = id;
 
-  document.getElementById("detailTitel").textContent = a.titel;
-  document.getElementById("detailInhoud").innerHTML = `
+  document.getElementById('detailTitel').textContent = a.titel;
+  document.getElementById('detailInhoud').innerHTML = `
     <div class="gallery-main">
       <img src="${a.imgSrc || ''}" alt="${a.titel}"
-        onerror="this.src='https://placehold.co/720x320/e8e8e3/999?text=${encodeURIComponent(a.titel.split(' ').slice(0,2).join(' '))}'" />
+        onerror="this.src='https://placehold.co/720x320/e8e8e3/999?text=${encodeURIComponent((a.titel||'').split(' ').slice(0,2).join(' '))}'" />
     </div>
     <div class="detail-content">
       <div class="detail-title-row">
@@ -669,43 +480,41 @@ function openDetail(id) {
         </div>
       </div>
       <div class="detail-versie">${[a.brandstof, a.transmissie, a.carrosserie].filter(Boolean).join(' · ')}</div>
-
       <div class="specs-grid">
         ${a.jaar ? `<div class="spec-item"><div class="spec-icon">📅</div><div class="spec-val">${a.jaar}</div><div class="spec-lbl">Bouwjaar</div></div>` : ''}
         ${a.km != null ? `<div class="spec-item"><div class="spec-icon">🛣️</div><div class="spec-val">${a.km.toLocaleString('nl-NL')}</div><div class="spec-lbl">Kilometer</div></div>` : ''}
         ${a.brandstof ? `<div class="spec-item"><div class="spec-icon">⛽</div><div class="spec-val">${a.brandstof}</div><div class="spec-lbl">Brandstof</div></div>` : ''}
         ${a.transmissie ? `<div class="spec-item"><div class="spec-icon">⚙️</div><div class="spec-val">${a.transmissie}</div><div class="spec-lbl">Transmissie</div></div>` : ''}
-        <div class="spec-item"><div class="spec-icon">📍</div><div class="spec-val" style="font-size:12px">${a.locatie}</div><div class="spec-lbl">Locatie</div></div>
+        <div class="spec-item"><div class="spec-icon">📍</div><div class="spec-val" style="font-size:12px">${a.locatie || 'Nederland'}</div><div class="spec-lbl">Locatie</div></div>
         ${a.carrosserie ? `<div class="spec-item"><div class="spec-icon">🚗</div><div class="spec-val">${a.carrosserie}</div><div class="spec-lbl">Carrosserie</div></div>` : ''}
       </div>
-
       <div class="cta-row">
-        <a class="btn-mp" href="${a.url}" target="_blank">
-          Bekijk op Marktplaats →
-        </a>
+        <a class="btn-mp" href="${a.url}" target="_blank">Bekijk op Marktplaats →</a>
       </div>
       <p style="font-size:12px;color:var(--subtekst);margin-top:12px;text-align:center">
         Foto's en volledige omschrijving staan op de Marktplaats-advertentie.
       </p>
     </div>`;
 
-  document.getElementById("overlay").classList.add("open");
-  document.getElementById("detailPanel").classList.add("open");
-  document.body.style.overflow = "hidden";
+  document.getElementById('overlay').classList.add('open');
+  document.getElementById('detailPanel').classList.add('open');
+  document.body.style.overflow = 'hidden';
 }
 
 function sluitDetail() {
-  document.getElementById("overlay").classList.remove("open");
-  document.getElementById("detailPanel").classList.remove("open");
-  document.body.style.overflow = "";
+  document.getElementById('overlay').classList.remove('open');
+  document.getElementById('detailPanel').classList.remove('open');
+  document.body.style.overflow = '';
 }
 
-// Enter in model-veld
-document.getElementById("modelInput").addEventListener("keydown", e => {
-  if (e.key === "Enter") zoekNu();
+document.getElementById('modelInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') zoekNu();
 });
-document.addEventListener("keydown", e => { if (e.key === "Escape") sluitDetail(); });
-  document.addEventListener('DOMContentLoaded', () => zoekNu());
+document.getElementById('prijsMax').addEventListener('input', () => zoekNu());
+document.addEventListener('keydown', e => { if (e.key === 'Escape') sluitDetail(); });
+
+// Start: laad listings direct
+document.addEventListener('DOMContentLoaded', laadListings);
 </script>
 </body>
 </html>
