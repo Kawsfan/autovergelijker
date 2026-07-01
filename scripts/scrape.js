@@ -1,11 +1,14 @@
 // scripts/scrape.js - AutoVergelijker dagelijkse scraper
-// Strategie: slechts 3 algemene paginas om WAF-blokkade te vermijden
-// 3 paginas x 30 listings = ~90 unieke listings per dag
+// Bronnen: Marktplaats + Gaspedaal
 
 const fs = require('fs');
 const path = require('path');
 
-const HEADERS = {
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+// ── HEADERS ──────────────────────────────────────────────────────────────────
+
+const HEADERS_MP = {
   'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
   'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
   'Accept-Language': 'nl-NL,nl;q=0.9',
@@ -17,10 +20,22 @@ const HEADERS = {
   'Upgrade-Insecure-Requests': '1',
 };
 
-function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+const HEADERS_GP = {
+  'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+  'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
+  'Accept-Language': 'nl-NL,nl;q=0.9,en;q=0.8',
+  'Cache-Control': 'no-cache',
+  'Pragma': 'no-cache',
+  'Sec-Fetch-Dest': 'document',
+  'Sec-Fetch-Mode': 'navigate',
+  'Sec-Fetch-Site': 'none',
+  'Sec-Fetch-User': '?1',
+  'Upgrade-Insecure-Requests': '1',
+};
 
-// Slechts 3 paginas - minder = minder kans op WAF-blokkade
-const SEARCH_URLS = [
+// ── MARKTPLAATS ───────────────────────────────────────────────────────────────
+
+const MP_URLS = [
   'https://www.marktplaats.nl/l/auto-s/?numberOfResultsPerPage=100',
   'https://www.marktplaats.nl/l/auto-s/?numberOfResultsPerPage=100&currentPage=2',
   'https://www.marktplaats.nl/l/auto-s/?numberOfResultsPerPage=100&currentPage=3',
@@ -30,52 +45,44 @@ async function scrapeMarktplaats() {
   const all = [];
   const gezien = new Set();
 
-  for (let i = 0; i < SEARCH_URLS.length; i++) {
-    const url = SEARCH_URLS[i];
-    const label = `p${i + 1}`;
-
+  for (let i = 0; i < MP_URLS.length; i++) {
+    const url = MP_URLS[i];
+    const label = `MP p${i + 1}`;
     try {
-      const resp = await fetch(url, { headers: HEADERS });
+      const resp = await fetch(url, { headers: HEADERS_MP });
       console.log(`  ${label}: HTTP ${resp.status}`);
       if (!resp.ok) continue;
-
       const html = await resp.text();
-      const found = parseer(html, gezien);
+      const found = parseerMarktplaats(html, gezien);
       all.push(...found);
-      console.log(`  ${label}: ${found.length} nieuw → totaal ${all.length}`);
+      console.log(`  ${label}: ${found.length} nieuw → totaal MP ${all.length}`);
     } catch (e) {
       console.log(`  ${label}: fout - ${e.message}`);
     }
-
-    // Langere pauze tussen requests om WAF te omzeilen
-    if (i < SEARCH_URLS.length - 1) await sleep(8000);
+    if (i < MP_URLS.length - 1) await sleep(8000);
   }
-
   return all;
 }
 
-function parseer(html, gezien) {
-  // Probeer __NEXT_DATA__ JSON eerst
+function parseerMarktplaats(html, gezien) {
   const match = html.match(/<script id="__NEXT_DATA__" type="application\/json">([\s\S]+?)<\/script>/);
   if (match) {
     try {
       const data = JSON.parse(match[1]);
       const items = data?.props?.pageProps?.searchRequestAndResponse?.listings || [];
       if (items.length > 0) {
-        console.log(`    __NEXT_DATA__: ${items.length} items gevonden`);
-        return parseItems(items, gezien);
+        console.log(`    __NEXT_DATA__: ${items.length} items`);
+        return parseerMPItems(items, gezien);
       }
     } catch (e) {
       console.log(`    JSON fout: ${e.message}`);
     }
   }
-
-  // Fallback: regex op href links
   console.log(`    Fallback regex...`);
-  return parseerFallback(html, gezien);
+  return parseerMPFallback(html, gezien);
 }
 
-function parseItems(items, gezien) {
+function parseerMPItems(items, gezien) {
   const results = [];
   for (const item of items) {
     const relUrl = item.vipUrl || '';
@@ -110,7 +117,7 @@ function parseItems(items, gezien) {
   return results;
 }
 
-function parseerFallback(html, gezien) {
+function parseerMPFallback(html, gezien) {
   const results = [];
   const re = /href="(\/(v|m)\/auto-s\/[^/]+\/[am]\d+[^"]*?)"/g;
   let m;
@@ -118,13 +125,11 @@ function parseerFallback(html, gezien) {
     const href = m[1];
     const fullUrl = 'https://www.marktplaats.nl' + href;
     if (gezien.has(fullUrl)) continue;
-
     const ctx = html.substring(Math.max(0, m.index - 300), m.index + 1500);
     const pm = ctx.match(/€\s*([\d.]+)(?:,-|\s)/);
     if (!pm) continue;
-    const prijs = parseInt(pm[1].replace(/\./g, '''));
+    const prijs = parseInt(pm[1].replace(/\./g, ''));
     if (!prijs || prijs < 500) continue;
-
     gezien.add(fullUrl);
     const jm = ctx.match(/\b(20[0-2]\d|19[89]\d)\b/);
     const km = ctx.match(/([\d.]+)\s*km/i);
@@ -133,7 +138,6 @@ function parseerFallback(html, gezien) {
       ? decodeURIComponent(sl[1]).replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase()).substring(0, 70)
       : '';
     if (!titel || titel.length < 5) continue;
-
     results.push({
       id: 'mp-fb-' + results.length,
       bron: 'Marktplaats',
@@ -151,26 +155,130 @@ function parseerFallback(html, gezien) {
   return results;
 }
 
+// ── GASPEDAAL ─────────────────────────────────────────────────────────────────
+
+const GP_URLS = [
+  'https://www.gaspedaal.nl/zoeken?srt=df-a',
+  'https://www.gaspedaal.nl/zoeken?srt=df-a&p=2',
+];
+
+async function scrapeGaspedaal() {
+  const all = [];
+  const gezien = new Set();
+
+  for (let i = 0; i < GP_URLS.length; i++) {
+    const url = GP_URLS[i];
+    const label = `GP p${i + 1}`;
+    try {
+      const resp = await fetch(url, { headers: HEADERS_GP });
+      console.log(`  ${label}: HTTP ${resp.status}`);
+      if (!resp.ok) continue;
+      const html = await resp.text();
+      const found = parseerGaspedaal(html, gezien, label);
+      all.push(...found);
+      console.log(`  ${label}: ${found.length} nieuw → totaal GP ${all.length}`);
+    } catch (e) {
+      console.log(`  ${label}: fout - ${e.message}`);
+    }
+    if (i < GP_URLS.length - 1) await sleep(6000);
+  }
+  return all;
+}
+
+function parseerGaspedaal(html, gezien, label) {
+  // 1. Haal JSON-LD ItemList op (heeft alle autodetails)
+  const ldBlocks = [...html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)];
+  let items = [];
+  for (const block of ldBlocks) {
+    try {
+      const d = JSON.parse(block[1]);
+      if (d['@type'] === 'ItemList' && Array.isArray(d.itemListElement)) {
+        items = d.itemListElement.map(e => e.item);
+        console.log(`    ${label}: ${items.length} JSON-LD items`);
+        break;
+      }
+    } catch (e) { /* doorgaan */ }
+  }
+
+  if (items.length === 0) {
+    console.log(`    ${label}: geen JSON-LD items gevonden`);
+    return [];
+  }
+
+  // 2. Haal klikUrls op (eerste portal-URL per auto)
+  // Gaspedaal embed RSC-data met \"portalen\":[ per auto, gevolgd door klikUrl
+  const portaalMatches = [...html.matchAll(/\\"portalen\\":\[/g)];
+  const klikUrls = portaalMatches.map(m => {
+    const chunk = html.substring(m.index, m.index + 800);
+    const match = chunk.match(/https:\/\/api\.gaspedaal\.nl\/redirect\/vehicle\/(\d+)/);
+    return match ? 'https://api.gaspedaal.nl/redirect/vehicle/' + match[1] : null;
+  }).filter(Boolean);
+
+  console.log(`    ${label}: ${klikUrls.length} klikUrls gevonden`);
+
+  // 3. Koppel positie-voor-positie
+  const results = [];
+  const limit = Math.min(items.length, klikUrls.length);
+
+  for (let i = 0; i < limit; i++) {
+    const item = items[i];
+    const url = klikUrls[i];
+
+    const rawId = item['@id']?.split('#')[1];
+    if (!rawId) continue;
+    const id = 'gp-' + rawId;
+    if (gezien.has(id)) continue;
+    gezien.add(id);
+
+    const prijs = item.offers?.price || 0;
+    if (!prijs || prijs < 500 || prijs > 500000) continue;
+
+    results.push({
+      id,
+      bron: 'Gaspedaal',
+      titel: (item.name || '').substring(0, 80),
+      prijs,
+      jaar: item.productionDate || null,
+      km: item.mileageFromOdometer?.value ?? null,
+      brandstof: item.fuelType || '',
+      carrosserie: item.bodyType || '',
+      transmissie: item.vehicleTransmission || '',
+      kleur: item.color || '',
+      locatie: item.offers?.seller?.address?.addressLocality || 'Nederland',
+      url,
+      imgSrc: item.image || '',
+      bijgewerkt: new Date().toISOString().split('T')[0]
+    });
+  }
+  return results;
+}
+
+// ── MAIN ──────────────────────────────────────────────────────────────────────
+
 async function main() {
   console.log('🚗 Scraper gestart:', new Date().toISOString());
 
-  const listings = await scrapeMarktplaats();
+  console.log('\n📦 Marktplaats...');
+  const mpListings = await scrapeMarktplaats();
+  console.log(`✓ Marktplaats: ${mpListings.length} listings`);
 
-  // Sla op, ook als 0 resultaten (dan blijft oude data bewaard via git)
-  if (listings.length === 0) {
-    console.log('⚠️  0 listings gevonden - schrijf toch zodat bijgewerkt-timestamp klopt');
-  }
+  console.log('\n⛽ Gaspedaal...');
+  const gpListings = await scrapeGaspedaal();
+  console.log(`✓ Gaspedaal: ${gpListings.length} listings`);
+
+  const listings = [...mpListings, ...gpListings];
+  console.log(`\n📊 Totaal: ${listings.length} listings`);
 
   const data = {
     bijgewerkt: new Date().toISOString(),
     totaal: listings.length,
-    bronnen: listings.length > 0 ? ['Marktplaats'] : [],
+    bronnen: [...new Set(listings.map(l => l.bron))],
     listings
   };
 
   const outPath = path.join(process.cwd(), 'data', 'listings.json');
   fs.writeFileSync(outPath, JSON.stringify(data, null, 2));
-  console.log(`✅ Klaar: ${listings.length} listings`);
+  console.log(`✅ Opgeslagen naar ${outPath}`);
 }
 
 main().catch(e => { console.error('❌ Fout:', e); process.exit(1); });
