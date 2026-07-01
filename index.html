@@ -79,7 +79,7 @@
       display: block; font-size: 11px; font-weight: 600; color: var(--subtekst);
       text-transform: uppercase; letter-spacing: .4px; margin-bottom: 4px;
     }
-  2 .filter-item select,
+    .filter-item select,
     .filter-item input[type="number"],
     .filter-item input[type="text"] {
       width: 100%; padding: 9px 12px; border: 1.5px solid var(--grijs2);
@@ -503,7 +503,7 @@ async function laadListings() {
           Of zoek direct op <a href="https://www.marktplaats.nl/l/auto-s/" target="_blank">Marktplaats</a>.</p>
         </div>`;
       document.getElementById('statusTekst').textContent = 'Nog geen advertenties beschikbaar';
-  2   return;
+      return;
     }
 
     const bijgewerkt = data.bijgewerkt
