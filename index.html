@@ -489,7 +489,7 @@ const VANDAAG = new Date().toISOString().split('T')[0];
 // ── LADEN ─────────────────────────────────────────────────────────────────────
 async function laadListings() {
   try {
-    const resp = await fetch('/data/listings.json');
+    const resp = await fetch('data/listings.json');
     if (!resp.ok) throw new Error('HTTP ' + resp.status);
     const data = await resp.json();
     alleResultaten = data.listings || [];
