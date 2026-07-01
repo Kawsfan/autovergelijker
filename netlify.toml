@@ -1,10 +1,10 @@
-[build]
-  functions = "netlify/functions"
-
 [[headers]]
   for = "/*"
   [headers.values]
     Access-Control-Allow-Origin = "*"
+    Cache-Control = "no-cache, no-store, must-revalidate"
 
-[functions."scrape"]
-  schedule = "0 5 * * *"
+[[headers]]
+  for = "/data/*"
+  [headers.values]
+    Cache-Control = "no-cache, no-store, must-revalidate"
