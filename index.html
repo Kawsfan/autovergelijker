@@ -211,14 +211,9 @@
       letter-spacing: .5px; z-index: 2; pointer-events: none;
     }
     .bron-label {
-      position: absolute; top: 10px; left: 10px; padding: 3px 8px;
+      position: absolute; top: 10px; right: 10px; padding: 3px 8px;
       border-radius: 4px; font-size: 11px; font-weight: 700; color: white;
       background: var(--mp-oranje);
-    }
-    .live-dot {
-      position: absolute; top: 10px; right: 10px; background: #22c55e;
-      color: white; font-size: 10px; font-weight: 700; padding: 2px 7px;
-      border-radius: 10px;
     }
 
     .auto-info { padding: 14px; flex: 1; display: flex; flex-direction: column; }
@@ -370,7 +365,7 @@
             <option>2015</option><option>2016</option><option>2017</option>
             <option>2018</option><option>2019</option><option>2020</option>
             <option>2021</option><option>2022</option><option>2023</option>
-            <option>2024</option>
+            <option>2024</option><option>2025</option><option>2026</option>
           </select>
           <select id="jaarMax" onchange="zoekNu()">
             <option value="">Max</option>
@@ -379,7 +374,7 @@
             <option>2016</option><option>2017</option><option>2018</option>
             <option>2019</option><option>2020</option><option>2021</option>
             <option>2022</option><option>2023</option><option>2024</option>
-            <option>2025</option>
+            <option>2025</option><option>2026</option>
           </select>
         </div>
       </div>
@@ -648,7 +643,6 @@ function toonResultaten(lijst) {
           loading="lazy" />
         ${a.bijgewerkt === VANDAAG ? '<span class="nieuw-badge">NIEUW</span>' : ''}
         <span class="bron-label">${a.bron || 'Marktplaats'}</span>
-        <span class="live-dot">● LIVE</span>
       </div>
       <div class="auto-info">
         <h4>${a.titel}</h4>
