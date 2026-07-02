@@ -372,4 +372,370 @@
             <option>2021</option><option>2022</option><option>2023</option>
             <option>2024</option>
           </select>
-          <select id="ja
+          <select id="jaarMax" onchange="zoekNu()">
+            <option value="">Max</option>
+            <option>2005</option><option>2008</option><option>2010</option>
+            <option>2012</option><option>2014</option><option>2015</option>
+            <option>2016</option><option>2017</option><option>2018</option>
+            <option>2019</option><option>2020</option><option>2021</option>
+            <option>2022</option><option>2023</option><option>2024</option>
+            <option>2025</option>
+          </select>
+        </div>
+      </div>
+      <div class="filter-range">
+        <label>Prijs</label>
+        <div class="range-inputs">
+          <input type="number" id="prijsMin" placeholder="Min €" oninput="zoekNu()" />
+          <input type="number" id="prijsMax" placeholder="Max €" oninput="zoekNu()" />
+        </div>
+      </div>
+    </div>
+
+    <!-- Rij 2: Brandstof | Km. stand | Transmissie | Carrosserie -->
+    <div class="filter-rij">
+      <div class="filter-item">
+        <label>Brandstof</label>
+        <select id="brandstofFilter" onchange="zoekNu()">
+          <option value="">Alle brandstoffen</option>
+          <option value="benzine">Benzine</option>
+          <option value="diesel">Diesel</option>
+          <option value="elektrisch">Elektrisch</option>
+          <option value="hybride">Hybride</option>
+        </select>
+      </div>
+      <div class="filter-range">
+        <label>Km. stand</label>
+        <div class="range-inputs">
+          <input type="number" id="kmMin" placeholder="Min km" oninput="zoekNu()" />
+          <input type="number" id="kmMax" placeholder="Max km" oninput="zoekNu()" />
+        </div>
+      </div>
+      <div class="filter-toggle">
+        <label>Transmissie</label>
+        <div class="toggle-btns">
+          <button class="actief" data-val="" onclick="setTransmissie(this)">Alles</button>
+          <button data-val="automaat" onclick="setTransmissie(this)">Automaat</button>
+          <button data-val="handgeschakeld" onclick="setTransmissie(this)">Handgeschakeld</button>
+        </div>
+      </div>
+      <div class="filter-item">
+        <label>Carrosserie</label>
+        <select id="carrosserieFilter" onchange="zoekNu()">
+          <option value="">Alle types</option>
+          <option value="hatchback">Hatchback</option>
+          <option value="sedan">Sedan</option>
+          <option value="suv">SUV</option>
+          <option value="stationwagon">Stationwagon</option>
+          <option value="cabriolet">Cabrio</option>
+          <option value="coupe">Coupé</option>
+          <option value="mpv">MPV</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Actie rij -->
+    <div class="actie-rij">
+      <button class="wis-btn" onclick="resetFilters()">✕ Wis alles</button>
+      <div class="stats-tekst">
+        <span><span class="check">✓</span> Marktplaats</span>
+        <span><span class="check">✓</span> Dagelijks bijgewerkt</span>
+        <span><span class="check">✓</span> Gratis zoeken</span>
+      </div>
+      <button class="vinden-btn" onclick="zoekNu()">
+        Zoeken <span class="vinden-count" id="vindenCount"></span>
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<div class="status-balk">
+  <span class="bron-badge">Marktplaats</span>
+  <span class="hint" id="statusTekst">Advertenties laden...</span>
+</div>
+
+<div class="main-layout">
+  <div class="resultaten-header" id="resultatenHeader" style="display:none">
+    <div>
+      <h2 id="aantalTekst"></h2>
+      <div class="sub" id="aantalSub"></div>
+    </div>
+    <div>
+      <select id="sortering" onchange="herSorteer()">
+        <option value="prijs-asc">Prijs ↑</option>
+        <option value="prijs-desc">Prijs ↓</option>
+        <option value="jaar-desc">Nieuwste eerst</option>
+        <option value="km-asc">Minste km</option>
+      </select>
+    </div>
+  </div>
+  <div class="auto-grid" id="autoGrid">
+    <div class="loader"><div class="spinner"></div><p>Advertenties laden...</p></div>
+  </div>
+</div>
+
+<!-- DETAIL -->
+<div class="detail-overlay" id="overlay" onclick="sluitDetail()"></div>
+<div class="detail-panel" id="detailPanel">
+  <div class="detail-header">
+    <button class="back-btn" onclick="sluitDetail()">← Terug</button>
+    <span class="detail-header-title" id="detailTitel"></span>
+  </div>
+  <div id="detailInhoud"></div>
+</div>
+
+<footer>
+  <strong>AutoVergelijker</strong> — Dagelijks bijgewerkte data van Marktplaats.nl · Klik op een advertentie om naar de originele pagina te gaan.
+</footer>
+
+<script>
+let alleResultaten = [];
+let huidigDetailId = null;
+let transmissieActief = '';
+const VANDAAG = new Date().toISOString().split('T')[0];
+
+// ── LADEN ─────────────────────────────────────────────────────────────────────
+async function laadListings() {
+  try {
+    const resp = await fetch('data/listings.json');
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    const data = await resp.json();
+    alleResultaten = data.listings || [];
+
+    if (alleResultaten.length === 0) {
+      document.getElementById('autoGrid').innerHTML = `
+        <div class="geen-resultaten">
+          <span class="icon">🔄</span>
+          <h3>Nog geen advertenties</h3>
+          <p>De scraper draait dagelijks om 06:00. Kom morgen terug!<br/>
+          Of zoek direct op <a href="https://www.marktplaats.nl/l/auto-s/" target="_blank">Marktplaats</a>.</p>
+        </div>`;
+      document.getElementById('statusTekst').textContent = 'Nog geen advertenties beschikbaar';
+      return;
+    }
+
+    const bijgewerkt = data.bijgewerkt
+      ? new Date(data.bijgewerkt).toLocaleDateString('nl-NL', { day: 'numeric', month: 'long' })
+      : '';
+    document.getElementById('statusTekst').textContent =
+      `${alleResultaten.length} advertenties geladen` + (bijgewerkt ? ` · Bijgewerkt: ${bijgewerkt}` : '');
+
+    updateVindenCount(alleResultaten.length);
+    zoekNu();
+  } catch (err) {
+    document.getElementById('autoGrid').innerHTML = `
+      <div class="geen-resultaten">
+        <span class="icon">⚠️</span>
+        <h3>Laden mislukt</h3>
+        <p>Vernieuw de pagina om het opnieuw te proberen.</p>
+      </div>`;
+    document.getElementById('statusTekst').textContent = 'Laden mislukt';
+  }
+}
+
+function updateVindenCount(n) {
+  const el = document.getElementById('vindenCount');
+  if (el) el.textContent = n > 0 ? `(${n.toLocaleString('nl-NL')})` : '';
+}
+
+// ── TRANSMISSIE TOGGLE ────────────────────────────────────────────────────────
+function setTransmissie(btn) {
+  document.querySelectorAll('.toggle-btns button').forEach(b => b.classList.remove('actief'));
+  btn.classList.add('actief');
+  transmissieActief = btn.dataset.val;
+  zoekNu();
+}
+
+// ── FILTEREN ──────────────────────────────────────────────────────────────────
+function zoekNu() {
+  if (alleResultaten.length === 0) return;
+
+  const zoek     = document.getElementById('zoekInput').value.trim().toLowerCase();
+  const merk     = document.getElementById('merkFilter').value.toLowerCase();
+  const model    = document.getElementById('modelInput').value.trim().toLowerCase();
+  const jaarMin  = parseInt(document.getElementById('jaarMin').value) || 0;
+  const jaarMax  = parseInt(document.getElementById('jaarMax').value) || 9999;
+  const prijsMin = parseInt(document.getElementById('prijsMin').value) || 0;
+  const prijsMax = parseInt(document.getElementById('prijsMax').value) || 0;
+  const kmMin    = parseInt(document.getElementById('kmMin').value) || 0;
+  const kmMax    = parseInt(document.getElementById('kmMax').value) || 0;
+  const carroVal = document.getElementById('carrosserieFilter').value.toLowerCase();
+  const bsVal    = document.getElementById('brandstofFilter').value.toLowerCase();
+
+  let gefilterd = alleResultaten.filter(a => {
+    const titel = (a.titel || '').toLowerCase();
+    const locatie = (a.locatie || '').toLowerCase();
+    if (zoek && !titel.includes(zoek) && !locatie.includes(zoek)) return false;
+    if (merk && !titel.includes(merk)) return false;
+    if (model && !titel.includes(model)) return false;
+    if (jaarMin && (a.jaar || 0) < jaarMin) return false;
+    if (jaarMax < 9999 && (a.jaar || 9999) > jaarMax) return false;
+    if (prijsMin && a.prijs < prijsMin) return false;
+    if (prijsMax && a.prijs > prijsMax) return false;
+    if (kmMin && (a.km || 0) < kmMin) return false;
+    if (kmMax && (a.km || 0) > kmMax) return false;
+    if (carroVal && !(a.carrosserie || '').toLowerCase().includes(carroVal)) return false;
+    if (bsVal) {
+      const bf = (a.brandstof || '').toLowerCase();
+      if (bsVal === 'hybride') { if (!bf.includes('hybride')) return false; }
+      else if (!bf.includes(bsVal)) return false;
+    }
+    if (transmissieActief) {
+      const tr = (a.transmissie || '').toLowerCase();
+      if (!tr.includes(transmissieActief)) return false;
+    }
+    return true;
+  });
+
+  const n = gefilterd.length;
+  const totaal = alleResultaten.length;
+  document.getElementById('statusTekst').textContent =
+    n === totaal ? `${totaal} advertenties` : `${n} van ${totaal} advertenties`;
+
+  updateVindenCount(n);
+  toonResultaten(gefilterd);
+}
+
+// ── RESET ─────────────────────────────────────────────────────────────────────
+function resetFilters() {
+  document.getElementById('zoekInput').value = '';
+  document.getElementById('merkFilter').value = '';
+  document.getElementById('modelInput').value = '';
+  document.getElementById('jaarMin').value = '';
+  document.getElementById('jaarMax').value = '';
+  document.getElementById('prijsMin').value = '';
+  document.getElementById('prijsMax').value = '';
+  document.getElementById('kmMin').value = '';
+  document.getElementById('kmMax').value = '';
+  document.getElementById('brandstofFilter').value = '';
+  document.getElementById('carrosserieFilter').value = '';
+  transmissieActief = '';
+  document.querySelectorAll('.toggle-btns button').forEach((b, i) => b.classList.toggle('actief', i === 0));
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  if (alleResultaten.length > 0) {
+    updateVindenCount(alleResultaten.length);
+    toonResultaten(alleResultaten);
+  }
+}
+
+// ── TONEN ─────────────────────────────────────────────────────────────────────
+function toonResultaten(lijst) {
+  const sort = document.getElementById('sortering').value;
+  const gesorteerd = sorteer([...lijst], sort);
+  const header = document.getElementById('resultatenHeader');
+
+  document.getElementById('aantalTekst').textContent =
+    `${gesorteerd.length} advertentie${gesorteerd.length !== 1 ? 's' : ''} gevonden`;
+  document.getElementById('aantalSub').textContent = 'Van Marktplaats.nl';
+  header.style.display = 'flex';
+
+  if (!gesorteerd.length) {
+    document.getElementById('autoGrid').innerHTML = `
+      <div class="geen-resultaten">
+        <span class="icon">🔍</span>
+        <h3>Geen resultaten</h3>
+        <p>Probeer andere filters of zoek direct op <a href="https://www.marktplaats.nl/l/auto-s/" target="_blank">Marktplaats</a>.</p>
+      </div>`;
+    return;
+  }
+
+  document.getElementById('autoGrid').innerHTML = gesorteerd.map(a => `
+    <div class="auto-card" onclick="openDetail('${a.id}')">
+      <div class="auto-foto">
+        <img src="${a.imgSrc || ''}" alt="${a.titel}"
+          onerror="this.src='https://placehold.co/600x380/e8e8e3/999?text=${encodeURIComponent((a.titel||'').split(' ').slice(0,2).join(' '))}'"
+          loading="lazy" />
+        ${a.bijgewerkt === VANDAAG ? '<span class="nieuw-badge">NIEUW</span>' : ''}
+        <span class="bron-label">${a.bron || 'Marktplaats'}</span>
+        <span class="live-dot">● LIVE</span>
+      </div>
+      <div class="auto-info">
+        <h4>${a.titel}</h4>
+        <div class="auto-meta">
+          ${a.jaar ? `<span><strong>Bouwjaar:</strong> ${a.jaar}</span>` : ''}
+          ${a.km != null ? `<span><strong>Km.stand:</strong> ${a.km.toLocaleString('nl-NL')} km</span>` : ''}
+        </div>
+        <div class="auto-labels">
+          ${a.brandstof ? `<span class="label-pill">${a.brandstof}</span>` : ''}
+          ${a.transmissie ? `<span class="label-pill">${a.transmissie}</span>` : ''}
+          ${a.carrosserie ? `<span class="label-pill">${a.carrosserie}</span>` : ''}
+          ${a.kleur ? `<span class="label-pill">${a.kleur}</span>` : ''}
+        </div>
+        <div class="auto-footer">
+          <div>
+            <div class="prijs">€ ${a.prijs.toLocaleString('nl-NL')}</div>
+            <div class="prijs-sub">${a.bron || 'Marktplaats'}</div>
+          </div>
+          <div class="locatie">📍 ${a.locatie || 'Nederland'}</div>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function sorteer(lijst, sort) {
+  if (sort === 'prijs-asc')  return lijst.sort((a,b) => a.prijs - b.prijs);
+  if (sort === 'prijs-desc') return lijst.sort((a,b) => b.prijs - a.prijs);
+  if (sort === 'jaar-desc')  return lijst.sort((a,b) => (b.jaar||0) - (a.jaar||0));
+  if (sort === 'km-asc')     return lijst.sort((a,b) => (a.km||999999) - (b.km||999999));
+  return lijst;
+}
+
+function herSorteer() { zoekNu(); }
+
+// ── DETAIL PANEL ──────────────────────────────────────────────────────────────
+function openDetail(id) {
+  const a = alleResultaten.find(x => x.id === id);
+  if (!a) return;
+  huidigDetailId = id;
+
+  document.getElementById('detailTitel').textContent = a.titel;
+  document.getElementById('detailInhoud').innerHTML = `
+    <div class="gallery-main">
+      <img src="${a.imgSrc || ''}" alt="${a.titel}"
+        onerror="this.src='https://placehold.co/720x320/e8e8e3/999?text=${encodeURIComponent((a.titel||'').split(' ').slice(0,2).join(' '))}'" />
+    </div>
+    <div class="detail-content">
+      <div class="detail-title-row">
+        <h2>${a.titel}</h2>
+        <div>
+          <div class="detail-prijs">€ ${a.prijs.toLocaleString('nl-NL')}</div>
+          <div class="detail-prijs-sub">Marktplaats.nl</div>
+        </div>
+      </div>
+      <div class="detail-versie">${[a.brandstof, a.transmissie, a.carrosserie].filter(Boolean).join(' · ')}</div>
+      <div class="specs-grid">
+        ${a.jaar ? `<div class="spec-item"><div class="spec-icon">📅</div><div class="spec-val">${a.jaar}</div><div class="spec-lbl">Bouwjaar</div></div>` : ''}
+        ${a.km != null ? `<div class="spec-item"><div class="spec-icon">🛣️</div><div class="spec-val">${a.km.toLocaleString('nl-NL')}</div><div class="spec-lbl">Kilometer</div></div>` : ''}
+        ${a.brandstof ? `<div class="spec-item"><div class="spec-icon">⛽</div><div class="spec-val">${a.brandstof}</div><div class="spec-lbl">Brandstof</div></div>` : ''}
+        ${a.transmissie ? `<div class="spec-item"><div class="spec-icon">⚙️</div><div class="spec-val">${a.transmissie}</div><div class="spec-lbl">Transmissie</div></div>` : ''}
+        <div class="spec-item"><div class="spec-icon">📍</div><div class="spec-val" style="font-size:12px">${a.locatie || 'Nederland'}</div><div class="spec-lbl">Locatie</div></div>
+        ${a.carrosserie ? `<div class="spec-item"><div class="spec-icon">🚗</div><div class="spec-val">${a.carrosserie}</div><div class="spec-lbl">Carrosserie</div></div>` : ''}
+      </div>
+      <div class="cta-row">
+        <a class="btn-mp" href="${a.url}" target="_blank">Bekijk op Marktplaats →</a>
+      </div>
+      <p style="font-size:12px;color:var(--subtekst);margin-top:12px;text-align:center">
+        Foto's en volledige omschrijving staan op de Marktplaats-advertentie.
+      </p>
+    </div>`;
+
+  document.getElementById('overlay').classList.add('open');
+  document.getElementById('detailPanel').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function sluitDetail() {
+  document.getElementById('overlay').classList.remove('open');
+  document.getElementById('detailPanel').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+document.getElementById('zoekInput').addEventListener('keydown', e => { if (e.key === 'Enter') zoekNu(); });
+document.getElementById('modelInput').addEventListener('keydown', e => { if (e.key === 'Enter') zoekNu(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') sluitDetail(); });
+
+document.addEventListener('DOMContentLoaded', laadListings);
+</script>
+</body>
+</html>
