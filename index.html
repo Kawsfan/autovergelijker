@@ -645,7 +645,7 @@ function toonResultaten(lijst) {
   document.getElementById('autoGrid').innerHTML = gesorteerd.map(a => `
     <div class="auto-card" onclick="openDetail('${a.id}')">
       <div class="auto-foto">
-        <img src="${a.imgSrc || ''}" alt="${a.titel}"
+        <img src="${(a.imgSrc || '').replace(/\$_\d+\.jpg/gi, '$_86.jpg')}" alt="${a.titel}"
           onerror="this.src='https://placehold.co/600x380/e8e8e3/999?text=${encodeURIComponent((a.titel||'').split(' ').slice(0,2).join(' '))}'"
           loading="lazy" />
         ${a.bijgewerkt === VANDAAG ? '<span class="nieuw-badge">NIEUW</span>' : ''}
