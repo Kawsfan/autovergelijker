@@ -1,5 +1,5 @@
 // scripts/scrape.js - AutoVergelijker dagelijkse scraper
-// Bronnen: Marktplaats + Gaspedaal + viaBOVAG
+// Bronnen: Marktplaats + Gaspedaal + viaBOVAG + AutoTrack (incl. EV focus)
 
 const fs = require('fs');
 const path = require('path');
@@ -36,16 +36,32 @@ const HEADERS_VB = {
   'Upgrade-Insecure-Requests': '1',
 };
 
+const HEADERS_AT = {
+  'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+  'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
+  'Accept-Language': 'nl-NL,nl;q=0.9,en;q=0.8',
+  'Cache-Control': 'no-cache',
+  'Sec-Fetch-Dest': 'document',
+  'Sec-Fetch-Mode': 'navigate',
+  'Sec-Fetch-Site': 'none',
+  'Sec-Fetch-User': '?1',
+  'Upgrade-Insecure-Requests': '1',
+};
+
 // ── MARKTPLAATS ───────────────────────────────────────────────────────────────
-// Gebruikt de interne LRP JSON API i.p.v. HTML scraping (omzeilt bot-detectie)
+// Gebruikt de interne LRP JSON API (omzeilt bot-detectie)
+// Pagina's 1-3: algemeen aanbod | Pagina's 4-6: elektrisch gefilterd
 
 const MP_API_BASE = 'https://www.marktplaats.nl/lrp/api/search?l1CategoryId=91&numberOfResultsPerPage=100';
-const MP_OFFSETS = [0, 100, 200]; // 3 pagina's = 300 listings
+const MP_OFFSETS = [0, 100, 200]; // Algemeen aanbod
+const MP_EV_BASE = 'https://www.marktplaats.nl/lrp/api/search?l1CategoryId=91&numberOfResultsPerPage=100&query=elektrisch';
+const MP_EV_OFFSETS = [0, 100, 200]; // EV-specifiek
 
 async function scrapeMarktplaats() {
   const all = [];
   const gezien = new Set();
 
+  // Algemene pagina's
   for (let i = 0; i < MP_OFFSETS.length; i++) {
     const url = MP_API_BASE + '&offset=' + MP_OFFSETS[i];
     const label = `MP p${i + 1}`;
@@ -62,8 +78,29 @@ async function scrapeMarktplaats() {
     } catch (e) {
       console.log(` ${label}: fout - ${e.message}`);
     }
-    if (i < MP_OFFSETS.length - 1) await sleep(5000);
+    await sleep(3000);
   }
+
+  // EV-specifieke pagina's
+  for (let i = 0; i < MP_EV_OFFSETS.length; i++) {
+    const url = MP_EV_BASE + '&offset=' + MP_EV_OFFSETS[i];
+    const label = `MP EV p${i + 1}`;
+    try {
+      const resp = await fetch(url, { headers: HEADERS_MP });
+      console.log(` ${label}: HTTP ${resp.status}`);
+      if (!resp.ok) continue;
+      const data = await resp.json();
+      const items = data.listings || [];
+      console.log(` ${label}: ${items.length} JSON items`);
+      const found = parseerMPItems(items, gezien);
+      all.push(...found);
+      console.log(` ${label}: ${found.length} nieuw → totaal MP ${all.length}`);
+    } catch (e) {
+      console.log(` ${label}: fout - ${e.message}`);
+    }
+    if (i < MP_EV_OFFSETS.length - 1) await sleep(4000);
+  }
+
   return all;
 }
 
@@ -107,6 +144,8 @@ function parseerMPItems(items, gezien) {
 const GP_URLS = [
   'https://www.gaspedaal.nl/zoeken?srt=df-a',
   'https://www.gaspedaal.nl/zoeken?srt=df-a&p=2',
+  'https://www.gaspedaal.nl/elektrisch',
+  'https://www.gaspedaal.nl/elektrisch?p=2',
 ];
 
 async function scrapeGaspedaal() {
@@ -203,6 +242,9 @@ const VB_URLS = [
   'https://www.viabovag.nl/auto/occasion?pagina=2',
   'https://www.viabovag.nl/auto/occasion?pagina=3',
   'https://www.viabovag.nl/auto/occasion?pagina=4',
+  'https://www.viabovag.nl/auto/occasion?brandstof=Elektrisch',
+  'https://www.viabovag.nl/auto/occasion?brandstof=Elektrisch&pagina=2',
+  'https://www.viabovag.nl/auto/occasion?brandstof=Elektrisch&pagina=3',
 ];
 
 async function scrapeViaBovag() {
@@ -246,7 +288,6 @@ function parseerViaBovag(html, gezien, label) {
     // Get context window: from first occurrence to next car URL (max 5000 chars)
     const startIdx = html.indexOf(`href="${relUrl}"`);
     if (startIdx < 0) continue;
-    // Find next different car URL after this one
     const afterThis = html.indexOf('/auto/aanbod/', startIdx + relUrl.length + 10);
     const windowEnd = afterThis > 0 ? Math.min(afterThis + 50, startIdx + 5000) : startIdx + 5000;
     const chunk = html.substring(startIdx, windowEnd);
@@ -282,7 +323,7 @@ function parseerViaBovag(html, gezien, label) {
     const imgM = chunk.match(/https:\/\/stsharedprdweu\.blob\.core\.windows\.net\/vehicles-media\/[^"'\s>]+/);
     const imgSrc = imgM ? imgM[0] : '';
 
-    // Location: uppercase Dutch city (before the price, e.g. "BORNERBROEK")
+    // Location: uppercase Dutch city
     const locM = chunk.match(/\b([A-Z][A-Z\s\-]{2,25}[A-Z])\b/);
     const locatie = (locM && !locM[1].includes('BOVAG') && !locM[1].includes('HTTP'))
       ? locM[1].trim()
@@ -309,24 +350,146 @@ function parseerViaBovag(html, gezien, label) {
   return results;
 }
 
+// ── AUTOTRACK ─────────────────────────────────────────────────────────────────
+// Scrapet elektrisch aanbod via JSON-LD (schema.org Vehicle)
+
+const AT_URLS = [
+  'https://www.autotrack.nl/tweedehands-auto/elektrisch/',
+  'https://www.autotrack.nl/tweedehands-auto/elektrisch/?pagina=2',
+  'https://www.autotrack.nl/tweedehands-auto/elektrisch/?pagina=3',
+];
+
+async function scrapeAutoTrack() {
+  const all = [];
+  const gezien = new Set();
+
+  for (let i = 0; i < AT_URLS.length; i++) {
+    const url = AT_URLS[i];
+    const label = `AT p${i + 1}`;
+    try {
+      const resp = await fetch(url, { headers: HEADERS_AT });
+      console.log(` ${label}: HTTP ${resp.status}`);
+      if (!resp.ok) continue;
+      const html = await resp.text();
+      const found = parseerAutoTrack(html, gezien, label);
+      all.push(...found);
+      console.log(` ${label}: ${found.length} nieuw → totaal AT ${all.length}`);
+    } catch (e) {
+      console.log(` ${label}: fout - ${e.message}`);
+    }
+    if (i < AT_URLS.length - 1) await sleep(6000);
+  }
+  return all;
+}
+
+function parseerAutoTrack(html, gezien, label) {
+  // Extract JSON-LD blocks
+  const ldBlocks = [...html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)];
+  let items = [];
+
+  for (const block of ldBlocks) {
+    try {
+      const d = JSON.parse(block[1]);
+      // ItemList with Car/Vehicle items
+      if (d['@type'] === 'ItemList' && Array.isArray(d.itemListElement)) {
+        items = d.itemListElement.map(e => e.item || e).filter(Boolean);
+        console.log(` ${label}: ${items.length} JSON-LD items`);
+        break;
+      }
+    } catch (e) { /* doorgaan */ }
+  }
+
+  if (items.length === 0) {
+    // Fallback: try to find individual Car objects
+    for (const block of ldBlocks) {
+      try {
+        const d = JSON.parse(block[1]);
+        if (Array.isArray(d) && d[0]?.['@type'] === 'Car') {
+          items = d;
+          console.log(` ${label}: ${items.length} Car items (array)`);
+          break;
+        }
+      } catch (e) { /* doorgaan */ }
+    }
+  }
+
+  if (items.length === 0) {
+    console.log(` ${label}: geen JSON-LD items gevonden`);
+    return [];
+  }
+
+  const results = [];
+  for (const item of items) {
+    const rawUrl = item.url || item['@id'] || '';
+    if (!rawUrl) continue;
+
+    // Normalize URL
+    const url = rawUrl.startsWith('http') ? rawUrl : 'https://www.autotrack.nl' + rawUrl;
+    if (gezien.has(url)) continue;
+    gezien.add(url);
+
+    // ID from URL path
+    const idM = url.match(/\/(\d{6,})\/?$/);
+    if (!idM) continue;
+    const id = 'at-' + idM[1];
+
+    const prijs = item.offers?.price || item.price || 0;
+    if (!prijs || prijs < 500 || prijs > 500000) continue;
+
+    // Kilometer reading
+    const kmRaw = item.mileageFromOdometer?.value ?? item.mileage ?? null;
+    const km = kmRaw ? parseInt(String(kmRaw).replace(/[^\d]/g, '')) : null;
+
+    // Year from productionDate or modelDate
+    const yearRaw = item.productionDate || item.modelDate || '';
+    const yearM2 = String(yearRaw).match(/\b(19|20)\d{2}\b/);
+    const jaar = yearM2 ? parseInt(yearM2[0]) : null;
+
+    // Image
+    const imgSrc = (Array.isArray(item.image) ? item.image[0] : item.image) || '';
+
+    results.push({
+      id,
+      bron: 'AutoTrack',
+      titel: (item.name || '').substring(0, 80),
+      prijs: typeof prijs === 'string' ? parseInt(prijs.replace(/[^\d]/g, '')) : prijs,
+      jaar,
+      km,
+      brandstof: item.fuelType || 'Elektrisch',
+      carrosserie: item.bodyType || '',
+      transmissie: item.vehicleTransmission || '',
+      kleur: item.color || '',
+      locatie: item.offers?.seller?.address?.addressLocality || 'Nederland',
+      url,
+      imgSrc: typeof imgSrc === 'string' ? imgSrc : '',
+      bijgewerkt: new Date().toISOString().split('T')[0]
+    });
+  }
+  return results;
+}
+
 // ── MAIN ──────────────────────────────────────────────────────────────────────
 
 async function main() {
   console.log('🚗 Scraper gestart:', new Date().toISOString());
 
-  console.log('\n📦 Marktplaats...');
+  console.log('\n📦 Marktplaats (algemeen + EV)...');
   const mpListings = await scrapeMarktplaats();
   console.log(`✓ Marktplaats: ${mpListings.length} listings`);
 
-  console.log('\n⛽ Gaspedaal...');
+  console.log('\n⛽ Gaspedaal (algemeen + elektrisch)...');
   const gpListings = await scrapeGaspedaal();
   console.log(`✓ Gaspedaal: ${gpListings.length} listings`);
 
-  console.log('\n🏷️ viaBOVAG...');
+  console.log('\n🏷️ viaBOVAG (algemeen + elektrisch)...');
   const vbListings = await scrapeViaBovag();
   console.log(`✓ viaBOVAG: ${vbListings.length} listings`);
 
-  const nieuw = [...mpListings, ...gpListings, ...vbListings];
+  console.log('\n⚡ AutoTrack (elektrisch)...');
+  const atListings = await scrapeAutoTrack();
+  console.log(`✓ AutoTrack: ${atListings.length} listings`);
+
+  const nieuw = [...mpListings, ...gpListings, ...vbListings, ...atListings];
   console.log(`\n🆕 Vandaag gescrapt: ${nieuw.length} listings`);
 
   // ── Bestaande listings inladen en samenvoegen ─────────────────────────────
