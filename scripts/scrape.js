@@ -1,12 +1,12 @@
 // scripts/scrape.js - AutoVergelijker dagelijkse scraper
-// Bronnen: Marktplaats + Gaspedaal
+// Bronnen: Marktplaats + Gaspedaal + viaBOVAG
 
 const fs = require('fs');
 const path = require('path');
 
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
-// ── HEADERS ──────────────────────────────────────────────────────────────────
+// ── HEADERS ───────────────────────────────────────────────────────────────────
 
 const HEADERS_MP = {
   'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
@@ -33,6 +33,14 @@ const HEADERS_GP = {
   'Upgrade-Insecure-Requests': '1',
 };
 
+const HEADERS_VB = {
+  'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+  'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
+  'Accept-Language': 'nl-NL,nl;q=0.9',
+  'Cache-Control': 'no-cache',
+  'Upgrade-Insecure-Requests': '1',
+};
+
 // ── MARKTPLAATS ───────────────────────────────────────────────────────────────
 
 const MP_URLS = [
@@ -50,14 +58,14 @@ async function scrapeMarktplaats() {
     const label = `MP p${i + 1}`;
     try {
       const resp = await fetch(url, { headers: HEADERS_MP });
-      console.log(`  ${label}: HTTP ${resp.status}`);
+      console.log(` ${label}: HTTP ${resp.status}`);
       if (!resp.ok) continue;
       const html = await resp.text();
       const found = parseerMarktplaats(html, gezien);
       all.push(...found);
-      console.log(`  ${label}: ${found.length} nieuw → totaal MP ${all.length}`);
+      console.log(` ${label}: ${found.length} nieuw → totaal MP ${all.length}`);
     } catch (e) {
-      console.log(`  ${label}: fout - ${e.message}`);
+      console.log(` ${label}: fout - ${e.message}`);
     }
     if (i < MP_URLS.length - 1) await sleep(8000);
   }
@@ -71,14 +79,14 @@ function parseerMarktplaats(html, gezien) {
       const data = JSON.parse(match[1]);
       const items = data?.props?.pageProps?.searchRequestAndResponse?.listings || [];
       if (items.length > 0) {
-        console.log(`    __NEXT_DATA__: ${items.length} items`);
+        console.log(` __NEXT_DATA__: ${items.length} items`);
         return parseerMPItems(items, gezien);
       }
     } catch (e) {
-      console.log(`    JSON fout: ${e.message}`);
+      console.log(` JSON fout: ${e.message}`);
     }
   }
-  console.log(`    Fallback regex...`);
+  console.log(` Fallback regex...`);
   return parseerMPFallback(html, gezien);
 }
 
@@ -171,14 +179,14 @@ async function scrapeGaspedaal() {
     const label = `GP p${i + 1}`;
     try {
       const resp = await fetch(url, { headers: HEADERS_GP });
-      console.log(`  ${label}: HTTP ${resp.status}`);
+      console.log(` ${label}: HTTP ${resp.status}`);
       if (!resp.ok) continue;
       const html = await resp.text();
       const found = parseerGaspedaal(html, gezien, label);
       all.push(...found);
-      console.log(`  ${label}: ${found.length} nieuw → totaal GP ${all.length}`);
+      console.log(` ${label}: ${found.length} nieuw → totaal GP ${all.length}`);
     } catch (e) {
-      console.log(`  ${label}: fout - ${e.message}`);
+      console.log(` ${label}: fout - ${e.message}`);
     }
     if (i < GP_URLS.length - 1) await sleep(6000);
   }
@@ -186,7 +194,6 @@ async function scrapeGaspedaal() {
 }
 
 function parseerGaspedaal(html, gezien, label) {
-  // 1. Haal JSON-LD ItemList op (heeft alle autodetails)
   const ldBlocks = [...html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)];
   let items = [];
   for (const block of ldBlocks) {
@@ -194,19 +201,17 @@ function parseerGaspedaal(html, gezien, label) {
       const d = JSON.parse(block[1]);
       if (d['@type'] === 'ItemList' && Array.isArray(d.itemListElement)) {
         items = d.itemListElement.map(e => e.item);
-        console.log(`    ${label}: ${items.length} JSON-LD items`);
+        console.log(` ${label}: ${items.length} JSON-LD items`);
         break;
       }
     } catch (e) { /* doorgaan */ }
   }
 
   if (items.length === 0) {
-    console.log(`    ${label}: geen JSON-LD items gevonden`);
+    console.log(` ${label}: geen JSON-LD items gevonden`);
     return [];
   }
 
-  // 2. Haal klikUrls op (eerste portal-URL per auto)
-  // Gaspedaal embed RSC-data met \"portalen\":[ per auto, gevolgd door klikUrl
   const portaalMatches = [...html.matchAll(/\\"portalen\\":\[/g)];
   const klikUrls = portaalMatches.map(m => {
     const chunk = html.substring(m.index, m.index + 800);
@@ -214,9 +219,8 @@ function parseerGaspedaal(html, gezien, label) {
     return match ? 'https://api.gaspedaal.nl/redirect/vehicle/' + match[1] : null;
   }).filter(Boolean);
 
-  console.log(`    ${label}: ${klikUrls.length} klikUrls gevonden`);
+  console.log(` ${label}: ${klikUrls.length} klikUrls gevonden`);
 
-  // 3. Koppel positie-voor-positie
   const results = [];
   const limit = Math.min(items.length, klikUrls.length);
 
@@ -253,6 +257,119 @@ function parseerGaspedaal(html, gezien, label) {
   return results;
 }
 
+// ── VIABOVAG ──────────────────────────────────────────────────────────────────
+
+const VB_URLS = [
+  'https://www.viabovag.nl/auto/occasion',
+  'https://www.viabovag.nl/auto/occasion?pagina=2',
+  'https://www.viabovag.nl/auto/occasion?pagina=3',
+  'https://www.viabovag.nl/auto/occasion?pagina=4',
+];
+
+async function scrapeViaBovag() {
+  const all = [];
+  const gezien = new Set();
+
+  for (let i = 0; i < VB_URLS.length; i++) {
+    const url = VB_URLS[i];
+    const label = `VB p${i + 1}`;
+    try {
+      const resp = await fetch(url, { headers: HEADERS_VB });
+      console.log(` ${label}: HTTP ${resp.status}`);
+      if (!resp.ok) continue;
+      const html = await resp.text();
+      const found = parseerViaBovag(html, gezien, label);
+      all.push(...found);
+      console.log(` ${label}: ${found.length} nieuw → totaal VB ${all.length}`);
+    } catch (e) {
+      console.log(` ${label}: fout - ${e.message}`);
+    }
+    if (i < VB_URLS.length - 1) await sleep(7000);
+  }
+  return all;
+}
+
+function parseerViaBovag(html, gezien, label) {
+  const results = [];
+
+  // Collect all unique car URLs — each car appears ~3x (responsive layouts)
+  const allUrlMatches = [...html.matchAll(/href="(\/auto\/aanbod\/[^"]+)"/g)];
+  const uniqueUrls = [...new Set(allUrlMatches.map(m => m[1]))];
+  console.log(` ${label}: ${uniqueUrls.length} unieke auto-URLs`);
+
+  for (const relUrl of uniqueUrls) {
+    // Stable ID = 7-char code at end of slug
+    const idCode = (relUrl.match(/([a-z0-9]{7})$/) || [])[1];
+    if (!idCode) continue;
+    const id = 'vb-' + idCode;
+    if (gezien.has(id)) continue;
+
+    // Get context window: from first occurrence to next car URL (max 5000 chars)
+    const startIdx = html.indexOf(`href="${relUrl}"`);
+    if (startIdx < 0) continue;
+    // Find next different car URL after this one
+    const afterThis = html.indexOf('/auto/aanbod/', startIdx + relUrl.length + 10);
+    const windowEnd = afterThis > 0 ? Math.min(afterThis + 50, startIdx + 5000) : startIdx + 5000;
+    const chunk = html.substring(startIdx, windowEnd);
+
+    // Price: "31.850,-" or "9.500,-"
+    const priceM = chunk.match(/([\d]+\.[\d]+),-|([\d]+),-/);
+    const prijs = priceM ? parseInt((priceM[1] || priceM[2]).replace(/\./g, '')) : 0;
+    if (!prijs || prijs < 500 || prijs > 500000) continue;
+
+    // Title from h2/h3 inside this chunk
+    const titleM = chunk.match(/<h[2-4][^>]*>([^<]{3,60})<\/h[2-4]>/);
+    const slugTitle = relUrl
+      .replace(/\/auto\/aanbod\//, '')
+      .replace(/-[a-z0-9]{7}$/, '')
+      .replace(/-/g, ' ')
+      .replace(/\b\w/g, c => c.toUpperCase())
+      .substring(0, 80);
+    const titel = titleM ? titleM[1].trim().substring(0, 80) : slugTitle;
+
+    // KM: "3.090 km"
+    const kmM = chunk.match(/([\d]+\.[\d]+|[\d]+)\s*km\b/i);
+    const km = kmM ? parseInt(kmM[1].replace(/\./g, '')) : null;
+
+    // Year from "MM-YYYY" date
+    const yearM = chunk.match(/\b\d{2}-(20\d{2})\b/);
+    const jaar = yearM ? parseInt(yearM[1]) : null;
+
+    // Fuel: Benzine, Diesel, Elektrisch, Hybride
+    const bsM = chunk.match(/\b(Benzine|Diesel|Elektrisch|Hybride|LPG|Waterstof)\b/i);
+    const brandstof = bsM ? bsM[1] : '';
+
+    // Image from Azure blob
+    const imgM = chunk.match(/https:\/\/stsharedprdweu\.blob\.core\.windows\.net\/vehicles-media\/[^"'\s>]+/);
+    const imgSrc = imgM ? imgM[0] : '';
+
+    // Location: uppercase Dutch city (before the price, e.g. "BORNERBROEK")
+    const locM = chunk.match(/\b([A-Z][A-Z\s\-]{2,25}[A-Z])\b/);
+    const locatie = (locM && !locM[1].includes('BOVAG') && !locM[1].includes('HTTP'))
+      ? locM[1].trim()
+      : 'Nederland';
+
+    gezien.add(id);
+    results.push({
+      id,
+      bron: 'viaBOVAG',
+      titel,
+      prijs,
+      jaar,
+      km,
+      brandstof,
+      carrosserie: '',
+      transmissie: '',
+      kleur: '',
+      locatie,
+      url: 'https://www.viabovag.nl' + relUrl,
+      imgSrc,
+      bijgewerkt: new Date().toISOString().split('T')[0]
+    });
+  }
+  return results;
+}
+
 // ── MAIN ──────────────────────────────────────────────────────────────────────
 
 async function main() {
@@ -266,7 +383,11 @@ async function main() {
   const gpListings = await scrapeGaspedaal();
   console.log(`✓ Gaspedaal: ${gpListings.length} listings`);
 
-  const listings = [...mpListings, ...gpListings];
+  console.log('\n🏷️ viaBOVAG...');
+  const vbListings = await scrapeViaBovag();
+  console.log(`✓ viaBOVAG: ${vbListings.length} listings`);
+
+  const listings = [...mpListings, ...gpListings, ...vbListings];
   console.log(`\n📊 Totaal: ${listings.length} listings`);
 
   const data = {
