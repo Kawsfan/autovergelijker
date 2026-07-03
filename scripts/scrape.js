@@ -252,7 +252,7 @@ function parseerViaBovag(html, gezien, label) {
     const chunk = html.substring(startIdx, windowEnd);
 
     // Price: "31.850,-" or "9.500,-"
-    const priceM = chunk.match(/([\d]+\.[\d]+),-|([ld]+),-/);
+    const priceM = chunk.match(/([\d]+\.[\d]+),-|([\d]+),-/);
     const prijs = priceM ? parseInt((priceM[1] || priceM[2]).replace(/\./g, '')) : 0;
     if (!prijs || prijs < 500 || prijs > 500000) continue;
 
@@ -326,8 +326,35 @@ async function main() {
   const vbListings = await scrapeViaBovag();
   console.log(`✓ viaBOVAG: ${vbListings.length} listings`);
 
-  const listings = [...mpListings, ...gpListings, ...vbListings];
-  console.log(`\n📊 Totaal: ${listings.length} listings`);
+  const nieuw = [...mpListings, ...gpListings, ...vbListings];
+  console.log(`\n🆕 Vandaag gescrapt: ${nieuw.length} listings`);
+
+  // ── Bestaande listings inladen en samenvoegen ─────────────────────────────
+  const outPath = path.join(process.cwd(), 'data', 'listings.json');
+  const byId = {};
+
+  // 1) Laad bestaande listings
+  try {
+    const bestaand = JSON.parse(fs.readFileSync(outPath, 'utf8'));
+    for (const l of (bestaand.listings || [])) byId[l.id] = l;
+    console.log(`📂 Bestaand: ${Object.keys(byId).length} listings geladen`);
+  } catch (e) {
+    console.log(`📂 Geen bestaand bestand, begin vers`);
+  }
+
+  // 2) Voeg nieuwe listings toe (overschrijft oud als zelfde ID)
+  for (const l of nieuw) byId[l.id] = l;
+
+  // 3) Verwijder listings ouder dan 30 dagen
+  const cutoff = new Date();
+  cutoff.setDate(cutoff.getDate() - 30);
+  const cutoffStr = cutoff.toISOString().split('T')[0];
+  const listings = Object.values(byId).filter(l => l.bijgewerkt >= cutoffStr);
+
+  const verwijderd = Object.keys(byId).length - listings.length;
+  if (verwijderd > 0) console.log(`🗑️  ${verwijderd} verlopen listings verwijderd (>30 dagen)`);
+
+  console.log(`📊 Totaal na merge: ${listings.length} listings`);
 
   const data = {
     bijgewerkt: new Date().toISOString(),
@@ -336,7 +363,6 @@ async function main() {
     listings
   };
 
-  const outPath = path.join(process.cwd(), 'data', 'listings.json');
   fs.writeFileSync(outPath, JSON.stringify(data, null, 2));
   console.log(`✅ Opgeslagen naar ${outPath}`);
 }
