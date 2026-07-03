@@ -315,6 +315,14 @@
       .stats-tekst { display: none; }
       .actie-rij { justify-content: space-between; }
     }
+      .interval-btns { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 4px; }
+    .interval-btns button {
+      padding: 5px 10px; border: 1.5px solid var(--grijs2); border-radius: 20px;
+      background: white; font-size: 11px; font-weight: 600; color: var(--subtekst);
+      cursor: pointer; transition: all 0.15s; white-space: nowrap;
+    }
+    .interval-btns button.actief { background: var(--oranje); color: white; border-color: var(--oranje); }
+    .interval-btns button:hover:not(.actief) { background: var(--grijs1); border-color: var(--mp-oranje); }
   </style>
 </head>
 <body>
@@ -386,9 +394,16 @@
       </div>
       <div class="filter-range">
         <label>Prijs</label>
-        <div class="range-inputs">
-          <input type="number" id="prijsMin" placeholder="Min €" oninput="zoekNu()" />
-          <input type="number" id="prijsMax" placeholder="Max €" oninput="zoekNu()" />
+        <input type="hidden" id="prijsMin" value="" />
+        <input type="hidden" id="prijsMax" value="" />
+        <div class="interval-btns" id="prijsIntervals">
+          <button class="actief" data-min="" data-max="" onclick="setPrijsInterval(this)">Alles</button>
+          <button data-min="0" data-max="5000" onclick="setPrijsInterval(this)">&lt; €5k</button>
+          <button data-min="5000" data-max="10000" onclick="setPrijsInterval(this)">€5k – €10k</button>
+          <button data-min="10000" data-max="20000" onclick="setPrijsInterval(this)">€10k – €20k</button>
+          <button data-min="20000" data-max="35000" onclick="setPrijsInterval(this)">€20k – €35k</button>
+          <button data-min="35000" data-max="50000" onclick="setPrijsInterval(this)">€35k – €50k</button>
+          <button data-min="50000" data-max="" onclick="setPrijsInterval(this)">&gt; €50k</button>
         </div>
       </div>
     </div>
@@ -407,9 +422,15 @@
       </div>
       <div class="filter-range">
         <label>Km. stand</label>
-        <div class="range-inputs">
-          <input type="number" id="kmMin" placeholder="Min km" oninput="zoekNu()" />
-          <input type="number" id="kmMax" placeholder="Max km" oninput="zoekNu()" />
+        <input type="hidden" id="kmMin" value="" />
+        <input type="hidden" id="kmMax" value="" />
+        <div class="interval-btns" id="kmIntervals">
+          <button class="actief" data-min="" data-max="" onclick="setKmInterval(this)">Alles</button>
+          <button data-min="0" data-max="50000" onclick="setKmInterval(this)">&lt; 50k km</button>
+          <button data-min="50000" data-max="100000" onclick="setKmInterval(this)">50 – 100k km</button>
+          <button data-min="100000" data-max="150000" onclick="setKmInterval(this)">100 – 150k km</button>
+          <button data-min="150000" data-max="200000" onclick="setKmInterval(this)">150 – 200k km</button>
+          <button data-min="200000" data-max="" onclick="setKmInterval(this)">&gt; 200k km</button>
         </div>
       </div>
       <div class="filter-toggle">
@@ -743,6 +764,21 @@ document.getElementById('modelInput').addEventListener('keydown', e => { if (e.k
 document.addEventListener('keydown', e => { if (e.key === 'Escape') sluitDetail(); });
 
 document.addEventListener('DOMContentLoaded', laadListings);
-</script>
+
+    function setPrijsInterval(btn) {
+      document.querySelectorAll('#prijsIntervals button').forEach(b => b.classList.remove('actief'));
+      btn.classList.add('actief');
+      document.getElementById('prijsMin').value = btn.dataset.min;
+      document.getElementById('prijsMax').value = btn.dataset.max;
+      zoekNu();
+    }
+    function setKmInterval(btn) {
+      document.querySelectorAll('#kmIntervals button').forEach(b => b.classList.remove('actief'));
+      btn.classList.add('actief');
+      document.getElementById('kmMin').value = btn.dataset.min;
+      document.getElementById('kmMax').value = btn.dataset.max;
+      zoekNu();
+    }
+  </script>
 </body>
 </html>
