@@ -10,14 +10,9 @@ function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
 const HEADERS_MP = {
   'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
-  'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
+  'Accept': 'application/json',
   'Accept-Language': 'nl-NL,nl;q=0.9',
-  'Cache-Control': 'max-age=0',
-  'Sec-Fetch-Dest': 'document',
-  'Sec-Fetch-Mode': 'navigate',
-  'Sec-Fetch-Site': 'none',
-  'Sec-Fetch-User': '?1',
-  'Upgrade-Insecure-Requests': '1',
+  'Referer': 'https://www.marktplaats.nl/l/auto-s/',
 };
 
 const HEADERS_GP = {
@@ -42,52 +37,34 @@ const HEADERS_VB = {
 };
 
 // ── MARKTPLAATS ───────────────────────────────────────────────────────────────
+// Gebruikt de interne LRP JSON API i.p.v. HTML scraping (omzeilt bot-detectie)
 
-const MP_URLS = [
-  'https://www.marktplaats.nl/l/auto-s/?numberOfResultsPerPage=100',
-  'https://www.marktplaats.nl/l/auto-s/?numberOfResultsPerPage=100&currentPage=2',
-  'https://www.marktplaats.nl/l/auto-s/?numberOfResultsPerPage=100&currentPage=3',
-];
+const MP_API_BASE = 'https://www.marktplaats.nl/lrp/api/search?l1CategoryId=91&numberOfResultsPerPage=100';
+const MP_OFFSETS = [0, 100, 200]; // 3 pagina's = 300 listings
 
 async function scrapeMarktplaats() {
   const all = [];
   const gezien = new Set();
 
-  for (let i = 0; i < MP_URLS.length; i++) {
-    const url = MP_URLS[i];
+  for (let i = 0; i < MP_OFFSETS.length; i++) {
+    const url = MP_API_BASE + '&offset=' + MP_OFFSETS[i];
     const label = `MP p${i + 1}`;
     try {
       const resp = await fetch(url, { headers: HEADERS_MP });
       console.log(` ${label}: HTTP ${resp.status}`);
       if (!resp.ok) continue;
-      const html = await resp.text();
-      const found = parseerMarktplaats(html, gezien);
+      const data = await resp.json();
+      const items = data.listings || [];
+      console.log(` ${label}: ${items.length} JSON items`);
+      const found = parseerMPItems(items, gezien);
       all.push(...found);
       console.log(` ${label}: ${found.length} nieuw → totaal MP ${all.length}`);
     } catch (e) {
       console.log(` ${label}: fout - ${e.message}`);
     }
-    if (i < MP_URLS.length - 1) await sleep(8000);
+    if (i < MP_OFFSETS.length - 1) await sleep(5000);
   }
   return all;
-}
-
-function parseerMarktplaats(html, gezien) {
-  const match = html.match(/<script id="__NEXT_DATA__" type="application\/json">([\s\S]+?)<\/script>/);
-  if (match) {
-    try {
-      const data = JSON.parse(match[1]);
-      const items = data?.props?.pageProps?.searchRequestAndResponse?.listings || [];
-      if (items.length > 0) {
-        console.log(` __NEXT_DATA__: ${items.length} items`);
-        return parseerMPItems(items, gezien);
-      }
-    } catch (e) {
-      console.log(` JSON fout: ${e.message}`);
-    }
-  }
-  console.log(` Fallback regex...`);
-  return parseerMPFallback(html, gezien);
 }
 
 function parseerMPItems(items, gezien) {
@@ -119,44 +96,6 @@ function parseerMPItems(items, gezien) {
       locatie: item.location?.cityName || 'Nederland',
       url: fullUrl,
       imgSrc: item.imageUrls?.[0] || item.pictures?.[0]?.url || '',
-      bijgewerkt: new Date().toISOString().split('T')[0]
-    });
-  }
-  return results;
-}
-
-function parseerMPFallback(html, gezien) {
-  const results = [];
-  const re = /href="(\/(v|m)\/auto-s\/[^/]+\/[am]\d+[^"]*?)"/g;
-  let m;
-  while ((m = re.exec(html)) !== null && results.length < 100) {
-    const href = m[1];
-    const fullUrl = 'https://www.marktplaats.nl' + href;
-    if (gezien.has(fullUrl)) continue;
-    const ctx = html.substring(Math.max(0, m.index - 300), m.index + 1500);
-    const pm = ctx.match(/€\s*([\d.]+)(?:,-|\s)/);
-    if (!pm) continue;
-    const prijs = parseInt(pm[1].replace(/\./g, ''));
-    if (!prijs || prijs < 500) continue;
-    gezien.add(fullUrl);
-    const jm = ctx.match(/\b(20[0-2]\d|19[89]\d)\b/);
-    const km = ctx.match(/([\d.]+)\s*km/i);
-    const sl = href.match(/\/[am]\d+-(.+)$/);
-    const titel = sl
-      ? decodeURIComponent(sl[1]).replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase()).substring(0, 70)
-      : '';
-    if (!titel || titel.length < 5) continue;
-    results.push({
-      id: 'mp-fb-' + results.length,
-      bron: 'Marktplaats',
-      titel,
-      prijs,
-      jaar: jm ? parseInt(jm[1]) : null,
-      km: km ? parseInt(km[1].replace(/\./g, '')) : null,
-      brandstof: '', carrosserie: '', transmissie: '', kleur: '',
-      locatie: 'Nederland',
-      url: fullUrl,
-      imgSrc: '',
       bijgewerkt: new Date().toISOString().split('T')[0]
     });
   }
@@ -313,7 +252,7 @@ function parseerViaBovag(html, gezien, label) {
     const chunk = html.substring(startIdx, windowEnd);
 
     // Price: "31.850,-" or "9.500,-"
-    const priceM = chunk.match(/([\d]+\.[\d]+),-|([\d]+),-/);
+    const priceM = chunk.match(/([\d]+\.[\d]+),-|([ld]+),-/);
     const prijs = priceM ? parseInt((priceM[1] || priceM[2]).replace(/\./g, '')) : 0;
     if (!prijs || prijs < 500 || prijs > 500000) continue;
 
