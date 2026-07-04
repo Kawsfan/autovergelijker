@@ -272,7 +272,7 @@ async function scrapeViaBovag() {
   const gezien = new Set();
 
   for (let i = 0; i < VB_URLS.length; i++) {
-    const url = VB_URLSi];
+    const url = VB_URLS[i];
     const label = `VB p${i + 1}`;
     try {
       const resp = await fetch(url, { headers: HEADERS_VB });
@@ -812,7 +812,7 @@ async function main() {
     for (const l of (bestaand.listings || [])) byId[l.id] = l;
     console.log(`📂 Bestaand: ${Object.keys(byId).length} listings geladen`);
   } catch (e) {
-    console.log(`📂 Geen bestaand bestand, begin vers`);
+    console.log(`📂 Geen bestaand bestand, begin versh);
   }
 
   for (const l of nieuw) byId[l.id] = l;
@@ -838,4 +838,4 @@ async function main() {
   console.log(`✅ Opgeslagen naar ${outPath}`);
 }
 
-main().catch(e => { console.error('❌ Fout:', e); process.exit(1); }); 
+main().catch(e => { console.error('❌ Fout:', e); process.exit(1); });
