@@ -812,7 +812,7 @@ async function main() {
     for (const l of (bestaand.listings || [])) byId[l.id] = l;
     console.log(`📂 Bestaand: ${Object.keys(byId).length} listings geladen`);
   } catch (e) {
-    console.log(`📂 Geen bestaand bestand, begin versh);
+    console.log(`📂 Geen bestaand bestand, begin vers`);
   }
 
   for (const l of nieuw) byId[l.id] = l;
