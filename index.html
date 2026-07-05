@@ -722,7 +722,7 @@ function toonResultaten(lijst) {
   document.getElementById('autoGrid').innerHTML = gesorteerd.map(a => `
     <div class="auto-card" onclick="openDetail('${a.id}')">
       <div class="auto-foto">
-        <img referrerpolicy="no-referrer" onerror="this.style.display='none'" src="${(a.imgSrc&&!a.imgSrc.match(/marktplaats|gaspedaal/))?a.imgSrc.replace(/\$_\d+\.jpg/gi,'$_86.jpg'):'data:,'}" alt="${a.titel}"
+        <img referrerpolicy="no-referrer" onerror="this.style.display='none'" src="${a.imgSrc?'https://autovergelijker.fergusknies.workers.dev/?url='+encodeURIComponent(a.imgSrc.replace(/\$_\d+\.jpg/gi,'$_86.jpg')):'data:,'}" alt="${a.titel}"
           onerror="this.src='https://placehold.co/600x380/e8e8e3/999?text=${encodeURIComponent((a.titel||'').split(' ').slice(0,2).join(' '))}'"
           loading="lazy" />
         ${a.bijgewerkt === VANDAAG ? '<span class="nieuw-badge">NIEUW</span>' : ''}
@@ -772,7 +772,7 @@ function openDetail(id) {
   window._galIdx = 0;
   document.getElementById('detailInhoud').innerHTML = `
     <div class="gallery-main">
-      <img referrerpolicy="no-referrer" onerror="this.style.display='none'" src="${(a.imgSrc&&!a.imgSrc.match(/marktplaats|gaspedaal/))?a.imgSrc.replace(/\$_\d+\.jpg/gi,'$_86.jpg'):'data:,'}" alt="${a.titel}"
+      <img referrerpolicy="no-referrer" onerror="this.style.display='none'" src="${a.imgSrc?'https://autovergelijker.fergusknies.workers.dev/?url='+encodeURIComponent(a.imgSrc.replace(/\$_\d+\.jpg/gi,'$_86.jpg')):'data:,'}" alt="${a.titel}"
         onerror="this.src='https://placehold.co/720x320/e8e8e3/999?text=${encodeURIComponent((a.titel||'').split(' ').slice(0,2).join(' '))}'" />
     </div>
     <div class="detail-content">
