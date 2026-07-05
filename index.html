@@ -742,7 +742,7 @@ function toonResultaten(lijst) {
         </div>
         <div class="auto-footer">
           <div>
-            <div class="prijs">€ ${a.prijs.toLocaleString('nl-NL')}</div>
+            <div class="prijs">€ ${a.prijs != null ? a.prijs.toLocaleString('nl-NL') : '–'}</div>
             <div class="prijs-sub">${a.bron || 'Gaspedaal'}</div>
           </div>
           <div class="locatie">📍 ${a.locatie || 'Nederland'}</div>
@@ -779,7 +779,7 @@ function openDetail(id) {
       <div class="detail-title-row">
         <h2>${a.titel}</h2>
         <div>
-          <div class="detail-prijs">€ ${a.prijs.toLocaleString('nl-NL')}</div>
+          <div class="detail-prijs">€ ${a.prijs != null ? a.prijs.toLocaleString('nl-NL') : '–'}</div>
           <div class="detail-prijs-sub">${a.bron || 'Gaspedaal'}</div>
         </div>
       </div>
