@@ -868,28 +868,14 @@ document.addEventListener('DOMContentLoaded', laadListings);
 
 <script>
 (function(){
-  var TIMEOUT = 8000;
-  function watchImg(img){
-    if(img._imgWatch) return;
-    img._imgWatch = true;
-    var t = setTimeout(function(){
-      if(!img.complete || img.naturalWidth===0) img.style.display='none';
-    }, TIMEOUT);
-    img.addEventListener('load', function(){ clearTimeout(t); }, {once:true});
-    img.addEventListener('error', function(){ clearTimeout(t); img.style.display='none'; }, {once:true});
-    if(img.complete && img.naturalWidth===0) { clearTimeout(t); img.style.display='none'; }
-  }
-  var obs = new MutationObserver(function(muts){
-    muts.forEach(function(m){
-      m.addedNodes.forEach(function(n){
-        if(n.nodeType!==1) return;
-        if(n.tagName==='IMG') watchImg(n);
-        else n.querySelectorAll && n.querySelectorAll('img').forEach(watchImg);
-      });
+  setInterval(function(){
+    document.querySelectorAll('img').forEach(function(img){
+      if(!img._t) img._t = Date.now();
+      if((!img.complete || img.naturalWidth===0) && Date.now()-img._t > 7000){
+        img.style.display='none';
+      }
     });
-  });
-  obs.observe(document.documentElement, {childList:true, subtree:true});
-  document.querySelectorAll('img').forEach(watchImg);
+  }, 1000);
 })();
 </script>
 </body>
