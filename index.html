@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AutoVergelijker â Live zoeken</title>
+  <title>AutoVergelijker — Live zoeken</title>
   <style>
     :root {
       --oranje: #e84c15;
@@ -345,7 +345,7 @@
 
 <nav>
   <div class="logo" onclick="resetFilters()">Auto<span>Vergelijker</span></div>
-  <span style="font-size:13px;color:var(--subtekst)">ð¢ Live data</span>
+  <span style="font-size:13px;color:var(--subtekst)">🟢 Live data</span>
 </nav>
 
 <div class="hero">
@@ -360,7 +360,7 @@
     <!-- Tekstzoek -->
     <div class="zoek-rij">
       <div class="zoek-input-wrap">
-        <span class="zoek-icon">ð</span>
+        <span class="zoek-icon">🔍</span>
         <input type="text" id="zoekInput" placeholder="Zoek op trefwoord, merk, model of plaats" oninput="zoekNu()" />
       </div>
     </div>
@@ -377,7 +377,7 @@
           <option>Tesla</option><option>Volvo</option><option>Skoda</option>
           <option>Mercedes-Benz</option><option>Seat</option><option>Opel</option>
           <option>Fiat</option><option>Honda</option><option>Mazda</option>
-          <option>Nissan</option><option>CitroÃ«n</option><option>Dacia</option>
+          <option>Nissan</option><option>Citroën</option><option>Dacia</option>
           <option>Mini</option><option>Land Rover</option><option>Porsche</option>
         </select>
       </div>
@@ -413,33 +413,33 @@
         <div class="range-inputs">
           <select id="prijsMin" onchange="zoekNu()">
             <option value="">van</option>
-            <option value="1000">â¬ 1.000</option>
-            <option value="2500">â¬ 2.500</option>
-            <option value="5000">â¬ 5.000</option>
-            <option value="7500">â¬ 7.500</option>
-            <option value="10000">â¬ 10.000</option>
-            <option value="15000">â¬ 15.000</option>
-            <option value="20000">â¬ 20.000</option>
-            <option value="25000">â¬ 25.000</option>
-            <option value="30000">â¬ 30.000</option>
-            <option value="40000">â¬ 40.000</option>
-            <option value="50000">â¬ 50.000</option>
-            <option value="75000">â¬ 75.000</option>
+            <option value="1000">€ 1.000</option>
+            <option value="2500">€ 2.500</option>
+            <option value="5000">€ 5.000</option>
+            <option value="7500">€ 7.500</option>
+            <option value="10000">€ 10.000</option>
+            <option value="15000">€ 15.000</option>
+            <option value="20000">€ 20.000</option>
+            <option value="25000">€ 25.000</option>
+            <option value="30000">€ 30.000</option>
+            <option value="40000">€ 40.000</option>
+            <option value="50000">€ 50.000</option>
+            <option value="75000">€ 75.000</option>
           </select>
           <select id="prijsMax" onchange="zoekNu()">
             <option value="">t/m</option>
-            <option value="2500">â¬ 2.500</option>
-            <option value="5000">â¬ 5.000</option>
-            <option value="7500">â¬ 7.500</option>
-            <option value="10000">â¬ 10.000</option>
-            <option value="15000">â¬ 15.000</option>
-            <option value="20000">â¬ 20.000</option>
-            <option value="25000">â¬ 25.000</option>
-            <option value="30000">â¬ 30.000</option>
-            <option value="40000">â¬ 40.000</option>
-            <option value="50000">â¬ 50.000</option>
-            <option value="75000">â¬ 75.000</option>
-            <option value="100000">â¬ 100.000</option>
+            <option value="2500">€ 2.500</option>
+            <option value="5000">€ 5.000</option>
+            <option value="7500">€ 7.500</option>
+            <option value="10000">€ 10.000</option>
+            <option value="15000">€ 15.000</option>
+            <option value="20000">€ 20.000</option>
+            <option value="25000">€ 25.000</option>
+            <option value="30000">€ 30.000</option>
+            <option value="40000">€ 40.000</option>
+            <option value="50000">€ 50.000</option>
+            <option value="75000">€ 75.000</option>
+            <option value="100000">€ 100.000</option>
           </select>
         </div>
       </div>
@@ -500,7 +500,7 @@
           <option value="suv">SUV</option>
           <option value="stationwagon">Stationwagon</option>
           <option value="cabriolet">Cabrio</option>
-          <option value="coupe">CoupÃ©</option>
+          <option value="coupe">Coupé</option>
           <option value="mpv">MPV</option>
         </select>
       </div>
@@ -508,11 +508,11 @@
 
     <!-- Actie rij -->
     <div class="actie-rij">
-      <button class="wis-btn" onclick="resetFilters()">â Wis alles</button>
+      <button class="wis-btn" onclick="resetFilters()">✕ Wis alles</button>
       <div class="stats-tekst">
-        <span><span class="check">â</span> Gaspedaal</span>
-        <span><span class="check">â</span> Dagelijks bijgewerkt</span>
-        <span><span class="check">â</span> Gratis zoeken</span>
+        <span><span class="check">✓</span> Gaspedaal</span>
+        <span><span class="check">✓</span> Dagelijks bijgewerkt</span>
+        <span><span class="check">✓</span> Gratis zoeken</span>
       </div>
       <button class="vinden-btn" onclick="zoekNu()">
         Zoeken <span class="vinden-count" id="vindenCount"></span>
@@ -535,8 +535,8 @@
     </div>
     <div>
       <select id="sortering" onchange="herSorteer()">
-        <option value="prijs-asc">Prijs â</option>
-        <option value="prijs-desc">Prijs â</option>
+        <option value="prijs-asc">Prijs ↑</option>
+        <option value="prijs-desc">Prijs ↓</option>
         <option value="jaar-desc">Nieuwste eerst</option>
         <option value="km-asc">Minste km</option>
       </select>
@@ -551,14 +551,14 @@
 <div class="detail-overlay" id="overlay" onclick="sluitDetail()"></div>
 <div class="detail-panel" id="detailPanel">
   <div class="detail-header">
-    <button class="back-btn" onclick="sluitDetail()">â Terug</button>
+    <button class="back-btn" onclick="sluitDetail()">← Terug</button>
     <span class="detail-header-title" id="detailTitel"></span>
   </div>
   <div id="detailInhoud"></div>
 </div>
 
 <footer>
-  <strong>AutoVergelijker</strong> â Dagelijks bijgewerkte data van Gaspedaal Â· Klik op een advertentie om naar de originele pagina te gaan.
+  <strong>AutoVergelijker</strong> — Dagelijks bijgewerkte data van Gaspedaal · Klik op een advertentie om naar de originele pagina te gaan.
 </footer>
 
 <script>
@@ -567,7 +567,7 @@ let huidigDetailId = null;
 let transmissieActief = '';
 const VANDAAG = new Date().toISOString().split('T')[0];
 
-// ââ LADEN âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// ── LADEN ─────────────────────────────────────────────────────────────────────
 async function laadListings() {
   try {
     const resp = await fetch('data/listings.json');
@@ -578,7 +578,7 @@ async function laadListings() {
     if (alleResultaten.length === 0) {
       document.getElementById('autoGrid').innerHTML = `
         <div class="geen-resultaten">
-          <span class="icon">ð</span>
+          <span class="icon">🔄</span>
           <h3>Nog geen advertenties</h3>
           <p>De scraper draait dagelijks om 06:00. Kom morgen terug!<br/>
           Of zoek direct op <a href="https://www.gaspedaal.nl/" target="_blank">Gaspedaal</a>.</p>
@@ -591,12 +591,12 @@ async function laadListings() {
       ? new Date(data.bijgewerkt).toLocaleDateString('nl-NL', { day: 'numeric', month: 'long' })
       : '';
     document.getElementById('statusTekst').textContent =
-      `${alleResultaten.length} advertenties geladen` + (bijgewerkt ? ` Â· Bijgewerkt: ${bijgewerkt}` : '');
+      `${alleResultaten.length} advertenties geladen` + (bijgewerkt ? ` · Bijgewerkt: ${bijgewerkt}` : '');
 
     // Update bron badge dynamically based on actual data
     const bronnen = [...new Set(alleResultaten.map(l => l.bron).filter(Boolean))];
     if (bronnen.length > 0) {
-      document.getElementById('bronBadge').textContent = bronnen.join(' Â· ');
+      document.getElementById('bronBadge').textContent = bronnen.join(' · ');
     }
 
     updateVindenCount(alleResultaten.length);
@@ -604,7 +604,7 @@ async function laadListings() {
   } catch (err) {
     document.getElementById('autoGrid').innerHTML = `
       <div class="geen-resultaten">
-        <span class="icon">â ï¸</span>
+        <span class="icon">⚠️</span>
         <h3>Laden mislukt</h3>
         <p>Vernieuw de pagina om het opnieuw te proberen.</p>
       </div>`;
@@ -617,7 +617,7 @@ function updateVindenCount(n) {
   if (el) el.textContent = n > 0 ? `(${n.toLocaleString('nl-NL')})` : '';
 }
 
-// ââ TRANSMISSIE TOGGLE ââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// ── TRANSMISSIE TOGGLE ────────────────────────────────────────────────────────
 function setTransmissie(btn) {
   document.querySelectorAll('.toggle-btns button').forEach(b => b.classList.remove('actief'));
   btn.classList.add('actief');
@@ -625,7 +625,7 @@ function setTransmissie(btn) {
   zoekNu();
 }
 
-// ââ FILTEREN ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// ── FILTEREN ──────────────────────────────────────────────────────────────────
 function zoekNu() {
   if (alleResultaten.length === 0) return;
 
@@ -675,7 +675,7 @@ function zoekNu() {
   toonResultaten(gefilterd);
 }
 
-// ââ RESET âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// ── RESET ─────────────────────────────────────────────────────────────────────
 function resetFilters() {
   document.getElementById('zoekInput').value = '';
   document.getElementById('merkFilter').value = '';
@@ -697,7 +697,7 @@ function resetFilters() {
   }
 }
 
-// ââ TONEN âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// ── TONEN ─────────────────────────────────────────────────────────────────────
 function toonResultaten(lijst) {
   const sort = document.getElementById('sortering').value;
   const gesorteerd = sorteer([...lijst], sort);
@@ -712,7 +712,7 @@ function toonResultaten(lijst) {
   if (!gesorteerd.length) {
     document.getElementById('autoGrid').innerHTML = `
       <div class="geen-resultaten">
-        <span class="icon">ð</span>
+        <span class="icon">🔍</span>
         <h3>Geen resultaten</h3>
         <p>Probeer andere filters of zoek direct op <a href="https://www.gaspedaal.nl/" target="_blank">Gaspedaal</a>.</p>
       </div>`;
@@ -742,10 +742,10 @@ function toonResultaten(lijst) {
         </div>
         <div class="auto-footer">
           <div>
-            <div class="prijs">â¬ ${a.prijs.toLocaleString('nl-NL')}</div>
+            <div class="prijs">€ ${a.prijs.toLocaleString('nl-NL')}</div>
             <div class="prijs-sub">${a.bron || 'Gaspedaal'}</div>
           </div>
-          <div class="locatie">ð ${a.locatie || 'Nederland'}</div>
+          <div class="locatie">📍 ${a.locatie || 'Nederland'}</div>
         </div>
       </div>
     </div>`).join('');
@@ -761,7 +761,7 @@ function sorteer(lijst, sort) {
 
 function herSorteer() { zoekNu(); }
 
-// ââ DETAIL PANEL ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// ── DETAIL PANEL ──────────────────────────────────────────────────────────────
 function openDetail(id) {
   const a = alleResultaten.find(x => x.id === id);
   if (!a) return;
@@ -779,21 +779,21 @@ function openDetail(id) {
       <div class="detail-title-row">
         <h2>${a.titel}</h2>
         <div>
-          <div class="detail-prijs">â¬ ${a.prijs.toLocaleString('nl-NL')}</div>
+          <div class="detail-prijs">€ ${a.prijs.toLocaleString('nl-NL')}</div>
           <div class="detail-prijs-sub">${a.bron || 'Gaspedaal'}</div>
         </div>
       </div>
-      <div class="detail-versie">${[a.brandstof, a.transmissie, a.carrosserie].filter(Boolean).join(' Â· ')}</div>
+      <div class="detail-versie">${[a.brandstof, a.transmissie, a.carrosserie].filter(Boolean).join(' · ')}</div>
       <div class="specs-grid">
-        ${a.jaar ? `<div class="spec-item"><div class="spec-icon">ð</div><div class="spec-val">${a.jaar}</div><div class="spec-lbl">Bouwjaar</div></div>` : ''}
-        ${a.km != null ? `<div class="spec-item"><div class="spec-icon">ð£ï¸</div><div class="spec-val">${a.km.toLocaleString('nl-NL')}</div><div class="spec-lbl">Kilometer</div></div>` : ''}
-        ${a.brandstof ? `<div class="spec-item"><div class="spec-icon">â½</div><div class="spec-val">${a.brandstof}</div><div class="spec-lbl">Brandstof</div></div>` : ''}
-        ${a.transmissie ? `<div class="spec-item"><div class="spec-icon">âï¸</div><div class="spec-val">${a.transmissie}</div><div class="spec-lbl">Transmissie</div></div>` : ''}
-        <div class="spec-item"><div class="spec-icon">ð</div><div class="spec-val" style="font-size:12px">${a.locatie || 'Nederland'}</div><div class="spec-lbl">Locatie</div></div>
-        ${a.carrosserie ? `<div class="spec-item"><div class="spec-icon">ð</div><div class="spec-val">${a.carrosserie}</div><div class="spec-lbl">Carrosserie</div></div>` : ''}
+        ${a.jaar ? `<div class="spec-item"><div class="spec-icon">📅</div><div class="spec-val">${a.jaar}</div><div class="spec-lbl">Bouwjaar</div></div>` : ''}
+        ${a.km != null ? `<div class="spec-item"><div class="spec-icon">🛣️</div><div class="spec-val">${a.km.toLocaleString('nl-NL')}</div><div class="spec-lbl">Kilometer</div></div>` : ''}
+        ${a.brandstof ? `<div class="spec-item"><div class="spec-icon">⛽</div><div class="spec-val">${a.brandstof}</div><div class="spec-lbl">Brandstof</div></div>` : ''}
+        ${a.transmissie ? `<div class="spec-item"><div class="spec-icon">⚙️</div><div class="spec-val">${a.transmissie}</div><div class="spec-lbl">Transmissie</div></div>` : ''}
+        <div class="spec-item"><div class="spec-icon">📍</div><div class="spec-val" style="font-size:12px">${a.locatie || 'Nederland'}</div><div class="spec-lbl">Locatie</div></div>
+        ${a.carrosserie ? `<div class="spec-item"><div class="spec-icon">🚗</div><div class="spec-val">${a.carrosserie}</div><div class="spec-lbl">Carrosserie</div></div>` : ''}
       </div>
       <div class="cta-row">
-        <a class="btn-mp" href="${a.url}" target="_blank">Bekijk op ${a.bron || 'Gaspedaal'} â</a>
+        <a class="btn-mp" href="${a.url}" target="_blank">Bekijk op ${a.bron || 'Gaspedaal'} →</a>
       </div>
       <p style="font-size:12px;color:var(--subtekst);margin-top:12px;text-align:center">
         Foto's en volledige omschrijving staan op de originele advertentie.
