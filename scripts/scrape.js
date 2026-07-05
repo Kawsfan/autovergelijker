@@ -558,8 +558,7 @@ function parseerAutoScout24(html, gezien, label) {
     'M': 'Hybride', 'H': 'Hybride', 'L': 'LPG', 'C': 'CNG',
   };
 
-  const results = [];  if (listings.length > 0) { const _fi = listings[0]; console.log(` DEBUG make: ${JSON.stringify(_fi.vehicle?.make)}, model: ${JSON.stringify(_fi.vehicle?.model)}, url: ${_fi.url?.slice(0,50)}`); }
-  for (const item of listings) {
+  const results = [];  for (const item of listings) {
     const id = 'as24-' + (item.id || item.guid || '');
     if (!id || id === 'as24-' || gezien.has(id)) continue;
     gezien.add(id);
@@ -824,7 +823,9 @@ async function main() {
   const cutoff = new Date();
   cutoff.setDate(cutoff.getDate() - 30);
   const cutoffStr = cutoff.toISOString().split('T')[0];
-  const listings = Object.values(byId).filter(l => l.bijgewerkt >= cutoffStr);
+  const listings = Object.values(byId)
+    .filter(l => l.bijgewerkt >= cutoffStr)
+    .filter(l => !(l.bron === 'AutoScout24' && !l.titel && !l.prijs));
 
   const verwijderd = Object.keys(byId).length - listings.length;
   if (verwijderd > 0) console.log(`🗑️  ${verwijderd} verlopen listings verwijderd (>30 dagen)`);
