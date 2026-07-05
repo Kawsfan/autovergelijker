@@ -288,6 +288,9 @@
     .spec-item .spec-icon { font-size: 20px; margin-bottom: 4px; }
     .spec-item .spec-val { font-size: 14px; font-weight: 700; color: var(--donker); }
     .spec-item .spec-lbl { font-size: 11px; color: var(--subtekst); margin-top: 2px; }
+    .ai-samenvatting { background: linear-gradient(135deg, #f0f4ff 0%, #f7f0ff 100%); border-radius: 12px; padding: 16px 18px; margin: 16px 0; border-left: 3px solid #6c63ff; }
+    .ai-samenvatting .ai-label { font-size: 11px; font-weight: 700; color: #6c63ff; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 8px; }
+    .ai-samenvatting p { font-size: 14px; line-height: 1.6; color: var(--tekst); margin: 0; }
 
     .cta-row { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
     .btn-mp {
@@ -762,6 +765,48 @@ function sorteer(lijst, sort) {
 function herSorteer() { zoekNu(); }
 
 // ── DETAIL PANEL ──────────────────────────────────────────────────────────────
+function genereerSamenvatting(a) {
+  const delen = [];
+  const nu = 2026;
+  const leeftijd = a.jaar ? (nu - a.jaar) : null;
+  if (a.jaar && a.km != null && leeftijd > 0) {
+    const kmPerJaar = Math.round(a.km / leeftijd);
+    let slijtage;
+    if (kmPerJaar < 8000) slijtage = 'een opvallend laag jaarkilometrage';
+    else if (kmPerJaar < 13000) slijtage = 'een laag jaarkilometrage';
+    else if (kmPerJaar < 18000) slijtage = 'een normaal jaarkilometrage';
+    else if (kmPerJaar < 25000) slijtage = 'een bovengemiddeld jaarkilometrage';
+    else slijtage = 'een hoog jaarkilometrage';
+    delen.push('Deze ' + a.titel + ' uit ' + a.jaar + ' heeft ' + a.km.toLocaleString('nl-NL') + ' km gereden — dat is ' + slijtage + ' van gemiddeld ' + kmPerJaar.toLocaleString('nl-NL') + ' km per jaar.');
+  } else if (a.jaar && a.km != null) {
+    delen.push('De kilometerstand is ' + a.km.toLocaleString('nl-NL') + ' km (bouwjaar ' + a.jaar + ').');
+  } else if (a.jaar) {
+    delen.push('Dit voertuig is uit ' + a.jaar + '.');
+  } else if (a.km != null) {
+    delen.push('De kilometerstand bedraagt ' + a.km.toLocaleString('nl-NL') + ' km.');
+  }
+  if (a.brandstof) {
+    const bMap = { 'Elektrisch': 'volledig elektrisch aangedreven', 'Benzine': 'voorzien van een benzinemotor', 'Diesel': 'voorzien van een dieselmotor', 'Hybride': 'hybride aangedreven', 'LPG': 'rijdend op LPG' };
+    const bTekst = bMap[a.brandstof] || ('rijdend op ' + a.brandstof.toLowerCase());
+    const tTekst = a.transmissie ? (' met ' + a.transmissie.toLowerCase() + ' versnellingsbak') : '';
+    delen.push('De auto is ' + bTekst + tTekst + '.');
+  }
+  if (a.carrosserie) {
+    const cMap = { 'SUV': 'een SUV', 'Sedan': 'een sedan', 'Hatchback': 'een hatchback', 'Stationwagen': 'een stationwagen', 'MPV': 'een MPV', 'Terreinwagen': 'een terreinwagen' };
+    delen.push('Het betreft ' + (cMap[a.carrosserie] || 'een ' + a.carrosserie.toLowerCase()) + '.');
+  }
+  if (a.locatie && a.locatie !== 'Nederland') {
+    delen.push('De auto staat te koop in ' + a.locatie + '.');
+  }
+  if (a.km != null && leeftijd != null) {
+    const kmPJ = leeftijd > 0 ? Math.round(a.km / leeftijd) : 99999;
+    if (leeftijd <= 3 && a.km < 30000) delen.push('Gezien het lage aantal kilometers en de jonge leeftijd betreft dit een uitstekend onderhouden occasion.');
+    else if (kmPJ < 10000 && leeftijd > 5) delen.push('Het lage jaarkilometrage wijst op een spaarzaam gebruik — een pluspunt voor de staat van het voertuig.');
+    else if (a.km > 200000) delen.push('Let op de hoge kilometerstand; een goede APK en onderhoudshistorie zijn aan te raden.');
+  }
+  return delen.length ? delen.join(' ') : '';
+}
+
 function openDetail(id) {
   const a = alleResultaten.find(x => x.id === id);
   if (!a) return;
@@ -792,6 +837,8 @@ function openDetail(id) {
         <div class="spec-item"><div class="spec-icon">📍</div><div class="spec-val" style="font-size:12px">${a.locatie || 'Nederland'}</div><div class="spec-lbl">Locatie</div></div>
         ${a.carrosserie ? `<div class="spec-item"><div class="spec-icon">🚗</div><div class="spec-val">${a.carrosserie}</div><div class="spec-lbl">Carrosserie</div></div>` : ''}
       </div>
+      ${genereerSamenvatting(a) ? `<div class="ai-samenvatting"><div class="ai-label">✦ Samenvatting</div><p>${genereerSamenvatting(a)}</p></div>` : ''}
+
       <div class="cta-row">
         <a class="btn-mp" href="${a.url}" target="_blank">Bekijk op ${a.bron || 'Gaspedaal'} →</a>
       </div>
