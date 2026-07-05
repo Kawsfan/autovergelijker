@@ -558,40 +558,20 @@ function parseerAutoScout24(html, gezien, label) {
     'M': 'Hybride', 'H': 'Hybride', 'L': 'LPG', 'C': 'CNG',
   };
 
-  const results = [];
-  // DEBUG: dump first item keys
-  if (listings.length > 0) {
-    const fi = listings[0];
-    const simpleFields = Object.entries(fi).filter(([k,v]) => typeof v !== 'object' || v === null).slice(0, 20);
-    const objFields = Object.keys(fi).filter(k => typeof fi[k] === 'object' && fi[k] !== null);
-    console.log(' DEBUG first item simple fields:', JSON.stringify(simpleFields));
-    console.log(' DEBUG first item object keys:', JSON.stringify(objFields));
-    if (fi.price) console.log(' DEBUG price:', JSON.stringify(fi.price));
-    if (fi.prices) console.log(' DEBUG prices:', JSON.stringify(fi.prices).slice(0,200));
-    if (fi.vehicle) console.log(' DEBUG vehicle keys:', JSON.stringify(Object.keys(fi.vehicle)));
-  }
-  for (const item of listings) {
+  const results = [];  for (const item of listings) {
     const id = 'as24-' + (item.id || item.guid || '');
     if (!id || id === 'as24-' || gezien.has(id)) continue;
     gezien.add(id);
 
     // Prijs kan op meerdere plekken staan
-    const prijsRaw =
-      item.prices?.publicPrice?.priceRaw ||
-      item.prices?.publicPrice?.value ||
-      item.vehicle?.prices?.publicPrice?.priceRaw ||
-      item.vehicle?.price?.amount ||
-      item.price?.amount ||
-      (typeof item.price === 'number' ? item.price : 0);
-    const prijs = typeof prijsRaw === 'number' ? Math.round(prijsRaw) :
-                  typeof prijsRaw === 'string' ? parseInt(prijsRaw.replace(/[^\d]/g,'')) : 0;
+    const prijs = Math.round(item.price?.priceRaw || 0);
     if (!prijs || prijs < 500 || prijs > 500000) continue;
 
     const relUrl = item.url || item.detailPageUrl || '';
     const url = relUrl.startsWith('http') ? relUrl : 'https://www.autoscout24.nl' + relUrl;
 
-    const fuelKey = item.fuelCategory?.key || item.fuel?.key || '';
-    const brandstof = BRANDSTOF_MAP[fuelKey] || fuelKey || '';
+    const fuelKey = item.vehicle?.fuel?.key || item.vehicle?.fuel || item.fuelCategory?.key || item.fuel?.key || '';
+    const brandstof = BRANDSTOF_MAP[fuelKey] || (typeof fuelKey === 'string' ? fuelKey : '') || '';
 
     // Afbeelding
     const imgs = item.images || item.pictures || [];
@@ -601,18 +581,10 @@ function parseerAutoScout24(html, gezien, label) {
     results.push({
       id,
       bron: 'AutoScout24',
-      titel: (() => {
-        const mk = item.make || item.vehicle?.make || '';
-        const mo = item.model || item.vehicle?.model || '';
-        const ve = item.version || item.vehicle?.version || '';
-        if (mk) return `${mk} ${mo} ${ve}`.trim().substring(0, 80);
-        const slug = (item.url || item.detailPageUrl || '').replace(/.*\/aanbod\//, '').replace(/-$/, '');
-        const pts = slug.split('-');
-        return `${pts[0]||''} ${pts[1]||''}`.replace(/\b\w/g, c => c.toUpperCase()).trim().substring(0, 80);
-      })(),
+      titel: `${item.vehicle?.make || ''} ${item.vehicle?.model || ''} ${item.vehicle?.variant || ''}`.trim().substring(0, 80),
       prijs: typeof prijs === 'string' ? parseInt(prijs.replace(/[^\d]/g, '')) : Math.round(prijs),
-      jaar: item.firstRegistrationYear || item.registrationYear || null,
-      km: item.mileageInKm || item.mileage || null,
+      jaar: item.firstRegistrationYear || item.vehicle?.firstRegistrationYear || item.registrationYear || null,
+      km: item.vehicle?.mileageInKm || item.mileageInKm || item.mileage || null,
       brandstof,
       carrosserie: item.bodyType?.key || item.bodyType || '',
       transmissie: item.gear?.key || item.transmission?.key || '',
