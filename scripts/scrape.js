@@ -558,7 +558,8 @@ function parseerAutoScout24(html, gezien, label) {
     'M': 'Hybride', 'H': 'Hybride', 'L': 'LPG', 'C': 'CNG',
   };
 
-  const results = [];  for (const item of listings) {
+  const results = [];  if (listings.length > 0) { const _fi = listings[0]; console.log(` DEBUG make: ${JSON.stringify(_fi.vehicle?.make)}, model: ${JSON.stringify(_fi.vehicle?.model)}, url: ${_fi.url?.slice(0,50)}`); }
+  for (const item of listings) {
     const id = 'as24-' + (item.id || item.guid || '');
     if (!id || id === 'as24-' || gezien.has(id)) continue;
     gezien.add(id);
@@ -581,7 +582,16 @@ function parseerAutoScout24(html, gezien, label) {
     results.push({
       id,
       bron: 'AutoScout24',
-      titel: `${item.vehicle?.make || ''} ${item.vehicle?.model || ''} ${item.vehicle?.variant || ''}`.trim().substring(0, 80),
+      titel: (() => {
+        const sv = v => typeof v === 'string' ? v : (v?.label || v?.value || v?.key || v?.name || '');
+        const mk = sv(item.vehicle?.make) || sv(item.make) || '';
+        const mo = sv(item.vehicle?.model) || sv(item.model) || '';
+        const va = sv(item.vehicle?.variant) || sv(item.vehicle?.version) || sv(item.version) || '';
+        if (mk) return `${mk} ${mo} ${va}`.trim().substring(0, 80);
+        // Fallback: from URL slug
+        const slug = (item.url || '').replace(/.*\/aanbod\//, '').split('cat_')[0].replace(/-+$/, '');
+        return slug.split('-').slice(0, 3).map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ').trim().substring(0, 80);
+      })(),
       prijs: typeof prijs === 'string' ? parseInt(prijs.replace(/[^\d]/g, '')) : Math.round(prijs),
       jaar: item.firstRegistrationYear || item.vehicle?.firstRegistrationYear || item.registrationYear || null,
       km: item.vehicle?.mileageInKm || item.mileageInKm || item.mileage || null,
