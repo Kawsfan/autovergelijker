@@ -559,6 +559,17 @@ function parseerAutoScout24(html, gezien, label) {
   };
 
   const results = [];
+  // DEBUG: dump first item keys
+  if (listings.length > 0) {
+    const fi = listings[0];
+    const simpleFields = Object.entries(fi).filter(([k,v]) => typeof v !== 'object' || v === null).slice(0, 20);
+    const objFields = Object.keys(fi).filter(k => typeof fi[k] === 'object' && fi[k] !== null);
+    console.log(' DEBUG first item simple fields:', JSON.stringify(simpleFields));
+    console.log(' DEBUG first item object keys:', JSON.stringify(objFields));
+    if (fi.price) console.log(' DEBUG price:', JSON.stringify(fi.price));
+    if (fi.prices) console.log(' DEBUG prices:', JSON.stringify(fi.prices).slice(0,200));
+    if (fi.vehicle) console.log(' DEBUG vehicle keys:', JSON.stringify(Object.keys(fi.vehicle)));
+  }
   for (const item of listings) {
     const id = 'as24-' + (item.id || item.guid || '');
     if (!id || id === 'as24-' || gezien.has(id)) continue;
