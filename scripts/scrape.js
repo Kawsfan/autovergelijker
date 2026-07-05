@@ -79,6 +79,9 @@ const MP_OFFSETS = [0, 100, 200];
 const MP_EV_BASE = 'https://www.marktplaats.nl/lrp/api/search?l1CategoryId=91&numberOfResultsPerPage=100&query=elektrisch';
 const MP_EV_OFFSETS = [0, 100, 200];
 
+const MP_TESLA_BASE = 'https://www.marktplaats.nl/lrp/api/search?l1CategoryId=91&numberOfResultsPerPage=100&query=tesla';
+const MP_TESLA_OFFSETS = [0, 100, 200, 300, 400];
+
 async function scrapeMarktplaats() {
   const all = [];
   const gezien = new Set();
@@ -117,6 +120,26 @@ async function scrapeMarktplaats() {
       console.log(` ${label}: fout - ${e.message}`);
     }
     if (i < MP_EV_OFFSETS.length - 1) await sleep(4000);
+  }
+
+
+  // Tesla extra
+  for (let i = 0; i < MP_TESLA_OFFSETS.length; i++) {
+    const url = MP_TESLA_BASE + '&offset=' + MP_TESLA_OFFSETS[i];
+    const label = `MP Tesla p${i + 1}`;
+    try {
+      const resp = await fetch(url, { headers: HEADERS_MP });
+      console.log(` ${label}: HTTP ${resp.status}`);
+      if (!resp.ok) continue;
+      const data = await resp.json();
+      const items = data.listings || [];
+      const found = parseerMPItems(items, gezien);
+      all.push(...found);
+      console.log(` ${label}: ${found.length} nieuw → totaal MP ${all.length}`);
+    } catch (e) {
+      console.log(` ${label}: fout - ${e.message}`);
+    }
+    if (i < MP_TESLA_OFFSETS.length - 1) await sleep(4000);
   }
 
   return all;
@@ -165,6 +188,9 @@ const GP_URLS = [
   'https://www.gaspedaal.nl/zoeken?srt=df-a&p=2',
   'https://www.gaspedaal.nl/elektrisch',
   'https://www.gaspedaal.nl/elektrisch?p=2',
+  'https://www.gaspedaal.nl/tesla',
+  'https://www.gaspedaal.nl/tesla?p=2',
+  'https://www.gaspedaal.nl/tesla?p=3',
 ];
 
 async function scrapeGaspedaal() {
@@ -376,6 +402,9 @@ const AT_URLS = [
   'https://www.autotrack.nl/tweedehands-auto/elektrisch/',
   'https://www.autotrack.nl/tweedehands-auto/elektrisch/?pagina=2',
   'https://www.autotrack.nl/tweedehands-auto/elektrisch/?pagina=3',
+  'https://www.autotrack.nl/tweedehands-auto/tesla/',
+  'https://www.autotrack.nl/tweedehands-auto/tesla/?pagina=2',
+  'https://www.autotrack.nl/tweedehands-auto/tesla/?pagina=3',
 ];
 
 async function scrapeAutoTrack() {
@@ -495,6 +524,13 @@ const AS24_URLS = [
   // Hybride (fuel=M = mild hybrid, H = volledig hybride)
   'https://www.autoscout24.nl/lst/?sort=standard&desc=0&ustate=N%2CU&size=20&page=1&fuel=M%2CH',
   'https://www.autoscout24.nl/lst/?sort=standard&desc=0&ustate=N%2CU&size=20&page=2&fuel=M%2CH',
+
+  // Tesla
+  'https://www.autoscout24.nl/lst/tesla?sort=standard&desc=0&ustate=N%2CU&size=20&page=1',
+  'https://www.autoscout24.nl/lst/tesla?sort=standard&desc=0&ustate=N%2CU&size=20&page=2',
+  'https://www.autoscout24.nl/lst/tesla?sort=standard&desc=0&ustate=N%2CU&size=20&page=3',
+  'https://www.autoscout24.nl/lst/tesla?sort=standard&desc=0&ustate=N%2CU&size=20&page=4',
+  'https://www.autoscout24.nl/lst/tesla?sort=standard&desc=0&ustate=N%2CU&size=20&page=5',
 ];
 
 async function scrapeAutoScout24() {
