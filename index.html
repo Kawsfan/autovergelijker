@@ -732,7 +732,7 @@ function toonResultaten(lijst) {
         <h4>${a.titel}</h4>
         <div class="auto-meta">
           ${a.jaar ? `<span><strong>Bouwjaar:</strong> ${a.jaar}</span>` : ''}
-          ${a.km != null ? `<span><strong>Km.stand:</strong> ${a.km.toLocaleString('nl-NL')} km</span>` : ''}
+          ${a.km != null ? `<span><strong>Km.stand:</strong> ${typeof a.km==='number'?a.km.toLocaleString('nl-NL')+' km':a.km}</span>` : ''}
         </div>
         <div class="auto-labels">
           ${a.brandstof ? `<span class="label-pill">${a.brandstof}</span>` : ''}
@@ -786,7 +786,7 @@ function openDetail(id) {
       <div class="detail-versie">${[a.brandstof, a.transmissie, a.carrosserie].filter(Boolean).join(' · ')}</div>
       <div class="specs-grid">
         ${a.jaar ? `<div class="spec-item"><div class="spec-icon">📅</div><div class="spec-val">${a.jaar}</div><div class="spec-lbl">Bouwjaar</div></div>` : ''}
-        ${a.km != null ? `<div class="spec-item"><div class="spec-icon">🛣️</div><div class="spec-val">${a.km.toLocaleString('nl-NL')}</div><div class="spec-lbl">Kilometer</div></div>` : ''}
+        ${a.km != null ? `<div class="spec-item"><div class="spec-icon">🛣️</div><div class="spec-val">${typeof a.km==='number'?a.km.toLocaleString('nl-NL'):a.km}</div><div class="spec-lbl">Kilometer</div></div>` : ''}
         ${a.brandstof ? `<div class="spec-item"><div class="spec-icon">⛽</div><div class="spec-val">${a.brandstof}</div><div class="spec-lbl">Brandstof</div></div>` : ''}
         ${a.transmissie ? `<div class="spec-item"><div class="spec-icon">⚙️</div><div class="spec-val">${a.transmissie}</div><div class="spec-lbl">Transmissie</div></div>` : ''}
         <div class="spec-item"><div class="spec-icon">📍</div><div class="spec-val" style="font-size:12px">${a.locatie || 'Nederland'}</div><div class="spec-lbl">Locatie</div></div>
