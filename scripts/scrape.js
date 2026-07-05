@@ -565,12 +565,15 @@ function parseerAutoScout24(html, gezien, label) {
     gezien.add(id);
 
     // Prijs kan op meerdere plekken staan
-    const prijs =
+    const prijsRaw =
       item.prices?.publicPrice?.priceRaw ||
       item.prices?.publicPrice?.value ||
+      item.vehicle?.prices?.publicPrice?.priceRaw ||
+      item.vehicle?.price?.amount ||
       item.price?.amount ||
-      item.price ||
-      0;
+      (typeof item.price === 'number' ? item.price : 0);
+    const prijs = typeof prijsRaw === 'number' ? Math.round(prijsRaw) :
+                  typeof prijsRaw === 'string' ? parseInt(prijsRaw.replace(/[^\d]/g,'')) : 0;
     if (!prijs || prijs < 500 || prijs > 500000) continue;
 
     const relUrl = item.url || item.detailPageUrl || '';
@@ -587,7 +590,15 @@ function parseerAutoScout24(html, gezien, label) {
     results.push({
       id,
       bron: 'AutoScout24',
-      titel: `${item.make || ''} ${item.model || ''} ${item.version || ''}`.trim().substring(0, 80),
+      titel: (() => {
+        const mk = item.make || item.vehicle?.make || '';
+        const mo = item.model || item.vehicle?.model || '';
+        const ve = item.version || item.vehicle?.version || '';
+        if (mk) return `${mk} ${mo} ${ve}`.trim().substring(0, 80);
+        const slug = (item.url || item.detailPageUrl || '').replace(/.*\/aanbod\//, '').replace(/-$/, '');
+        const pts = slug.split('-');
+        return `${pts[0]||''} ${pts[1]||''}`.replace(/\b\w/g, c => c.toUpperCase()).trim().substring(0, 80);
+      })(),
       prijs: typeof prijs === 'string' ? parseInt(prijs.replace(/[^\d]/g, '')) : Math.round(prijs),
       jaar: item.firstRegistrationYear || item.registrationYear || null,
       km: item.mileageInKm || item.mileage || null,
