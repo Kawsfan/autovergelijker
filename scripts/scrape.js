@@ -81,6 +81,10 @@ const MP_EV_OFFSETS = [0, 100, 200];
 
 const MP_TESLA_BASE = 'https://www.marktplaats.nl/lrp/api/search?l1CategoryId=91&numberOfResultsPerPage=100&query=tesla';
 const MP_TESLA_OFFSETS = [0, 100, 200, 300, 400];
+const MP_FORD_BASE = 'https://www.marktplaats.nl/lrp/api/search?l1CategoryId=91&numberOfResultsPerPage=100&query=ford+mach-e';
+const MP_FORD_OFFSETS = [0, 100, 200];
+const MP_FORD_EXPLORER_BASE = 'https://www.marktplaats.nl/lrp/api/search?l1CategoryId=91&numberOfResultsPerPage=100&query=ford+explorer+elektrisch';
+const MP_FORD_EXPLORER_OFFSETS = [0, 100];
 
 async function scrapeMarktplaats() {
   const all = [];
@@ -142,6 +146,36 @@ async function scrapeMarktplaats() {
     if (i < MP_TESLA_OFFSETS.length - 1) await sleep(4000);
   }
 
+  // Ford Mach-E extra
+  for (let i = 0; i < MP_FORD_OFFSETS.length; i++) {
+    const url = MP_FORD_BASE + '&offset=' + MP_FORD_OFFSETS[i];
+    const label = 'MP Ford Mach-E p' + (i+1);
+    try {
+      const res = await fetch(url);
+      const json = await res.json();
+      const items = json.listings || [];
+      const found = parseerMPItems(items, gezien);
+      all.push(...found);
+      console.log(label + ': ' + found.length + ' nieuw');
+    } catch (e) { console.log(label + ': fout - ' + e.message); }
+    if (i < MP_FORD_OFFSETS.length - 1) await sleep(4000);
+  }
+
+  // Ford Explorer Elektrisch extra
+  for (let i = 0; i < MP_FORD_EXPLORER_OFFSETS.length; i++) {
+    const url = MP_FORD_EXPLORER_BASE + '&offset=' + MP_FORD_EXPLORER_OFFSETS[i];
+    const label = 'MP Ford Explorer p' + (i+1);
+    try {
+      const res = await fetch(url);
+      const json = await res.json();
+      const items = json.listings || [];
+      const found = parseerMPItems(items, gezien);
+      all.push(...found);
+      console.log(label + ': ' + found.length + ' nieuw');
+    } catch (e) { console.log(label + ': fout - ' + e.message); }
+    if (i < MP_FORD_EXPLORER_OFFSETS.length - 1) await sleep(4000);
+  }
+
   return all;
 }
 
@@ -191,6 +225,11 @@ const GP_URLS = [
   'https://www.gaspedaal.nl/tesla',
   'https://www.gaspedaal.nl/tesla?p=2',
   'https://www.gaspedaal.nl/tesla?p=3',
+  // Ford Elektrisch
+  'https://www.gaspedaal.nl/ford/elektrisch',
+  'https://www.gaspedaal.nl/ford/elektrisch?p=2',
+  'https://www.gaspedaal.nl/ford/mach-e',
+  'https://www.gaspedaal.nl/ford/mach-e?p=2',
 ];
 
 async function scrapeGaspedaal() {
@@ -405,6 +444,13 @@ const AT_URLS = [
   'https://www.autotrack.nl/tweedehands-auto/tesla/',
   'https://www.autotrack.nl/tweedehands-auto/tesla/?pagina=2',
   'https://www.autotrack.nl/tweedehands-auto/tesla/?pagina=3',
+  // Ford Mach-E
+  'https://www.autotrack.nl/tweedehands-auto/ford/mach-e/',
+  'https://www.autotrack.nl/tweedehands-auto/ford/mach-e/?pagina=2',
+  'https://www.autotrack.nl/tweedehands-auto/ford/mach-e/?pagina=3',
+  // Ford Explorer Elektrisch
+  'https://www.autotrack.nl/tweedehands-auto/ford/explorer/',
+  'https://www.autotrack.nl/tweedehands-auto/ford/explorer/?pagina=2',
 ];
 
 async function scrapeAutoTrack() {
@@ -531,6 +577,10 @@ const AS24_URLS = [
   'https://www.autoscout24.nl/lst/tesla?sort=standard&desc=0&ustate=N%2CU&size=20&page=3',
   'https://www.autoscout24.nl/lst/tesla?sort=standard&desc=0&ustate=N%2CU&size=20&page=4',
   'https://www.autoscout24.nl/lst/tesla?sort=standard&desc=0&ustate=N%2CU&size=20&page=5',
+  // Ford Elektrisch
+  'https://www.autoscout24.nl/lst/ford?sort=standard&desc=0&ustate=N%2CU&size=20&page=1&fuel=E',
+  'https://www.autoscout24.nl/lst/ford?sort=standard&desc=0&ustate=N%2CU&size=20&page=2&fuel=E',
+  'https://www.autoscout24.nl/lst/ford?sort=standard&desc=0&ustate=N%2CU&size=20&page=3&fuel=E',
 ];
 
 async function scrapeAutoScout24() {
