@@ -6,7 +6,7 @@ const path = require('path');
 
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
-// ── HEADERS ───────────────────────────────────────────────────────────────────
+// ââ HEADERS âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 
 const HEADERS_MP = {
   'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
@@ -72,7 +72,7 @@ const HEADERS_ATR = {
   'Upgrade-Insecure-Requests': '1',
 };
 
-// ── MARKTPLAATS ───────────────────────────────────────────────────────────────
+// ââ MARKTPLAATS âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 
 const MP_API_BASE = 'https://www.marktplaats.nl/lrp/api/search?l1CategoryId=91&numberOfResultsPerPage=100';
 const MP_OFFSETS = [0, 100, 200];
@@ -85,6 +85,32 @@ const MP_FORD_BASE = 'https://www.marktplaats.nl/lrp/api/search?l1CategoryId=91&
 const MP_FORD_OFFSETS = [0, 100, 200];
 const MP_FORD_EXPLORER_BASE = 'https://www.marktplaats.nl/lrp/api/search?l1CategoryId=91&numberOfResultsPerPage=100&query=ford+explorer+elektrisch';
 const MP_FORD_EXPLORER_OFFSETS = [0, 100];
+const MP_JEEP_BASE = 'https://www.marktplaats.nl/lrp/api/search?l1CategoryId=91&numberOfResultsPerPage=100&query=jeep';
+const MP_JEEP_OFFSETS = [0, 100];
+const MP_ALFA_ROMEO_BASE = 'https://www.marktplaats.nl/lrp/api/search?l1CategoryId=91&numberOfResultsPerPage=100&query=alfa+romeo';
+const MP_ALFA_ROMEO_OFFSETS = [0, 100];
+const MP_SUZUKI_BASE = 'https://www.marktplaats.nl/lrp/api/search?l1CategoryId=91&numberOfResultsPerPage=100&query=suzuki';
+const MP_SUZUKI_OFFSETS = [0, 100];
+const MP_MITSUBISHI_BASE = 'https://www.marktplaats.nl/lrp/api/search?l1CategoryId=91&numberOfResultsPerPage=100&query=mitsubishi';
+const MP_MITSUBISHI_OFFSETS = [0, 100];
+const MP_CUPRA_BASE = 'https://www.marktplaats.nl/lrp/api/search?l1CategoryId=91&numberOfResultsPerPage=100&query=cupra';
+const MP_CUPRA_OFFSETS = [0, 100];
+const MP_MG_BASE = 'https://www.marktplaats.nl/lrp/api/search?l1CategoryId=91&numberOfResultsPerPage=100&query=mg';
+const MP_MG_OFFSETS = [0, 100];
+const MP_POLESTAR_BASE = 'https://www.marktplaats.nl/lrp/api/search?l1CategoryId=91&numberOfResultsPerPage=100&query=polestar';
+const MP_POLESTAR_OFFSETS = [0, 100];
+const MP_JAGUAR_BASE = 'https://www.marktplaats.nl/lrp/api/search?l1CategoryId=91&numberOfResultsPerPage=100&query=jaguar';
+const MP_JAGUAR_OFFSETS = [0, 100];
+const MP_SUBARU_BASE = 'https://www.marktplaats.nl/lrp/api/search?l1CategoryId=91&numberOfResultsPerPage=100&query=subaru';
+const MP_SUBARU_OFFSETS = [0, 100];
+const MP_LEXUS_BASE = 'https://www.marktplaats.nl/lrp/api/search?l1CategoryId=91&numberOfResultsPerPage=100&query=lexus';
+const MP_LEXUS_OFFSETS = [0, 100];
+const MP_BYD_BASE = 'https://www.marktplaats.nl/lrp/api/search?l1CategoryId=91&numberOfResultsPerPage=100&query=byd';
+const MP_BYD_OFFSETS = [0, 100];
+const MP_SMART_BASE = 'https://www.marktplaats.nl/lrp/api/search?l1CategoryId=91&numberOfResultsPerPage=100&query=smart';
+const MP_SMART_OFFSETS = [0, 100];
+const MP_DS_BASE = 'https://www.marktplaats.nl/lrp/api/search?l1CategoryId=91&numberOfResultsPerPage=100&query=ds';
+const MP_DS_OFFSETS = [0, 100];
 
 async function scrapeMarktplaats() {
   const all = [];
@@ -101,7 +127,7 @@ async function scrapeMarktplaats() {
       const items = data.listings || [];
       const found = parseerMPItems(items, gezien);
       all.push(...found);
-      console.log(` ${label}: ${found.length} nieuw → totaal MP ${all.length}`);
+      console.log(` ${label}: ${found.length} nieuw â totaal MP ${all.length}`);
     } catch (e) {
       console.log(` ${label}: fout - ${e.message}`);
     }
@@ -119,7 +145,7 @@ async function scrapeMarktplaats() {
       const items = data.listings || [];
       const found = parseerMPItems(items, gezien);
       all.push(...found);
-      console.log(` ${label}: ${found.length} nieuw → totaal MP ${all.length}`);
+      console.log(` ${label}: ${found.length} nieuw â totaal MP ${all.length}`);
     } catch (e) {
       console.log(` ${label}: fout - ${e.message}`);
     }
@@ -139,7 +165,7 @@ async function scrapeMarktplaats() {
       const items = data.listings || [];
       const found = parseerMPItems(items, gezien);
       all.push(...found);
-      console.log(` ${label}: ${found.length} nieuw → totaal MP ${all.length}`);
+      console.log(` ${label}: ${found.length} nieuw â totaal MP ${all.length}`);
     } catch (e) {
       console.log(` ${label}: fout - ${e.message}`);
     }
@@ -215,7 +241,7 @@ function parseerMPItems(items, gezien) {
   return results;
 }
 
-// ── GASPEDAAL ─────────────────────────────────────────────────────────────────
+// ââ GASPEDAAL âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 
 const GP_URLS = [
   'https://www.gaspedaal.nl/zoeken?srt=df-a',
@@ -230,6 +256,44 @@ const GP_URLS = [
   'https://www.gaspedaal.nl/ford/elektrisch?p=2',
   'https://www.gaspedaal.nl/ford/mach-e',
   'https://www.gaspedaal.nl/ford/mach-e?p=2',
+
+  // Jeep
+  'https://www.gaspedaal.nl/jeep',
+  'https://www.gaspedaal.nl/jeep?p=2',
+  // Alfa Romeo
+  'https://www.gaspedaal.nl/alfa-romeo',
+  'https://www.gaspedaal.nl/alfa-romeo?p=2',
+  // Suzuki
+  'https://www.gaspedaal.nl/suzuki',
+  'https://www.gaspedaal.nl/suzuki?p=2',
+  // Mitsubishi
+  'https://www.gaspedaal.nl/mitsubishi',
+  'https://www.gaspedaal.nl/mitsubishi?p=2',
+  // Cupra
+  'https://www.gaspedaal.nl/cupra',
+  'https://www.gaspedaal.nl/cupra?p=2',
+  // MG
+  'https://www.gaspedaal.nl/mg',
+  'https://www.gaspedaal.nl/mg?p=2',
+  // Polestar
+  'https://www.gaspedaal.nl/polestar',
+  // Jaguar
+  'https://www.gaspedaal.nl/jaguar',
+  'https://www.gaspedaal.nl/jaguar?p=2',
+  // Subaru
+  'https://www.gaspedaal.nl/subaru',
+  'https://www.gaspedaal.nl/subaru?p=2',
+  // Lexus
+  'https://www.gaspedaal.nl/lexus',
+  'https://www.gaspedaal.nl/lexus?p=2',
+  // BYD
+  'https://www.gaspedaal.nl/byd',
+  // Smart
+  'https://www.gaspedaal.nl/smart',
+  'https://www.gaspedaal.nl/smart?p=2',
+  // DS
+  'https://www.gaspedaal.nl/ds',
+  'https://www.gaspedaal.nl/ds?p=2',
 ];
 
 async function scrapeGaspedaal() {
@@ -246,7 +310,7 @@ async function scrapeGaspedaal() {
       const html = await resp.text();
       const found = parseerGaspedaal(html, gezien, label);
       all.push(...found);
-      console.log(` ${label}: ${found.length} nieuw → totaal GP ${all.length}`);
+      console.log(` ${label}: ${found.length} nieuw â totaal GP ${all.length}`);
     } catch (e) {
       console.log(` ${label}: fout - ${e.message}`);
     }
@@ -320,7 +384,7 @@ function parseerGaspedaal(html, gezien, label) {
   return results;
 }
 
-// ── VIABOVAG ──────────────────────────────────────────────────────────────────
+// ââ VIABOVAG ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 
 const VB_URLS = [
   'https://www.viabovag.nl/auto/occasion',
@@ -346,7 +410,7 @@ async function scrapeViaBovag() {
       const html = await resp.text();
       const found = parseerViaBovag(html, gezien, label);
       all.push(...found);
-      console.log(` ${label}: ${found.length} nieuw → totaal VB ${all.length}`);
+      console.log(` ${label}: ${found.length} nieuw â totaal VB ${all.length}`);
     } catch (e) {
       console.log(` ${label}: fout - ${e.message}`);
     }
@@ -426,7 +490,7 @@ function parseerViaBovag(html, gezien, label) {
   return results;
 }
 
-// ── AUTOTRACK ─────────────────────────────────────────────────────────────────
+// ââ AUTOTRACK âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 // Uitgebreid: algemeen + hybride + elektrisch
 
 const AT_URLS = [
@@ -467,7 +531,7 @@ async function scrapeAutoTrack() {
       const html = await resp.text();
       const found = parseerAutoTrack(html, gezien, label);
       all.push(...found);
-      console.log(` ${label}: ${found.length} nieuw → totaal AT ${all.length}`);
+      console.log(` ${label}: ${found.length} nieuw â totaal AT ${all.length}`);
     } catch (e) {
       console.log(` ${label}: fout - ${e.message}`);
     }
@@ -555,7 +619,7 @@ function parseerAutoTrack(html, gezien, label) {
   return results;
 }
 
-// ── AUTOSCOUT24 ───────────────────────────────────────────────────────────────
+// ââ AUTOSCOUT24 âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 // Gebruikt __NEXT_DATA__ JSON embedded in de pagina
 
 const AS24_URLS = [
@@ -581,6 +645,46 @@ const AS24_URLS = [
   'https://www.autoscout24.nl/lst/ford?sort=standard&desc=0&ustate=N%2CU&size=20&page=1&fuel=E',
   'https://www.autoscout24.nl/lst/ford?sort=standard&desc=0&ustate=N%2CU&size=20&page=2&fuel=E',
   'https://www.autoscout24.nl/lst/ford?sort=standard&desc=0&ustate=N%2CU&size=20&page=3&fuel=E',
+
+  // Jeep
+  'https://www.autoscout24.nl/lst/jeep?sort=standard&desc=0&ustate=N%2CU&size=20&page=1',
+  'https://www.autoscout24.nl/lst/jeep?sort=standard&desc=0&ustate=N%2CU&size=20&page=2',
+  // Alfa Romeo
+  'https://www.autoscout24.nl/lst/alfa-romeo?sort=standard&desc=0&ustate=N%2CU&size=20&page=1',
+  'https://www.autoscout24.nl/lst/alfa-romeo?sort=standard&desc=0&ustate=N%2CU&size=20&page=2',
+  // Suzuki
+  'https://www.autoscout24.nl/lst/suzuki?sort=standard&desc=0&ustate=N%2CU&size=20&page=1',
+  'https://www.autoscout24.nl/lst/suzuki?sort=standard&desc=0&ustate=N%2CU&size=20&page=2',
+  // Mitsubishi
+  'https://www.autoscout24.nl/lst/mitsubishi?sort=standard&desc=0&ustate=N%2CU&size=20&page=1',
+  'https://www.autoscout24.nl/lst/mitsubishi?sort=standard&desc=0&ustate=N%2CU&size=20&page=2',
+  // Cupra
+  'https://www.autoscout24.nl/lst/cupra?sort=standard&desc=0&ustate=N%2CU&size=20&page=1',
+  'https://www.autoscout24.nl/lst/cupra?sort=standard&desc=0&ustate=N%2CU&size=20&page=2',
+  // MG
+  'https://www.autoscout24.nl/lst/mg?sort=standard&desc=0&ustate=N%2CU&size=20&page=1',
+  'https://www.autoscout24.nl/lst/mg?sort=standard&desc=0&ustate=N%2CU&size=20&page=2',
+  // Polestar
+  'https://www.autoscout24.nl/lst/polestar?sort=standard&desc=0&ustate=N%2CU&size=20&page=1',
+  'https://www.autoscout24.nl/lst/polestar?sort=standard&desc=0&ustate=N%2CU&size=20&page=2',
+  // Jaguar
+  'https://www.autoscout24.nl/lst/jaguar?sort=standard&desc=0&ustate=N%2CU&size=20&page=1',
+  'https://www.autoscout24.nl/lst/jaguar?sort=standard&desc=0&ustate=N%2CU&size=20&page=2',
+  // Subaru
+  'https://www.autoscout24.nl/lst/subaru?sort=standard&desc=0&ustate=N%2CU&size=20&page=1',
+  'https://www.autoscout24.nl/lst/subaru?sort=standard&desc=0&ustate=N%2CU&size=20&page=2',
+  // Lexus
+  'https://www.autoscout24.nl/lst/lexus?sort=standard&desc=0&ustate=N%2CU&size=20&page=1',
+  'https://www.autoscout24.nl/lst/lexus?sort=standard&desc=0&ustate=N%2CU&size=20&page=2',
+  // BYD
+  'https://www.autoscout24.nl/lst/byd?sort=standard&desc=0&ustate=N%2CU&size=20&page=1',
+  'https://www.autoscout24.nl/lst/byd?sort=standard&desc=0&ustate=N%2CU&size=20&page=2',
+  // Smart
+  'https://www.autoscout24.nl/lst/smart?sort=standard&desc=0&ustate=N%2CU&size=20&page=1',
+  'https://www.autoscout24.nl/lst/smart?sort=standard&desc=0&ustate=N%2CU&size=20&page=2',
+  // DS
+  'https://www.autoscout24.nl/lst/ds?sort=standard&desc=0&ustate=N%2CU&size=20&page=1',
+  'https://www.autoscout24.nl/lst/ds?sort=standard&desc=0&ustate=N%2CU&size=20&page=2',
 ];
 
 async function scrapeAutoScout24() {
@@ -597,7 +701,7 @@ async function scrapeAutoScout24() {
       const html = await resp.text();
       const found = parseerAutoScout24(html, gezien, label);
       all.push(...found);
-      console.log(` ${label}: ${found.length} nieuw → totaal AS24 ${all.length}`);
+      console.log(` ${label}: ${found.length} nieuw â totaal AS24 ${all.length}`);
     } catch (e) {
       console.log(` ${label}: fout - ${e.message}`);
     }
@@ -623,7 +727,7 @@ function parseerAutoScout24(html, gezien, label) {
     return [];
   }
 
-  // Navigeer naar listings — AutoScout24 wisselt soms van structuur
+  // Navigeer naar listings â AutoScout24 wisselt soms van structuur
   const pp = data?.props?.pageProps;
   const listings =
     pp?.listings ||
@@ -694,8 +798,8 @@ function parseerAutoScout24(html, gezien, label) {
   return results;
 }
 
-// ── AUTOTRADER ────────────────────────────────────────────────────────────────
-// autotrader.nl — JSON-LD schema.org + __NEXT_DATA__ fallback
+// ââ AUTOTRADER ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// autotrader.nl â JSON-LD schema.org + __NEXT_DATA__ fallback
 
 const ATR_URLS = [
   // Algemeen aanbod
@@ -708,6 +812,44 @@ const ATR_URLS = [
   // Hybride
   'https://www.autotrader.nl/occasion/?brandstof=hybride',
   'https://www.autotrader.nl/occasion/?brandstof=hybride&pagina=2',
+
+  // Jeep
+  'https://www.autotrack.nl/tweedehands-auto/jeep/',
+  'https://www.autotrack.nl/tweedehands-auto/jeep/?pagina=2',
+  // Alfa Romeo
+  'https://www.autotrack.nl/tweedehands-auto/alfa-romeo/',
+  'https://www.autotrack.nl/tweedehands-auto/alfa-romeo/?pagina=2',
+  // Suzuki
+  'https://www.autotrack.nl/tweedehands-auto/suzuki/',
+  'https://www.autotrack.nl/tweedehands-auto/suzuki/?pagina=2',
+  // Mitsubishi
+  'https://www.autotrack.nl/tweedehands-auto/mitsubishi/',
+  'https://www.autotrack.nl/tweedehands-auto/mitsubishi/?pagina=2',
+  // Cupra
+  'https://www.autotrack.nl/tweedehands-auto/cupra/',
+  'https://www.autotrack.nl/tweedehands-auto/cupra/?pagina=2',
+  // MG
+  'https://www.autotrack.nl/tweedehands-auto/mg/',
+  'https://www.autotrack.nl/tweedehands-auto/mg/?pagina=2',
+  // Polestar
+  'https://www.autotrack.nl/tweedehands-auto/polestar/',
+  // Jaguar
+  'https://www.autotrack.nl/tweedehands-auto/jaguar/',
+  'https://www.autotrack.nl/tweedehands-auto/jaguar/?pagina=2',
+  // Subaru
+  'https://www.autotrack.nl/tweedehands-auto/subaru/',
+  'https://www.autotrack.nl/tweedehands-auto/subaru/?pagina=2',
+  // Lexus
+  'https://www.autotrack.nl/tweedehands-auto/lexus/',
+  'https://www.autotrack.nl/tweedehands-auto/lexus/?pagina=2',
+  // BYD
+  'https://www.autotrack.nl/tweedehands-auto/byd/',
+  // Smart
+  'https://www.autotrack.nl/tweedehands-auto/smart/',
+  'https://www.autotrack.nl/tweedehands-auto/smart/?pagina=2',
+  // DS
+  'https://www.autotrack.nl/tweedehands-auto/ds/',
+  'https://www.autotrack.nl/tweedehands-auto/ds/?pagina=2',
 ];
 
 async function scrapeAutoTrader() {
@@ -724,12 +866,208 @@ async function scrapeAutoTrader() {
       const html = await resp.text();
       const found = parseerAutoTrader(html, gezien, label);
       all.push(...found);
-      console.log(` ${label}: ${found.length} nieuw → totaal ATR ${all.length}`);
+      console.log(` ${label}: ${found.length} nieuw â totaal ATR ${all.length}`);
     } catch (e) {
       console.log(` ${label}: fout - ${e.message}`);
     }
     if (i < ATR_URLS.length - 1) await sleep(6000);
   }
+
+  // Jeep extra
+  for (let i = 0; i < MP_JEEP_OFFSETS.length; i++) {
+    const url = MP_JEEP_BASE + '&offset=' + MP_JEEP_OFFSETS[i];
+    const label = 'MP Jeep p' + (i+1);
+    try {
+      const res = await fetch(url);
+      const json = await res.json();
+      const items = json.listings || [];
+      const found = parseerMPItems(items, gezien);
+      all.push(...found);
+      console.log(label + ': ' + found.length + ' nieuw');
+    } catch (e) { console.log(label + ': fout - ' + e.message); }
+    if (i < MP_JEEP_OFFSETS.length - 1) await sleep(4000);
+  }
+
+  // Alfa Romeo extra
+  for (let i = 0; i < MP_ALFA_ROMEO_OFFSETS.length; i++) {
+    const url = MP_ALFA_ROMEO_BASE + '&offset=' + MP_ALFA_ROMEO_OFFSETS[i];
+    const label = 'MP Alfa Romeo p' + (i+1);
+    try {
+      const res = await fetch(url);
+      const json = await res.json();
+      const items = json.listings || [];
+      const found = parseerMPItems(items, gezien);
+      all.push(...found);
+      console.log(label + ': ' + found.length + ' nieuw');
+    } catch (e) { console.log(label + ': fout - ' + e.message); }
+    if (i < MP_ALFA_ROMEO_OFFSETS.length - 1) await sleep(4000);
+  }
+
+  // Suzuki extra
+  for (let i = 0; i < MP_SUZUKI_OFFSETS.length; i++) {
+    const url = MP_SUZUKI_BASE + '&offset=' + MP_SUZUKI_OFFSETS[i];
+    const label = 'MP Suzuki p' + (i+1);
+    try {
+      const res = await fetch(url);
+      const json = await res.json();
+      const items = json.listings || [];
+      const found = parseerMPItems(items, gezien);
+      all.push(...found);
+      console.log(label + ': ' + found.length + ' nieuw');
+    } catch (e) { console.log(label + ': fout - ' + e.message); }
+    if (i < MP_SUZUKI_OFFSETS.length - 1) await sleep(4000);
+  }
+
+  // Mitsubishi extra
+  for (let i = 0; i < MP_MITSUBISHI_OFFSETS.length; i++) {
+    const url = MP_MITSUBISHI_BASE + '&offset=' + MP_MITSUBISHI_OFFSETS[i];
+    const label = 'MP Mitsubishi p' + (i+1);
+    try {
+      const res = await fetch(url);
+      const json = await res.json();
+      const items = json.listings || [];
+      const found = parseerMPItems(items, gezien);
+      all.push(...found);
+      console.log(label + ': ' + found.length + ' nieuw');
+    } catch (e) { console.log(label + ': fout - ' + e.message); }
+    if (i < MP_MITSUBISHI_OFFSETS.length - 1) await sleep(4000);
+  }
+
+  // Cupra extra
+  for (let i = 0; i < MP_CUPRA_OFFSETS.length; i++) {
+    const url = MP_CUPRA_BASE + '&offset=' + MP_CUPRA_OFFSETS[i];
+    const label = 'MP Cupra p' + (i+1);
+    try {
+      const res = await fetch(url);
+      const json = await res.json();
+      const items = json.listings || [];
+      const found = parseerMPItems(items, gezien);
+      all.push(...found);
+      console.log(label + ': ' + found.length + ' nieuw');
+    } catch (e) { console.log(label + ': fout - ' + e.message); }
+    if (i < MP_CUPRA_OFFSETS.length - 1) await sleep(4000);
+  }
+
+  // MG extra
+  for (let i = 0; i < MP_MG_OFFSETS.length; i++) {
+    const url = MP_MG_BASE + '&offset=' + MP_MG_OFFSETS[i];
+    const label = 'MP MG p' + (i+1);
+    try {
+      const res = await fetch(url);
+      const json = await res.json();
+      const items = json.listings || [];
+      const found = parseerMPItems(items, gezien);
+      all.push(...found);
+      console.log(label + ': ' + found.length + ' nieuw');
+    } catch (e) { console.log(label + ': fout - ' + e.message); }
+    if (i < MP_MG_OFFSETS.length - 1) await sleep(4000);
+  }
+
+  // Polestar extra
+  for (let i = 0; i < MP_POLESTAR_OFFSETS.length; i++) {
+    const url = MP_POLESTAR_BASE + '&offset=' + MP_POLESTAR_OFFSETS[i];
+    const label = 'MP Polestar p' + (i+1);
+    try {
+      const res = await fetch(url);
+      const json = await res.json();
+      const items = json.listings || [];
+      const found = parseerMPItems(items, gezien);
+      all.push(...found);
+      console.log(label + ': ' + found.length + ' nieuw');
+    } catch (e) { console.log(label + ': fout - ' + e.message); }
+    if (i < MP_POLESTAR_OFFSETS.length - 1) await sleep(4000);
+  }
+
+  // Jaguar extra
+  for (let i = 0; i < MP_JAGUAR_OFFSETS.length; i++) {
+    const url = MP_JAGUAR_BASE + '&offset=' + MP_JAGUAR_OFFSETS[i];
+    const label = 'MP Jaguar p' + (i+1);
+    try {
+      const res = await fetch(url);
+      const json = await res.json();
+      const items = json.listings || [];
+      const found = parseerMPItems(items, gezien);
+      all.push(...found);
+      console.log(label + ': ' + found.length + ' nieuw');
+    } catch (e) { console.log(label + ': fout - ' + e.message); }
+    if (i < MP_JAGUAR_OFFSETS.length - 1) await sleep(4000);
+  }
+
+  // Subaru extra
+  for (let i = 0; i < MP_SUBARU_OFFSETS.length; i++) {
+    const url = MP_SUBARU_BASE + '&offset=' + MP_SUBARU_OFFSETS[i];
+    const label = 'MP Subaru p' + (i+1);
+    try {
+      const res = await fetch(url);
+      const json = await res.json();
+      const items = json.listings || [];
+      const found = parseerMPItems(items, gezien);
+      all.push(...found);
+      console.log(label + ': ' + found.length + ' nieuw');
+    } catch (e) { console.log(label + ': fout - ' + e.message); }
+    if (i < MP_SUBARU_OFFSETS.length - 1) await sleep(4000);
+  }
+
+  // Lexus extra
+  for (let i = 0; i < MP_LEXUS_OFFSETS.length; i++) {
+    const url = MP_LEXUS_BASE + '&offset=' + MP_LEXUS_OFFSETS[i];
+    const label = 'MP Lexus p' + (i+1);
+    try {
+      const res = await fetch(url);
+      const json = await res.json();
+      const items = json.listings || [];
+      const found = parseerMPItems(items, gezien);
+      all.push(...found);
+      console.log(label + ': ' + found.length + ' nieuw');
+    } catch (e) { console.log(label + ': fout - ' + e.message); }
+    if (i < MP_LEXUS_OFFSETS.length - 1) await sleep(4000);
+  }
+
+  // BYD extra
+  for (let i = 0; i < MP_BYD_OFFSETS.length; i++) {
+    const url = MP_BYD_BASE + '&offset=' + MP_BYD_OFFSETS[i];
+    const label = 'MP BYD p' + (i+1);
+    try {
+      const res = await fetch(url);
+      const json = await res.json();
+      const items = json.listings || [];
+      const found = parseerMPItems(items, gezien);
+      all.push(...found);
+      console.log(label + ': ' + found.length + ' nieuw');
+    } catch (e) { console.log(label + ': fout - ' + e.message); }
+    if (i < MP_BYD_OFFSETS.length - 1) await sleep(4000);
+  }
+
+  // Smart extra
+  for (let i = 0; i < MP_SMART_OFFSETS.length; i++) {
+    const url = MP_SMART_BASE + '&offset=' + MP_SMART_OFFSETS[i];
+    const label = 'MP Smart p' + (i+1);
+    try {
+      const res = await fetch(url);
+      const json = await res.json();
+      const items = json.listings || [];
+      const found = parseerMPItems(items, gezien);
+      all.push(...found);
+      console.log(label + ': ' + found.length + ' nieuw');
+    } catch (e) { console.log(label + ': fout - ' + e.message); }
+    if (i < MP_SMART_OFFSETS.length - 1) await sleep(4000);
+  }
+
+  // DS extra
+  for (let i = 0; i < MP_DS_OFFSETS.length; i++) {
+    const url = MP_DS_BASE + '&offset=' + MP_DS_OFFSETS[i];
+    const label = 'MP DS p' + (i+1);
+    try {
+      const res = await fetch(url);
+      const json = await res.json();
+      const items = json.listings || [];
+      const found = parseerMPItems(items, gezien);
+      all.push(...found);
+      console.log(label + ': ' + found.length + ' nieuw');
+    } catch (e) { console.log(label + ': fout - ' + e.message); }
+    if (i < MP_DS_OFFSETS.length - 1) await sleep(4000);
+  }
+
   return all;
 }
 
@@ -860,48 +1198,48 @@ function parseerAutoTrader(html, gezien, label) {
   return results;
 }
 
-// ── MAIN ──────────────────────────────────────────────────────────────────────
+// ââ MAIN ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 
 async function main() {
-  console.log('🚗 Scraper gestart:', new Date().toISOString());
+  console.log('ð Scraper gestart:', new Date().toISOString());
 
-  console.log('\n📦 Marktplaats (algemeen + EV)...');
+  console.log('\nð¦ Marktplaats (algemeen + EV)...');
   const mpListings = await scrapeMarktplaats();
-  console.log(`✓ Marktplaats: ${mpListings.length} listings`);
+  console.log(`â Marktplaats: ${mpListings.length} listings`);
 
-  console.log('\n⛽ Gaspedaal (algemeen + elektrisch)...');
+  console.log('\nâ½ Gaspedaal (algemeen + elektrisch)...');
   const gpListings = await scrapeGaspedaal();
-  console.log(`✓ Gaspedaal: ${gpListings.length} listings`);
+  console.log(`â Gaspedaal: ${gpListings.length} listings`);
 
-  console.log('\n🏷️ viaBOVAG (algemeen + elektrisch)...');
+  console.log('\nð·ï¸ viaBOVAG (algemeen + elektrisch)...');
   const vbListings = await scrapeViaBovag();
-  console.log(`✓ viaBOVAG: ${vbListings.length} listings`);
+  console.log(`â viaBOVAG: ${vbListings.length} listings`);
 
-  console.log('\n⚡ AutoTrack (algemeen + hybride + elektrisch)...');
+  console.log('\nâ¡ AutoTrack (algemeen + hybride + elektrisch)...');
   const atListings = await scrapeAutoTrack();
-  console.log(`✓ AutoTrack: ${atListings.length} listings`);
+  console.log(`â AutoTrack: ${atListings.length} listings`);
 
-  console.log('\n🔍 AutoScout24 (algemeen + EV + hybride)...');
+  console.log('\nð AutoScout24 (algemeen + EV + hybride)...');
   const as24Listings = await scrapeAutoScout24();
-  console.log(`✓ AutoScout24: ${as24Listings.length} listings`);
+  console.log(`â AutoScout24: ${as24Listings.length} listings`);
 
-  console.log('\n🚘 AutoTrader (algemeen + EV + hybride)...');
+  console.log('\nð AutoTrader (algemeen + EV + hybride)...');
   const atrListings = await scrapeAutoTrader();
-  console.log(`✓ AutoTrader: ${atrListings.length} listings`);
+  console.log(`â AutoTrader: ${atrListings.length} listings`);
 
   const nieuw = [...mpListings, ...gpListings, ...vbListings, ...atListings, ...as24Listings, ...atrListings];
-  console.log(`\n🆕 Vandaag gescrapt: ${nieuw.length} listings`);
+  console.log(`\nð Vandaag gescrapt: ${nieuw.length} listings`);
 
-  // ── Bestaande listings inladen en samenvoegen ─────────────────────────────
+  // ââ Bestaande listings inladen en samenvoegen âââââââââââââââââââââââââââââ
   const outPath = path.join(process.cwd(), 'data', 'listings.json');
   const byId = {};
 
   try {
     const bestaand = JSON.parse(fs.readFileSync(outPath, 'utf8'));
     for (const l of (bestaand.listings || [])) byId[l.id] = l;
-    console.log(`📂 Bestaand: ${Object.keys(byId).length} listings geladen`);
+    console.log(`ð Bestaand: ${Object.keys(byId).length} listings geladen`);
   } catch (e) {
-    console.log(`📂 Geen bestaand bestand, begin vers`);
+    console.log(`ð Geen bestaand bestand, begin vers`);
   }
 
   for (const l of nieuw) byId[l.id] = l;
@@ -914,9 +1252,9 @@ async function main() {
     .filter(l => !(l.bron === 'AutoScout24' && !l.titel && !l.prijs));
 
   const verwijderd = Object.keys(byId).length - listings.length;
-  if (verwijderd > 0) console.log(`🗑️  ${verwijderd} verlopen listings verwijderd (>30 dagen)`);
+  if (verwijderd > 0) console.log(`ðï¸  ${verwijderd} verlopen listings verwijderd (>30 dagen)`);
 
-  console.log(`📊 Totaal na merge: ${listings.length} listings`);
+  console.log(`ð Totaal na merge: ${listings.length} listings`);
 
   const data = {
     bijgewerkt: new Date().toISOString(),
@@ -926,7 +1264,7 @@ async function main() {
   };
 
   fs.writeFileSync(outPath, JSON.stringify(data, null, 2));
-  console.log(`✅ Opgeslagen naar ${outPath}`);
+  console.log(`â Opgeslagen naar ${outPath}`);
 }
 
-main().catch(e => { console.error('❌ Fout:', e); process.exit(1); });
+main().catch(e => { console.error('â Fout:', e); process.exit(1); });
