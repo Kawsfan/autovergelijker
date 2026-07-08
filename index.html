@@ -372,7 +372,7 @@
     <div class="filter-rij">
       <div class="filter-item">
         <label>Merk</label>
-        <select id="merkFilter" onchange="zoekNu()">
+        <select id="merkFilter" onchange="updateModelDropdown();zoekNu()">
           <option value="">Alle merken</option>
           <option>Volkswagen</option><option>BMW</option><option>Toyota</option>
           <option>Ford</option><option>Audi</option><option>Peugeot</option>
@@ -386,7 +386,9 @@
       </div>
       <div class="filter-item">
         <label>Model</label>
-        <input type="text" id="modelInput" placeholder="Bijv. Golf, 3-serie" oninput="zoekNu()" />
+        <select id="modelInput" disabled onchange="zoekNu()" style="opacity:0.5;cursor:not-allowed;width:100%">
+          <option value="">Selecteer eerst een merk</option>
+        </select>
       </div>
       <div class="filter-range">
         <label>Bouwjaar</label>
@@ -565,6 +567,51 @@
 </footer>
 
 <script>
+const MERK_MODELLEN = {
+  'Volkswagen': ['Golf','Polo','Passat','Tiguan','T-Roc','ID.4','ID.3','ID.5','Touareg','Arteon'],
+  'BMW': ['1-serie','2-serie','3-serie','4-serie','5-serie','7-serie','X1','X2','X3','X5','X6','iX3','i4'],
+  'Toyota': ['Corolla','Yaris','RAV4','Prius','Aygo','C-HR','Camry','bZ4X'],
+  'Ford': ['Focus','Fiesta','Puma','Kuga','Mustang Mach-E','Explorer','Mondeo','Galaxy','Ranger'],
+  'Audi': ['A1','A3','A4','A5','A6','A8','Q3','Q5','Q7','Q8','e-tron','Q4 e-tron'],
+  'Peugeot': ['208','308','3008','2008','508','408','e-208','e-2008'],
+  'Renault': ['Clio','Megane','Kadjar','Captur','Zoe','Scenic','Twingo','Arkana'],
+  'Hyundai': ['i10','i20','i30','Tucson','Kona','IONIQ 5','IONIQ 6','Santa Fe'],
+  'Kia': ['Picanto','Stonic','Ceed','Sportage','Niro','EV6','Sorento','EV9'],
+  'Tesla': ['Model 3','Model S','Model Y','Model X'],
+  'Volvo': ['V40','V60','V90','XC40','XC60','XC90','S60','C40'],
+  'Skoda': ['Fabia','Octavia','Superb','Kodiaq','Karoq','Scala','Enyaq'],
+  'Mercedes-Benz': ['A-Klasse','B-Klasse','C-Klasse','E-Klasse','S-Klasse','GLA','GLB','GLC','GLE','EQA','EQC'],
+  'Seat': ['Ibiza','Leon','Arona','Ateca','Tarraco'],
+  'Opel': ['Corsa','Astra','Mokka','Grandland','Insignia','Corsa-e'],
+  'Fiat': ['500','500e','Panda','Tipo','500X'],
+  'Honda': ['Civic','Jazz','HR-V','CR-V','e'],
+  'Mazda': ['2','3','6','CX-3','CX-5','CX-30','MX-30'],
+  'Nissan': ['Micra','Qashqai','Juke','Leaf','Ariya','X-Trail'],
+  'Citroen': ['C1','C3','C3 Aircross','C4','C5 Aircross','e-C4'],
+  'Dacia': ['Sandero','Duster','Logan','Spring','Jogger'],
+  'Mini': ['Cooper','Clubman','Countryman','Electric'],
+  'Land Rover': ['Discovery','Discovery Sport','Range Rover','Defender','Range Rover Sport'],
+  'Porsche': ['Cayenne','Macan','Panamera','911','Taycan','Boxster'],
+};
+
+function updateModelDropdown() {
+  const merk = document.getElementById('merkFilter').value;
+  const sel = document.getElementById('modelInput');
+  sel.innerHTML = '';
+  if (!merk || !MERK_MODELLEN[merk]) {
+    sel.innerHTML = '<option value="">Selecteer eerst een merk</option>';
+    sel.disabled = true;
+    sel.style.opacity = '0.5';
+    sel.style.cursor = 'not-allowed';
+  } else {
+    sel.innerHTML = '<option value="">Alle modellen</option>' +
+      MERK_MODELLEN[merk].map(m => '<option value="' + m + '">' + m + '</option>').join('');
+    sel.disabled = false;
+    sel.style.opacity = '1';
+    sel.style.cursor = 'pointer';
+  }
+}
+
 let alleResultaten = [];
 let huidigDetailId = null;
 let transmissieActief = '';
