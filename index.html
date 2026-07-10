@@ -490,7 +490,7 @@
             <option value="100000">100.000 km</option>
             <option value="150000">150.000 km</option>
             <option value="200000">200.000 km</option>
-                    <option value="custom">Eigen bedrag...</option>
+                    <option value="custom">Eigen km...</option>
         </select>
           <select id="kmMax" onchange="toggleCustomRange(this);zoekNu()">
             <option value="">t/m</option>
@@ -502,7 +502,7 @@
             <option value="150000">150.000 km</option>
             <option value="200000">200.000 km</option>
             <option value="250000">250.000 km</option>
-                    <option value="custom">Eigen bedrag...</option>
+                    <option value="custom">Eigen km...</option>
         </select>
         </div>
         <div id="km-custom" style="display:none;gap:6px;margin-top:6px;flex-wrap:wrap"><input type="number" id="kmMinCustom" placeholder="Min (km)" min="0" step="1000" oninput="zoekNu()" style="width:48%;padding:6px 8px;border:1px solid var(--grijs2);border-radius:6px;font-size:13px" /><input type="number" id="kmMaxCustom" placeholder="Max (km)" min="0" step="1000" oninput="zoekNu()" style="width:48%;padding:6px 8px;border:1px solid var(--grijs2);border-radius:6px;font-size:13px" /></div>
@@ -663,9 +663,9 @@ function zoekNu() {
   const jaarMin  = parseInt(document.getElementById('jaarMin').value) || 0;
   const jaarMax  = parseInt(document.getElementById('jaarMax').value) || 9999;
   var _pMnV=document.getElementById('prijsMin').value;const prijsMin=_pMnV==='custom'?(parseInt(document.getElementById('prijsMinCustom').value)||0):(parseInt(_pMnV)||0);
-  const prijsMax = parseInt(document.getElementById('prijsMax').value) || 0;
+  var _pMxV=document.getElementById('prijsMax').value;const prijsMax=_pMxV==='custom'?(parseInt(document.getElementById('prijsMaxCustom').value)||Infinity):(parseInt(_pMxV)||Infinity);
   var _kMnV=document.getElementById('kmMin').value;const kmMin=_kMnV==='custom'?(parseInt(document.getElementById('kmMinCustom').value)||0):(parseInt(_kMnV)||0);
-  const kmMax    = parseInt(document.getElementById('kmMax').value) || 0;
+  var _kMxV=document.getElementById('kmMax').value;const kmMax=_kMxV==='custom'?(parseInt(document.getElementById('kmMaxCustom').value)||Infinity):(parseInt(_kMxV)||Infinity);
   const carroVal = document.getElementById('carrosserieFilter').value.toLowerCase();
   const bsVal    = document.getElementById('brandstofFilter').value.toLowerCase();
 
