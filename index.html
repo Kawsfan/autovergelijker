@@ -361,6 +361,12 @@
 .markdown-body table { border-collapse: collapse; width: 100%; margin: .8rem 0; }
 .markdown-body th, .markdown-body td { border: 1px solid var(--rand); padding: 6px 12px; text-align: left; }
 .markdown-body th { background: var(--achtergrond); font-weight: 600; }
+
+/* ── Taalschakelaar ── */
+.lang-switch { display: flex; gap: 2px; align-items: center; margin-right: 6px; }
+.lang-btn { background: none; border: 1px solid var(--subtekst); color: var(--subtekst); border-radius: 6px; padding: 3px 9px; cursor: pointer; font-size: 12px; font-weight: 700; letter-spacing: .5px; transition: .2s; }
+.lang-btn:hover { border-color: var(--oranje); color: var(--oranje); }
+.lang-btn.actief { background: var(--oranje); border-color: var(--oranje); color: #fff; }
 </style>
 </head>
 <body>
@@ -368,6 +374,10 @@
 <nav>
   <div class="logo" onclick="resetFilters()">Auto<span>Vergelijker</span></div>
   <span style="font-size:13px;color:var(--subtekst)">🟢 Live data</span>
+  <div class="lang-switch">
+    <button class="lang-btn actief" data-lang="nl" onclick="setLang('nl')">NL</button>
+    <button class="lang-btn" data-lang="en" onclick="setLang('en')">EN</button>
+  </div>
   <button class="info-btn" onclick="openInfo()">ℹ️ Info</button>
 </nav>
 
@@ -752,9 +762,9 @@ function toonResultaten(lijst) {
   const header = document.getElementById('resultatenHeader');
 
   document.getElementById('aantalTekst').textContent =
-    `${gesorteerd.length} advertentie${gesorteerd.length !== 1 ? 's' : ''} gevonden`;
+    TRANS[window.lang||'nl'].result(gesorteerd.length);
   const bronnenLijst = [...new Set(lijst.map(l => l.bron).filter(Boolean))];
-  document.getElementById('aantalSub').textContent = bronnenLijst.length > 0 ? 'Via ' + bronnenLijst.join(', ') : 'Autoadvertenties';
+  document.getElementById('aantalSub').textContent = TRANS[window.lang||'nl'].sub(bronnenLijst);
   header.style.display = 'flex';
 
   if (!gesorteerd.length) {
@@ -982,6 +992,67 @@ function openInfo() {
 }
 function closeInfo() { document.getElementById('infoModal').style.display = 'none'; }
 document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeInfo(); });
+</script>
+
+<script>
+var TRANS = {
+  nl: {
+    hero_h1: "Alle auto's van Nederland zijn hier te vinden!",
+    hero_p:  "Echte advertenties, echte foto's, rechtstreeks uit de bron",
+    search_ph: "Zoek op trefwoord, merk, model of plaats",
+    lbl: ["Merk","Model","Bouwjaar","Prijs","Brandstof","Km.stand","Transmissie","Carrosserie"],
+    sort: {"prijs-asc":"Prijs ↑","prijs-desc":"Prijs ↓","jaar-desc":"Nieuwste eerst","km-asc":"Minste km"},
+    btn_wis: "\u2715 Wis alles", btn_zoek: "Zoeken", btn_terug: "\u2190 Terug",
+    opt_merken: "Alle merken", opt_brandstoffen: "Alle brandstoffen", opt_types: "Alle types",
+    opt_auto: "Automaat", opt_hand: "Handgeschakeld",
+    eigen_p: "Eigen bedrag...", eigen_k: "Eigen km...",
+    result: function(n){ return n + ' advertentie' + (n!==1?'s':'') + ' gevonden'; },
+    sub: function(b){ return b.length ? 'Via ' + b.join(', ') : 'Autoadvertenties'; }
+  },
+  en: {
+    hero_h1: "Find any car in the Netherlands!",
+    hero_p:  "Real listings, real photos, straight from the source",
+    search_ph: "Search by keyword, make, model or city",
+    lbl: ["Make","Model","Year","Price","Fuel","Mileage","Transmission","Body type"],
+    sort: {"prijs-asc":"Price \u2191","prijs-desc":"Price \u2193","jaar-desc":"Newest first","km-asc":"Lowest mileage"},
+    btn_wis: "\u2715 Clear all", btn_zoek: "Search", btn_terug: "\u2190 Back",
+    opt_merken: "All makes", opt_brandstoffen: "All fuel types", opt_types: "All types",
+    opt_auto: "Automatic", opt_hand: "Manual",
+    eigen_p: "Custom...", eigen_k: "Custom...",
+    result: function(n){ return n + ' listing' + (n!==1?'s':'') + ' found'; },
+    sub: function(b){ return b.length ? 'Via ' + b.join(', ') : 'Car listings'; }
+  }
+};
+window.lang = localStorage.getItem('lang') || 'nl';
+
+function setLang(l) {
+  window.lang = l;
+  localStorage.setItem('lang', l);
+  var tr = TRANS[l];
+  var q = function(s){ return document.querySelector(s); };
+  var qa = function(s){ return document.querySelectorAll(s); };
+  var h1 = q('.hero h1'); if(h1) h1.textContent = tr.hero_h1;
+  var hp = q('.hero p');  if(hp) hp.textContent = tr.hero_p;
+  var zi = document.getElementById('zoekInput'); if(zi) zi.placeholder = tr.search_ph;
+  qa('.filter-kaart label').forEach(function(el,i){ if(tr.lbl[i]) el.textContent = tr.lbl[i]; });
+  qa('#sortering option').forEach(function(o){ if(tr.sort[o.value]) o.textContent = tr.sort[o.value]; });
+  qa('button').forEach(function(b){
+    var t = b.textContent.trim();
+    if(/Wis alles|Clear all/.test(t)) b.textContent = tr.btn_wis;
+    else if(/^(Zoeken|Search)$/.test(t)) b.textContent = tr.btn_zoek;
+    else if(/Terug|Back/.test(t) && !b.classList.contains('info-btn')) b.textContent = tr.btn_terug;
+  });
+  qa('[data-val="automaat"]').forEach(function(b){ b.textContent = tr.opt_auto; });
+  qa('[data-val="handgeschakeld"]').forEach(function(b){ b.textContent = tr.opt_hand; });
+  var mo = q('#merkFilter option[value=""]'); if(mo) mo.textContent = tr.opt_merken;
+  var bso = q('#brandstofFilter option[value=""]'); if(bso) bso.textContent = tr.opt_brandstoffen;
+  qa('#carrosserieFilter option[value=""]').forEach(function(o){ o.textContent = tr.opt_types; });
+  qa('#prijsMin option[value="custom"],#prijsMax option[value="custom"]').forEach(function(o){ o.textContent = tr.eigen_p; });
+  qa('#kmMin option[value="custom"],#kmMax option[value="custom"]').forEach(function(o){ o.textContent = tr.eigen_k; });
+  qa('.lang-btn').forEach(function(b){ b.classList.toggle('actief', b.dataset.lang === l); });
+  if(typeof zoekNu === 'function') zoekNu();
+}
+document.addEventListener('DOMContentLoaded', function(){ if(window.lang !== 'nl') setLang(window.lang); });
 </script>
 </body>
 </html>
