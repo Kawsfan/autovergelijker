@@ -415,6 +415,27 @@
 .kaart-popup .kp-titel { font-weight: 600; font-size: .9rem; margin-bottom: 2px; }
 .kaart-popup .kp-prijs { color: var(--oranje); font-weight: 700; margin-bottom: 6px; }
 .kaart-popup a { display: block; text-align: center; background: var(--oranje); color: #fff; border-radius: 6px; padding: 4px 8px; text-decoration: none; font-size: .85rem; }
+
+/* ── Favorieten ── */
+.fav-btn { position:absolute; top:8px; right:8px; background:rgba(0,0,0,.45); border:none; color:#fff; border-radius:50%; width:32px; height:32px; font-size:16px; cursor:pointer; display:flex; align-items:center; justify-content:center; z-index:2; transition:.2s; line-height:1; }
+.fav-btn:hover,.fav-btn.fav-actief { background:var(--oranje); }
+.vgl-btn { position:absolute; top:8px; left:8px; background:rgba(0,0,0,.45); border:none; color:#fff; border-radius:50%; width:32px; height:32px; font-size:18px; cursor:pointer; display:flex; align-items:center; justify-content:center; z-index:2; transition:.2s; line-height:1; }
+.vgl-btn:hover,.vgl-btn.vgl-actief { background:#2563eb; }
+.vgl-bar { display:none; position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:var(--kaart); border:1px solid var(--rand); border-radius:40px; padding:10px 20px; box-shadow:0 4px 24px rgba(0,0,0,.3); z-index:500; align-items:center; gap:12px; }
+.vgl-bar .btn-vgl { background:var(--oranje); color:#fff; border:none; border-radius:20px; padding:8px 18px; cursor:pointer; font-weight:600; }
+.vgl-bar .btn-reset { background:var(--rand); color:var(--tekst); border:none; border-radius:20px; padding:8px 18px; cursor:pointer; }
+.vgl-tabel { width:100%; border-collapse:collapse; }
+.vgl-tabel th,.vgl-tabel td { border:1px solid var(--rand); padding:8px 12px; text-align:left; vertical-align:top; }
+.vgl-tabel th { background:var(--achtergrond); }
+.vgl-label { font-weight:600; white-space:nowrap; background:var(--achtergrond); }
+.vgl-link { display:inline-block; background:var(--oranje); color:#fff; border-radius:8px; padding:8px 14px; text-decoration:none; font-size:.9rem; }
+#vglModal { display:none; position:fixed; inset:0; background:rgba(0,0,0,.65); z-index:600; align-items:center; justify-content:center; padding:20px; overflow-y:auto; }
+.nieuw-badge { position:absolute; bottom:8px; left:8px; background:#16a34a; color:#fff; font-size:10px; font-weight:800; letter-spacing:.5px; border-radius:4px; padding:2px 6px; z-index:2; }
+.quick-filters { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px; }
+.qf-btn { background:none; border:1px solid var(--rand); color:var(--subtekst); border-radius:20px; padding:5px 14px; cursor:pointer; font-size:13px; transition:.2s; }
+.qf-btn:hover { border-color:var(--oranje); color:var(--oranje); }
+.qf-btn.actief { background:var(--oranje); border-color:var(--oranje); color:#fff; }
+.auto-foto { position:relative; }
 </style>
 </head>
 <body>
@@ -687,6 +708,9 @@ async function laadListings() {
 
     if (alleResultaten.length === 0) {
       _huidigeLijst = gesorteerd;
+  if(window._toonFavs) gesorteerd = gesorteerd.filter(function(a){ return _favs.has(a.id); });
+  if(window._toonNieuw){ var _vd=new Date().toISOString().slice(0,10); gesorteerd=gesorteerd.filter(function(a){return a.bijgewerkt===_vd;}); }
+  if(typeof filtersNaarURL==='function')filtersNaarURL();
   document.getElementById('autoGrid').innerHTML = `
         <div class="geen-resultaten">
           <span class="icon">🔄</span>
@@ -833,6 +857,9 @@ function toonResultaten(lijst) {
   document.getElementById('autoGrid').innerHTML = gesorteerd.map(a => `
     <div class="auto-card" onclick="openDetail('${a.id}')">
       <div class="auto-foto">
+        <button class="fav-btn${_favs.has(a.id)?' fav-actief':''} data-fav="${a.id}" onclick="toggleFav(event,'${a.id}')" title="Fav">${_favs.has(a.id)?'♥':'♡'}</button>
+        <button class="vgl-btn${_vgl.includes(a.id)?' vgl-actief':''} data-vgl="${a.id}" onclick="toggleVergelijk(event,'${a.id}')" title="Vergelijk">⊕</button>
+        ${(()=>{window._vglData[a.id]=a;return a.bijgewerkt===new Date().toISOString().slice(0,10)?'<span class=\"nieuw-badge\">NIEUW</span>':''})()}
         <img referrerpolicy="no-referrer" onerror="this.style.display='none'" src="${a.imgSrc?'https://wsrv.nl/?url='+(a.imgSrc.replace(/^https?:/,'').replace(/^\/\//,'').replace(/\$_\d+\.jpg/gi,'$_86.jpg')):'data:,'}" alt="${a.titel}"
           onerror="this.src='https://placehold.co/600x380/e8e8e3/999?text=${encodeURIComponent((a.titel||'').split(' ').slice(0,2).join(' '))}'"
           loading="lazy" />
@@ -1222,5 +1249,25 @@ document.addEventListener('DOMContentLoaded', function() {
   };
 });
 </script>
-</body>
+
+<div class="vgl-bar" id="vglBar"><span id="vglCount"></span><button class="btn-vgl" onclick="openVergelijk()">Vergelijk →</button><button class="btn-reset" onclick="resetVergelijk()">✕ Reset</button></div>
+<div id="vglModal" onclick="if(event.target===this)closeVergelijk()"></div>
+<script>
+var _favs=new Set(JSON.parse(localStorage.getItem("_av_favs")||"[]"));
+function saveFavs(){localStorage.setItem("_av_favs",JSON.stringify([..._favs]));}
+function toggleFav(e,id){e.stopPropagation();_favs.has(id)?_favs.delete(id):_favs.add(id);saveFavs();document.querySelectorAll("[data-fav=\""+id+"\"]").forEach(function(b){b.textContent=_favs.has(id)?"\u2665":"\u2661";b.classList.toggle("fav-actief",_favs.has(id));});if(window._toonFavs)zoekNu();}
+window._toonFavs=false;
+function toggleFavFilter(){window._toonFavs=!window._toonFavs;document.getElementById("btnFavs").classList.toggle("actief",window._toonFavs);zoekNu();}
+window._toonNieuw=false;
+function toggleNieuwFilter(){window._toonNieuw=!window._toonNieuw;document.getElementById("btnNieuw").classList.toggle("actief",window._toonNieuw);zoekNu();}
+var _vgl=[];window._vglData={};
+function toggleVergelijk(e,id){e.stopPropagation();var i=_vgl.indexOf(id);if(i>-1){_vgl.splice(i,1);}else{if(_vgl.length>=3){alert("Max. 3 auto\u2019s");return;}_vgl.push(id);}updateVglBar();document.querySelectorAll("[data-vgl=\""+id+"\"]").forEach(function(b){var sel=_vgl.includes(id);b.classList.toggle("vgl-actief",sel);b.title=sel?"Verwijder":"Voeg toe";});}
+function updateVglBar(){var b=document.getElementById("vglBar");if(!b)return;b.style.display=_vgl.length?"flex":"none";document.getElementById("vglCount").textContent=_vgl.length+" geselecteerd";}
+function openVergelijk(){if(_vgl.length<2){alert("Selecteer min. 2");return;}var cars=_vgl.map(function(id){return window._vglData[id];}).filter(Boolean);var h=cars.map(function(a){var p=a.prijs?"\u20ac"+a.prijs.toLocaleString("nl-NL"):"\u2014";return "<th><b>"+(a.titel||"")+"</b><br><span style=\"color:var(--oranje);font-weight:800\">"+p+"</span>"+(a.afbeelding?"<br><img src=\""+a.afbeelding+"\" style=\"width:100%;max-height:90px;object-fit:cover;border-radius:6px;margin-top:6px\">":"")+"</th>";}).join("");var fields=[["Km-stand",function(a){return a.km?a.km.toLocaleString("nl-NL")+" km":"\u2014";}],["Bouwjaar",function(a){return a.jaar||"\u2014";}],["Brandstof",function(a){return a.brandstof||"\u2014";}],["Locatie",function(a){return a.locatie||"\u2014";}],["Bron",function(a){return a.bron||"\u2014";}]];var rows=fields.map(function(f){return "<tr><td class=\"vgl-label\">"+f[0]+"</td>"+cars.map(function(a){return "<td>"+f[1](a)+"</td>";}).join("")+"</tr>";}).join("");var links=cars.map(function(a){return "<a href=\""+a.url+"\" target=\"_blank\" rel=\"noopener\" class=\"vgl-link\">Bekijk "+((a.titel||"").split(" ").slice(0,2).join(" "))+" \u2192</a>";}).join("");document.getElementById("vglModal").innerHTML="<div class=\"modal-content\" style=\"max-width:860px\"><button class=\"modal-close\" onclick=\"closeVergelijk()\">\u2715</button><h2 style=\"margin-bottom:1rem\">Vergelijking</h2><div style=\"overflow-x:auto\"><table class=\"vgl-tabel\"><thead><tr><th></th>"+h+"</tr></thead><tbody>"+rows+"</tbody></table></div><div style=\"margin-top:1rem;display:flex;gap:8px;flex-wrap:wrap\">"+links+"</div></div>";document.getElementById("vglModal").style.display="flex";}
+function closeVergelijk(){document.getElementById("vglModal").style.display="none";}
+function resetVergelijk(){_vgl=[];updateVglBar();document.querySelectorAll("[data-vgl]").forEach(function(b){b.classList.remove("vgl-actief");});}
+function filtersNaarURL(){var p=new URLSearchParams();var g=function(id){var e=document.getElementById(id);return e?e.value:"";};var sv=function(k,v){if(v)p.set(k,v);};sv("q",g("zoekInput"));sv("merk",g("merkFilter"));sv("model",g("modelInput"));sv("brandstof",g("brandstofFilter"));sv("jaarMin",g("jaarMin"));sv("jaarMax",g("jaarMax"));sv("prijsMin",g("prijsMin"));sv("prijsMax",g("prijsMax"));sv("kmMin",g("kmMin"));sv("kmMax",g("kmMax"));sv("carrosserie",g("carrosserieFilter"));if(window._actieveTrans)sv("trans",window._actieveTrans);history.replaceState(null,"",p.toString()?"?"+p.toString():location.pathname);}
+function urlNaarFilters(){var p=new URLSearchParams(location.search);if(!p.toString())return;var set=function(id,val){var e=document.getElementById(id);if(e&&val)e.value=val;};set("zoekInput",p.get("q"));set("merkFilter",p.get("merk"));set("modelInput",p.get("model"));set("brandstofFilter",p.get("brandstof"));set("jaarMin",p.get("jaarMin"));set("jaarMax",p.get("jaarMax"));set("prijsMin",p.get("prijsMin"));set("prijsMax",p.get("prijsMax"));set("kmMin",p.get("kmMin"));set("kmMax",p.get("kmMax"));set("carrosserieFilter",p.get("carrosserie"));if(p.get("trans")){var tb=document.querySelector("[data-val=\""+p.get("trans")+"\"]");if(tb)setTransmissie(tb);}zoekNu();}
+document.addEventListener("DOMContentLoaded",urlNaarFilters);
+</script></body>
 </html>
