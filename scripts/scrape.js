@@ -6,6 +6,32 @@ const path = require('path');
 
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
+async function fetchWithRetry(url, options = {}, maxPogingen = 3) {
+  for (let poging = 1; poging <= maxPogingen; poging++) {
+    try {
+      const resp = await fetch(url, options);
+      if (resp.ok) return resp;
+      if (poging < maxPogingen) {
+        const wacht = poging * 2000;
+        console.log(`    ↻ HTTP ${resp.status} – retry ${poging}/${maxPogingen - 1} (wacht ${wacht/1000}s)...`);
+        await sleep(wacht);
+      } else {
+        console.log(`    ✗ HTTP ${resp.status} na ${maxPogingen} pogingen: ${url.slice(0,80)}`);
+        return resp;
+      }
+    } catch (err) {
+      if (poging < maxPogingen) {
+        const wacht = poging * 2000;
+        console.log(`    ↻ Fout (${err.message}) – retry ${poging}/${maxPogingen - 1} (wacht ${wacht/1000}s)...`);
+        await sleep(wacht);
+      } else {
+        console.log(`    ✗ Opgegeven na ${maxPogingen} pogingen: ${err.message}`);
+        throw err;
+      }
+    }
+  }
+}
+
 // ââ HEADERS âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 
 const HEADERS_MP = {
@@ -120,7 +146,7 @@ async function scrapeMarktplaats() {
     const url = MP_API_BASE + '&offset=' + MP_OFFSETS[i];
     const label = `MP p${i + 1}`;
     try {
-      const resp = await fetch(url, { headers: HEADERS_MP });
+      const resp = await fetchWithRetry(url, { headers: HEADERS_MP });
       console.log(` ${label}: HTTP ${resp.status}`);
       if (!resp.ok) continue;
       const data = await resp.json();
@@ -138,7 +164,7 @@ async function scrapeMarktplaats() {
     const url = MP_EV_BASE + '&offset=' + MP_EV_OFFSETS[i];
     const label = `MP EV p${i + 1}`;
     try {
-      const resp = await fetch(url, { headers: HEADERS_MP });
+      const resp = await fetchWithRetry(url, { headers: HEADERS_MP });
       console.log(` ${label}: HTTP ${resp.status}`);
       if (!resp.ok) continue;
       const data = await resp.json();
@@ -158,7 +184,7 @@ async function scrapeMarktplaats() {
     const url = MP_TESLA_BASE + '&offset=' + MP_TESLA_OFFSETS[i];
     const label = `MP Tesla p${i + 1}`;
     try {
-      const resp = await fetch(url, { headers: HEADERS_MP });
+      const resp = await fetchWithRetry(url, { headers: HEADERS_MP });
       console.log(` ${label}: HTTP ${resp.status}`);
       if (!resp.ok) continue;
       const data = await resp.json();
@@ -177,7 +203,7 @@ async function scrapeMarktplaats() {
     const url = MP_FORD_BASE + '&offset=' + MP_FORD_OFFSETS[i];
     const label = 'MP Ford Mach-E p' + (i+1);
     try {
-      const res = await fetch(url);
+      const res = await fetchWithRetry(url);
       const json = await res.json();
       const items = json.listings || [];
       const found = parseerMPItems(items, gezien);
@@ -192,7 +218,7 @@ async function scrapeMarktplaats() {
     const url = MP_FORD_EXPLORER_BASE + '&offset=' + MP_FORD_EXPLORER_OFFSETS[i];
     const label = 'MP Ford Explorer p' + (i+1);
     try {
-      const res = await fetch(url);
+      const res = await fetchWithRetry(url);
       const json = await res.json();
       const items = json.listings || [];
       const found = parseerMPItems(items, gezien);
@@ -304,7 +330,7 @@ async function scrapeGaspedaal() {
     const url = GP_URLS[i];
     const label = `GP p${i + 1}`;
     try {
-      const resp = await fetch(url, { headers: HEADERS_GP });
+      const resp = await fetchWithRetry(url, { headers: HEADERS_GP });
       console.log(` ${label}: HTTP ${resp.status}`);
       if (!resp.ok) continue;
       const html = await resp.text();
@@ -404,7 +430,7 @@ async function scrapeViaBovag() {
     const url = VB_URLS[i];
     const label = `VB p${i + 1}`;
     try {
-      const resp = await fetch(url, { headers: HEADERS_VB });
+      const resp = await fetchWithRetry(url, { headers: HEADERS_VB });
       console.log(` ${label}: HTTP ${resp.status}`);
       if (!resp.ok) continue;
       const html = await resp.text();
@@ -500,7 +526,7 @@ async function scrapeAutoTrack() {
     const url = AT_URLS[i];
     const label = `AT p${i + 1}`;
     try {
-      const resp = await fetch(url, { headers: HEADERS_AT });
+      const resp = await fetchWithRetry(url, { headers: HEADERS_AT });
       console.log(` ${label}: HTTP ${resp.status}`);
       if (!resp.ok) continue;
       const html = await resp.text();
@@ -670,7 +696,7 @@ async function scrapeAutoScout24() {
     const url = AS24_URLS[i];
     const label = `AS24 p${i + 1}`;
     try {
-      const resp = await fetch(url, { headers: HEADERS_AS24 });
+      const resp = await fetchWithRetry(url, { headers: HEADERS_AS24 });
       console.log(` ${label}: HTTP ${resp.status}`);
       if (!resp.ok) continue;
       const html = await resp.text();
@@ -835,7 +861,7 @@ async function scrapeAutoTrader() {
     const url = ATR_URLS[i];
     const label = `ATR p${i + 1}`;
     try {
-      const resp = await fetch(url, { headers: HEADERS_ATR });
+      const resp = await fetchWithRetry(url, { headers: HEADERS_ATR });
       console.log(` ${label}: HTTP ${resp.status}`);
       if (!resp.ok) continue;
       const html = await resp.text();
@@ -853,7 +879,7 @@ async function scrapeAutoTrader() {
     const url = MP_JEEP_BASE + '&offset=' + MP_JEEP_OFFSETS[i];
     const label = 'MP Jeep p' + (i+1);
     try {
-      const res = await fetch(url);
+      const res = await fetchWithRetry(url);
       const json = await res.json();
       const items = json.listings || [];
       const found = parseerMPItems(items, gezien);
@@ -868,7 +894,7 @@ async function scrapeAutoTrader() {
     const url = MP_ALFA_ROMEO_BASE + '&offset=' + MP_ALFA_ROMEO_OFFSETS[i];
     const label = 'MP Alfa Romeo p' + (i+1);
     try {
-      const res = await fetch(url);
+      const res = await fetchWithRetry(url);
       const json = await res.json();
       const items = json.listings || [];
       const found = parseerMPItems(items, gezien);
@@ -883,7 +909,7 @@ async function scrapeAutoTrader() {
     const url = MP_SUZUKI_BASE + '&offset=' + MP_SUZUKI_OFFSETS[i];
     const label = 'MP Suzuki p' + (i+1);
     try {
-      const res = await fetch(url);
+      const res = await fetchWithRetry(url);
       const json = await res.json();
       const items = json.listings || [];
       const found = parseerMPItems(items, gezien);
@@ -898,7 +924,7 @@ async function scrapeAutoTrader() {
     const url = MP_MITSUBISHI_BASE + '&offset=' + MP_MITSUBISHI_OFFSETS[i];
     const label = 'MP Mitsubishi p' + (i+1);
     try {
-      const res = await fetch(url);
+      const res = await fetchWithRetry(url);
       const json = await res.json();
       const items = json.listings || [];
       const found = parseerMPItems(items, gezien);
@@ -913,7 +939,7 @@ async function scrapeAutoTrader() {
     const url = MP_CUPRA_BASE + '&offset=' + MP_CUPRA_OFFSETS[i];
     const label = 'MP Cupra p' + (i+1);
     try {
-      const res = await fetch(url);
+      const res = await fetchWithRetry(url);
       const json = await res.json();
       const items = json.listings || [];
       const found = parseerMPItems(items, gezien);
@@ -928,7 +954,7 @@ async function scrapeAutoTrader() {
     const url = MP_MG_BASE + '&offset=' + MP_MG_OFFSETS[i];
     const label = 'MP MG p' + (i+1);
     try {
-      const res = await fetch(url);
+      const res = await fetchWithRetry(url);
       const json = await res.json();
       const items = json.listings || [];
       const found = parseerMPItems(items, gezien);
@@ -943,7 +969,7 @@ async function scrapeAutoTrader() {
     const url = MP_POLESTAR_BASE + '&offset=' + MP_POLESTAR_OFFSETS[i];
     const label = 'MP Polestar p' + (i+1);
     try {
-      const res = await fetch(url);
+      const res = await fetchWithRetry(url);
       const json = await res.json();
       const items = json.listings || [];
       const found = parseerMPItems(items, gezien);
@@ -958,7 +984,7 @@ async function scrapeAutoTrader() {
     const url = MP_JAGUAR_BASE + '&offset=' + MP_JAGUAR_OFFSETS[i];
     const label = 'MP Jaguar p' + (i+1);
     try {
-      const res = await fetch(url);
+      const res = await fetchWithRetry(url);
       const json = await res.json();
       const items = json.listings || [];
       const found = parseerMPItems(items, gezien);
@@ -973,7 +999,7 @@ async function scrapeAutoTrader() {
     const url = MP_SUBARU_BASE + '&offset=' + MP_SUBARU_OFFSETS[i];
     const label = 'MP Subaru p' + (i+1);
     try {
-      const res = await fetch(url);
+      const res = await fetchWithRetry(url);
       const json = await res.json();
       const items = json.listings || [];
       const found = parseerMPItems(items, gezien);
@@ -988,7 +1014,7 @@ async function scrapeAutoTrader() {
     const url = MP_LEXUS_BASE + '&offset=' + MP_LEXUS_OFFSETS[i];
     const label = 'MP Lexus p' + (i+1);
     try {
-      const res = await fetch(url);
+      const res = await fetchWithRetry(url);
       const json = await res.json();
       const items = json.listings || [];
       const found = parseerMPItems(items, gezien);
@@ -1003,7 +1029,7 @@ async function scrapeAutoTrader() {
     const url = MP_BYD_BASE + '&offset=' + MP_BYD_OFFSETS[i];
     const label = 'MP BYD p' + (i+1);
     try {
-      const res = await fetch(url);
+      const res = await fetchWithRetry(url);
       const json = await res.json();
       const items = json.listings || [];
       const found = parseerMPItems(items, gezien);
@@ -1018,7 +1044,7 @@ async function scrapeAutoTrader() {
     const url = MP_SMART_BASE + '&offset=' + MP_SMART_OFFSETS[i];
     const label = 'MP Smart p' + (i+1);
     try {
-      const res = await fetch(url);
+      const res = await fetchWithRetry(url);
       const json = await res.json();
       const items = json.listings || [];
       const found = parseerMPItems(items, gezien);
@@ -1033,7 +1059,7 @@ async function scrapeAutoTrader() {
     const url = MP_DS_BASE + '&offset=' + MP_DS_OFFSETS[i];
     const label = 'MP DS p' + (i+1);
     try {
-      const res = await fetch(url);
+      const res = await fetchWithRetry(url);
       const json = await res.json();
       const items = json.listings || [];
       const found = parseerMPItems(items, gezien);
@@ -1238,6 +1264,18 @@ async function main() {
     listings
   };
 
+    const bronStats = {};
+  for (const l of nieuw) { const b = l.bron || 'Onbekend'; bronStats[b] = (bronStats[b] || 0) + 1; }
+  const rapport = { timestamp: new Date().toISOString(), totaalNieuw: nieuw.length, bronnen: bronStats };
+  const rapportPad = path.join(__dirname, '..', 'data', 'scrape-report.json');
+  fs.writeFileSync(rapportPad, JSON.stringify(rapport, null, 2));
+  console.log('\n📊 Scraper rapport:');
+  for (const [bron, n] of Object.entries(bronStats)) console.log(`   ${bron.padEnd(14)}: ${n} listings`);
+  if (process.env.GITHUB_STEP_SUMMARY) {
+    const rijen = Object.entries(bronStats).map(([b,n]) => `| ${b} | ${n} |`).join('\n');
+    const summary = ['## 🚗 Scraper Rapport', `**${rapport.timestamp.slice(0,10)}** — ${nieuw.length} listings vandaag`, '', '| Bron | Listings |', '|------|----------|', rijen, '', `**Totaal in database:** ${Object.keys(byId).length}`].join('\n');
+    fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, summary + '\n');
+  }
   fs.writeFileSync(outPath, JSON.stringify(data, null, 2));
   console.log(`â Opgeslagen naar ${outPath}`);
 }
