@@ -245,6 +245,13 @@
       padding: 3px 9px; border-radius: 4px;
       letter-spacing: .5px; z-index: 2; pointer-events: none;
     }
+    .prijs-daling {
+      position: absolute; bottom: 10px; right: 10px;
+      background: #ef4444; color: #fff;
+      font-size: 11px; font-weight: 700;
+      padding: 3px 8px; border-radius: 4px;
+      z-index: 2; pointer-events: none;
+    }
     .bron-label {
       position: absolute; top: 10px; right: 10px; padding: 3px 8px;
       border-radius: 4px; font-size: 11px; font-weight: 700; color: white;
@@ -899,6 +906,10 @@ function toonResultaten(lijst) {
         <button class="fav-btn${_favs.has(a.id)?' fav-actief':''} data-fav="${a.id}" onclick="toggleFav(event,'${a.id}')" title="Fav">${_favs.has(a.id)?'♥':'♡'}</button>
         <button class="vgl-btn${_vgl.includes(a.id)?' vgl-actief':''} data-vgl="${a.id}" onclick="toggleVergelijk(event,'${a.id}')" title="Vergelijk">⊕</button>
         ${(()=>{window._vglData[a.id]=a;return a.bijgewerkt===new Date().toISOString().slice(0,10)?'<span class=\"nieuw-badge\">NIEUW</span>':''})()}
+        ${(()=>{if(a.prijsHistorie&&a.prijsHistorie.length){
+          var oud=a.prijsHistorie[a.prijsHistorie.length-1].prijs;
+          return '<span class="prijs-daling">↘ was €'+Number(oud).toLocaleString('nl-NL')+'</span>';
+        }return '';})()}
         <img referrerpolicy="no-referrer" onerror="this.style.display='none'" src="${a.imgSrc?'https://wsrv.nl/?url='+(a.imgSrc.replace(/^https?:/,'').replace(/^\/\//,'').replace(/\$_\d+\.jpg/gi,'$_86.jpg')):'data:,'}" alt="${a.titel}"
           onerror="this.src='https://placehold.co/600x380/e8e8e3/999?text=${encodeURIComponent((a.titel||'').split(' ').slice(0,2).join(' '))}'"
           loading="lazy" />
