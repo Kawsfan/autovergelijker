@@ -422,76 +422,51 @@ async function scrapeViaBovag() {
 function parseerViaBovag(html, gezien, label) {
   const results = [];
 
-  const allUrlMatches = [...html.matchAll(/href="(\/auto\/aanbod\/[^"]+)"/g)];
-  const uniqueUrls = [...new Set(allUrlMatches.map(m => m[1]))];
-  console.log(` ${label}: ${uniqueUrls.length} unieke auto-URLs`);
+  // Extract __NEXT_DATA__ JSON — veel betrouwbaarder dan HTML regex
+  const ndMatch = html.match(/<script id="__NEXT_DATA__" type="application\/json">([\s\S]+?)<\/script>/);
+  if (!ndMatch) {
+    console.log(` ${label}: geen __NEXT_DATA__ gevonden, skip`);
+    return results;
+  }
 
-  for (const relUrl of uniqueUrls) {
-    const idCode = (relUrl.match(/([a-z0-9]{7})$/) || [])[1];
-    if (!idCode) continue;
-    const id = 'vb-' + idCode;
+  let items;
+  try {
+    const nd = JSON.parse(ndMatch[1]);
+    const sr = nd.props?.pageProps?.serverSearchResults;
+    items = sr?.results || [];
+    console.log(` ${label}: ${items.length} resultaten in __NEXT_DATA__`);
+  } catch (e) {
+    console.log(` ${label}: JSON parse fout: ${e.message}`);
+    return results;
+  }
+
+  for (const item of items) {
+    if (!item.url || !item.id) continue;
+    const id = 'vb_' + item.id;
     if (gezien.has(id)) continue;
-
-    const startIdx = html.indexOf(`href="${relUrl}"`);
-    if (startIdx < 0) continue;
-    const afterThis = html.indexOf('/auto/aanbod/', startIdx + relUrl.length + 10);
-    const windowEnd = afterThis > 0 ? Math.min(afterThis + 50, startIdx + 5000) : startIdx + 5000;
-    const chunk = html.substring(startIdx, windowEnd);
-
-    const priceM = chunk.match(/([\d]+\.[\d]+),-|([\d]+),-/);
-    const prijs = priceM ? parseInt((priceM[1] || priceM[2]).replace(/\./g, '')) : 0;
-    if (!prijs || prijs < 500 || prijs > 500000) continue;
-
-    const titleM = chunk.match(/<h[2-4][^>]*>([^<]{3,60})<\/h[2-4]>/);
-    const slugTitle = relUrl
-      .replace(/\/auto\/aanbod\//, '')
-      .replace(/-[a-z0-9]{7}$/, '')
-      .replace(/-/g, ' ')
-      .replace(/\b\w/g, c => c.toUpperCase())
-      .substring(0, 80);
-    const titel = titleM ? titleM[1].trim().substring(0, 80) : slugTitle;
-
-    const kmM = chunk.match(/([\d]+\.[\d]+|[\d]+)\s*km\b/i);
-    const km = kmM ? parseInt(kmM[1].replace(/\./g, '')) : null;
-
-    const yearM = chunk.match(/\b\d{2}-(20\d{2})\b/);
-    const jaar = yearM ? parseInt(yearM[1]) : null;
-
-    const bsM = chunk.match(/\b(Benzine|Diesel|Elektrisch|Hybride|LPG|Waterstof)\b/i);
-    const brandstof = bsM ? bsM[1] : '';
-
-    const imgM = chunk.match(/https:\/\/stsharedprdweu\.blob\.core\.windows\.net\/vehicles-media\/[^"'\s>]+/);
-    const imgSrc = imgM ? imgM[0] : '';
-
-    const locM = chunk.match(/\b([A-Z][A-Z\s\-]{2,25}[A-Z])\b/);
-    const locatie = (locM && !locM[1].includes('BOVAG') && !locM[1].includes('HTTP'))
-      ? locM[1].trim()
-      : 'Nederland';
-
     gezien.add(id);
+
+    const v = item.vehicle || {};
+    const fuelArr = Array.isArray(v.fuelTypes) ? v.fuelTypes : (v.fuelTypes ? [v.fuelTypes] : []);
+    const brandstof = fuelArr[0] || null;
+
     results.push({
       id,
-      bron: 'viaBOVAG',
-      titel,
-      prijs,
-      jaar,
-      km,
+      bron: 'ViaBovag',
+      titel: item.title || (`${v.brand || ''} ${v.model || ''}`).trim(),
+      prijs: item.price != null ? parseInt(item.price) : null,
+      km: v.mileage != null ? parseInt(v.mileage) : null,
+      jaar: v.year || null,
       brandstof,
-      carrosserie: '',
-      transmissie: '',
-      kleur: '',
-      locatie,
-      url: 'https://www.viabovag.nl' + relUrl,
-      imgSrc,
-      imgs: imgSrc ? [imgSrc] : [],
-      bijgewerkt: new Date().toISOString().split('T')[0]
+      locatie: item.company?.city || null,
+      url: 'https://www.viabovag.nl' + item.url,
+      afbeelding: item.imageUrl || null,
+      bijgewerkt: new Date().toISOString().slice(0, 10),
     });
   }
+
   return results;
 }
-
-// ââ AUTOTRACK âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
-// Uitgebreid: algemeen + hybride + elektrisch
 
 const AT_URLS = [
   // Algemeen aanbod
