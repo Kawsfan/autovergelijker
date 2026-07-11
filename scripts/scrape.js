@@ -1259,9 +1259,33 @@ async function main() {
   const cutoff = new Date();
   cutoff.setDate(cutoff.getDate() - 30);
   const cutoffStr = cutoff.toISOString().split('T')[0];
-  const listings = Object.values(byId)
+  let listings = Object.values(byId)
     .filter(l => l.bijgewerkt >= cutoffStr)
     .filter(l => !(l.bron === 'AutoScout24' && !l.titel && !l.prijs));
+  // Deduplicatie: verwijder zelfde auto van meerdere platforms
+  const _dedupMap = {};
+  const _dedupList = [];
+  for (const l of listings) {
+    if (!l.merk || !l.prijs) { _dedupList.push(l); continue; }
+    const _key = [
+      (l.merk || "").toLowerCase().replace(/\s+/g, ""),
+      l.jaar || 0,
+      Math.round((l.km || 0) / 5000) * 5000,
+      Math.round((l.prijs || 0) / 500) * 500
+    ].join("_");
+    const _score = x => (x.brandstof?1:0)+(x.km?1:0)+(x.jaar?1:0)+(x.imgSrc?1:0)+(x.transmissie?1:0);
+    if (!_dedupMap[_key]) {
+      _dedupMap[_key] = { listing: l, idx: _dedupList.length };
+      _dedupList.push(l);
+    } else if (_score(l) > _score(_dedupMap[_key].listing)) {
+      _dedupList[_dedupMap[_key].idx] = l;
+      _dedupMap[_key].listing = l;
+    }
+  }
+  const _dupCount = listings.length - _dedupList.length;
+  if (_dupCount > 0) console.log(` 🔁  ${_dupCount} duplicaten verwijderd`);
+  listings = _dedupList;
+
 
   const verwijderd = Object.keys(byId).length - listings.length;
   if (verwijderd > 0) console.log(`ðï¸  ${verwijderd} verlopen listings verwijderd (>30 dagen)`);
