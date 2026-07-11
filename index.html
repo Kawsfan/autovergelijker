@@ -436,6 +436,19 @@
 .qf-btn:hover { border-color:var(--oranje); color:var(--oranje); }
 .qf-btn.actief { background:var(--oranje); border-color:var(--oranje); color:#fff; }
 .auto-foto { position:relative; }
+
+/* ── Paginering ── */
+.paginering { display:flex; align-items:center; justify-content:center; gap:12px; margin:24px 0 8px; }
+.paginering button { background:var(--kaart); border:1px solid var(--rand); color:var(--tekst); border-radius:8px; padding:8px 18px; cursor:pointer; font-size:14px; transition:.2s; }
+.paginering button:hover:not(:disabled) { border-color:var(--oranje); color:var(--oranje); }
+.paginering button:disabled { opacity:.35; cursor:default; }
+.paginering span { font-size:14px; color:var(--subtekst); }
+/* ── Afstandsfilter ── */
+.afstand-rij { display:flex; gap:6px; flex-wrap:wrap; align-items:center; }
+.afstand-rij input { flex:1; min-width:120px; padding:8px 10px; border:1px solid var(--rand); border-radius:8px; background:var(--achtergrond); color:var(--tekst); font-size:14px; }
+.afstand-rij input:focus { outline:none; border-color:var(--oranje); }
+.loc-btn { background:none; border:1px solid var(--rand); color:var(--subtekst); border-radius:8px; padding:8px 10px; cursor:pointer; font-size:13px; white-space:nowrap; transition:.2s; }
+.loc-btn:hover { border-color:var(--oranje); color:var(--oranje); }
 </style>
 </head>
 <body>
@@ -637,6 +650,23 @@
         <span><span class="check">✓</span> Dagelijks bijgewerkt</span>
         <span><span class="check">✓</span> Gratis zoeken</span>
       </div>
+    <div class="filter-rij">
+      <div class="filter-groep" style="width:100%">
+        <label data-i18n="lbl_afstand">📍 Afstand</label>
+        <div class="afstand-rij">
+          <input id="locInput" type="text" placeholder="Stad of postcode..." oninput="window._locCoord=null" />
+          <button class="loc-btn" onclick="geolocate()" title="Gebruik mijn locatie">📌 Mijn locatie</button>
+          <select id="radiusSelect" onchange="zoekNu()">
+            <option value="">Alle afstanden</option>
+            <option value="10">≤ 10 km</option>
+            <option value="25">≤ 25 km</option>
+            <option value="50">≤ 50 km</option>
+            <option value="100">≤ 100 km</option>
+            <option value="250">≤ 250 km</option>
+          </select>
+        </div>
+      </div>
+    </div>
       <button class="vinden-btn" onclick="zoekNu()">
         Zoeken <span class="vinden-count" id="vindenCount"></span>
       </button>
@@ -708,8 +738,12 @@ async function laadListings() {
 
     if (alleResultaten.length === 0) {
       _huidigeLijst = gesorteerd;
+  if(window._pagina>1&&!window._manualPage)window._pagina=1;
+  window._manualPage=false;
   if(window._toonFavs) gesorteerd = gesorteerd.filter(function(a){ return _favs.has(a.id); });
   if(window._toonNieuw){ var _vd=new Date().toISOString().slice(0,10); gesorteerd=gesorteerd.filter(function(a){return a.bijgewerkt===_vd;}); }
+  var _rad=parseInt(document.getElementById('radiusSelect')&&document.getElementById('radiusSelect').value)||0;
+  if(_rad>0){ var _lc=window._locCoord; if(!_lc){ var _li=document.getElementById('locInput'); if(_li&&_li.value.trim()){ var _lk=_li.value.trim().toLowerCase(); _lc=NL_CITIES[_lk]||null; if(!_lc){ for(var _ck in NL_CITIES){if(_ck.includes(_lk)||_lk.includes(_ck.split(' ')[0])){_lc=NL_CITIES[_ck];break;}}} window._locCoord=_lc; }} if(_lc){ gesorteerd=gesorteerd.filter(function(a){ if(!a.locatie)return false; var _ac=NL_CITIES[a.locatie.toLowerCase().trim()]; if(!_ac){for(var _c in NL_CITIES){if(a.locatie.toLowerCase().includes(_c)){_ac=NL_CITIES[_c];break;}}} if(!_ac)return false; var _dlat=(_lc[0]-_ac[0])*Math.PI/180,_dlon=(_lc[1]-_ac[1])*Math.PI/180; var _hav=Math.sin(_dlat/2)*Math.sin(_dlat/2)+Math.cos(_lc[0]*Math.PI/180)*Math.cos(_ac[0]*Math.PI/180)*Math.sin(_dlon/2)*Math.sin(_dlon/2); return 6371*2*Math.atan2(Math.sqrt(_hav),Math.sqrt(1-_hav))<=_rad; }); }}
   if(typeof filtersNaarURL==='function')filtersNaarURL();
   document.getElementById('autoGrid').innerHTML = `
         <div class="geen-resultaten">
@@ -854,7 +888,9 @@ function toonResultaten(lijst) {
     return;
   }
 
-  document.getElementById('autoGrid').innerHTML = gesorteerd.map(a => `
+  var _pp=24, _pg=window._pagina||1;
+    var _slice=gesorteerd.slice((_pg-1)*_pp, _pg*_pp);
+    document.getElementById('autoGrid').innerHTML = _slice.map(a => `
     <div class="auto-card" onclick="openDetail('${a.id}')">
       <div class="auto-foto">
         <button class="fav-btn${_favs.has(a.id)?' fav-actief':''} data-fav="${a.id}" onclick="toggleFav(event,'${a.id}')" title="Fav">${_favs.has(a.id)?'♥':'♡'}</button>
@@ -886,7 +922,7 @@ function toonResultaten(lijst) {
           <div class="locatie">📍 ${a.locatie || 'Nederland'}</div>
         </div>
       </div>
-    </div>`).join('');
+    </div>`).join('') + (_paginaControls ? _paginaControls(gesorteerd.length, _pg, _pp) : '');
 }
 
 function sorteer(lijst, sort) {
@@ -1269,5 +1305,38 @@ function resetVergelijk(){_vgl=[];updateVglBar();document.querySelectorAll("[dat
 function filtersNaarURL(){var p=new URLSearchParams();var g=function(id){var e=document.getElementById(id);return e?e.value:"";};var sv=function(k,v){if(v)p.set(k,v);};sv("q",g("zoekInput"));sv("merk",g("merkFilter"));sv("model",g("modelInput"));sv("brandstof",g("brandstofFilter"));sv("jaarMin",g("jaarMin"));sv("jaarMax",g("jaarMax"));sv("prijsMin",g("prijsMin"));sv("prijsMax",g("prijsMax"));sv("kmMin",g("kmMin"));sv("kmMax",g("kmMax"));sv("carrosserie",g("carrosserieFilter"));if(window._actieveTrans)sv("trans",window._actieveTrans);history.replaceState(null,"",p.toString()?"?"+p.toString():location.pathname);}
 function urlNaarFilters(){var p=new URLSearchParams(location.search);if(!p.toString())return;var set=function(id,val){var e=document.getElementById(id);if(e&&val)e.value=val;};set("zoekInput",p.get("q"));set("merkFilter",p.get("merk"));set("modelInput",p.get("model"));set("brandstofFilter",p.get("brandstof"));set("jaarMin",p.get("jaarMin"));set("jaarMax",p.get("jaarMax"));set("prijsMin",p.get("prijsMin"));set("prijsMax",p.get("prijsMax"));set("kmMin",p.get("kmMin"));set("kmMax",p.get("kmMax"));set("carrosserieFilter",p.get("carrosserie"));if(p.get("trans")){var tb=document.querySelector("[data-val=\""+p.get("trans")+"\"]");if(tb)setTransmissie(tb);}zoekNu();}
 document.addEventListener("DOMContentLoaded",urlNaarFilters);
-</script></body>
+</script><script>
+// ── Paginering ──
+window._pagina=1;
+function _paginaControls(totaal,pg,pp){
+  var tp=Math.ceil(totaal/pp);
+  if(tp<=1)return "";
+  var prev=pg>1?"<button onclick=\"gaanPagina("+(pg-1)+")\">\u2039 Vorige</button>":"<button disabled>\u2039 Vorige</button>";
+  var next=pg<tp?"<button onclick=\"gaanPagina("+(pg+1)+")\">Volgende \u203a</button>":"<button disabled>Volgende \u203a</button>";
+  return "<div class=\"paginering\">"+prev+"<span>Pagina "+pg+" van "+tp+"</span>"+next+"</div>";
+}
+function gaanPagina(n){window._pagina=n;window._manualPage=true;zoekNu();window.scrollTo({top:0,behavior:"smooth"});}
+// ── Afstandsfilter ──
+window._locCoord=null;
+function geolocate(){
+  if(!navigator.geolocation){alert("Geolocation niet beschikbaar");return;}
+  navigator.geolocation.getCurrentPosition(function(pos){
+    window._locCoord=[pos.coords.latitude,pos.coords.longitude];
+    var inp=document.getElementById("locInput");
+    if(inp)inp.value="\uD83D\uDCCD Mijn locatie";
+    var rad=document.getElementById("radiusSelect");
+    if(rad&&!rad.value)rad.value="50";
+    zoekNu();
+  },function(){alert("Locatie ophalen mislukt. Probeer een stadsnaam.");});
+}
+// ── Service Worker ──
+if("serviceWorker" in navigator){
+  window.addEventListener("load",function(){
+    navigator.serviceWorker.register("/autovergelijker/sw.js")
+      .then(function(r){console.log("SW geregistreerd:",r.scope);})
+      .catch(function(e){console.log("SW fout:",e);});
+  });
+}
+</script>
+</body>
 </html>
