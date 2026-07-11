@@ -342,6 +342,25 @@
 .gal-thumb { width: 60px; height: 44px; object-fit: cover; border-radius: 5px; cursor: pointer; opacity: 0.55; border: 2px solid transparent; flex-shrink: 0; transition: opacity 0.15s, border-color 0.15s; }
 .gal-thumb.actief, .gal-thumb:hover { opacity: 1; }
 .gal-thumb.actief { border-color: var(--oranje); }
+
+/* ── Info Modal ── */
+.info-btn { background: none; border: 1px solid var(--subtekst); color: var(--subtekst); border-radius: 6px; padding: 4px 12px; cursor: pointer; font-size: 13px; transition: .2s; }
+.info-btn:hover { border-color: var(--oranje); color: var(--oranje); }
+.modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.65); z-index: 1000; align-items: center; justify-content: center; padding: 20px; }
+.modal-content { background: var(--kaart); border-radius: 14px; max-width: 760px; width: 100%; max-height: 80vh; overflow-y: auto; padding: 36px; position: relative; }
+.modal-close { position: absolute; top: 14px; right: 18px; background: none; border: none; font-size: 22px; cursor: pointer; color: var(--subtekst); line-height: 1; }
+.modal-close:hover { color: var(--oranje); }
+.markdown-body h1 { font-size: 1.6rem; margin-bottom: .4rem; }
+.markdown-body h2 { font-size: 1.15rem; margin: 1.4rem 0 .4rem; border-bottom: 1px solid var(--rand); padding-bottom: 4px; }
+.markdown-body p, .markdown-body li { line-height: 1.65; color: var(--tekst); margin-bottom: .4rem; }
+.markdown-body a { color: var(--oranje); }
+.markdown-body code { background: var(--achtergrond); padding: 2px 5px; border-radius: 4px; font-size: .88em; }
+.markdown-body pre { background: var(--achtergrond); padding: 14px; border-radius: 8px; overflow-x: auto; margin: .8rem 0; }
+.markdown-body pre code { background: none; padding: 0; }
+.markdown-body ul, .markdown-body ol { padding-left: 1.5rem; margin-bottom: .6rem; }
+.markdown-body table { border-collapse: collapse; width: 100%; margin: .8rem 0; }
+.markdown-body th, .markdown-body td { border: 1px solid var(--rand); padding: 6px 12px; text-align: left; }
+.markdown-body th { background: var(--achtergrond); font-weight: 600; }
 </style>
 </head>
 <body>
@@ -349,6 +368,7 @@
 <nav>
   <div class="logo" onclick="resetFilters()">Auto<span>Vergelijker</span></div>
   <span style="font-size:13px;color:var(--subtekst)">🟢 Live data</span>
+  <button class="info-btn" onclick="openInfo()">ℹ️ Info</button>
 </nav>
 
 <div class="hero">
@@ -938,5 +958,30 @@ document.addEventListener('DOMContentLoaded', laadListings);
     }
   </script>
 
+
+<!-- Info Modal -->
+<div id="infoModal" class="modal-overlay" onclick="if(event.target===this)closeInfo()">
+  <div class="modal-content">
+    <button class="modal-close" onclick="closeInfo()">✕</button>
+    <div id="markdownBody" class="markdown-body"><em>Laden...</em></div>
+  </div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js"></script>
+<script>
+function openInfo() {
+  var modal = document.getElementById('infoModal');
+  modal.style.display = 'flex';
+  if (!window._readmeLoaded) {
+    fetch('https://raw.githubusercontent.com/Kawsfan/autovergelijker/main/README.md')
+      .then(function(r){ return r.text(); })
+      .then(function(md){
+        document.getElementById('markdownBody').innerHTML = marked.parse(md);
+        window._readmeLoaded = true;
+      });
+  }
+}
+function closeInfo() { document.getElementById('infoModal').style.display = 'none'; }
+document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeInfo(); });
+</script>
 </body>
 </html>
