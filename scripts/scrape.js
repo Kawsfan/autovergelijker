@@ -1243,7 +1243,18 @@ async function main() {
     console.log(`ð Geen bestaand bestand, begin vers`);
   }
 
-  for (const l of nieuw) byId[l.id] = l;
+  for (const l of nieuw) {
+      const prev = byId[l.id];
+      if (prev && prev.prijs != null && l.prijs != null && prev.prijs !== l.prijs) {
+        const hist = prev.prijsHistorie ? [...prev.prijsHistorie] : [];
+        hist.push({ datum: prev.bijgewerkt || new Date().toISOString().slice(0,10), prijs: prev.prijs });
+        l.prijsHistorie = hist.slice(-5);
+        console.log(` 💰 Prijswijziging ${l.id}: €${prev.prijs} → €${l.prijs}`);
+      } else if (prev && prev.prijsHistorie) {
+        l.prijsHistorie = prev.prijsHistorie;
+      }
+      byId[l.id] = l;
+    }
 
   const cutoff = new Date();
   cutoff.setDate(cutoff.getDate() - 30);
