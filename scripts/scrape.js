@@ -13,26 +13,26 @@ async function fetchWithRetry(url, options = {}, maxPogingen = 3) {
       if (resp.ok) return resp;
       if (poging < maxPogingen) {
         const wacht = poging * 2000;
-        console.log(`    ↻ HTTP ${resp.status} – retry ${poging}/${maxPogingen - 1} (wacht ${wacht/1000}s)...`);
+        console.log(`    â» HTTP ${resp.status} â retry ${poging}/${maxPogingen - 1} (wacht ${wacht/1000}s)...`);
         await sleep(wacht);
       } else {
-        console.log(`    ✗ HTTP ${resp.status} na ${maxPogingen} pogingen: ${url.slice(0,80)}`);
+        console.log(`    â HTTP ${resp.status} na ${maxPogingen} pogingen: ${url.slice(0,80)}`);
         return resp;
       }
     } catch (err) {
       if (poging < maxPogingen) {
         const wacht = poging * 2000;
-        console.log(`    ↻ Fout (${err.message}) – retry ${poging}/${maxPogingen - 1} (wacht ${wacht/1000}s)...`);
+        console.log(`    â» Fout (${err.message}) â retry ${poging}/${maxPogingen - 1} (wacht ${wacht/1000}s)...`);
         await sleep(wacht);
       } else {
-        console.log(`    ✗ Opgegeven na ${maxPogingen} pogingen: ${err.message}`);
+        console.log(`    â Opgegeven na ${maxPogingen} pogingen: ${err.message}`);
         throw err;
       }
     }
   }
 }
 
-// ââ HEADERS âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// Ã¢ÂÂÃ¢ÂÂ HEADERS Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 
 const HEADERS_MP = {
   'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
@@ -98,7 +98,7 @@ const HEADERS_ATR = {
   'Upgrade-Insecure-Requests': '1',
 };
 
-// ââ MARKTPLAATS âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// Ã¢ÂÂÃ¢ÂÂ MARKTPLAATS Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 
 const MP_API_BASE = 'https://www.marktplaats.nl/lrp/api/search?l1CategoryId=91&numberOfResultsPerPage=100';
 const MP_OFFSETS = [0, 100, 200];
@@ -153,7 +153,7 @@ async function scrapeMarktplaats() {
       const items = data.listings || [];
       const found = parseerMPItems(items, gezien);
       all.push(...found);
-      console.log(` ${label}: ${found.length} nieuw â totaal MP ${all.length}`);
+      console.log(` ${label}: ${found.length} nieuw Ã¢ÂÂ totaal MP ${all.length}`);
     } catch (e) {
       console.log(` ${label}: fout - ${e.message}`);
     }
@@ -171,7 +171,7 @@ async function scrapeMarktplaats() {
       const items = data.listings || [];
       const found = parseerMPItems(items, gezien);
       all.push(...found);
-      console.log(` ${label}: ${found.length} nieuw â totaal MP ${all.length}`);
+      console.log(` ${label}: ${found.length} nieuw Ã¢ÂÂ totaal MP ${all.length}`);
     } catch (e) {
       console.log(` ${label}: fout - ${e.message}`);
     }
@@ -191,7 +191,7 @@ async function scrapeMarktplaats() {
       const items = data.listings || [];
       const found = parseerMPItems(items, gezien);
       all.push(...found);
-      console.log(` ${label}: ${found.length} nieuw â totaal MP ${all.length}`);
+      console.log(` ${label}: ${found.length} nieuw Ã¢ÂÂ totaal MP ${all.length}`);
     } catch (e) {
       console.log(` ${label}: fout - ${e.message}`);
     }
@@ -267,7 +267,7 @@ function parseerMPItems(items, gezien) {
   return results;
 }
 
-// ââ GASPEDAAL âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// Ã¢ÂÂÃ¢ÂÂ GASPEDAAL Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 
 const GP_URLS = [
   'https://www.gaspedaal.nl/zoeken?srt=df-a',
@@ -336,7 +336,7 @@ async function scrapeGaspedaal() {
       const html = await resp.text();
       const found = parseerGaspedaal(html, gezien, label);
       all.push(...found);
-      console.log(` ${label}: ${found.length} nieuw â totaal GP ${all.length}`);
+      console.log(` ${label}: ${found.length} nieuw Ã¢ÂÂ totaal GP ${all.length}`);
     } catch (e) {
       console.log(` ${label}: fout - ${e.message}`);
     }
@@ -410,7 +410,7 @@ function parseerGaspedaal(html, gezien, label) {
   return results;
 }
 
-// ââ VIABOVAG ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// Ã¢ÂÂÃ¢ÂÂ VIABOVAG Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 
 const VB_URLS = [
   'https://www.viabovag.nl/auto/occasion',
@@ -436,7 +436,7 @@ async function scrapeViaBovag() {
       const html = await resp.text();
       const found = parseerViaBovag(html, gezien, label);
       all.push(...found);
-      console.log(` ${label}: ${found.length} nieuw â totaal VB ${all.length}`);
+      console.log(` ${label}: ${found.length} nieuw Ã¢ÂÂ totaal VB ${all.length}`);
     } catch (e) {
       console.log(` ${label}: fout - ${e.message}`);
     }
@@ -448,7 +448,7 @@ async function scrapeViaBovag() {
 function parseerViaBovag(html, gezien, label) {
   const results = [];
 
-  // Extract __NEXT_DATA__ JSON — veel betrouwbaarder dan HTML regex
+  // Extract __NEXT_DATA__ JSON â veel betrouwbaarder dan HTML regex
   const ndMatch = html.match(/<script id="__NEXT_DATA__" type="application\/json">([\s\S]+?)<\/script>/);
   if (!ndMatch) {
     console.log(` ${label}: geen __NEXT_DATA__ gevonden, skip`);
@@ -532,7 +532,7 @@ async function scrapeAutoTrack() {
       const html = await resp.text();
       const found = parseerAutoTrack(html, gezien, label);
       all.push(...found);
-      console.log(` ${label}: ${found.length} nieuw â totaal AT ${all.length}`);
+      console.log(` ${label}: ${found.length} nieuw Ã¢ÂÂ totaal AT ${all.length}`);
     } catch (e) {
       console.log(` ${label}: fout - ${e.message}`);
     }
@@ -620,7 +620,7 @@ function parseerAutoTrack(html, gezien, label) {
   return results;
 }
 
-// ââ AUTOSCOUT24 âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// Ã¢ÂÂÃ¢ÂÂ AUTOSCOUT24 Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 // Gebruikt __NEXT_DATA__ JSON embedded in de pagina
 
 const AS24_URLS = [
@@ -702,7 +702,7 @@ async function scrapeAutoScout24() {
       const html = await resp.text();
       const found = parseerAutoScout24(html, gezien, label);
       all.push(...found);
-      console.log(` ${label}: ${found.length} nieuw â totaal AS24 ${all.length}`);
+      console.log(` ${label}: ${found.length} nieuw Ã¢ÂÂ totaal AS24 ${all.length}`);
     } catch (e) {
       console.log(` ${label}: fout - ${e.message}`);
     }
@@ -728,7 +728,7 @@ function parseerAutoScout24(html, gezien, label) {
     return [];
   }
 
-  // Navigeer naar listings â AutoScout24 wisselt soms van structuur
+  // Navigeer naar listings Ã¢ÂÂ AutoScout24 wisselt soms van structuur
   const pp = data?.props?.pageProps;
   const listings =
     pp?.listings ||
@@ -799,8 +799,8 @@ function parseerAutoScout24(html, gezien, label) {
   return results;
 }
 
-// ââ AUTOTRADER ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
-// autotrader.nl â JSON-LD schema.org + __NEXT_DATA__ fallback
+// Ã¢ÂÂÃ¢ÂÂ AUTOTRADER Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
+// autotrader.nl Ã¢ÂÂ JSON-LD schema.org + __NEXT_DATA__ fallback
 
 const ATR_URLS = [
   // Algemeen aanbod
@@ -867,7 +867,7 @@ async function scrapeAutoTrader() {
       const html = await resp.text();
       const found = parseerAutoTrader(html, gezien, label);
       all.push(...found);
-      console.log(` ${label}: ${found.length} nieuw â totaal ATR ${all.length}`);
+      console.log(` ${label}: ${found.length} nieuw Ã¢ÂÂ totaal ATR ${all.length}`);
     } catch (e) {
       console.log(` ${label}: fout - ${e.message}`);
     }
@@ -1199,48 +1199,48 @@ function parseerAutoTrader(html, gezien, label) {
   return results;
 }
 
-// ââ MAIN ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// Ã¢ÂÂÃ¢ÂÂ MAIN Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 
 async function main() {
-  console.log('ð Scraper gestart:', new Date().toISOString());
+  console.log('Ã°ÂÂÂ Scraper gestart:', new Date().toISOString());
 
-  console.log('\nð¦ Marktplaats (algemeen + EV)...');
+  console.log('\nÃ°ÂÂÂ¦ Marktplaats (algemeen + EV)...');
   const mpListings = await scrapeMarktplaats();
-  console.log(`â Marktplaats: ${mpListings.length} listings`);
+  console.log(`Ã¢ÂÂ Marktplaats: ${mpListings.length} listings`);
 
-  console.log('\nâ½ Gaspedaal (algemeen + elektrisch)...');
+  console.log('\nÃ¢ÂÂ½ Gaspedaal (algemeen + elektrisch)...');
   const gpListings = await scrapeGaspedaal();
-  console.log(`â Gaspedaal: ${gpListings.length} listings`);
+  console.log(`Ã¢ÂÂ Gaspedaal: ${gpListings.length} listings`);
 
-  console.log('\nð·ï¸ viaBOVAG (algemeen + elektrisch)...');
+  console.log('\nÃ°ÂÂÂ·Ã¯Â¸Â viaBOVAG (algemeen + elektrisch)...');
   const vbListings = await scrapeViaBovag();
-  console.log(`â viaBOVAG: ${vbListings.length} listings`);
+  console.log(`Ã¢ÂÂ viaBOVAG: ${vbListings.length} listings`);
 
-  console.log('\nâ¡ AutoTrack (algemeen + hybride + elektrisch)...');
+  console.log('\nÃ¢ÂÂ¡ AutoTrack (algemeen + hybride + elektrisch)...');
   const atListings = await scrapeAutoTrack();
-  console.log(`â AutoTrack: ${atListings.length} listings`);
+  console.log(`Ã¢ÂÂ AutoTrack: ${atListings.length} listings`);
 
-  console.log('\nð AutoScout24 (algemeen + EV + hybride)...');
+  console.log('\nÃ°ÂÂÂ AutoScout24 (algemeen + EV + hybride)...');
   const as24Listings = await scrapeAutoScout24();
-  console.log(`â AutoScout24: ${as24Listings.length} listings`);
+  console.log(`Ã¢ÂÂ AutoScout24: ${as24Listings.length} listings`);
 
-  console.log('\nð AutoTrader (algemeen + EV + hybride)...');
+  console.log('\nÃ°ÂÂÂ AutoTrader (algemeen + EV + hybride)...');
   const atrListings = await scrapeAutoTrader();
-  console.log(`â AutoTrader: ${atrListings.length} listings`);
+  console.log(`Ã¢ÂÂ AutoTrader: ${atrListings.length} listings`);
 
   const nieuw = [...mpListings, ...gpListings, ...vbListings, ...atListings, ...as24Listings, ...atrListings];
-  console.log(`\nð Vandaag gescrapt: ${nieuw.length} listings`);
+  console.log(`\nÃ°ÂÂÂ Vandaag gescrapt: ${nieuw.length} listings`);
 
-  // ââ Bestaande listings inladen en samenvoegen âââââââââââââââââââââââââââââ
+  // Ã¢ÂÂÃ¢ÂÂ Bestaande listings inladen en samenvoegen Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
   const outPath = path.join(process.cwd(), 'data', 'listings.json');
   const byId = {};
 
   try {
     const bestaand = JSON.parse(fs.readFileSync(outPath, 'utf8'));
     for (const l of (bestaand.listings || [])) byId[l.id] = l;
-    console.log(`ð Bestaand: ${Object.keys(byId).length} listings geladen`);
+    console.log(`Ã°ÂÂÂ Bestaand: ${Object.keys(byId).length} listings geladen`);
   } catch (e) {
-    console.log(`ð Geen bestaand bestand, begin vers`);
+    console.log(`Ã°ÂÂÂ Geen bestaand bestand, begin vers`);
   }
 
   for (const l of nieuw) {
@@ -1249,7 +1249,7 @@ async function main() {
         const hist = prev.prijsHistorie ? [...prev.prijsHistorie] : [];
         hist.push({ datum: prev.bijgewerkt || new Date().toISOString().slice(0,10), prijs: prev.prijs });
         l.prijsHistorie = hist.slice(-5);
-        console.log(` 💰 Prijswijziging ${l.id}: €${prev.prijs} → €${l.prijs}`);
+        console.log(` ð° Prijswijziging ${l.id}: â¬${prev.prijs} â â¬${l.prijs}`);
       } else if (prev && prev.prijsHistorie) {
         l.prijsHistorie = prev.prijsHistorie;
       }
@@ -1283,14 +1283,14 @@ async function main() {
     }
   }
   const _dupCount = listings.length - _dedupList.length;
-  if (_dupCount > 0) console.log(` 🔁  ${_dupCount} duplicaten verwijderd`);
+  if (_dupCount > 0) console.log(` ð  ${_dupCount} duplicaten verwijderd`);
   listings = _dedupList;
 
 
   const verwijderd = Object.keys(byId).length - listings.length;
-  if (verwijderd > 0) console.log(`ðï¸  ${verwijderd} verlopen listings verwijderd (>30 dagen)`);
+  if (verwijderd > 0) console.log(`Ã°ÂÂÂÃ¯Â¸Â  ${verwijderd} verlopen listings verwijderd (>30 dagen)`);
 
-  console.log(`ð Totaal na merge: ${listings.length} listings`);
+  console.log(`Ã°ÂÂÂ Totaal na merge: ${listings.length} listings`);
 
   const data = {
     bijgewerkt: new Date().toISOString(),
@@ -1304,15 +1304,39 @@ async function main() {
   const rapport = { timestamp: new Date().toISOString(), totaalNieuw: nieuw.length, bronnen: bronStats };
   const rapportPad = path.join(__dirname, '..', 'data', 'scrape-report.json');
   fs.writeFileSync(rapportPad, JSON.stringify(rapport, null, 2));
-  console.log('\n📊 Scraper rapport:');
+  console.log('\nð Scraper rapport:');
   for (const [bron, n] of Object.entries(bronStats)) console.log(`   ${bron.padEnd(14)}: ${n} listings`);
   if (process.env.GITHUB_STEP_SUMMARY) {
     const rijen = Object.entries(bronStats).map(([b,n]) => `| ${b} | ${n} |`).join('\n');
-    const summary = ['## 🚗 Scraper Rapport', `**${rapport.timestamp.slice(0,10)}** — ${nieuw.length} listings vandaag`, '', '| Bron | Listings |', '|------|----------|', rijen, '', `**Totaal in database:** ${Object.keys(byId).length}`].join('\n');
+    const summary = ['## ð Scraper Rapport', `**${rapport.timestamp.slice(0,10)}** â ${nieuw.length} listings vandaag`, '', '| Bron | Listings |', '|------|----------|', rijen, '', `**Totaal in database:** ${Object.keys(byId).length}`].join('\n');
     fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, summary + '\n');
   }
   fs.writeFileSync(outPath, JSON.stringify(data, null, 2));
-  console.log(`â Opgeslagen naar ${outPath}`);
+  // ── Sitemap genereren ──
+  const _merken = [...new Set((data.listings||[]).map(l => l.merk).filter(Boolean))].sort();
+  const _today = new Date().toISOString().slice(0,10);
+  const _BASE = 'https://kawsfan.github.io/autovergelijker/';
+  const _urlTags = _merken.map(m =>
+    '  <url>\n    <loc>' + _BASE + '?merk=' + encodeURIComponent(m.toLowerCase()) +
+    '</loc>\n    <changefreq>daily</changefreq>\n    <priority>0.7</priority>\n    <lastmod>' + _today + '</lastmod>\n  </url>'
+  ).join('\n');
+  const _sitemap = [
+    '<?xml version="1.0" encoding="UTF-8"?>',
+    '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
+    '  <url>',
+    '    <loc>' + _BASE + '</loc>',
+    '    <changefreq>daily</changefreq>',
+    '    <priority>1.0</priority>',
+    '    <lastmod>' + _today + '</lastmod>',
+    '  </url>',
+    _urlTags,
+    '</urlset>'
+  ].join('\n');
+  const _sitemapPad = path.join(process.cwd(), 'sitemap.xml');
+  fs.writeFileSync(_sitemapPad, _sitemap);
+  console.log('\u{1F5FA}\uFE0F  Sitemap: ' + _merken.length + ' merken → ' + _sitemapPad);
+
+  console.log(`Ã¢ÂÂ Opgeslagen naar ${outPath}`);
 }
 
-main().catch(e => { console.error('â Fout:', e); process.exit(1); });
+main().catch(e => { console.error('Ã¢ÂÂ Fout:', e); process.exit(1); });
