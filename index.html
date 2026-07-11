@@ -461,6 +461,8 @@
     <button class="lang-btn" data-lang="en" onclick="setLang('en')">EN</button>
   </div>
   <button class="info-btn" onclick="openInfo()">ℹ️ Info</button>
+
+  <button class="info-btn" id="agentNavBtn" onclick="openAgent()">&#128276; Zoekagent</button>
 </nav>
 
 <div class="hero">
@@ -735,6 +737,7 @@ async function laadListings() {
     if (!resp.ok) throw new Error('HTTP ' + resp.status);
     const data = await resp.json();
     alleResultaten = data.listings || [];
+    window._alleAutos = alleResultaten;
 
     if (alleResultaten.length === 0) {
       _huidigeLijst = gesorteerd;
@@ -1337,6 +1340,29 @@ if("serviceWorker" in navigator){
       .catch(function(e){console.log("SW fout:",e);});
   });
 }
+
+// Zoekagent
+function openAgent(){renderAgentList();document.getElementById("agentModal").style.display="flex";}
+function _agenten(){try{return JSON.parse(localStorage.getItem("zoekagenten")||"[]");}catch(e){return[];}}
+function renderAgentList(){var el=document.getElementById("agentList");var list=_agenten();if(!list.length){el.innerHTML='<p style="color:var(--subtekst);font-size:.9rem;margin:0">Geen zoekagenten opgeslagen.</p>';return;}el.innerHTML=list.map(function(a,i){return'<div style="display:flex;align-items:center;gap:8px;background:var(--achtergrond);border-radius:8px;padding:8px 12px"><span style="flex:1;font-size:.85rem">'+a.label+'</span><button onclick="verwijderAgent('+i+')" style="background:none;border:none;cursor:pointer;color:var(--subtekst);font-size:1.1rem">&#x2715;</button></div>';}).join("");}
+function verwijderAgent(i){var list=_agenten();list.splice(i,1);localStorage.setItem("zoekagenten",JSON.stringify(list));renderAgentList();}
+function slaZoekagentOp(){var merk=(document.getElementById("merkFilter")||{}).value||"";var qry=(document.getElementById("zoekveld")||{}).value||"";var minP=(document.getElementById("minPrijs")||{}).value||"";var maxP=(document.getElementById("maxPrijs")||{}).value||"";var label=[merk,qry,minP&&("min €"+minP),maxP&&("max €"+maxP)].filter(Boolean).join(", ")||"Alle auto's";var agent={label:label,merk:merk,q:qry,minPrijs:minP?+minP:null,maxPrijs:maxP?+maxP:null,opgeslagenOp:new Date().toISOString().slice(0,10),gezieneIds:[]};var list=_agenten();list.push(agent);localStorage.setItem("zoekagenten",JSON.stringify(list));renderAgentList();var msg=document.getElementById("agentMsg");if(msg){msg.textContent="Zoekagent opgeslagen!";setTimeout(function(){msg.textContent="";},2500);}}
+function controleerZoekagenten(handmatig){if(!window._alleAutos||!window._alleAutos.length)return;var vandaag=new Date().toISOString().slice(0,10);var list=_agenten();var totaalNieuw=0;list=list.map(function(agent){var matches=window._alleAutos.filter(function(a){if(agent.merk&&!(a.merk||"").toLowerCase().includes(agent.merk.toLowerCase()))return false;if(agent.q&&!(((a.titel||"")+" "+(a.merk||"")).toLowerCase().includes(agent.q.toLowerCase())))return false;if(agent.minPrijs!=null&&a.prijs!=null&&a.prijs<agent.minPrijs)return false;if(agent.maxPrijs!=null&&a.prijs!=null&&a.prijs>agent.maxPrijs)return false;return true;});var nieuw=matches.filter(function(a){return a.toegevoegd===vandaag&&!(agent.gezieneIds||[]).includes(a.id);});if(nieuw.length){totaalNieuw+=nieuw.length;agent.gezieneIds=(agent.gezieneIds||[]).concat(nieuw.map(function(a){return a.id;}));if(typeof Notification!=="undefined"&&Notification.permission==="granted"){new Notification("Zoekagent: "+agent.label,{body:nieuw.length+" nieuwe auto's gevonden!",icon:"/autovergelijker/favicon.ico"});}}return agent;});localStorage.setItem("zoekagenten",JSON.stringify(list));if(handmatig){var msg=document.getElementById("agentMsg");if(msg){msg.textContent=totaalNieuw?"Gevonden: "+totaalNieuw+" nieuwe auto('s)!":"Geen nieuwe auto's.";setTimeout(function(){if(msg)msg.textContent="";},3000);}}
+var btn=document.getElementById("agentNavBtn");if(btn&&totaalNieuw>0)btn.innerHTML="&#128276;("+totaalNieuw+") Zoekagent";}
+(function(){if(typeof Notification!=="undefined"&&Notification.permission==="default")Notification.requestPermission();setTimeout(function(){controleerZoekagenten(false);},3000);})();
 </script>
+
+<div id="agentModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:3000;align-items:center;justify-content:center">
+<div style="background:var(--kaart);border-radius:14px;padding:28px;max-width:480px;width:90%;position:relative;box-shadow:0 8px 40px rgba(0,0,0,.3)">
+<button onclick="document.getElementById('agentModal').style.display='none'" style="position:absolute;top:12px;right:16px;background:none;border:none;font-size:22px;cursor:pointer;color:var(--tekst)">&#x2715;</button>
+<h2 style="margin:0 0 6px;font-size:1.3rem">&#128276; Zoekagent</h2>
+<p style="margin:0 0 18px;color:var(--subtekst);font-size:.9rem">Sla je zoekcriteria op en ontvang een melding als er nieuwe auto's verschijnen.</p>
+<div id="agentList" style="margin-bottom:16px;display:flex;flex-direction:column;gap:8px;max-height:200px;overflow-y:auto"></div>
+<div style="display:flex;gap:8px;flex-wrap:wrap">
+<button class="btn" onclick="slaZoekagentOp()" style="flex:1;min-width:140px">&#128190; Huidige filters opslaan</button>
+<button class="btn" onclick="controleerZoekagenten(true)" style="flex:1;min-width:140px;background:var(--subtekst)">&#128269; Nu controleren</button>
+</div>
+<p id="agentMsg" style="margin:10px 0 0;font-size:.85rem;color:var(--accent)"></p>
+</div></div>
 </body>
 </html>
