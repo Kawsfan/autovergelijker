@@ -655,6 +655,15 @@
       </div>
     </div>
 
+      <div class="filter-item">
+        <label>Transmissie</label>
+        <select id="transmissieFilter" onchange="transmissieActief=this.value;zoekNu()">
+          <option value="">Alle</option>
+          <option value="automaat">Automaat</option>
+          <option value="handgeschakeld">Handgeschakeld</option>
+        </select>
+      </div>
+
     <!-- Actie rij -->
     <div class="actie-rij">
       <button class="wis-btn" onclick="resetFilters()">✕ Wis alles</button>
@@ -873,6 +882,7 @@ function resetFilters() {
   document.getElementById('kmMax').value = '';
   document.getElementById('brandstofFilter').value = '';
   document.getElementById('carrosserieFilter').value = '';
+  var _tf=document.getElementById('transmissieFilter');if(_tf)_tf.value='';
   transmissieActief = '';
   document.querySelectorAll('.toggle-btns button').forEach((b, i) => b.classList.toggle('actief', i === 0));
   window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -1030,6 +1040,22 @@ function openDetail(id) {
       </div>
       ${genereerSamenvatting(a) ? `<div class="ai-samenvatting"><div class="ai-label">✦ Samenvatting</div><p>${genereerSamenvatting(a)}</p></div>` : ''}
 
+      
+      ${(()=>{
+        if(!a.prijsHistorie||a.prijsHistorie.length<1)return"";
+        var all=[].concat(a.prijsHistorie).concat([{datum:"Nu",prijs:a.prijs}]);
+        var prices=all.map(function(p){return+(p.prijs)||0;});
+        var minP=Math.min.apply(null,prices);
+        var maxP=Math.max.apply(null,prices);
+        var range=maxP-minP||1;
+        var n=prices.length;
+        var pts=prices.map(function(p,i){return((i/(n-1))*198+1).toFixed(1)+","+(47-((p-minP)/range)*44).toFixed(1);}).join(" ");
+        var out='<div style="margin:12px 0;padding:12px;background:var(--achtergrond);border-radius:10px;">';
+        out+='<div style="font-size:12px;color:var(--subtekst);margin-bottom:4px">&#128200; Prijsontwikkeling</div>';
+        out+='<svg width="100%" height="44" viewBox="0 0 200 50" preserveAspectRatio="none" style="display:block"><polyline points="'+pts+'" fill="none" stroke="var(--oranje)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+        out+='<div style="display:flex;justify-content:space-between;font-size:11px;color:var(--subtekst);margin-top:2px"><span>'+all[0].datum+'</span><span>Nu: &#8364;'+Number(a.prijs).toLocaleString("nl-NL")+'</span></div>';
+        out+='</div>';return out;
+      })()}
       <div class="cta-row">
         <a class="btn-mp" href="${a.url}" target="_blank">Bekijk op ${a.bron || 'Gaspedaal'} →</a>
       </div>
