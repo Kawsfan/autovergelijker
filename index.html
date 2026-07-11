@@ -456,7 +456,11 @@
 .afstand-rij input:focus { outline:none; border-color:var(--oranje); }
 .loc-btn { background:none; border:1px solid var(--rand); color:var(--subtekst); border-radius:8px; padding:8px 10px; cursor:pointer; font-size:13px; white-space:nowrap; transition:.2s; }
 .loc-btn:hover { border-color:var(--oranje); color:var(--oranje); }
-</style>
+    #trendingRij{margin:0 0 14px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;}
+    .trend-pill{background:var(--kaart);border:1px solid var(--rand);color:var(--subtekst);border-radius:20px;padding:5px 14px;font-size:13px;cursor:pointer;transition:.15s;white-space:nowrap;}
+    .trend-pill:hover{border-color:var(--oranje);color:var(--oranje);}
+    .trend-label{font-size:12px;color:var(--subtekst);font-weight:600;letter-spacing:.4px;}
+  </style>
 </head>
 <body>
 
@@ -708,6 +712,7 @@
       </select>
     </div>
   </div>
+  <div id="trendingRij" style="display:none"></div>
   <div class="auto-grid" id="autoGrid">
     <div class="loader"><div class="spinner"></div><p>Advertenties laden...</p></div>
   </div>
@@ -745,6 +750,7 @@ async function laadListings() {
     const data = await resp.json();
     alleResultaten = data.listings || [];
     window._alleAutos = alleResultaten;
+    berekenTrending();
 
     if (alleResultaten.length === 0) {
       _huidigeLijst = gesorteerd;
@@ -1361,6 +1367,42 @@ function slaZoekagentOp(){var merk=(document.getElementById("merkFilter")||{}).v
 function controleerZoekagenten(handmatig){if(!window._alleAutos||!window._alleAutos.length)return;var vandaag=new Date().toISOString().slice(0,10);var list=_agenten();var totaalNieuw=0;list=list.map(function(agent){var matches=window._alleAutos.filter(function(a){if(agent.merk&&!(a.merk||"").toLowerCase().includes(agent.merk.toLowerCase()))return false;if(agent.q&&!(((a.titel||"")+" "+(a.merk||"")).toLowerCase().includes(agent.q.toLowerCase())))return false;if(agent.minPrijs!=null&&a.prijs!=null&&a.prijs<agent.minPrijs)return false;if(agent.maxPrijs!=null&&a.prijs!=null&&a.prijs>agent.maxPrijs)return false;return true;});var nieuw=matches.filter(function(a){return a.toegevoegd===vandaag&&!(agent.gezieneIds||[]).includes(a.id);});if(nieuw.length){totaalNieuw+=nieuw.length;agent.gezieneIds=(agent.gezieneIds||[]).concat(nieuw.map(function(a){return a.id;}));if(typeof Notification!=="undefined"&&Notification.permission==="granted"){new Notification("Zoekagent: "+agent.label,{body:nieuw.length+" nieuwe auto's gevonden!",icon:"/autovergelijker/favicon.ico"});}}return agent;});localStorage.setItem("zoekagenten",JSON.stringify(list));if(handmatig){var msg=document.getElementById("agentMsg");if(msg){msg.textContent=totaalNieuw?"Gevonden: "+totaalNieuw+" nieuwe auto('s)!":"Geen nieuwe auto's.";setTimeout(function(){if(msg)msg.textContent="";},3000);}}
 var btn=document.getElementById("agentNavBtn");if(btn&&totaalNieuw>0)btn.innerHTML="&#128276;("+totaalNieuw+") Zoekagent";}
 (function(){if(typeof Notification!=="undefined"&&Notification.permission==="default")Notification.requestPermission();setTimeout(function(){controleerZoekagenten(false);},3000);})();
+
+function berekenTrending(){
+  var autos=window._alleAutos;
+  if(!autos||!autos.length)return;
+  var teller={};
+  autos.forEach(function(a){
+    var merk=(a.merk||"").trim();if(!merk)return;
+    var titel=(a.titel||"").trim();var model="";
+    if(titel.toLowerCase().startsWith(merk.toLowerCase())){
+      var rest=titel.slice(merk.length).trim().split(/\s+/);model=rest[0]||"";
+    }
+    var key=merk+(model?" "+model:"");
+    teller[key]=(teller[key]||0)+1;
+  });
+  var sorted=Object.keys(teller).sort(function(a,b){return teller[b]-teller[a];}).slice(0,6);
+  if(!sorted.length)return;
+  var el=document.getElementById("trendingRij");if(!el)return;
+  var html='<span class="trend-label">&#128293; Trending:</span>';
+  sorted.forEach(function(key){
+    var n=teller[key];
+    html+='<button class="trend-pill" data-trend="'+key.replace(/"/g,"&quot;")+'">'+key+' <small style="opacity:.6">('+n+')</small></button>';
+  });
+  el.innerHTML=html;el.style.display="flex";
+  el.addEventListener("click",function(e){
+    var btn=e.target.closest(".trend-pill");
+    if(btn)filterOpTrend(btn.getAttribute("data-trend"));
+  },{once:false});
+}
+function filterOpTrend(key){
+  if(!key)return;
+  var delen=key.split(" ");var merk=delen[0];var model=delen.slice(1).join(" ");
+  var mf=document.getElementById("merkFilter");
+  if(mf){for(var i=0;i<mf.options.length;i++){if(mf.options[i].value.toLowerCase()===merk.toLowerCase()){mf.value=mf.options[i].value;if(typeof updateModelDropdown==="function")updateModelDropdown();break;}}}
+  if(model){var zv=document.getElementById("zoekveld");if(zv)zv.value=model;}
+  zoekNu();window.scrollTo({top:0,behavior:"smooth"});
+}
 </script>
 
 <div id="agentModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:3000;align-items:center;justify-content:center">
