@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://kawsfan.github.io/autovergelijker/sitemap.xml
