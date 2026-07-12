@@ -1311,6 +1311,12 @@ async function main() {
     const summary = ['## ð Scraper Rapport', `**${rapport.timestamp.slice(0,10)}** â ${nieuw.length} listings vandaag`, '', '| Bron | Listings |', '|------|----------|', rijen, '', `**Totaal in database:** ${Object.keys(byId).length}`].join('\n');
     fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, summary + '\n');
   }
+  // Normaliseer transmissie (AutoScout24: Automatisch→Automaat, Handmatig→Handgeschakeld)
+  for (const l of (data.listings || [])) {
+    const trRaw = (l.transmissie || '').trim();
+    if (/automatisch/i.test(trRaw)) l.transmissie = 'Automaat';
+    else if (/handmatig|manueel/i.test(trRaw)) l.transmissie = 'Handgeschakeld';
+  }
   fs.writeFileSync(outPath, JSON.stringify(data, null, 2));
   // ── Sitemap genereren ──
   const _merken = [...new Set((data.listings||[]).map(l => l.merk).filter(Boolean))].sort();
