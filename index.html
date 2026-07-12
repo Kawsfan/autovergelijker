@@ -480,6 +480,13 @@
   .markt-deals-table th{text-align:left;padding:7px 10px;color:var(--subtekst);border-bottom:1px solid var(--rand)}
   .markt-deals-table td{padding:7px 10px;border-bottom:1px solid var(--rand)}
   .markt-deals-table tr:hover td{background:var(--achtergrond)}
+
+.afstand-rij { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+.afstand-rij #locInput { flex:1; min-width:140px; height:38px; border:1.5px solid #ddd; border-radius:8px; padding:0 12px; font-size:.9rem; background:#fff; }
+.afstand-rij #locInput:focus { outline:none; border-color:var(--oranje); }
+.loc-btn { height:38px; padding:0 12px; border:1.5px solid #ddd; border-radius:8px; background:#fff; cursor:pointer; font-size:.85rem; white-space:nowrap; }
+.loc-btn:hover { border-color:var(--oranje); background:#fff8f5; }
+.afstand-rij #radiusSelect { height:38px; border:1.5px solid #ddd; border-radius:8px; padding:0 10px; font-size:.9rem; background:#fff; cursor:pointer; }
 </style>
 </head>
 <body>
@@ -676,23 +683,7 @@
       </div>
     </div>
 
-      <div class="filter-item">
-        <label>Transmissie</label>
-        <select id="transmissieFilter" onchange="transmissieActief=this.value;zoekNu()">
-          <option value="">Alle</option>
-          <option value="automaat">Automaat</option>
-          <option value="handgeschakeld">Handgeschakeld</option>
-        </select>
-      </div>
-
-    <!-- Actie rij -->
-    <div class="actie-rij">
-      <button class="wis-btn" onclick="resetFilters()">✕ Wis alles</button>
-      <div class="stats-tekst">
-        <span><span class="check">✓</span> Gaspedaal</span>
-        <span><span class="check">✓</span> Dagelijks bijgewerkt</span>
-        <span><span class="check">✓</span> Gratis zoeken</span>
-      </div>
+      
     <div class="filter-rij">
       <div class="filter-groep" style="width:100%">
         <label data-i18n="lbl_afstand">📍 Afstand</label>
