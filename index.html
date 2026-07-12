@@ -487,6 +487,7 @@
 .loc-btn { height:38px; padding:0 12px; border:1.5px solid #ddd; border-radius:8px; background:#fff; cursor:pointer; font-size:.85rem; white-space:nowrap; }
 .loc-btn:hover { border-color:var(--oranje); background:#fff8f5; }
 .afstand-rij #radiusSelect { height:38px; border:1.5px solid #ddd; border-radius:8px; padding:0 10px; font-size:.9rem; background:#fff; cursor:pointer; }
+.soh-badge{background:#e8f5e9;color:#2e7d32;border-radius:4px;padding:2px 6px;font-size:.8rem;font-weight:600;margin-left:2px;}
 </style>
 </head>
 <body>
@@ -960,6 +961,7 @@ function toonResultaten(lijst) {
         <div class="auto-meta">
           ${a.jaar ? `<span><strong>Bouwjaar:</strong> ${a.jaar}</span>` : ''}
           ${a.km != null ? `<span><strong>Km.stand:</strong> ${typeof a.km==='number'?a.km.toLocaleString('nl-NL')+' km':a.km}</span>` : ''}
+              ${_parseSoh(a) ? `<span class="soh-badge">⚡ SOH ${_parseSoh(a)}%</span>` : ''}
         </div>
         <div class="auto-labels">
           ${a.brandstof ? `<span class="label-pill">${a.brandstof}</span>` : ''}
@@ -1348,7 +1350,8 @@ function openVergelijk() {
     ['Prijs', function(a){ return a.prijs ? '�'+a.prijs.toLocaleString('nl-NL') : ''; }],
     ['Bouwjaar', function(a){ return a.jaar ? String(a.jaar) : ''; }],
     ['Kilometerstand', function(a){ return a.km ? a.km.toLocaleString('nl-NL')+' km' : ''; }],
-    ['Brandstof', function(a){ return a.brandstof || ''; }],
+    ['['SOH', function(a){var sv=_parseSoh(a);return sv?sv+'%':;}],
+    Brandstof', function(a){ return a.brandstof || ''; }],
     ['Transmissie', function(a){ return a.transmissie || ''; }],
     ['Carrosserie', function(a){ return a.carrosserie || ''; }],
     ['Kleur', function(a){ return a.kleur || ''; }],
@@ -1382,6 +1385,7 @@ function openVergelijk() {
   modal.style.display = 'flex';
   document.body.style.overflow = 'hidden';
 }
+function _parseSoh(a){var t=(a.titel||'')+' '+(a.beschrijving||'');var m=t.match(/(\d+(?:[,\.]\d+)?)\s*%\s*soh/i)||t.match(/soh\s*(\d+(?:[,\.]\d+)?)\s*%/i);if(!m)return null;var v=parseFloat((m[1]||m[2]).replace(',','.'));return(v>0&&v<=100)?v:null;}
 function toggleFav(event,id){event.stopPropagation();if(_favs.has(id)){_favs.delete(id);}else{_favs.add(id);}localStorage.setItem('_av_favs',JSON.stringify([..._favs]));var b=event.currentTarget;if(b){b.classList.toggle('fav-actief',_favs.has(id));b.title=_favs.has(id)?'Verwijder uit favorieten':'Voeg toe aan favorieten';}}
 function toggleVergelijk(event,id){event.stopPropagation();var i=_vgl.indexOf(id);if(i>=0){_vgl.splice(i,1);}else{if(_vgl.length>=3){alert("Max. 3 auto\u2019s");return;}_vgl.push(id);}updateVglBar();document.querySelectorAll("[data-vgl=\""+id+"\"]").forEach(function(b){var sel=_vgl.includes(id);b.classList.toggle("vgl-actief",sel);b.title=sel?"Verwijder":"Voeg toe";});}
 function updateVglBar(){var b=document.getElementById("vglBar");if(!b)return;b.style.display=_vgl.length?"flex":"none";document.getElementById("vglCount").textContent=_vgl.length+" geselecteerd";}
