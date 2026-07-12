@@ -898,11 +898,17 @@ function zoekNu() {
     if (bsVal) {
       const bf = (a.brandstof || '').toLowerCase();
       if (bsVal === 'hybride') { if (!bf.includes('hybride')) return false; }
+      else if (bsVal === 'elektrisch') { if (!bf.includes('elektr')) return false; }
       else if (!bf.includes(bsVal)) return false;
     }
     if (transmissieActief) {
       const tr = (a.transmissie || '').toLowerCase();
-      if (!tr.includes(transmissieActief)) return false;
+      const trMatch = transmissieActief === 'automaat'
+        ? (tr.includes('automat') || tr === 'automaat')
+        : transmissieActief === 'handgeschakeld'
+          ? (tr.includes('handm') || tr.includes('manueel') || tr.includes('handgesch'))
+          : tr.includes(transmissieActief);
+      if (!trMatch) return false;
     }
     return true;
   });
