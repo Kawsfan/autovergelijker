@@ -1389,41 +1389,46 @@ function openVergelijk(){
   var cars=_vgl.map(function(id){return window._vglData[id];}).filter(Boolean);
   var n=cars.length;
   var specs=[
-    ['Bouwjaar',function(a){return a.jaar?String(a.jaar):'—';}],
-    ['Kilometerstand',function(a){return a.km?a.km.toLocaleString('nl-NL')+' km':'—';}],
-    ['Brandstof',function(a){return a.brandstof||'—';}],
-    ['Transmissie',function(a){return a.transmissie||'—';}],
-    ['Carrosserie',function(a){return a.carrosserie||'—';}],
-    ['Kleur',function(a){return a.kleur||'—';}],
-    ['Locatie',function(a){return a.locatie||'—';}],
-    ['Platform',function(a){return a.bron||'—';}]
+    ['Bouwjaar',function(a){return a.jaar?String(a.jaar):'\u2014';}],
+    ['Kilometerstand',function(a){return a.km?a.km.toLocaleString('nl-NL')+' km':'\u2014';}],
+    ['Brandstof',function(a){return a.brandstof||'\u2014';}],
+    ['Transmissie',function(a){return a.transmissie||'\u2014';}],
+    ['Carrosserie',function(a){return a.carrosserie||'\u2014';}],
+    ['Kleur',function(a){return a.kleur||'\u2014';}],
+    ['Locatie',function(a){return a.locatie||'\u2014';}],
+    ['Platform',function(a){return a.bron||'\u2014';}]
   ];
   var thCols=cars.map(function(a){
     var imgH=a.imgSrc
-      ?'<img class="vgl-car-photo" src="'+a.imgSrc+'" alt="" loading="lazy" onerror="this.outerHTML='<div class=vgl-car-nophoto>\uD83D\uDE97<\/div>'">'
-      :'<div class="vgl-car-nophoto">\uD83D\uDE97</div>';
-    var prijs=a.prijs?'\u20ac'+a.prijs.toLocaleString('nl-NL'):'—';
-    return '<th class="vgl-car-th">'+imgH+'<div class="vgl-car-ttl">'+(a.titel||'')+'</div>'
+      ?'<img class="vgl-car-photo" src="'+a.imgSrc+'" alt="" loading="lazy" onerror="this.style.display=\'none\'">'
+      :'<div class="vgl-car-nophoto">🚗</div>';
+    var prijs=a.prijs?'€'+a.prijs.toLocaleString('nl-NL'):'—';
+    return '<th class="vgl-car-th">'+imgH
+      +'<div class="vgl-car-ttl">'+(a.titel||'')+'</div>'
       +'<div class="vgl-car-prc">'+prijs+'</div>'
-      +(a.url?'<a href="'+a.url+'" target="_blank" class="vgl-car-btn">Bekijk \u2192</a>':'')+'</th>';
+      +(a.url?'<a href="'+a.url+'" target="_blank" class="vgl-car-btn">Bekijk →</a>':'')
+      +'</th>';
   }).join('');
   var rows=specs.map(function(sp){
     var vals=cars.map(sp[1]);
     var same=vals.every(function(v){return v===vals[0];});
     var vCells=vals.map(function(v){return '<td class="vgl-val-td">'+v+'</td>';}).join('');
-    return '<tr class="'+(same?'':'vgl-row-diff')+'"><td class="vgl-lbl-td">'+sp[0]+'</td>'+vCells+'</tr>';
+    return '<tr'+(same?'':' class="vgl-row-diff"')+'><td class="vgl-lbl-td">'+sp[0]+'</td>'+vCells+'</tr>';
   }).join('');
   var modal=document.getElementById('vglModal');
   if(!modal)return;
   modal.innerHTML='<div class="vgl-panel">'
-    +'<div class="vgl-panel-hdr"><span class="vgl-panel-title">\uD83D\uDD0D Vergelijking — '+n+' auto\'s</span>'
-    +'<button class="vgl-close-x" onclick="document.getElementById(\'vglModal\').style.display=\'none\';document.body.style.overflow=\'\'">&times;</button></div>'
+    +'<div class="vgl-panel-hdr">'
+    +'<span class="vgl-panel-title">🔍 Vergelijking — '+n+' auto\'s</span>'
+    +'<button class="vgl-close-x" onclick="document.getElementById(\'vglModal\').style.display=\'none\';document.body.style.overflow=\'\'">&#215;</button>'
+    +'</div>'
     +'<div style="overflow-x:auto"><table class="vgl-tbl">'
     +'<thead><tr><td class="vgl-label-col vgl-lbl-td"></td>'+thCols+'</tr></thead>'
-    +'<tbody>'+rows+'</tbody></table></div></div>';
+    +'<tbody>'+rows+'</tbody>'
+    +'</table></div></div>';
   modal.style.display='flex';
   document.body.style.overflow='hidden';
-  modal.onclick=function(e){if(e.target===modal){modal.style.display='none';document.body.style.overflow='';}};
+  modal.onclick=function(e){if(e.target===modal){modal.style.display='none';document.body.style.overflow='';}}
 }
 function closeVergelijk(){document.getElementById("vglModal").style.display="none";}
 function resetVergelijk(){_vgl=[];updateVglBar();document.querySelectorAll("[data-vgl]").forEach(function(b){b.classList.remove("vgl-actief");});}
