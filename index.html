@@ -442,7 +442,28 @@
 .vgl-tabel th { background:var(--achtergrond); }
 .vgl-label { font-weight:600; white-space:nowrap; background:var(--achtergrond); }
 .vgl-link { display:inline-block; background:var(--oranje); color:#fff; border-radius:8px; padding:8px 14px; text-decoration:none; font-size:.9rem; }
-#vglModal { display:none; position:fixed; inset:0; background:rgba(0,0,0,.65); z-index:600; align-items:center; justify-content:center; padding:20px; overflow-y:auto; }
+#vglModal { display:none; position:fixed; inset:0; background:rgba(0,0,0,.82); z-index:600; align-items:flex-start; justify-content:center; padding:24px 16px; overflow-y:auto; }
+  .vgl-lightbox { background:var(--kaart); border-radius:20px; max-width:980px; width:100%; box-shadow:0 24px 64px rgba(0,0,0,.55); overflow:hidden; margin:auto; }
+  .vgl-lb-header { display:flex; justify-content:space-between; align-items:center; padding:18px 24px; border-bottom:2px solid var(--rand); }
+  .vgl-lb-title { font-size:17px; font-weight:700; }
+  .vgl-close-btn { background:var(--achtergrond); border:1px solid var(--rand); width:38px; height:38px; border-radius:50%; font-size:17px; cursor:pointer; color:var(--tekst); display:flex; align-items:center; justify-content:center; transition:.15s; }
+  .vgl-close-btn:hover { background:var(--rand); }
+  .vgl-cars-header { display:grid; gap:1px; background:var(--rand); border-bottom:2px solid var(--rand); }
+  .vgl-car-col { background:var(--kaart); padding:18px 20px; }
+  .vgl-car-img { width:100%; height:170px; object-fit:cover; border-radius:10px; margin-bottom:12px; }
+  .vgl-car-no-img { width:100%; height:170px; background:var(--achtergrond); border-radius:10px; margin-bottom:12px; display:flex; align-items:center; justify-content:center; color:var(--subtekst); font-size:32px; }
+  .vgl-car-name { font-size:14px; font-weight:700; line-height:1.35; margin-bottom:6px; color:var(--tekst); }
+  .vgl-car-prijs { font-size:24px; font-weight:800; color:var(--oranje); margin-bottom:12px; }
+  .vgl-spec-body { width:100%; border-collapse:collapse; }
+  .vgl-spec-row td { padding:10px 20px; border-bottom:1px solid var(--rand); font-size:14px; line-height:1.4; }
+  .vgl-spec-row:last-child td { border-bottom:none; }
+  .vgl-spec-label { font-weight:600; color:var(--subtekst); white-space:nowrap; width:140px; font-size:13px; }
+  .vgl-spec-val { color:var(--tekst); }
+  .vgl-spec-row.vgl-diff td { background:rgba(249,115,22,.09); }
+  .vgl-spec-row.vgl-diff .vgl-spec-label { color:var(--oranje); }
+  .vgl-spec-row.vgl-diff .vgl-spec-val { font-weight:600; color:var(--tekst); }
+  .vgl-lb-link { display:inline-block; background:var(--oranje); color:#fff; border-radius:8px; padding:8px 16px; text-decoration:none; font-size:13px; font-weight:600; }
+  .vgl-lb-link:hover { opacity:.88; }
 .nieuw-badge { position:absolute; bottom:8px; left:8px; background:#16a34a; color:#fff; font-size:10px; font-weight:800; letter-spacing:.5px; border-radius:4px; padding:2px 6px; z-index:2; }
 .quick-filters { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px; }
 .qf-btn { background:none; border:1px solid var(--rand); color:var(--subtekst); border-radius:20px; padding:5px 14px; cursor:pointer; font-size:13px; transition:.2s; }
@@ -1341,35 +1362,48 @@ function renderKaart() {
     _kaartMap.fitBounds(bounds, { padding: [30, 30], maxZoom: 11 });
   }
 
-  setTimeout(function(){ _kaartMap.invalidateSize(); }, 100);
-}
-
-// Hook into zoekNu to keep _huidigeLijst in sync
-var _origZoekNu = typeof zoekNu !== 'undefined' ? zoekNu : null;
-document.addEventListener('DOMContentLoaded', function() {
-  var origFn = window.zoekNu;
-  window.zoekNu = function() {
-    origFn && origFn();
-    // If kaart is active, re-render
-    if (document.getElementById('kaartView').style.display !== 'none') {
-      renderKaart();
-    }
-  };
-});
-</script>
-
-<div class="vgl-bar" id="vglBar"><span id="vglCount"></span><button class="btn-vgl" onclick="openVergelijk()">Vergelijk â</button><button class="btn-reset" onclick="resetVergelijk()">â Reset</button></div>
-<div id="vglModal" onclick="if(event.target===this)closeVergelijk()"></div>
-<script>
-var _favs=new Set(JSON.parse(localStorage.getItem("_av_favs")||"[]"));
-function saveFavs(){localStorage.setItem("_av_favs",JSON.stringify([..._favs]));}
-function toggleFav(e,id){e.stopPropagation();_favs.has(id)?_favs.delete(id):_favs.add(id);saveFavs();document.querySelectorAll("[data-fav=\""+id+"\"]").forEach(function(b){b.textContent=_favs.has(id)?"\u2665":"\u2661";b.classList.toggle("fav-actief",_favs.has(id));});if(window._toonFavs)zoekNu();}
-window._toonFavs=false;
-function toggleFavFilter(){window._toonFavs=!window._toonFavs;document.getElementById("btnFavs").classList.toggle("actief",window._toonFavs);zoekNu();}
-window._toonNieuw=false;
-function toggleNieuwFilter(){window._toonNieuw=!window._toonNieuw;document.getElementById("btnNieuw").classList.toggle("actief",window._toonNieuw);zoekNu();}
-var _vgl=[];window._vglData={};
-function toggleVergelijk(e,id){e.stopPropagation();var i=_vgl.indexOf(id);if(i>-1){_vgl.splice(i,1);}else{if(_vgl.length>=3){alert("Max. 3 auto\u2019s");return;}_vgl.push(id);}updateVglBar();document.querySelectorAll("[data-vgl=\""+id+"\"]").forEach(function(b){var sel=_vgl.includes(id);b.classList.toggle("vgl-actief",sel);b.title=sel?"Verwijder":"Voeg toe";});}
+  setTimeout(functifunction openVergelijk() {
+  if (_vgl.length < 2) { alert('Selecteer minimaal 2 auto\'s'); return; }
+  var cars = _vgl.map(function(id){ return window._vglData[id]; }).filter(Boolean);
+  var n = cars.length;
+  var specs = [
+    ['Prijs', function(a){ return a.prijs ? '€'+a.prijs.toLocaleString('nl-NL') : '–'; }],
+    ['Bouwjaar', function(a){ return a.jaar ? String(a.jaar) : '–'; }],
+    ['Kilometerstand', function(a){ return a.km ? a.km.toLocaleString('nl-NL')+' km' : '–'; }],
+    ['Brandstof', function(a){ return a.brandstof || '–'; }],
+    ['Transmissie', function(a){ return a.transmissie || '–'; }],
+    ['Carrosserie', function(a){ return a.carrosserie || '–'; }],
+    ['Kleur', function(a){ return a.kleur || '–'; }],
+    ['Locatie', function(a){ return a.locatie || '–'; }],
+    ['Platform', function(a){ return a.bron || '–'; }]
+  ];
+  var carCols = cars.map(function(a) {
+    var img = a.imgSrc
+      ? '<img class="vgl-car-img" src="'+a.imgSrc+'" alt="" loading="lazy">'
+      : '<div class="vgl-car-no-img">🚗</div>';
+    var nm = a.titel || ((a.merk||'')+' '+(a.model||'')).trim() || 'Onbekend';
+    var prijs = a.prijs ? '€'+a.prijs.toLocaleString('nl-NL') : 'Prijs onbekend';
+    var link = a.url ? '<a href="'+a.url+'" target="_blank" class="vgl-lb-link">Bekijk advertentie →</a>' : '';
+    return '<div class="vgl-car-col">'+img+'<div class="vgl-car-name">'+nm+'</div><div class="vgl-car-prijs">'+prijs+'</div>'+link+'</div>';
+  }).join('');
+  var specRows = specs.map(function(sp) {
+    var vals = cars.map(sp[1]);
+    var allSame = vals.every(function(v){ return v === vals[0]; });
+    var cells = vals.map(function(v){ return '<td class="vgl-spec-val">'+v+'</td>'; }).join('');
+    return '<tr class="vgl-spec-row'+(allSame ? '' : ' vgl-diff')+'">'
+      + '<td class="vgl-spec-label">'+sp[0]+'</td>' + cells + '</tr>';
+  }).join('');
+  var html = '<div class="vgl-lightbox" onclick="event.stopPropagation()">'
+    + '<div class="vgl-lb-header"><span class="vgl-lb-title">&#128202; Vergelijking ('+n+' auto\'s)</span>'
+    + '<button class="vgl-close-btn" onclick="closeVergelijk()">✕</button></div>'
+    + '<div class="vgl-cars-header" style="grid-template-columns:repeat('+n+',1fr)">' + carCols + '</div>'
+    + '<table class="vgl-spec-body"><tbody>' + specRows + '</tbody></table>'
+    + '</div>';
+  var modal = document.getElementById('vglModal');
+  modal.innerHTML = html;
+  modal.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+}splice(i,1);}else{if(_vgl.length>=3){alert("Max. 3 auto\u2019s");return;}_vgl.push(id);}updateVglBar();document.querySelectorAll("[data-vgl=\""+id+"\"]").forEach(function(b){var sel=_vgl.includes(id);b.classList.toggle("vgl-actief",sel);b.title=sel?"Verwijder":"Voeg toe";});}
 function updateVglBar(){var b=document.getElementById("vglBar");if(!b)return;b.style.display=_vgl.length?"flex":"none";document.getElementById("vglCount").textContent=_vgl.length+" geselecteerd";}
 function openVergelijk(){if(_vgl.length<2){alert("Selecteer min. 2");return;}var cars=_vgl.map(function(id){return window._vglData[id];}).filter(Boolean);var h=cars.map(function(a){var p=a.prijs?"\u20ac"+a.prijs.toLocaleString("nl-NL"):"\u2014";return "<th><b>"+(a.titel||"")+"</b><br><span style=\"color:var(--oranje);font-weight:800\">"+p+"</span>"+(a.afbeelding?"<br><img src=\""+a.afbeelding+"\" style=\"width:100%;max-height:90px;object-fit:cover;border-radius:6px;margin-top:6px\">":"")+"</th>";}).join("");var fields=[["Km-stand",function(a){return a.km?a.km.toLocaleString("nl-NL")+" km":"\u2014";}],["Bouwjaar",function(a){return a.jaar||"\u2014";}],["Brandstof",function(a){return a.brandstof||"\u2014";}],["Locatie",function(a){return a.locatie||"\u2014";}],["Bron",function(a){return a.bron||"\u2014";}]];var rows=fields.map(function(f){return "<tr><td class=\"vgl-label\">"+f[0]+"</td>"+cars.map(function(a){return "<td>"+f[1](a)+"</td>";}).join("")+"</tr>";}).join("");var links=cars.map(function(a){return "<a href=\""+a.url+"\" target=\"_blank\" rel=\"noopener\" class=\"vgl-link\">Bekijk "+((a.titel||"").split(" ").slice(0,2).join(" "))+" \u2192</a>";}).join("");document.getElementById("vglModal").innerHTML="<div class=\"modal-content\" style=\"max-width:860px\"><button class=\"modal-close\" onclick=\"closeVergelijk()\">\u2715</button><h2 style=\"margin-bottom:1rem\">Vergelijking</h2><div style=\"overflow-x:auto\"><table class=\"vgl-tabel\"><thead><tr><th></th>"+h+"</tr></thead><tbody>"+rows+"</tbody></table></div><div style=\"margin-top:1rem;display:flex;gap:8px;flex-wrap:wrap\">"+links+"</div></div>";document.getElementById("vglModal").style.display="flex";}
 function closeVergelijk(){document.getElementById("vglModal").style.display="none";}
