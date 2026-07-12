@@ -1341,7 +1341,9 @@ function renderKaart() {
     _kaartMap.fitBounds(bounds, { padding: [30, 30], maxZoom: 11 });
   }
 
-  setTimeout(functifunction openVergelijk() {
+}
+
+function openVergelijk() {
   if (_vgl.length < 2) { alert('Selecteer minimaal 2 auto\'s'); return; }
   var cars = _vgl.map(function(id){ return window._vglData[id]; }).filter(Boolean);
   var n = cars.length;
@@ -1652,6 +1654,7 @@ function filterOpTrend(key){
   </div>
 </div>
 </div>
+<div id="vglModal" onclick="if(event.target===this){this.style.display='none';document.body.style.overflow='';}"></div>
 </body>
 </html>
 
