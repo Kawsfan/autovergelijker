@@ -1354,9 +1354,7 @@ function openVergelijk() {
     ['Brandstof', function(a){return a.brandstof||'';}],
     ['Transmissie', function(a){ return a.transmissie || ''; }],
     ['Carrosserie', function(a){ return a.carrosserie || ''; }],
-    ['Kleur', function(a){ return a.kleur || ''; }],
-    ['Locatie', function(a){ return a.locatie || ''; }],
-    ['Platform', function(a){ return a.bron || ''; }]
+    ['Kofferbak', function(a){ return a.kofferbak ? a.kofferbak+' L' : ''; }]
   ];
   var carCols = cars.map(function(a) {
     var img = a.imgSrc
@@ -1399,9 +1397,7 @@ function openVergelijk(){
     ['Brandstof',function(a){return a.brandstof||'\u2014';}],
     ['Transmissie',function(a){return a.transmissie||'\u2014';}],
     ['Carrosserie',function(a){return a.carrosserie||'\u2014';}],
-    ['Kleur',function(a){return a.kleur||'\u2014';}],
-    ['Locatie',function(a){return a.locatie||'\u2014';}],
-    ['Platform',function(a){return a.bron||'\u2014';}]
+    ['Kofferbak',function(a){return a.kofferbak?a.kofferbak+' L':'\u2014';}]
   ];
   var thCols=cars.map(function(a){
     var imgH=a.imgSrc
