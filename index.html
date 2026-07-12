@@ -1525,7 +1525,7 @@ function filterOpTrend(key){
   document.getElementById('marktModal').style.display = 'block';
   document.body.style.overflow = 'hidden';
   var autos = window._alleAutos || [];
-  var merken = Array.from(new Set(autos.map(function(a){return a.merk;}).filter(Boolean))).sort();
+  var merken = Array.from(document.getElementById('merkFilter').options).slice(1).map(function(o){return o.value;}).filter(Boolean);
   var sel = document.getElementById('marktMerkSelect');
   sel.innerHTML = '<option value=""> Kies merk </option>' + merken.map(function(m){return '<option value="'+m+'">'+m+'</option>';}).join('');
   var jaren = Array.from(new Set(autos.map(function(a){return a.jaar;}).filter(Boolean))).sort().reverse();
@@ -1537,7 +1537,7 @@ function filterOpTrend(key){
   var merk = document.getElementById('marktMerkSelect').value;
   var mSel = document.getElementById('marktModelSelect');
   if (!merk) { mSel.innerHTML='<option value="">Alle modellen</option>'; mSel.disabled=true; berekenMarkt(); return; }
-  var mod = Array.from(new Set((window._alleAutos||[]).filter(function(a){return a.merk===merk&&a.model;}).map(function(a){return a.model;}))).sort();
+  var mod = Array.from(new Set((window._alleAutos||[]).filter(function(a){return a.titel&&a.titel.toLowerCase().startsWith(merk.toLowerCase());}).map(function(a){var r=a.titel.slice(merk.length).trim().replace(/\s*[\-\u2013\u2014]\s*.*/,'').trim();return r;}))).sort();
   mSel.innerHTML = '<option value="">Alle modellen</option>' + mod.map(function(m){return '<option value="'+m+'">'+m+'</option>';}).join('');
   mSel.disabled = false; berekenMarkt();
 }
@@ -1550,7 +1550,7 @@ function filterOpTrend(key){
   res.style.display = 'none'; leeg.style.display = 'block';
   if (!merk) { leeg.textContent = 'Selecteer een merk om de marktanalyse te starten'; return; }
   var autos = (window._alleAutos||[]).filter(function(a) {
-    return a.merk === merk && (!model || a.model === model) && (!jaar || a.jaar === jaar) && a.prijs > 500 && a.prijs < 300000;
+    return a.titel && a.titel.toLowerCase().startsWith(merk.toLowerCase()) && (!model || a.titel.toLowerCase().includes(model.toLowerCase())) && (!jaar || a.jaar === jaar) && a.prijs > 500 && a.prijs < 300000;
   });
   if (!autos.length) { leeg.textContent = 'Geen resultaten voor deze selectie.'; return; }
   leeg.style.display = 'none'; res.style.display = 'block';
@@ -1611,7 +1611,7 @@ function filterOpTrend(key){
 <div id="agentList" style="margin-bottom:16px;display:flex;flex-direction:column;gap:8px;max-height:200px;overflow-y:auto"></div>
 <div style="display:flex;gap:8px;flex-wrap:wrap">
 <button class="btn" onclick="slaZoekagentOp()" style="flex:1;min-width:140px">&#128190; Huidige filters opslaan</button>
-<button class="btn" onclick="controleerZoekagenten(true)" style="flex:1;min-width:140px;background:var(--subtekst)">&#128269; Nu controleren</button>
+<button class="btn" onclick="controleerZoekagenten(true)" style="flex:1;min-width:140px;background:var(--oranje);color:#fff">&#128269; Nu controleren</button>
 </div>
 <p id="agentMsg" style="margin:10px 0 0;font-size:.85rem;color:var(--accent)"></p>
 </div>
