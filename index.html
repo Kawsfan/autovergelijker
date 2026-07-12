@@ -783,7 +783,7 @@ async function laadListings() {
     alleResultaten = data.listings || [];
     window._alleAutos = alleResultaten;
     berekenTrending();
-    _injectCarSchema(alleResultaten);
+    if (typeof _injectCarSchema === 'function') _injectCarSchema(alleResultaten);
 
     if (alleResultaten.length === 0) {
       _huidigeLijst = gesorteerd;
