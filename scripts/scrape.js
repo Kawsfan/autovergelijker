@@ -1336,6 +1336,35 @@ async function main() {
   fs.writeFileSync(_sitemapPad, _sitemap);
   console.log('\u{1F5FA}\uFE0F  Sitemap: ' + _merken.length + ' merken → ' + _sitemapPad);
 
+  // ── Marktstatistieken bijwerken ──
+  try {
+    const _mhPath = path.join(process.cwd(), 'data', 'markt-history.json');
+    const _today = new Date().toISOString().slice(0, 10);
+    const _segMap = {};
+    for (const l of (data.listings || [])) {
+      if (!l.merk || !l.prijs || l.prijs < 500 || l.prijs > 300000) continue;
+      const _key = (l.merk + (l.model ? '_' + l.model : '')).toLowerCase().replace(/\\s+/g, '_');
+      if (!_segMap[_key]) _segMap[_key] = [];
+      _segMap[_key].push(l.prijs);
+    }
+    const _segStats = {};
+    for (const [k, pp] of Object.entries(_segMap)) {
+      if (pp.length < 3) continue;
+      pp.sort((a, b) => a - b);
+      const avg = Math.round(pp.reduce((s, p) => s + p, 0) / pp.length);
+      const med = pp[Math.floor(pp.length / 2)];
+      _segStats[k] = { n: pp.length, avg, med, min: pp[0], max: pp[pp.length - 1],
+        p25: pp[Math.floor(pp.length * 0.25)], p75: pp[Math.floor(pp.length * 0.75)] };
+    }
+    let _mhData = [];
+    try { _mhData = JSON.parse(fs.readFileSync(_mhPath, 'utf8')); } catch(e) {}
+    _mhData = _mhData.filter(d => d.datum !== _today);
+    _mhData.push({ datum: _today, segmenten: _segStats });
+    if (_mhData.length > 365) _mhData = _mhData.slice(-365);
+    fs.writeFileSync(_mhPath, JSON.stringify(_mhData));
+    console.log(`📊  Markthistorie: ${Object.keys(_segStats).length} segmenten → ${_mhPath}`);
+  } catch (_mhErr) { console.warn('⚠️  Markthistorie fout:', _mhErr.message); }
+
   console.log(`Ã¢ÂÂ Opgeslagen naar ${outPath}`);
 }
 
