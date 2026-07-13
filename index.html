@@ -541,6 +541,20 @@
   .sk-img{height:140px;}
   #activeChips{padding:6px 12px 0;}
 }
+
+/* === Detail sticky footer === */
+#detailFooter{display:none;position:sticky;bottom:0;background:#fff;padding:12px 20px 18px;border-top:1px solid #e8e8e2;box-shadow:0 -2px 16px rgba(0,0,0,.1);}
+#detailFooter.aktief{display:block;}
+#detailFooter .btn-mp{display:flex;align-items:center;justify-content:center;width:100%;box-sizing:border-box;border-radius:10px;padding:14px 20px;font-size:15px;font-weight:700;text-decoration:none;}
+/* Swipe hint on mobile */
+.detail-swipe-hint{width:36px;height:4px;background:#d0cfc9;border-radius:2px;margin:10px auto 0;display:none;}
+@media(max-width:640px){
+  #detailFooter.aktief{display:block;}
+  .detail-swipe-hint{display:block;}
+  .detail-panel{padding-bottom:0;}
+  /* Hide scrolled-to cta-row on mobile — sticky footer replaces it */
+  #detailInhoud .cta-row{display:none;}
+}
 </style>
 </head>
 <body>
@@ -811,11 +825,12 @@
 <!-- DETAIL -->
 <div class="detail-overlay" id="overlay" onclick="sluitDetail()"></div>
 <div class="detail-panel" id="detailPanel">
-  <div class="detail-header">
+  <div class="detail-swipe-hint"></div><div class="detail-header">
     <button class="back-btn" onclick="sluitDetail()">← Terug</button>
     <span class="detail-header-title" id="detailTitel"></span>
   </div>
   <div id="detailInhoud"></div>
+  <div id="detailFooter"></div>
 </div>
 
 <footer>
@@ -1973,6 +1988,66 @@ window.addEventListener('load',function(){
     if(st)st.textContent=zi.value||'Zoek op merk, model of trefwoord';
   });
 });
+</script>
+
+<script>
+// === Detail panel enhancements ===
+window.addEventListener('load', function() {
+  var _origOD = window.openDetail;
+  if (typeof _origOD === 'function') {
+    window.openDetail = function(auto) {
+      // Fix: reset body overflow before opening (in case filter sheet was open)
+      if (typeof closeSheet === 'function') closeSheet();
+      _origOD.apply(this, arguments);
+      // Populate sticky CTA footer
+      var footer = document.getElementById('detailFooter');
+      if (footer && auto && auto.url) {
+        footer.innerHTML = '<a class="btn-mp" href="' + auto.url + '" target="_blank" rel="noopener noreferrer">Bekijk advertentie →</a>';
+        footer.className = 'aktief';
+      }
+      // Scroll panel to top
+      var panel = document.getElementById('detailPanel');
+      if (panel) panel.scrollTop = 0;
+      // Add swipe-to-dismiss (once)
+      _initDetailSwipe(panel);
+    };
+  }
+  var _origSD = window.sluitDetail;
+  if (typeof _origSD === 'function') {
+    window.sluitDetail = function() {
+      _origSD.apply(this, arguments);
+      var footer = document.getElementById('detailFooter');
+      if (footer) { footer.className = ''; footer.innerHTML = ''; }
+      document.body.style.overflow = '';
+    };
+  }
+});
+function _initDetailSwipe(panel) {
+  if (!panel || panel._swipeReady) return;
+  panel._swipeReady = true;
+  var sx, sy, dragging = false;
+  panel.addEventListener('touchstart', function(e) {
+    sx = e.touches[0].clientX;
+    sy = e.touches[0].clientY;
+    dragging = true;
+  }, { passive: true });
+  panel.addEventListener('touchmove', function(e) {
+    if (!dragging) return;
+    var dx = e.touches[0].clientX - sx;
+    // Slide panel right as user drags
+    if (dx > 0) panel.style.transform = 'translateX(' + dx + 'px)';
+  }, { passive: true });
+  panel.addEventListener('touchend', function(e) {
+    if (!dragging) return;
+    dragging = false;
+    var dx = e.changedTouches[0].clientX - sx;
+    var dy = Math.abs(e.changedTouches[0].clientY - sy);
+    panel.style.transform = '';
+    if (dx > 80 && dy < 80) {
+      if (typeof sluitDetail === 'function') sluitDetail();
+    }
+  }, { passive: true });
+}
 </script>
 </body>
 </html>
