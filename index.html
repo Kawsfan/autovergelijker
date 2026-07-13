@@ -1571,16 +1571,33 @@ function filterOpTrend(key){
 
 
   // ===== MARKTANALYSE =====
+  var _twoWordMerken = ['land rover','alfa romeo','aston martin','rolls royce','ds automobiles','great wall'];
+
+  function _getMerk(titel) {
+    if (!titel) return '';
+    var t = titel.toLowerCase();
+    for (var i=0; i<_twoWordMerken.length; i++) {
+      if (t.startsWith(_twoWordMerken[i])) return titel.slice(0, _twoWordMerken[i].length);
+    }
+    return titel.split(/[s-]/)[0] || '';
+  }
+
+  function _getModel(titel, merk) {
+    if (!titel || !merk) return '';
+    var rest = titel.slice(merk.length).trim();
+    var m = rest.match(/^([A-Za-z][A-Za-z0-9.+-]*(?:s+[A-Za-z][A-Za-z0-9.+-]*)?)/);
+    return m ? m[1].trim() : '';
+  }
+
   function openMarkt() {
     var ol = document.getElementById('marktOverlay');
     ol.style.display = 'block';
     document.body.style.overflow = 'hidden';
-    var merk = document.getElementById('mMerk');
-    if (merk.options.length <= 1) {
-      var merken = [];
+    var mSel = document.getElementById('mMerk');
+    if (mSel.options.length <= 1) {
       var seen = {};
-      (window._alleAutos||[]).forEach(function(a){ if(a.merk && !seen[a.merk]){ seen[a.merk]=1; merken.push(a.merk); } });
-      merken.sort().forEach(function(m){ var o=document.createElement('option'); o.value=m; o.textContent=m; merk.appendChild(o); });
+      (window._alleAutos||[]).forEach(function(a){ var m=_getMerk(a.titel); if(m&&!seen[m]){seen[m]=1;} });
+      Object.keys(seen).sort().forEach(function(m){ var o=document.createElement('option'); o.value=m; o.textContent=m; mSel.appendChild(o); });
     }
     berekenMarkt();
   }
@@ -1595,7 +1612,9 @@ function filterOpTrend(key){
     sel.innerHTML = '<option value="">Alle modellen</option>';
     if (!merk) return;
     var seen = {};
-    (window._alleAutos||[]).forEach(function(a){ if(a.merk===merk && a.model && !seen[a.model]){ seen[a.model]=1; } });
+    (window._alleAutos||[]).forEach(function(a){
+      if (_getMerk(a.titel)===merk) { var mod=_getModel(a.titel,merk); if(mod&&!seen[mod]){seen[mod]=1;} }
+    });
     Object.keys(seen).sort().forEach(function(m){ var o=document.createElement('option'); o.value=m; o.textContent=m; sel.appendChild(o); });
   }
 
@@ -1608,8 +1627,8 @@ function filterOpTrend(key){
 
     var data = (window._alleAutos||[]).filter(function(a){
       if (!a.prijs || a.prijs < 500) return false;
-      if (merk && a.merk !== merk) return false;
-      if (model && (a.model||'') !== model) return false;
+      if (merk && _getMerk(a.titel) !== merk) return false;
+      if (model && _getModel(a.titel, merk) !== model) return false;
       if (jaarMin && (!a.jaar || a.jaar < jaarMin)) return false;
       if (brandstof && a.brandstof !== brandstof) return false;
       if (trans && a.transmissie !== trans) return false;
@@ -1639,91 +1658,70 @@ function filterOpTrend(key){
       return '<div class="markt-stat"><div class="markt-stat-val">'+c[1]+'</div><div class="markt-stat-lbl">'+c[0]+'</div></div>';
     }).join('');
 
-    // Histogram
-    var buckets = 12;
-    var range = maxP - minP || 1;
-    var step = range / buckets;
-    var counts = new Array(buckets).fill(0);
-    prijzen.forEach(function(p){ var i=Math.min(Math.floor((p-minP)/step),buckets-1); counts[i]++; });
-    var maxCount = Math.max.apply(null, counts);
-    var svg = document.getElementById('mHistSvg');
-    var W = svg.parentElement.clientWidth - 24;
-    if (W < 10) W = 600;
-    var bw = Math.floor((W - (buckets-1)*2) / buckets);
+    var buckets=12, range=maxP-minP||1, step=range/buckets;
+    var counts=new Array(buckets).fill(0);
+    prijzen.forEach(function(p){var i=Math.min(Math.floor((p-minP)/step),buckets-1);counts[i]++;});
+    var maxCount=Math.max.apply(null,counts);
+    var svg=document.getElementById('mHistSvg');
+    var W=svg.parentElement.clientWidth-24; if(W<10)W=600;
+    var bw=Math.floor((W-(buckets-1)*2)/buckets);
     svg.setAttribute('viewBox','0 0 '+W+' 80');
-    var mi = Math.min(Math.floor((mediaan-minP)/step),buckets-1);
-    svg.innerHTML = counts.map(function(c,i){
-      var h = maxCount ? Math.max(4,Math.round(c/maxCount*66)) : 4;
-      var x = i*(bw+2);
-      var fill = i===mi ? '#e8632a' : '#f59d72';
-      return '<rect x="'+x+'" y="'+(74-h)+'" width="'+bw+'" height="'+h+'" rx="2" fill="'+fill+'" opacity="0.85"/>';
+    var mi=Math.min(Math.floor((mediaan-minP)/step),buckets-1);
+    svg.innerHTML=counts.map(function(c,i){
+      var h=maxCount?Math.max(4,Math.round(c/maxCount*66)):4;
+      return '<rect x="'+(i*(bw+2))+'" y="'+(74-h)+'" width="'+bw+'" height="'+h+'" rx="2" fill="'+(i===mi?'#e8632a':'#f59d72')+'" opacity="0.85"/>';
     }).join('');
-    document.getElementById('mHistLabels').innerHTML =
+    document.getElementById('mHistLabels').innerHTML=
       '<span>'+fmt(minP)+'</span><span>'+fmt(minP+range*0.33)+'</span><span>Mediaan: '+fmt(mediaan)+'</span><span>'+fmt(minP+range*0.67)+'</span><span>'+fmt(maxP)+'</span>';
 
-    // Scatter
-    var scEl = document.getElementById('mScatterSvg');
-    var sW = scEl.parentElement.clientWidth - 24;
-    if (sW < 10) sW = 600;
-    var sH = 130;
-    scEl.setAttribute('viewBox','0 0 '+sW+' '+sH);
-    var scData = metPrijsKm.length > 300 ? metPrijsKm.filter(function(_,i){return i%Math.ceil(metPrijsKm.length/300)===0;}) : metPrijsKm;
-    if (scData.length > 1) {
-      var kms = scData.map(function(a){return a.km;});
-      var prs = scData.map(function(a){return a.prijs;});
-      var minKm=Math.min.apply(null,kms), maxKm=Math.max.apply(null,kms);
-      var minPr=Math.min.apply(null,prs), maxPr=Math.max.apply(null,prs);
-      var kRange=maxKm-minKm||1, pRange=maxPr-minPr||1;
-      var sumX=0,sumY=0,sumXY=0,sumX2=0,sN=scData.length;
-      scData.forEach(function(a){sumX+=a.km;sumY+=a.prijs;sumXY+=a.km*a.prijs;sumX2+=a.km*a.km;});
-      var slope=(sN*sumXY-sumX*sumY)/(sN*sumX2-sumX*sumX)||0;
-      var intcpt=(sumY-slope*sumX)/sN;
-      var toX=function(km){return 14+(km-minKm)/kRange*(sW-28);};
-      var toY=function(p){return sH-10-(p-minPr)/pRange*(sH-20);};
-      var lx1=toX(minKm),lx2=toX(maxKm),ly1=toY(intcpt+slope*minKm),ly2=toY(intcpt+slope*maxKm);
-      var out='<line x1="'+lx1+'" y1="'+ly1+'" x2="'+lx2+'" y2="'+ly2+'" stroke="#94a3b8" stroke-width="1" stroke-dasharray="4"/>';
+    var scEl=document.getElementById('mScatterSvg');
+    var sW=scEl.parentElement.clientWidth-24; if(sW<10)sW=600;
+    var sH=130; scEl.setAttribute('viewBox','0 0 '+sW+' '+sH);
+    var scData=metPrijsKm.length>300?metPrijsKm.filter(function(_,i){return i%Math.ceil(metPrijsKm.length/300)===0;}):metPrijsKm;
+    if(scData.length>1){
+      var kms=scData.map(function(a){return a.km;}),prs=scData.map(function(a){return a.prijs;});
+      var minKm=Math.min.apply(null,kms),maxKm=Math.max.apply(null,kms),minPr=Math.min.apply(null,prs),maxPr=Math.max.apply(null,prs);
+      var kR=maxKm-minKm||1,pR=maxPr-minPr||1;
+      var sX=0,sY=0,sXY=0,sX2=0,sN=scData.length;
+      scData.forEach(function(a){sX+=a.km;sY+=a.prijs;sXY+=a.km*a.prijs;sX2+=a.km*a.km;});
+      var sl=(sN*sXY-sX*sY)/(sN*sX2-sX*sX)||0,ic=(sY-sl*sX)/sN;
+      var toX=function(k){return 14+(k-minKm)/kR*(sW-28);},toY=function(p){return sH-10-(p-minPr)/pR*(sH-20);};
+      var out='<line x1="'+toX(minKm)+'" y1="'+toY(ic+sl*minKm)+'" x2="'+toX(maxKm)+'" y2="'+toY(ic+sl*maxKm)+'" stroke="#94a3b8" stroke-width="1" stroke-dasharray="4"/>';
       scData.forEach(function(a){
-        var exp=intcpt+slope*a.km;
-        var pct=(a.prijs-exp)/exp;
-        var fill=pct<-0.18?'#22c55e':pct>0.18?'#ef4444':'#e8632a';
-        out+='<circle cx="'+toX(a.km)+'" cy="'+toY(a.prijs)+'" r="3.5" fill="'+fill+'" opacity="0.5"/>';
+        var exp=ic+sl*a.km,pct=(a.prijs-exp)/exp;
+        out+='<circle cx="'+toX(a.km)+'" cy="'+toY(a.prijs)+'" r="3.5" fill="'+(pct<-0.18?'#22c55e':pct>0.18?'#ef4444':'#e8632a')+'" opacity="0.5"/>';
       });
-      scEl.innerHTML = out;
-      // axis labels
-      scEl.innerHTML += '<text x="14" y="'+(sH-1)+'" font-size="9" fill="#94a3b8">'+Math.round(minKm/1000)+'k km</text>';
-      scEl.innerHTML += '<text x="'+(sW-14)+'" y="'+(sH-1)+'" font-size="9" fill="#94a3b8" text-anchor="end">'+Math.round(maxKm/1000)+'k km</text>';
+      out+='<text x="14" y="'+(sH-2)+'" font-size="9" fill="#94a3b8">'+Math.round(minKm/1000)+'k km</text>';
+      out+='<text x="'+(sW-14)+'" y="'+(sH-2)+'" font-size="9" fill="#94a3b8" text-anchor="end">'+Math.round(maxKm/1000)+'k km</text>';
+      scEl.innerHTML=out;
     } else {
-      scEl.innerHTML = '<text x="50%" y="50%" font-size="12" fill="#94a3b8" text-anchor="middle" dominant-baseline="middle">Te weinig data met km</text>';
+      scEl.innerHTML='<text x="50%" y="50%" font-size="12" fill="#94a3b8" text-anchor="middle" dominant-baseline="middle">Te weinig data met km</text>';
     }
 
-    // Top deals
-    var dealsData = data.filter(function(a){return a.prijs && a.prijs < mediaan*0.98;})
-      .map(function(a){return {a:a, pct:Math.round((a.prijs-mediaan)/mediaan*100)};})
+    var dealsData=data.filter(function(a){return a.prijs&&a.prijs<mediaan*0.98;})
+      .map(function(a){return {a:a,pct:Math.round((a.prijs-mediaan)/mediaan*100)};})
       .sort(function(x,y){return x.pct-y.pct;}).slice(0,5);
-    document.getElementById('mDealsBody').innerHTML = dealsData.length ? dealsData.map(function(d){
-      var cls = d.pct < -20 ? 'markt-deal-hot' : 'markt-deal-ok';
-      var naam = (d.a.titel||d.a.merk+' '+d.a.model||'').slice(0,30);
-      var link = d.a.url ? '<a href="'+d.a.url+'" target="_blank" style="color:inherit;text-decoration:none">'+naam+'</a>' : naam;
+    document.getElementById('mDealsBody').innerHTML=dealsData.length?dealsData.map(function(d){
+      var cls=d.pct<-20?'markt-deal-hot':'markt-deal-ok';
+      var naam=(d.a.titel||'').slice(0,32)+(d.a.titel&&d.a.titel.length>32?'…':'');
+      var link=d.a.url?'<a href="'+d.a.url+'" target="_blank" style="color:inherit;text-decoration:none">'+naam+'</a>':naam;
       return '<tr><td style="color:var(--subtekst);font-size:12px">'+link+'</td><td>'+fmt(d.a.prijs)+'</td><td><span class="markt-deal-badge '+cls+'">'+d.pct+'%</span></td></tr>';
-    }).join('') : '<tr><td colspan="3" style="color:var(--subtekst);padding:10px 8px;font-size:13px">Geen opvallende deals</td></tr>';
+    }).join(''):'<tr><td colspan="3" style="color:var(--subtekst);padding:10px 8px">Geen opvallende deals</td></tr>';
 
-    // Bouwjaar histogram
-    var jaarData = {};
-    data.forEach(function(a){ if(a.jaar>=2008&&a.jaar<=2026){ jaarData[a.jaar]=(jaarData[a.jaar]||0)+1; } });
-    var jaren = Object.keys(jaarData).map(Number).sort(function(a,b){return a-b;});
-    if (jaren.length) {
-      var jCounts = jaren.map(function(j){return jaarData[j];});
-      var jMax = Math.max.apply(null,jCounts);
-      var jSvg = document.getElementById('mJaarSvg');
-      var jW = jSvg.parentElement.clientWidth - 24;
-      if (jW < 10) jW = 280;
-      var jBw = Math.max(3,Math.floor((jW-(jaren.length-1)*2)/jaren.length));
+    var jaarData={};
+    data.forEach(function(a){if(a.jaar>=2008&&a.jaar<=2026){jaarData[a.jaar]=(jaarData[a.jaar]||0)+1;}});
+    var jaren=Object.keys(jaarData).map(Number).sort(function(a,b){return a-b;});
+    if(jaren.length){
+      var jC=jaren.map(function(j){return jaarData[j];}),jMax=Math.max.apply(null,jC);
+      var jSvg=document.getElementById('mJaarSvg'),jW=jSvg.parentElement.clientWidth-24;
+      if(jW<10)jW=280;
+      var jBw=Math.max(3,Math.floor((jW-(jaren.length-1)*2)/jaren.length));
       jSvg.setAttribute('viewBox','0 0 '+jW+' 80');
-      jSvg.innerHTML = jCounts.map(function(c,i){
-        var h = jMax?Math.max(4,Math.round(c/jMax*66)):4;
-        return '<rect x="'+i*(jBw+2)+'" y="'+(74-h)+'" width="'+jBw+'" height="'+h+'" rx="2" fill="#a78bfa" opacity="0.8"/>';
+      jSvg.innerHTML=jC.map(function(c,i){
+        var h=jMax?Math.max(4,Math.round(c/jMax*66)):4;
+        return '<rect x="'+(i*(jBw+2))+'" y="'+(74-h)+'" width="'+jBw+'" height="'+h+'" rx="2" fill="#a78bfa" opacity="0.8"/>';
       }).join('');
-      document.getElementById('mJaarLabels').innerHTML =
+      document.getElementById('mJaarLabels').innerHTML=
         '<span>'+jaren[0]+'</span>'+(jaren.length>2?'<span>'+jaren[Math.floor(jaren.length/2)]+'</span>':'')+'<span>'+jaren[jaren.length-1]+'</span>';
     }
   }
