@@ -1602,7 +1602,7 @@ function filterOpTrend(key){
     berekenMarkt();
   }
 
-  function _getMerk(t){if(!t)return '';var lo=t.toLowerCase();var tw=['land rover','alfa romeo','aston martin','rolls royce','ds automobiles','great wall'];for(var i=0;i<tw.length;i++){if(lo.startsWith(tw[i]))return t.slice(0,tw[i].length);}var ix=t.indexOf(' ');return ix>0?t.slice(0,ix):t;}
+  function _getMerk(t){if(!t)return '';var lo=t.toLowerCase();var tw=['land rover','alfa romeo','aston martin','rolls royce','ds automobiles','great wall'];for(var i=0;i<tw.length;i++){if(lo.startsWith(tw[i]))return t.slice(0,tw[i].length);}var ix=t.indexOf(' ');var w=ix>0?t.slice(0,ix):t;if(w.length<2)return '';var c=w.charCodeAt(0);if(!((c>=65&&c<=90)||(c>=97&&c<=122)||c>191))return '';return w;}
 function _getModel(t){if(!t)return '';var m=_getMerk(t);var r=t.slice(m.length).trim();if(!r)return '';var ix=r.indexOf(' ');return ix>0?r.slice(0,ix):r;}
 function sluitMarkt() {
     document.getElementById('marktOverlay').style.display = 'none';
