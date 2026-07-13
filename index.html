@@ -465,21 +465,29 @@
   .vgl-val-td { padding:10px 14px; font-size:.85rem; color:var(--tekst); text-align:center; border-left:1px solid var(--rand); }
   .vgl-row-diff .vgl-val-td { background:rgba(249,115,22,.08); color:#c2410c; font-weight:600; }
   .vgl-row-diff .vgl-lbl-td { background:rgba(249,115,22,.04); }
-  .markt-panel{background:var(--kaart);border-radius:16px;max-width:820px;margin:32px auto;padding:28px}
-  .markt-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
-  .markt-header h2{margin:0;font-size:20px}
-  .markt-selector{display:flex;gap:10px;margin-bottom:22px;flex-wrap:wrap}
-  .markt-selector select{flex:1;min-width:130px;padding:9px 12px;border-radius:8px;border:1px solid var(--rand);background:var(--achtergrond);color:var(--tekst);font-size:14px}
-  .markt-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:20px}
-  .markt-stat-card{background:var(--achtergrond);border-radius:10px;padding:14px;text-align:center}
-  .markt-stat-val{font-size:18px;font-weight:700;color:var(--oranje)}
+    #marktOverlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:900;overflow-y:auto;padding:24px 16px}
+  .markt-modal{background:var(--kaart);border-radius:16px;max-width:880px;margin:0 auto;overflow:hidden}
+  .markt-topbar{display:flex;justify-content:space-between;align-items:center;padding:18px 24px;border-bottom:1px solid var(--rand)}
+  .markt-topbar h2{margin:0;font-size:19px;font-weight:600}
+  .markt-filters{display:flex;gap:10px;flex-wrap:wrap;padding:14px 24px;background:var(--achtergrond);border-bottom:1px solid var(--rand)}
+  .markt-filters select{flex:1;min-width:120px;padding:8px 10px;border-radius:8px;border:1px solid var(--rand);background:var(--kaart);color:var(--tekst);font-size:13px}
+  .markt-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px;padding:18px 24px 8px}
+  .markt-stat{background:var(--achtergrond);border-radius:10px;padding:12px;text-align:center}
+  .markt-stat-val{font-size:17px;font-weight:700;color:var(--oranje)}
   .markt-stat-lbl{font-size:11px;color:var(--subtekst);margin-top:3px}
-  .hist-chart,.markt-history-chart{background:var(--achtergrond);border-radius:10px;padding:14px;margin-bottom:16px}
-  .hist-title{font-size:13px;color:var(--subtekst);margin-bottom:8px}
+  .markt-section{padding:8px 24px 14px}
+  .markt-section-title{font-size:12px;font-weight:600;color:var(--subtekst);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px}
+  .markt-svg-wrap{background:var(--achtergrond);border-radius:10px;padding:12px;overflow:hidden}
+  .markt-hist-labels{display:flex;justify-content:space-between;font-size:10px;color:var(--subtekst);margin-top:4px}
+  .markt-two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:0 24px 22px}
   .markt-deals-table{width:100%;border-collapse:collapse;font-size:13px}
-  .markt-deals-table th{text-align:left;padding:7px 10px;color:var(--subtekst);border-bottom:1px solid var(--rand)}
-  .markt-deals-table td{padding:7px 10px;border-bottom:1px solid var(--rand)}
-  .markt-deals-table tr:hover td{background:var(--achtergrond)}
+  .markt-deals-table th{font-size:11px;font-weight:600;color:var(--subtekst);text-align:left;padding:6px 8px;border-bottom:1px solid var(--rand)}
+  .markt-deals-table td{padding:7px 8px;border-bottom:1px solid var(--rand)}
+  .markt-deal-badge{display:inline-block;font-size:11px;padding:2px 8px;border-radius:10px;font-weight:600}
+  .markt-deal-hot{background:#fee2e2;color:#b91c1c}
+  .markt-deal-ok{background:#fef3c7;color:#92400e}
+  .markt-leeg{text-align:center;padding:40px;color:var(--subtekst);font-size:15px}
+  @media(max-width:600px){.markt-two-col{grid-template-columns:1fr}}
 
 .afstand-rij { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
 .afstand-rij #locInput { flex:1; min-width:140px; height:38px; border:1.5px solid #ddd; border-radius:8px; padding:0 12px; font-size:.9rem; background:#fff; }
@@ -1564,85 +1572,162 @@ function filterOpTrend(key){
 
   // ===== MARKTANALYSE =====
   function openMarkt() {
-  document.getElementById('marktModal').style.display = 'block';
-  document.body.style.overflow = 'hidden';
-  var autos = window._alleAutos || [];
-  var merken = Array.from(document.getElementById('merkFilter').options).slice(1).map(function(o){return o.value;}).filter(Boolean);
-  var sel = document.getElementById('marktMerkSelect');
-  sel.innerHTML = '<option value=""> Kies merk </option>' + merken.map(function(m){return '<option value="'+m+'">'+m+'</option>';}).join('');
-  var jaren = Array.from(new Set(autos.map(function(a){return a.jaar;}).filter(Boolean))).sort().reverse();
-  var jSel = document.getElementById('marktJaarSelect');
-  jSel.innerHTML = '<option value="">Alle jaren</option>' + jaren.map(function(j){return '<option value="'+j+'">'+j+'</option>';}).join('');
-}
-  function sluitMarkt() { document.getElementById('marktModal').style.display='none'; document.body.style.overflow=''; }
-  function updateMarktModellen() {
-  var merk = document.getElementById('marktMerkSelect').value;
-  var mSel = document.getElementById('marktModelSelect');
-  if (!merk) { mSel.innerHTML='<option value="">Alle modellen</option>'; mSel.disabled=true; berekenMarkt(); return; }
-  var mod = Array.from(new Set((window._alleAutos||[]).filter(function(a){return a.titel&&a.titel.toLowerCase().startsWith(merk.toLowerCase());}).map(function(a){var r=a.titel.slice(merk.length).trim().replace(/\s*[\-\u2013\u2014]\s*.*/,'').trim();return r;}))).sort();
-  mSel.innerHTML = '<option value="">Alle modellen</option>' + mod.map(function(m){return '<option value="'+m+'">'+m+'</option>';}).join('');
-  mSel.disabled = false; berekenMarkt();
-}
+    var ol = document.getElementById('marktOverlay');
+    ol.style.display = 'block';
+    document.body.style.overflow = 'hidden';
+    var merk = document.getElementById('mMerk');
+    if (merk.options.length <= 1) {
+      var merken = [];
+      var seen = {};
+      (window._alleAutos||[]).forEach(function(a){ if(a.merk && !seen[a.merk]){ seen[a.merk]=1; merken.push(a.merk); } });
+      merken.sort().forEach(function(m){ var o=document.createElement('option'); o.value=m; o.textContent=m; merk.appendChild(o); });
+    }
+    berekenMarkt();
+  }
+
+  function sluitMarkt() {
+    document.getElementById('marktOverlay').style.display = 'none';
+    document.body.style.overflow = '';
+  }
+
+  function updateMarktModellen(merk) {
+    var sel = document.getElementById('mModel');
+    sel.innerHTML = '<option value="">Alle modellen</option>';
+    if (!merk) return;
+    var seen = {};
+    (window._alleAutos||[]).forEach(function(a){ if(a.merk===merk && a.model && !seen[a.model]){ seen[a.model]=1; } });
+    Object.keys(seen).sort().forEach(function(m){ var o=document.createElement('option'); o.value=m; o.textContent=m; sel.appendChild(o); });
+  }
+
   function berekenMarkt() {
-  var merk = document.getElementById('marktMerkSelect').value;
-  var model = document.getElementById('marktModelSelect').value;
-  var jaar = parseInt(document.getElementById('marktJaarSelect').value) || null;
-  var res = document.getElementById('marktResultaat');
-  var leeg = document.getElementById('marktLeeg');
-  res.style.display = 'none'; leeg.style.display = 'block';
-  if (!merk) { leeg.textContent = 'Selecteer een merk om de marktanalyse te starten'; return; }
-  var autos = (window._alleAutos||[]).filter(function(a) {
-    return a.titel && a.titel.toLowerCase().startsWith(merk.toLowerCase()) && (!model || a.titel.toLowerCase().includes(model.toLowerCase())) && (!jaar || a.jaar === jaar) && a.prijs > 500 && a.prijs < 300000;
-  });
-  if (!autos.length) { leeg.textContent = 'Geen resultaten voor deze selectie.'; return; }
-  leeg.style.display = 'none'; res.style.display = 'block';
-  var prijzen = autos.map(function(a){return a.prijs;}).sort(function(a,b){return a-b;});
-  var n = prijzen.length;
-  var avg = Math.round(prijzen.reduce(function(s,p){return s+p;},0)/n);
-  var med = prijzen[Math.floor(n/2)];
-  var min = prijzen[0], max = prijzen[n-1];
-  var p25 = prijzen[Math.floor(n*0.25)], p75 = prijzen[Math.floor(n*0.75)];
-  var fmt = function(p){return '€'+p.toLocaleString('nl-NL');};
-  document.getElementById('marktStats').innerHTML = [
-    ['Gemiddeld',fmt(avg)],['Mediaan',fmt(med)],['Laagste',fmt(min)],
-    ['Hoogste',fmt(max)],['Advertenties',n],['Kwartiel',fmt(p25)+''+fmt(p75)]
-  ].map(function(s){return '<div class="markt-stat-card"><div class="markt-stat-val">'+s[1]+'</div><div class="markt-stat-lbl">'+s[0]+'</div></div>';}).join('');
-  var BINS=10, binSize=(max-min)/BINS||1;
-  var bins=Array(BINS).fill(0);
-  prijzen.forEach(function(p){bins[Math.min(Math.floor((p-min)/binSize),BINS-1)]++;});
-  var maxBin=Math.max.apply(null,bins);
-  var bars=bins.map(function(b,i){
-    var x=i*60+1,h=maxBin?Math.round((b/maxBin)*90):0,y=100-h;
-    var isMedian=(min+i*binSize<=med && med<min+(i+1)*binSize);
-    return '<rect x="'+x+'" y="'+y+'" width="58" height="'+h+'" fill="'+(isMedian?'var(--oranje)':'var(--rand)')+'" rx="3"><title>'+b+' autos</title></rect>';
-  }).join('');
-  document.getElementById('marktHistSvg').innerHTML = bars;
-  document.getElementById('marktHistLabels').innerHTML = '<span>'+fmt(min)+'</span><span>Mediaan '+fmt(med)+'</span><span>'+fmt(max)+'</span>';
-  var deals=autos.slice().sort(function(a,b){return a.prijs-b.prijs;}).slice(0,8);
-  document.getElementById('marktDealsBody').innerHTML=deals.map(function(a){
-    var pct=avg?Math.round((1-a.prijs/avg)*100):0;
-    var badge=pct>=5?'<span style="color:#22c55e;font-weight:700">↑'+pct+'%</span>':pct<=-5?'<span style="color:#ef4444">↓'+Math.abs(pct)+'%</span>':'<span style="color:var(--subtekst)">±0%</span>';
-    var nm=a.titel||(a.merk+' '+(a.model||''));
-    var url=a.url||'';
-    return '<tr style="cursor:pointer" onclick="window.open(\''+url+'\',\'_blank\')"><td><strong>'+nm+'</strong></td><td>'+fmt(a.prijs)+'</td><td>'+badge+'</td><td>'+(a.km?a.km.toLocaleString('nl-NL')+' km':'')+'</td><td>'+(a.jaar||'')+'</td><td style="color:var(--subtekst)">'+(a.bron||'')+'</td></tr>';
-  }).join('');
-  _laadMarktHistory(merk, model);
-}
-  function _laadMarktHistory(merk, model) {
-  var key=(merk||'').toLowerCase().replace(/\s+/g,'_')+(model?'_'+model.toLowerCase().replace(/\s+/g,'_'):'');
-  fetch('./data/markt-history.json?_='+Date.now()).then(function(r){return r.json();}).then(function(history){
-    var reeks=history.filter(function(d){return d.segmenten&&d.segmenten[key];});
-    var el=document.getElementById('marktHistoryInhoud');
-    if(reeks.length<2){el.textContent='Data wordt opgebouwd ('+reeks.length+' van minimaal 2 datapunten).';return;}
-    var punten=reeks.map(function(d){return{datum:d.datum,avg:d.segmenten[key].avg};});
-    var pp=punten.map(function(p){return p.avg;}),minP=Math.min.apply(null,pp),maxP=Math.max.apply(null,pp),range=maxP-minP||1,n2=punten.length;
-    var pts=punten.map(function(p,i){return((i/(n2-1))*580+10).toFixed(1)+','+(85-((p.avg-minP)/range)*70).toFixed(1);}).join(' ');
-    var svg2='<svg viewBox="0 0 600 100" width="100%" height="90" style="display:block"><polyline points="'+pts+'" fill="none" stroke="var(--oranje)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>';
-    punten.forEach(function(p,i){var xy=pts.split(' ')[i].split(',');svg2+='<circle cx="'+xy[0]+'" cy="'+xy[1]+'" r="4" fill="var(--oranje)"><title>'+p.datum+': €'+p.avg.toLocaleString('nl-NL')+'</title></circle>';});
-    svg2+='</svg><div style="display:flex;justify-content:space-between;font-size:11px;color:var(--subtekst);margin-top:4px"><span>'+punten[0].datum+'</span><span>'+punten[n2-1].datum+'</span></div>';
-    el.innerHTML=svg2;
-  }).catch(function(){document.getElementById('marktHistoryInhoud').textContent='Historische data nog niet beschikbaar.';});
-}
+    var merk = document.getElementById('mMerk').value;
+    var model = document.getElementById('mModel').value;
+    var jaarMin = parseInt(document.getElementById('mJaar').value)||0;
+    var brandstof = document.getElementById('mBrandstof').value;
+    var trans = document.getElementById('mTrans').value;
+
+    var data = (window._alleAutos||[]).filter(function(a){
+      if (!a.prijs || a.prijs < 500) return false;
+      if (merk && a.merk !== merk) return false;
+      if (model && (a.model||'') !== model) return false;
+      if (jaarMin && (!a.jaar || a.jaar < jaarMin)) return false;
+      if (brandstof && a.brandstof !== brandstof) return false;
+      if (trans && a.transmissie !== trans) return false;
+      return true;
+    });
+
+    var leeg = document.getElementById('mLeeg');
+    var res = document.getElementById('mResultaat');
+    if (!data.length) { leeg.style.display=''; res.style.display='none'; return; }
+    leeg.style.display='none'; res.style.display='';
+
+    var prijzen = data.map(function(a){return a.prijs;}).sort(function(a,b){return a-b;});
+    var n = prijzen.length;
+    var avg = Math.round(prijzen.reduce(function(s,p){return s+p;},0)/n);
+    var mediaan = n%2===0 ? Math.round((prijzen[n/2-1]+prijzen[n/2])/2) : prijzen[Math.floor(n/2)];
+    var minP = prijzen[0], maxP = prijzen[n-1];
+    var metKm = data.filter(function(a){return a.km>0;});
+    var avgKm = metKm.length ? Math.round(metKm.reduce(function(s,a){return s+a.km;},0)/metKm.length) : null;
+    var metPrijsKm = data.filter(function(a){return a.km>1000&&a.km<300000;});
+    var prijsPerKm = metPrijsKm.length ? Math.round(metPrijsKm.reduce(function(s,a){return s+a.prijs/a.km*100;},0)/metPrijsKm.length)/100 : null;
+
+    var fmt = function(p){ return '€'+Math.round(p).toLocaleString('nl-NL'); };
+    var cards = [['Gemiddeld',fmt(avg)],['Mediaan',fmt(mediaan)],['Laagste',fmt(minP)],['Hoogste',fmt(maxP)],['Advertenties',n]];
+    if (avgKm) cards.push(['Gem. km', Math.round(avgKm/1000)+'k km']);
+    if (prijsPerKm) cards.push(['€/km', '€'+prijsPerKm.toFixed(2)]);
+    document.getElementById('mStats').innerHTML = cards.map(function(c){
+      return '<div class="markt-stat"><div class="markt-stat-val">'+c[1]+'</div><div class="markt-stat-lbl">'+c[0]+'</div></div>';
+    }).join('');
+
+    // Histogram
+    var buckets = 12;
+    var range = maxP - minP || 1;
+    var step = range / buckets;
+    var counts = new Array(buckets).fill(0);
+    prijzen.forEach(function(p){ var i=Math.min(Math.floor((p-minP)/step),buckets-1); counts[i]++; });
+    var maxCount = Math.max.apply(null, counts);
+    var svg = document.getElementById('mHistSvg');
+    var W = svg.parentElement.clientWidth - 24;
+    if (W < 10) W = 600;
+    var bw = Math.floor((W - (buckets-1)*2) / buckets);
+    svg.setAttribute('viewBox','0 0 '+W+' 80');
+    var mi = Math.min(Math.floor((mediaan-minP)/step),buckets-1);
+    svg.innerHTML = counts.map(function(c,i){
+      var h = maxCount ? Math.max(4,Math.round(c/maxCount*66)) : 4;
+      var x = i*(bw+2);
+      var fill = i===mi ? '#e8632a' : '#f59d72';
+      return '<rect x="'+x+'" y="'+(74-h)+'" width="'+bw+'" height="'+h+'" rx="2" fill="'+fill+'" opacity="0.85"/>';
+    }).join('');
+    document.getElementById('mHistLabels').innerHTML =
+      '<span>'+fmt(minP)+'</span><span>'+fmt(minP+range*0.33)+'</span><span>Mediaan: '+fmt(mediaan)+'</span><span>'+fmt(minP+range*0.67)+'</span><span>'+fmt(maxP)+'</span>';
+
+    // Scatter
+    var scEl = document.getElementById('mScatterSvg');
+    var sW = scEl.parentElement.clientWidth - 24;
+    if (sW < 10) sW = 600;
+    var sH = 130;
+    scEl.setAttribute('viewBox','0 0 '+sW+' '+sH);
+    var scData = metPrijsKm.length > 300 ? metPrijsKm.filter(function(_,i){return i%Math.ceil(metPrijsKm.length/300)===0;}) : metPrijsKm;
+    if (scData.length > 1) {
+      var kms = scData.map(function(a){return a.km;});
+      var prs = scData.map(function(a){return a.prijs;});
+      var minKm=Math.min.apply(null,kms), maxKm=Math.max.apply(null,kms);
+      var minPr=Math.min.apply(null,prs), maxPr=Math.max.apply(null,prs);
+      var kRange=maxKm-minKm||1, pRange=maxPr-minPr||1;
+      var sumX=0,sumY=0,sumXY=0,sumX2=0,sN=scData.length;
+      scData.forEach(function(a){sumX+=a.km;sumY+=a.prijs;sumXY+=a.km*a.prijs;sumX2+=a.km*a.km;});
+      var slope=(sN*sumXY-sumX*sumY)/(sN*sumX2-sumX*sumX)||0;
+      var intcpt=(sumY-slope*sumX)/sN;
+      var toX=function(km){return 14+(km-minKm)/kRange*(sW-28);};
+      var toY=function(p){return sH-10-(p-minPr)/pRange*(sH-20);};
+      var lx1=toX(minKm),lx2=toX(maxKm),ly1=toY(intcpt+slope*minKm),ly2=toY(intcpt+slope*maxKm);
+      var out='<line x1="'+lx1+'" y1="'+ly1+'" x2="'+lx2+'" y2="'+ly2+'" stroke="#94a3b8" stroke-width="1" stroke-dasharray="4"/>';
+      scData.forEach(function(a){
+        var exp=intcpt+slope*a.km;
+        var pct=(a.prijs-exp)/exp;
+        var fill=pct<-0.18?'#22c55e':pct>0.18?'#ef4444':'#e8632a';
+        out+='<circle cx="'+toX(a.km)+'" cy="'+toY(a.prijs)+'" r="3.5" fill="'+fill+'" opacity="0.5"/>';
+      });
+      scEl.innerHTML = out;
+      // axis labels
+      scEl.innerHTML += '<text x="14" y="'+(sH-1)+'" font-size="9" fill="#94a3b8">'+Math.round(minKm/1000)+'k km</text>';
+      scEl.innerHTML += '<text x="'+(sW-14)+'" y="'+(sH-1)+'" font-size="9" fill="#94a3b8" text-anchor="end">'+Math.round(maxKm/1000)+'k km</text>';
+    } else {
+      scEl.innerHTML = '<text x="50%" y="50%" font-size="12" fill="#94a3b8" text-anchor="middle" dominant-baseline="middle">Te weinig data met km</text>';
+    }
+
+    // Top deals
+    var dealsData = data.filter(function(a){return a.prijs && a.prijs < mediaan*0.98;})
+      .map(function(a){return {a:a, pct:Math.round((a.prijs-mediaan)/mediaan*100)};})
+      .sort(function(x,y){return x.pct-y.pct;}).slice(0,5);
+    document.getElementById('mDealsBody').innerHTML = dealsData.length ? dealsData.map(function(d){
+      var cls = d.pct < -20 ? 'markt-deal-hot' : 'markt-deal-ok';
+      var naam = (d.a.titel||d.a.merk+' '+d.a.model||'').slice(0,30);
+      var link = d.a.url ? '<a href="'+d.a.url+'" target="_blank" style="color:inherit;text-decoration:none">'+naam+'</a>' : naam;
+      return '<tr><td style="color:var(--subtekst);font-size:12px">'+link+'</td><td>'+fmt(d.a.prijs)+'</td><td><span class="markt-deal-badge '+cls+'">'+d.pct+'%</span></td></tr>';
+    }).join('') : '<tr><td colspan="3" style="color:var(--subtekst);padding:10px 8px;font-size:13px">Geen opvallende deals</td></tr>';
+
+    // Bouwjaar histogram
+    var jaarData = {};
+    data.forEach(function(a){ if(a.jaar>=2008&&a.jaar<=2026){ jaarData[a.jaar]=(jaarData[a.jaar]||0)+1; } });
+    var jaren = Object.keys(jaarData).map(Number).sort(function(a,b){return a-b;});
+    if (jaren.length) {
+      var jCounts = jaren.map(function(j){return jaarData[j];});
+      var jMax = Math.max.apply(null,jCounts);
+      var jSvg = document.getElementById('mJaarSvg');
+      var jW = jSvg.parentElement.clientWidth - 24;
+      if (jW < 10) jW = 280;
+      var jBw = Math.max(3,Math.floor((jW-(jaren.length-1)*2)/jaren.length));
+      jSvg.setAttribute('viewBox','0 0 '+jW+' 80');
+      jSvg.innerHTML = jCounts.map(function(c,i){
+        var h = jMax?Math.max(4,Math.round(c/jMax*66)):4;
+        return '<rect x="'+i*(jBw+2)+'" y="'+(74-h)+'" width="'+jBw+'" height="'+h+'" rx="2" fill="#a78bfa" opacity="0.8"/>';
+      }).join('');
+      document.getElementById('mJaarLabels').innerHTML =
+        '<span>'+jaren[0]+'</span>'+(jaren.length>2?'<span>'+jaren[Math.floor(jaren.length/2)]+'</span>':'')+'<span>'+jaren[jaren.length-1]+'</span>';
+    }
+  }
+
 </script>
 
 <div id="agentModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:3000;align-items:center;justify-content:center">
@@ -1659,45 +1744,7 @@ function filterOpTrend(key){
 </div>
 
 <!-- Marktanalyse Modal -->
-<div id="marktModal">
-  <div class="markt-panel">
-    <div class="markt-header">
-      <h2>&#128202; Marktanalyse</h2>
-      <button onclick="sluitMarkt()" style="background:none;border:none;font-size:22px;cursor:pointer;color:var(--tekst);line-height:1">&#10005;</button>
-    </div>
-    <div class="markt-selector">
-      <select id="marktMerkSelect" onchange="updateMarktModellen()">
-        <option value="">&#8212; Kies merk &#8212;</option>
-      </select>
-      <select id="marktModelSelect" onchange="berekenMarkt()" disabled>
-        <option value="">Alle modellen</option>
-      </select>
-      <select id="marktJaarSelect" onchange="berekenMarkt()">
-        <option value="">Alle jaren</option>
-      </select>
-    </div>
-    <div id="marktLeeg" style="text-align:center;padding:40px 0;color:var(--subtekst)">Selecteer een merk om de marktanalyse te starten</div>
-    <div id="marktResultaat" style="display:none">
-      <div class="markt-stats" id="marktStats"></div>
-      <div class="hist-chart">
-        <div class="hist-title">&#128200; Prijsverdeling (mediaan oranje)</div>
-        <svg id="marktHistSvg" viewBox="0 0 600 100" preserveAspectRatio="none" width="100%" height="100" style="display:block"></svg>
-        <div id="marktHistLabels" style="display:flex;justify-content:space-between;font-size:11px;color:var(--subtekst);margin-top:4px"></div>
-      </div>
-      <div style="margin:16px 0">
-        <div style="font-size:14px;font-weight:600;margin-bottom:10px">&#128142; Beste deals in dit segment</div>
-        <table class="markt-deals-table">
-          <thead><tr><th>Auto</th><th>Prijs</th><th>vs. markt</th><th>Km</th><th>Jaar</th><th>Bron</th></tr></thead>
-          <tbody id="marktDealsBody"></tbody>
-        </table>
-      </div>
-      <div class="markt-history-chart">
-        <div class="hist-title">&#128197; Historische gemiddelde marktprijs</div>
-        <div id="marktHistoryInhoud" style="color:var(--subtekst);font-size:13px;text-align:center;padding:20px 0">Data wordt opgebouwd na meerdere dagelijkse scraper-runs.</div>
-      </div>
-    </div>
-  </div>
-</div>
+
 </div>
 <div id="vglModal" onclick="if(event.target===this){this.style.display='none';document.body.style.overflow='';}"></div>
 
@@ -1730,5 +1777,72 @@ function filterOpTrend(key){
     document.head.appendChild(s);
   }
 </script>
+
+<div id="marktOverlay" onclick="if(event.target===this)sluitMarkt()">
+  <div class="markt-modal">
+    <div class="markt-topbar">
+      <h2>&#128202; Marktanalyse</h2>
+      <button class="sluit-btn" onclick="sluitMarkt()">&#10005; Sluiten</button>
+    </div>
+    <div class="markt-filters">
+      <select id="mMerk" onchange="updateMarktModellen(this.value);berekenMarkt()"><option value="">Alle merken</option></select>
+      <select id="mModel" onchange="berekenMarkt()"><option value="">Alle modellen</option></select>
+      <select id="mJaar" onchange="berekenMarkt()">
+        <option value="">Alle jaren</option>
+        <option value="2022">2022–heden</option>
+        <option value="2020">2020–heden</option>
+        <option value="2018">2018–heden</option>
+        <option value="2015">2015–heden</option>
+        <option value="2010">2010–heden</option>
+      </select>
+      <select id="mBrandstof" onchange="berekenMarkt()">
+        <option value="">Alle brandstoffen</option>
+        <option value="Benzine">Benzine</option>
+        <option value="Diesel">Diesel</option>
+        <option value="Elektrisch">Elektrisch</option>
+        <option value="Hybride">Hybride</option>
+        <option value="LPG">LPG</option>
+      </select>
+      <select id="mTrans" onchange="berekenMarkt()">
+        <option value="">Alle transmissies</option>
+        <option value="Automaat">Automaat</option>
+        <option value="Handgeschakeld">Handgeschakeld</option>
+      </select>
+    </div>
+    <div id="mLeeg" class="markt-leeg" style="display:none">Geen advertenties gevonden voor deze selectie.</div>
+    <div id="mResultaat">
+      <div class="markt-stats" id="mStats"></div>
+      <div class="markt-section">
+        <div class="markt-section-title">Prijsverdeling</div>
+        <div class="markt-svg-wrap">
+          <svg id="mHistSvg" width="100%" height="80" style="display:block"></svg>
+          <div class="markt-hist-labels" id="mHistLabels"></div>
+        </div>
+      </div>
+      <div class="markt-section">
+        <div class="markt-section-title">Prijs vs. kilometerstand &nbsp;<small style="font-weight:400;color:var(--subtekst)">&#9679; goedkoop &nbsp;&#9679; gemiddeld &nbsp;&#9679; duur</small></div>
+        <div class="markt-svg-wrap"><svg id="mScatterSvg" width="100%" height="130" style="display:block"></svg></div>
+      </div>
+      <div class="markt-two-col">
+        <div>
+          <div class="markt-section-title" style="margin-bottom:8px">Top deals <small style="font-weight:400;text-transform:none">vs. mediaan</small></div>
+          <div class="markt-svg-wrap" style="padding:0">
+            <table class="markt-deals-table">
+              <thead><tr><th>Auto</th><th>Prijs</th><th>vs. markt</th></tr></thead>
+              <tbody id="mDealsBody"></tbody>
+            </table>
+          </div>
+        </div>
+        <div>
+          <div class="markt-section-title" style="margin-bottom:8px">Bouwjaar verdeling</div>
+          <div class="markt-svg-wrap">
+            <svg id="mJaarSvg" width="100%" height="80" style="display:block"></svg>
+            <div class="markt-hist-labels" id="mJaarLabels"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 </body>
 </html>
