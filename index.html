@@ -1354,7 +1354,7 @@ function openVergelijk() {
     ['Brandstof', function(a){return a.brandstof||'';}],
     ['Transmissie', function(a){ return a.transmissie || ''; }],
     ['Carrosserie', function(a){ return a.carrosserie || ''; }],
-    ['Kofferbak', function(a){ return a.kofferbak ? a.kofferbak+' L' : ''; }]
+    ['Kofferbak', function(a){ var lk=a.kofferbak||_lookupKofferbak(a.titel); return lk?lk+' L':''; }]
   ];
   var carCols = cars.map(function(a) {
     var img = a.imgSrc
@@ -1383,6 +1383,8 @@ function openVergelijk() {
   modal.style.display = 'flex';
   document.body.style.overflow = 'hidden';
 }
+var _kofferbakDB={'tesla model 3':561,'tesla model y':854,'tesla model s':804,'tesla model x':2182,'volkswagen golf':380,'volkswagen polo':280,'volkswagen passat':586,'volkswagen tiguan':615,'volkswagen id.3':385,'volkswagen id.4':543,'volkswagen touareg':810,'volkswagen t-roc':445,'volkswagen t-cross':385,'bmw 1-serie':360,'bmw 2-serie':390,'bmw 3-serie':480,'bmw 4-serie':470,'bmw 5-serie':530,'bmw 7-serie':515,'bmw x1':540,'bmw x3':550,'bmw x5':650,'bmw i3':260,'bmw i4':470,'bmw ix3':510,'bmw ix':500,'mercedes a-klasse':370,'mercedes b-klasse':486,'mercedes c-klasse':455,'mercedes e-klasse':540,'mercedes glc':560,'mercedes gle':630,'mercedes glb':560,'audi a1':335,'audi a3':380,'audi a4':460,'audi a5':465,'audi a6':530,'audi q2':405,'audi q3':530,'audi q5':610,'audi q7':865,'audi e-tron':660,'audi q4 e-tron':520,'hyundai ioniq 5':527,'hyundai ioniq 6':401,'hyundai ioniq':350,'hyundai kona':332,'hyundai tucson':620,'hyundai i20':352,'hyundai i30':395,'kia ev6':480,'kia niro':451,'kia sportage':591,'kia ceed':380,'kia stonic':352,'kia sorento':821,'toyota corolla':361,'toyota yaris':286,'toyota rav4':580,'toyota c-hr':377,'toyota prius':457,'toyota camry':524,'skoda octavia':600,'skoda fabia':380,'skoda superb':625,'skoda kodiaq':720,'skoda enyaq':585,'skoda karoq':521,'seat ibiza':355,'seat leon':380,'seat arona':400,'seat ateca':510,'cupra formentor':420,'cupra born':385,'peugeot 208':311,'peugeot 308':412,'peugeot 3008':520,'peugeot 5008':780,'renault clio':391,'renault megane':388,'renault zoe':338,'renault captur':422,'ford fiesta':303,'ford focus':375,'ford puma':456,'ford kuga':583,'ford mustang mach-e':402,'opel corsa':309,'opel astra':422,'opel mokka':350,'opel grandland':514,'nissan leaf':435,'nissan qashqai':504,'nissan micra':300,'nissan juke':422,'volvo xc40':452,'volvo xc60':505,'volvo xc90':721,'volvo v40':335,'volvo v60':529,'volvo c40':413,'mini cooper':211,'mini countryman':450,'mini clubman':360,'porsche taycan':407,'porsche macan':500,'porsche cayenne':772,'citroen c3':300,'citroen c4':380,'citroen c5':460,'fiat 500x':385,'fiat 500':185,'honda civic':410,'honda hr-v':393,'honda cr-v':561,'mazda cx-5':503,'mazda cx-30':430,'mazda3':408,'mazda mx-30':366,'suzuki swift':265,'suzuki vitara':375,'range rover evoque':591,'range rover sport':788,'range rover':979,'land rover discovery':1137,'jeep compass':438,'jeep renegade':351,'alfa romeo giulia':480,'alfa romeo stelvio':525,'mitsubishi outlander':463,'mitsubishi asx':363};
+function _lookupKofferbak(titel){if(!titel)return null;var t=titel.toLowerCase();var best=null,bestLen=0;for(var k in _kofferbakDB){if(t.includes(k)&&k.length>bestLen){best=_kofferbakDB[k];bestLen=k.length;}}return best;}
 function _parseSoh(a){var t=(a.titel||'')+' '+(a.beschrijving||'');var m=t.match(/(\d+(?:[,\.]\d+)?)\s*%\s*soh/i)||t.match(/soh\s*(\d+(?:[,\.]\d+)?)\s*%/i);if(!m)return null;var v=parseFloat((m[1]||m[2]).replace(',','.'));return(v>0&&v<=100)?v:null;}
 function toggleFav(event,id){event.stopPropagation();if(_favs.has(id)){_favs.delete(id);}else{_favs.add(id);}localStorage.setItem('_av_favs',JSON.stringify([..._favs]));var b=event.currentTarget;if(b){b.classList.toggle('fav-actief',_favs.has(id));b.title=_favs.has(id)?'Verwijder uit favorieten':'Voeg toe aan favorieten';}}
 function toggleVergelijk(event,id){event.stopPropagation();var i=_vgl.indexOf(id);if(i>=0){_vgl.splice(i,1);}else{if(_vgl.length>=3){alert("Max. 3 auto\u2019s");return;}_vgl.push(id);}updateVglBar();document.querySelectorAll("[data-vgl=\""+id+"\"]").forEach(function(b){var sel=_vgl.includes(id);b.classList.toggle("vgl-actief",sel);b.title=sel?"Verwijder":"Voeg toe";});}
@@ -1398,8 +1400,9 @@ function openVergelijk(){
     ['Brandstof',function(a){return a.brandstof||'\u2014';}],
     ['Transmissie',function(a){return a.transmissie||'\u2014';}],
     ['Carrosserie',function(a){return a.carrosserie||'\u2014';}],
-    ['Kofferbak',function(a){return a.kofferbak?a.kofferbak+' L':'\u2014';}]
+    ['Kofferbak',function(a){var lk=a.kofferbak||_lookupKofferbak(a.titel);return lk?lk+' L':'\u2014';}]
   ];
+  if(!cars.some(function(a){return a.brandstof&&/elektr|hybr/i.test(a.brandstof)||_parseSoh(a);}))specs=specs.filter(function(s){return s[0]!=='SOH';});
   var thCols=cars.map(function(a){
     var imgH=a.imgSrc
       ?'<img class="vgl-car-photo" src="'+a.imgSrc+'" alt="" loading="lazy" onerror="this.style.display=\'none\'">'
