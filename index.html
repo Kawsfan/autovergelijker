@@ -1602,7 +1602,7 @@ function filterOpTrend(key){
     berekenMarkt();
   }
 
-  function _getMerk(t){if(!t)return '';var lo=t.toLowerCase();var tw=['land rover','alfa romeo','aston martin','rolls royce','ds automobiles','great wall'];var tc=['Land Rover','Alfa Romeo','Aston Martin','Rolls-Royce','DS Automobiles','Great Wall'];for(var i=0;i<tw.length;i++){if(lo.startsWith(tw[i]))return tc[i];}var ix=t.indexOf(' ');var w=ix>0?t.slice(0,ix):t;if(w.length<2)return '';var c=w.charCodeAt(0);if(!((c>=65&&c<=90)||(c>=97&&c<=122)||c>191))return '';var up=w.toUpperCase();return(up===w&&w.length<=5)?w:w.charAt(0).toUpperCase()+w.slice(1).toLowerCase();}
+  function _getMerk(t){if(!t)return '';var lo=t.toLowerCase();var tw=['land rover','alfa romeo','aston martin','rolls royce','ds automobiles','great wall'];var tc=['Land Rover','Alfa Romeo','Aston Martin','Rolls-Royce','DS Automobiles','Great Wall'];for(var i=0;i<tw.length;i++){if(lo.startsWith(tw[i]))return tc[i];}var ix=t.indexOf(' ');var w=ix>0?t.slice(0,ix):t;while(w.length>0&&'.,!?'.indexOf(w[w.length-1])>=0)w=w.slice(0,-1);if(w.length<2)return '';var c=w.charCodeAt(0);if(!((c>=65&&c<=90)||(c>=97&&c<=122)||c>191))return '';var bl=['auto','automaat','occasion','gebruikt','verkoop','inruil','opties'];if(bl.indexOf(w.toLowerCase())>=0)return '';var up=w.toUpperCase();return(up===w&&w.length<=5)?w:w.charAt(0).toUpperCase()+w.slice(1).toLowerCase();}
 function _getModel(t){if(!t)return '';var m=_getMerk(t);var r=t.slice(m.length).trim();if(!r)return '';var ix=r.indexOf(' ');return ix>0?r.slice(0,ix):r;}
 function sluitMarkt() {
     document.getElementById('marktOverlay').style.display = 'none';
