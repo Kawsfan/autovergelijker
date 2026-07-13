@@ -1928,10 +1928,10 @@ function closeSheet(){
 }
 // === Active filter chips ===
 var _chipDefs=[
-  {id:'merkSel',fn:function(v){return v;}},
-  {id:'modelSel',fn:function(v){return v;}},
-  {id:'brandstofSel',fn:function(v){return v;}},
-  {id:'carrosserieSel',fn:function(v){return v;}},
+  {id:'merkFilter',fn:function(v){return v;}},
+  {id:'modelInput',fn:function(v){return v;}},
+  {id:'brandstofFilter',fn:function(v){return v;}},
+  {id:'carrosserieFilter',fn:function(v){return v;}},
   {id:'jaarMin',fn:function(v){return 'Vanaf '+v;}},
   {id:'jaarMax',fn:function(v){return 't/m '+v;}},
   {id:'prijsMin',fn:function(v){return '\u2265 \u20ac'+Number(v).toLocaleString('nl-NL');}},
@@ -1963,7 +1963,7 @@ window.addEventListener('load',function(){
   var ag=document.getElementById('autoGrid');
   if(ag){new MutationObserver(function(){_updateChips();}).observe(ag,{childList:true});}
   // Also update chips on filter changes
-  ['merkSel','modelSel','brandstofSel','carrosserieSel','jaarMin','jaarMax','prijsMin','prijsMax','kmMin','kmMax'].forEach(function(id){
+  ['merkFilter','modelInput','brandstofFilter','carrosserieFilter','jaarMin','jaarMax','prijsMin','prijsMax','kmMin','kmMax'].forEach(function(id){
     var el=document.getElementById(id);
     if(el)el.addEventListener('change',function(){setTimeout(_updateChips,50);});
   });
