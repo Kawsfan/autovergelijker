@@ -1368,7 +1368,7 @@ function openVergelijk() {
     var img = a.imgSrc
       ? '<img class="vgl-car-img" src="'+a.imgSrc+'" alt="" loading="lazy">'
       : '<div class="vgl-car-no-img">=€</div>';
-    var nm = a.titel || ((a.merk||'')+' '+(a.model||'')).trim() || 'Onbekend';
+    var nm = a.titel || ((_getMerk(a.titel)||'')+' '+(_getModel(a.titel)||'')).trim() || 'Onbekend';
     var prijs = a.prijs ? '€'+a.prijs.toLocaleString('nl-NL') : 'Prijs onbekend';
     var link = a.url ? '<a href="'+a.url+'" target="_blank" class="vgl-lb-link">Bekijk advertentie →</a>' : '';
     return '<div class="vgl-car-col">'+img+'<div class="vgl-car-name">'+nm+'</div><div class="vgl-car-prijs">'+prijs+'</div>'+link+'</div>';
@@ -1529,7 +1529,7 @@ function _agenten(){try{return JSON.parse(localStorage.getItem("zoekagenten")||"
 function renderAgentList(){var el=document.getElementById("agentList");var list=_agenten();if(!list.length){el.innerHTML='<p style="color:var(--subtekst);font-size:.9rem;margin:0">Geen zoekagenten opgeslagen.</p>';return;}el.innerHTML=list.map(function(a,i){return'<div style="display:flex;align-items:center;gap:8px;background:var(--achtergrond);border-radius:8px;padding:8px 12px"><span style="flex:1;font-size:.85rem">'+a.label+'</span><button onclick="verwijderAgent('+i+')" style="background:none;border:none;cursor:pointer;color:var(--subtekst);font-size:1.1rem">&#x2715;</button></div>';}).join("");}
 function verwijderAgent(i){var list=_agenten();list.splice(i,1);localStorage.setItem("zoekagenten",JSON.stringify(list));renderAgentList();}
 function slaZoekagentOp(){var merk=(document.getElementById("merkFilter")||{}).value||"";var qry=(document.getElementById("zoekveld")||{}).value||"";var minP=(document.getElementById("minPrijs")||{}).value||"";var maxP=(document.getElementById("maxPrijs")||{}).value||"";var label=[merk,qry,minP&&("min €"+minP),maxP&&("max €"+maxP)].filter(Boolean).join(", ")||"Alle auto's";var agent={label:label,merk:merk,q:qry,minPrijs:minP?+minP:null,maxPrijs:maxP?+maxP:null,opgeslagenOp:new Date().toISOString().slice(0,10),gezieneIds:[]};var list=_agenten();list.push(agent);localStorage.setItem("zoekagenten",JSON.stringify(list));renderAgentList();var msg=document.getElementById("agentMsg");if(msg){msg.textContent="Zoekagent opgeslagen!";setTimeout(function(){msg.textContent="";},2500);}}
-function controleerZoekagenten(handmatig){if(!window._alleAutos||!window._alleAutos.length)return;var vandaag=new Date().toISOString().slice(0,10);var list=_agenten();var totaalNieuw=0;list=list.map(function(agent){var matches=window._alleAutos.filter(function(a){if(agent.merk&&!(a.merk||"").toLowerCase().includes(agent.merk.toLowerCase()))return false;if(agent.q&&!(((a.titel||"")+" "+(a.merk||"")).toLowerCase().includes(agent.q.toLowerCase())))return false;if(agent.minPrijs!=null&&a.prijs!=null&&a.prijs<agent.minPrijs)return false;if(agent.maxPrijs!=null&&a.prijs!=null&&a.prijs>agent.maxPrijs)return false;return true;});var nieuw=matches.filter(function(a){return a.toegevoegd===vandaag&&!(agent.gezieneIds||[]).includes(a.id);});if(nieuw.length){totaalNieuw+=nieuw.length;agent.gezieneIds=(agent.gezieneIds||[]).concat(nieuw.map(function(a){return a.id;}));if(typeof Notification!=="undefined"&&Notification.permission==="granted"){new Notification("Zoekagent: "+agent.label,{body:nieuw.length+" nieuwe auto's gevonden!",icon:"/autovergelijker/favicon.ico"});}}return agent;});localStorage.setItem("zoekagenten",JSON.stringify(list));if(handmatig){var msg=document.getElementById("agentMsg");if(msg){msg.textContent=totaalNieuw?"Gevonden: "+totaalNieuw+" nieuwe auto('s)!":"Geen nieuwe auto's.";setTimeout(function(){if(msg)msg.textContent="";},3000);}}
+function controleerZoekagenten(handmatig){if(!window._alleAutos||!window._alleAutos.length)return;var vandaag=new Date().toISOString().slice(0,10);var list=_agenten();var totaalNieuw=0;list=list.map(function(agent){var matches=window._alleAutos.filter(function(a){if(agent.merk&&!(_getMerk(a.titel)||"").toLowerCase().includes(agent.merk.toLowerCase()))return false;if(agent.q&&!(((a.titel||"")+" "+(_getMerk(a.titel)||"")).toLowerCase().includes(agent.q.toLowerCase())))return false;if(agent.minPrijs!=null&&a.prijs!=null&&a.prijs<agent.minPrijs)return false;if(agent.maxPrijs!=null&&a.prijs!=null&&a.prijs>agent.maxPrijs)return false;return true;});var nieuw=matches.filter(function(a){return a.toegevoegd===vandaag&&!(agent.gezieneIds||[]).includes(a.id);});if(nieuw.length){totaalNieuw+=nieuw.length;agent.gezieneIds=(agent.gezieneIds||[]).concat(nieuw.map(function(a){return a.id;}));if(typeof Notification!=="undefined"&&Notification.permission==="granted"){new Notification("Zoekagent: "+agent.label,{body:nieuw.length+" nieuwe auto's gevonden!",icon:"/autovergelijker/favicon.ico"});}}return agent;});localStorage.setItem("zoekagenten",JSON.stringify(list));if(handmatig){var msg=document.getElementById("agentMsg");if(msg){msg.textContent=totaalNieuw?"Gevonden: "+totaalNieuw+" nieuwe auto('s)!":"Geen nieuwe auto's.";setTimeout(function(){if(msg)msg.textContent="";},3000);}}
 var btn=document.getElementById("agentNavBtn");if(btn&&totaalNieuw>0)btn.innerHTML="&#128276;("+totaalNieuw+") Zoekagent";}
 (function(){if(typeof Notification!=="undefined"&&Notification.permission==="default")Notification.requestPermission();setTimeout(function(){controleerZoekagenten(false);},3000);})();
 
@@ -1538,7 +1538,7 @@ function berekenTrending(){
   if(!autos||!autos.length)return;
   var teller={};
   autos.forEach(function(a){
-    var merk=(a.merk||"").trim();if(!merk)return;
+    var merk=(_getMerk(a.titel)||"").trim();if(!merk)return;
     var titel=(a.titel||"").trim();var model="";
     if(titel.toLowerCase().startsWith(merk.toLowerCase())){
       var rest=titel.slice(merk.length).trim().split(/\s+/);model=rest[0]||"";
@@ -1602,7 +1602,9 @@ function filterOpTrend(key){
     berekenMarkt();
   }
 
-  function sluitMarkt() {
+  function _getMerk(t){if(!t)return '';var lo=t.toLowerCase();var tw=['land rover','alfa romeo','aston martin','rolls royce','ds automobiles','great wall'];for(var i=0;i<tw.length;i++){if(lo.startsWith(tw[i]))return t.slice(0,tw[i].length);}var ix=t.indexOf(' ');return ix>0?t.slice(0,ix):t;}
+function _getModel(t){if(!t)return '';var m=_getMerk(t);var r=t.slice(m.length).trim();if(!r)return '';var ix=r.indexOf(' ');return ix>0?r.slice(0,ix):r;}
+function sluitMarkt() {
     document.getElementById('marktOverlay').style.display = 'none';
     document.body.style.overflow = '';
   }
@@ -1751,10 +1753,10 @@ function filterOpTrend(key){
   function _injectCarSchema(cars) {
     var old = document.getElementById("_ld-cars");
     if (old) old.remove();
-    var top = cars.filter(function(a){ return a.prijs && a.merk; }).slice(0, 12);
+    var top = cars.filter(function(a){ return a.prijs && _getMerk(a.titel); }).slice(0, 12);
     if (!top.length) return;
     var items = top.map(function(a, i) {
-      var item = { "@type": "Car", "name": a.titel || (a.merk + " " + (a.model||"")), "url": a.url || "" };
+      var item = { "@type": "Car", "name": a.titel || (_getMerk(a.titel) + " " + (_getModel(a.titel)||"")), "url": a.url || "" };
       if (a.prijs) item.offers = { "@type": "Offer", "price": a.prijs, "priceCurrency": "EUR", "availability": "https://schema.org/InStock" };
       if (a.jaar) item.vehicleModelDate = String(a.jaar);
       if (a.km) item.mileageFromOdometer = { "@type": "QuantitativeValue", "value": a.km, "unitCode": "KMT" };
