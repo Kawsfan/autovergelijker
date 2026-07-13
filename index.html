@@ -1996,56 +1996,49 @@ window.addEventListener('load', function() {
   var _origOD = window.openDetail;
   if (typeof _origOD === 'function') {
     window.openDetail = function(auto) {
-      // Fix: reset body overflow before opening (in case filter sheet was open)
+      // Close any open filter sheet first
       if (typeof closeSheet === 'function') closeSheet();
       _origOD.apply(this, arguments);
-      // Populate sticky CTA footer
+      // Fix iOS scroll: reset body overflow so fixed panel can scroll
+      document.body.style.overflow = '';
+      // Populate sticky footer from the just-rendered btn-mp
       var footer = document.getElementById('detailFooter');
-      if (footer && auto && auto.url) {
-        footer.innerHTML = '<a class="btn-mp" href="' + auto.url + '" target="_blank" rel="noopener noreferrer">Bekijk advertentie →</a>';
+      var existingBtn = document.querySelector('#detailInhoud .btn-mp');
+      if (footer && existingBtn && existingBtn.href) {
+        footer.innerHTML = '<a class="btn-mp" href="' + existingBtn.href + '" target="_blank" rel="noopener noreferrer">Bekijk advertentie →</a>';
         footer.className = 'aktief';
       }
       // Scroll panel to top
       var panel = document.getElementById('detailPanel');
-      if (panel) panel.scrollTop = 0;
-      // Add swipe-to-dismiss (once)
-      _initDetailSwipe(panel);
+      if (panel) { panel.scrollTop = 0; _initDetailSwipe(panel); }
     };
   }
   var _origSD = window.sluitDetail;
   if (typeof _origSD === 'function') {
     window.sluitDetail = function() {
       _origSD.apply(this, arguments);
+      document.body.style.overflow = '';
       var footer = document.getElementById('detailFooter');
       if (footer) { footer.className = ''; footer.innerHTML = ''; }
-      document.body.style.overflow = '';
     };
   }
 });
 function _initDetailSwipe(panel) {
   if (!panel || panel._swipeReady) return;
   panel._swipeReady = true;
-  var sx, sy, dragging = false;
+  var sx, sy;
   panel.addEventListener('touchstart', function(e) {
-    sx = e.touches[0].clientX;
-    sy = e.touches[0].clientY;
-    dragging = true;
+    sx = e.touches[0].clientX; sy = e.touches[0].clientY;
   }, { passive: true });
   panel.addEventListener('touchmove', function(e) {
-    if (!dragging) return;
     var dx = e.touches[0].clientX - sx;
-    // Slide panel right as user drags
-    if (dx > 0) panel.style.transform = 'translateX(' + dx + 'px)';
+    if (dx > 0) panel.style.transform = 'translateX(' + Math.min(dx, 200) + 'px)';
   }, { passive: true });
   panel.addEventListener('touchend', function(e) {
-    if (!dragging) return;
-    dragging = false;
     var dx = e.changedTouches[0].clientX - sx;
     var dy = Math.abs(e.changedTouches[0].clientY - sy);
     panel.style.transform = '';
-    if (dx > 80 && dy < 80) {
-      if (typeof sluitDetail === 'function') sluitDetail();
-    }
+    if (dx > 80 && dy < 80 && typeof sluitDetail === 'function') sluitDetail();
   }, { passive: true });
 }
 </script>
