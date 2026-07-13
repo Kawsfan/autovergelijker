@@ -496,7 +496,52 @@
 .loc-btn:hover { border-color:var(--oranje); background:#fff8f5; }
 .afstand-rij #radiusSelect { height:38px; border:1.5px solid #ddd; border-radius:8px; padding:0 10px; font-size:.9rem; background:#fff; cursor:pointer; }
 .soh-badge{background:#e8f5e9;color:#2e7d32;border-radius:4px;padding:2px 6px;font-size:.8rem;font-weight:600;margin-left:2px;}
-#trendingRij{display:flex;align-items:center;gap:8px;padding:10px 20px;background:var(--kaart);border-bottom:1px solid #e8e8e2;overflow-x:auto;scrollbar-width:none;flex-wrap:nowrap;}#trendingRij::-webkit-scrollbar{display:none;}.trend-label{font-size:11px;font-weight:700;color:var(--oranje);text-transform:uppercase;letter-spacing:.06em;flex-shrink:0;white-space:nowrap;margin-right:4px;}.trend-pill{display:inline-block;padding:5px 13px;background:#f5f5f0;border:1.5px solid #e2e2da;border-radius:20px;font-size:13px;font-weight:500;color:var(--tekst);cursor:pointer;transition:background .18s,border-color .18s,color .18s;flex-shrink:0;white-space:nowrap;font-family:inherit;line-height:1.4;vertical-align:middle;}.trend-pill:hover{background:var(--oranje);border-color:var(--oranje);color:#fff;}.trend-pill.actief{background:var(--oranje);border-color:var(--oranje);color:#fff;font-weight:600;}.trend-pill small{font-size:11px;opacity:.65;}.trend-pill:hover small,.trend-pill.actief small{opacity:.85;}#mobileFilterBtn{display:none;width:100%;padding:10px 14px;background:#f5f5f0;border:1.5px solid #e2e2da;border-radius:10px;font-size:14px;font-weight:600;color:var(--tekst);cursor:pointer;align-items:center;justify-content:space-between;font-family:inherit;margin-bottom:6px;transition:background .15s;}#mobileFilterBtn:hover{background:#e8e6e0;}#mobileFilterCount{background:var(--oranje);color:#fff;border-radius:10px;padding:1px 7px;font-size:11px;font-weight:700;display:none;}#mobileFilterCount.actief{display:inline-block;}@media(max-width:640px){.hero{padding:8px 14px;}nav{padding:0 10px;}.filter-kaart{padding:10px 14px 6px;}#mobileFilterBtn{display:flex;}#filterRowsWrap{display:none;}#filterRowsWrap.open{display:block;}.filter-rij{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;}.filter-item select,.filter-range select{font-size:13px;}.toggle-btns{gap:2px;}.toggle-btn{font-size:12px;padding:5px 8px;}.vinden-btn{width:100%;position:sticky;bottom:10px;border-radius:14px;box-shadow:0 4px 20px rgba(232,76,21,.4);font-size:16px;padding:14px;margin-top:10px;}#trendingRij{padding:8px 12px;gap:6px;}.trend-pill{font-size:12px;padding:4px 10px;}.auto-grid{grid-template-columns:1fr;gap:10px;padding:10px 12px;}.resultaten-header{padding:10px 14px;flex-wrap:wrap;gap:6px;}}@media(min-width:420px) and (max-width:640px){.auto-grid{grid-template-columns:1fr 1fr;}}</style>
+#trendingRij{display:flex;align-items:center;gap:8px;padding:10px 20px;background:var(--kaart);border-bottom:1px solid #e8e8e2;overflow-x:auto;scrollbar-width:none;flex-wrap:nowrap;}#trendingRij::-webkit-scrollbar{display:none;}.trend-label{font-size:11px;font-weight:700;color:var(--oranje);text-transform:uppercase;letter-spacing:.06em;flex-shrink:0;white-space:nowrap;margin-right:4px;}.trend-pill{display:inline-block;padding:5px 13px;background:#f5f5f0;border:1.5px solid #e2e2da;border-radius:20px;font-size:13px;font-weight:500;color:var(--tekst);cursor:pointer;transition:background .18s,border-color .18s,color .18s;flex-shrink:0;white-space:nowrap;font-family:inherit;line-height:1.4;vertical-align:middle;}.trend-pill:hover{background:var(--oranje);border-color:var(--oranje);color:#fff;}.trend-pill.actief{background:var(--oranje);border-color:var(--oranje);color:#fff;font-weight:600;}.trend-pill small{font-size:11px;opacity:.65;}.trend-pill:hover small,.trend-pill.actief small{opacity:.85;}#mobileFilterBtn{display:none;width:100%;padding:10px 14px;background:#f5f5f0;border:1.5px solid #e2e2da;border-radius:10px;font-size:14px;font-weight:600;color:var(--tekst);cursor:pointer;align-items:center;justify-content:space-between;font-family:inherit;margin-bottom:6px;transition:background .15s;}#mobileFilterBtn:hover{background:#e8e6e0;}#mobileFilterCount{background:var(--oranje);color:#fff;border-radius:10px;padding:1px 7px;font-size:11px;font-weight:700;display:none;}#mobileFilterCount.actief{display:inline-block;}@media(max-width:640px){.hero{padding:8px 14px;}nav{padding:0 10px;}.filter-kaart{padding:10px 14px 6px;}#mobileFilterBtn{display:flex;}#filterRowsWrap{display:none;}#filterRowsWrap.open{display:block;}.filter-rij{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;}.filter-item select,.filter-range select{font-size:13px;}.toggle-btns{gap:2px;}.toggle-btn{font-size:12px;padding:5px 8px;}.vinden-btn{width:100%;position:sticky;bottom:10px;border-radius:14px;box-shadow:0 4px 20px rgba(232,76,21,.4);font-size:16px;padding:14px;margin-top:10px;}#trendingRij{padding:8px 12px;gap:6px;}.trend-pill{font-size:12px;padding:4px 10px;}.auto-grid{grid-template-columns:1fr;gap:10px;padding:10px 12px;}.resultaten-header{padding:10px 14px;flex-wrap:wrap;gap:6px;}}@media(min-width:420px) and (max-width:640px){.auto-grid{grid-template-columns:1fr 1fr;}}
+/* === Bottom sheet === */
+#sheetBackdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:490;}
+#sheetBackdrop.aktief{display:block;}
+#sheetHandle{display:none;width:36px;height:4px;background:#d0cfc9;border-radius:2px;margin:12px auto 4px;flex-shrink:0;}
+#sheetHeader{display:none;align-items:center;justify-content:space-between;padding:10px 16px 10px;border-bottom:1px solid #e8e8e2;flex-shrink:0;}
+#sheetHeader strong{font-size:15px;color:var(--tekst);}
+#sheetCloseBtn{background:none;border:1.5px solid #e2e2da;border-radius:8px;padding:5px 12px;font-size:13px;color:var(--subtekst);cursor:pointer;font-family:inherit;}
+#sheetCloseBtn:hover{background:#f5f5f0;}
+/* === Mobile sticky bar === */
+#mobileStickyBar{display:none;position:sticky;top:60px;z-index:190;background:#fff;border-bottom:1px solid #e8e8e2;padding:10px 14px;gap:10px;align-items:center;box-shadow:0 2px 6px rgba(0,0,0,.04);}
+#mobileStickySearch{flex:1;display:flex;align-items:center;gap:8px;background:#f5f5f0;border:1.5px solid #e2e2da;border-radius:10px;padding:9px 12px;font-size:14px;color:#999;cursor:pointer;font-family:inherit;}
+#mobileStickySearch:active{background:#e8e6e0;}
+#mobileOpenFilterBtn{background:var(--oranje);color:#fff;border:none;border-radius:10px;padding:9px 14px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;font-family:inherit;display:flex;align-items:center;gap:4px;}
+#mobileOpenFilterBtn:hover{background:var(--oranje-hover);}
+#mobileOpenBadge{background:rgba(255,255,255,.25);border-radius:8px;padding:1px 6px;font-size:11px;font-weight:700;display:none;}
+#mobileOpenBadge.zichtbaar{display:inline;}
+/* === Active chips === */
+#activeChips{display:flex;flex-wrap:wrap;gap:6px;padding:8px 14px 2px;}
+#activeChips:empty{display:none;}
+.actief-chip{display:inline-flex;align-items:center;gap:5px;padding:4px 6px 4px 12px;background:var(--oranje);color:#fff;border-radius:14px;font-size:12px;font-weight:500;border:none;font-family:inherit;}
+.actief-chip-x{cursor:pointer;font-size:16px;line-height:1;opacity:.75;background:none;border:none;color:#fff;padding:0 2px;font-family:inherit;}
+/* === Skeleton === */
+.sk-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;padding:14px 20px;}
+.sk-card{background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.07);}
+.sk-img{height:175px;background:linear-gradient(90deg,#ebebeb 25%,#f5f5f5 50%,#ebebeb 75%);background-size:400% 100%;animation:skShimmer 1.4s ease-in-out infinite;}
+.sk-body{padding:12px;}
+.sk-line{height:13px;border-radius:6px;margin-bottom:9px;background:linear-gradient(90deg,#ebebeb 25%,#f5f5f5 50%,#ebebeb 75%);background-size:400% 100%;animation:skShimmer 1.4s ease-in-out infinite;}
+.sk-line.sk-short{width:55%;}
+.sk-specs{display:flex;gap:6px;margin-top:2px;}
+.sk-spec{height:11px;flex:1;border-radius:5px;background:linear-gradient(90deg,#ebebeb 25%,#f5f5f5 50%,#ebebeb 75%);background-size:400% 100%;animation:skShimmer 1.4s ease-in-out infinite;}
+@keyframes skShimmer{0%{background-position:100% 50%}100%{background-position:0% 50%}}
+@media(max-width:640px){
+  #mobileStickyBar{display:flex;}
+  #mobileFilterBtn{display:none!important;}
+  #filterRowsWrap{display:block!important;}
+  .filter-kaart{position:fixed!important;bottom:0;left:0;right:0;z-index:500;border-radius:20px 20px 0 0;box-shadow:0 -4px 24px rgba(0,0,0,.18);max-height:90vh;overflow-y:auto;transform:translateY(100%);transition:transform .35s cubic-bezier(.32,.72,0,1);padding-bottom:env(safe-area-inset-bottom,16px);}
+  .filter-kaart.sheet-open{transform:translateY(0);}
+  #sheetHandle{display:block;}
+  #sheetHeader{display:flex;}
+  .vinden-btn{position:sticky!important;bottom:0;width:100%;border-radius:0;margin-top:8px;box-shadow:0 -2px 12px rgba(232,76,21,.3);font-size:16px;padding:14px;}
+  .sk-grid{grid-template-columns:1fr 1fr;padding:10px 12px;gap:10px;}
+  .sk-img{height:140px;}
+  #activeChips{padding:6px 12px 0;}
+}
+</style>
 </head>
 <body>
 
@@ -521,6 +566,8 @@
 <!-- FILTER KAART -->
 <div class="filter-kaart">
   <div class="filter-kaart-inner">
+    <div id="sheetHandle"></div>
+    <div id="sheetHeader"><strong>Filters</strong><button id="sheetCloseBtn" onclick="closeSheet()">&#x2715; Sluiten</button></div>
 
     <!-- Tekstzoek -->
     <div class="zoek-rij">
@@ -721,6 +768,15 @@
   </div>
 </div>
 
+<div id="sheetBackdrop" onclick="closeSheet()"></div>
+<div id="mobileStickyBar">
+  <div id="mobileStickySearch" onclick="openSheet()">
+    <span style="opacity:.45">&#128269;</span>
+    <span id="stickySearchText">Zoek op merk, model of trefwoord</span>
+  </div>
+  <button id="mobileOpenFilterBtn" onclick="openSheet()">Filters <span id="mobileOpenBadge"></span></button>
+</div>
+
 <div class="status-balk">
   <span class="bron-badge" id="bronBadge">Advertenties</span>
   <span class="hint" id="statusTekst">Advertenties laden...</span>
@@ -746,8 +802,9 @@
     </div>
   </div>
   <div id="trendingRij" style="display:none"></div>
+  <div id="activeChips"></div>
   <div class="auto-grid" id="autoGrid">
-    <div class="loader"><div class="spinner"></div><p>Advertenties laden...</p></div>
+    <div class="loader" id="skLoader"><div class="sk-grid"><div class="sk-card"><div class="sk-img"></div><div class="sk-body"><div class="sk-line"></div><div class="sk-line sk-short"></div><div class="sk-specs"><div class="sk-spec"></div><div class="sk-spec"></div><div class="sk-spec"></div></div></div></div><div class="sk-card"><div class="sk-img"></div><div class="sk-body"><div class="sk-line"></div><div class="sk-line sk-short"></div><div class="sk-specs"><div class="sk-spec"></div><div class="sk-spec"></div><div class="sk-spec"></div></div></div></div><div class="sk-card"><div class="sk-img"></div><div class="sk-body"><div class="sk-line"></div><div class="sk-line sk-short"></div><div class="sk-specs"><div class="sk-spec"></div><div class="sk-spec"></div><div class="sk-spec"></div></div></div></div><div class="sk-card"><div class="sk-img"></div><div class="sk-body"><div class="sk-line"></div><div class="sk-line sk-short"></div><div class="sk-specs"><div class="sk-spec"></div><div class="sk-spec"></div><div class="sk-spec"></div></div></div></div><div class="sk-card"><div class="sk-img"></div><div class="sk-body"><div class="sk-line"></div><div class="sk-line sk-short"></div><div class="sk-specs"><div class="sk-spec"></div><div class="sk-spec"></div><div class="sk-spec"></div></div></div></div><div class="sk-card"><div class="sk-img"></div><div class="sk-body"><div class="sk-line"></div><div class="sk-line sk-short"></div><div class="sk-specs"><div class="sk-spec"></div><div class="sk-spec"></div><div class="sk-spec"></div></div></div></div></div></div>
   </div>
 </div>
 
@@ -1849,6 +1906,73 @@ function sluitMarkt() {
 </div>
 <script>
 function toggleMobileFilters(){var w=document.getElementById('filterRowsWrap');var btn=document.getElementById('mobileFilterBtn');if(!w)return;var open=w.classList.contains('open');w.classList.toggle('open',!open);btn.children[0].innerHTML=open?'⚙️ Filters':'✖ Sluiten';_updMobCount();}function _updMobCount(){var n=0;['merkSel','modelSel','brandstofSel','carrosserieSel'].forEach(function(id){var e=document.getElementById(id);if(e&&e.value)n++;});['jaarMin','jaarMax','prijsMin','prijsMax','kmMin','kmMax'].forEach(function(id){var e=document.getElementById(id);if(e&&e.value)n++;});var b=document.getElementById('mobileFilterCount');if(b){b.textContent=n>0?n:'';b.className=n>0?'actief':'';}}
+</script>
+
+<script>
+// === Bottom sheet ===
+function openSheet(){
+  var fc=document.querySelector('.filter-kaart');
+  var bd=document.getElementById('sheetBackdrop');
+  if(!fc)return;
+  fc.classList.add('sheet-open');
+  if(bd)bd.classList.add('aktief');
+  document.body.style.overflow='hidden';
+}
+function closeSheet(){
+  var fc=document.querySelector('.filter-kaart');
+  var bd=document.getElementById('sheetBackdrop');
+  if(!fc)return;
+  fc.classList.remove('sheet-open');
+  if(bd)bd.classList.remove('aktief');
+  document.body.style.overflow='';
+}
+// === Active filter chips ===
+var _chipDefs=[
+  {id:'merkSel',fn:function(v){return v;}},
+  {id:'modelSel',fn:function(v){return v;}},
+  {id:'brandstofSel',fn:function(v){return v;}},
+  {id:'carrosserieSel',fn:function(v){return v;}},
+  {id:'jaarMin',fn:function(v){return 'Vanaf '+v;}},
+  {id:'jaarMax',fn:function(v){return 't/m '+v;}},
+  {id:'prijsMin',fn:function(v){return '\u2265 \u20ac'+Number(v).toLocaleString('nl-NL');}},
+  {id:'prijsMax',fn:function(v){return '\u2264 \u20ac'+Number(v).toLocaleString('nl-NL');}},
+  {id:'kmMin',fn:function(v){return '\u2265 '+Number(v).toLocaleString('nl-NL')+'km'+';'}},
+  {id:'kmMax',fn:function(v){return '\u2264 '+Number(v).toLocaleString('nl-NL')+'km';}},
+];
+function _updateChips(){
+  var c=document.getElementById('activeChips');
+  if(!c)return;
+  var active=[];
+  _chipDefs.forEach(function(d){
+    var el=document.getElementById(d.id);
+    if(el&&el.value)active.push({id:d.id,lbl:d.fn(el.value)});
+  });
+  c.innerHTML=active.map(function(a){
+    return '<button class="actief-chip"><span>'+a.lbl+'</span><button class="actief-chip-x" onclick="_clearChip(\''+ a.id +'\')">&times;</button></button>';
+  }).join('');
+  var badge=document.getElementById('mobileOpenBadge');
+  if(badge){badge.textContent=active.length>0?' '+active.length:'';badge.className=active.length>0?'zichtbaar':''}
+}
+function _clearChip(fid){
+  var el=document.getElementById(fid);
+  if(el)el.value='';
+  if(typeof zoekNu==='function')zoekNu();
+}
+// Observer: update chips on search results change
+window.addEventListener('load',function(){
+  var ag=document.getElementById('autoGrid');
+  if(ag){new MutationObserver(function(){_updateChips();}).observe(ag,{childList:true});}
+  // Also update chips on filter changes
+  ['merkSel','modelSel','brandstofSel','carrosserieSel','jaarMin','jaarMax','prijsMin','prijsMax','kmMin','kmMax'].forEach(function(id){
+    var el=document.getElementById(id);
+    if(el)el.addEventListener('change',function(){setTimeout(_updateChips,50);});
+  });
+  var zi=document.getElementById('zoekInput');
+  if(zi)zi.addEventListener('input',function(){
+    var st=document.getElementById('stickySearchText');
+    if(st)st.textContent=zi.value||'Zoek op merk, model of trefwoord';
+  });
+});
 </script>
 </body>
 </html>
