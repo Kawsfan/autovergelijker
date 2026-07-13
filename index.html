@@ -885,14 +885,14 @@ async function laadListings() {
           <p>De scraper draait dagelijks om 06:00. Kom morgen terug!<br/>
           Of zoek direct op <a href="https://www.gaspedaal.nl/" target="_blank">Gaspedaal</a>.</p>
         </div>`;
-      document.getElementById('statusTekst').textContent = 'Nog geen advertenties beschikbaar';
+      (document.getElementById('statusTekst')||{}).textContent = 'Nog geen advertenties beschikbaar';
       return;
     }
 
     const bijgewerkt = data.bijgewerkt
       ? new Date(data.bijgewerkt).toLocaleDateString('nl-NL', { day: 'numeric', month: 'long' })
       : '';
-    document.getElementById('statusTekst').textContent =
+    (document.getElementById('statusTekst')||{}).textContent =
       `${alleResultaten.length} advertenties geladen` + (bijgewerkt ? ` · Bijgewerkt: ${bijgewerkt}` : '');
 
     // Update bron badge dynamically based on actual data
@@ -910,7 +910,7 @@ async function laadListings() {
         <h3>Laden mislukt</h3>
         <p>Vernieuw de pagina om het opnieuw te proberen.</p>
       </div>`;
-    document.getElementById('statusTekst').textContent = 'Laden mislukt';
+    (document.getElementById('statusTekst')||{}).textContent = 'Laden mislukt';
   }
 }
 
@@ -976,7 +976,7 @@ function zoekNu() {
 
   const n = gefilterd.length;
   const totaal = alleResultaten.length;
-  document.getElementById('statusTekst').textContent =
+  (document.getElementById('statusTekst')||{}).textContent =
     n === totaal ? `${totaal} advertenties` : `${n} van ${totaal} advertenties`;
 
   updateVindenCount(n);
