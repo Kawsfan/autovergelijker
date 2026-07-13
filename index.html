@@ -1394,6 +1394,7 @@ function openVergelijk(){
   var specs=[
     ['Bouwjaar',function(a){return a.jaar?String(a.jaar):'\u2014';}],
     ['Kilometerstand',function(a){return a.km?a.km.toLocaleString('nl-NL')+' km':'\u2014';}],
+    ['SOH',function(a){var sv=_parseSoh(a);return sv?sv+'%':'\u2014';}],
     ['Brandstof',function(a){return a.brandstof||'\u2014';}],
     ['Transmissie',function(a){return a.transmissie||'\u2014';}],
     ['Carrosserie',function(a){return a.carrosserie||'\u2014';}],
