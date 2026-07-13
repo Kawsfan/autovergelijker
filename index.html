@@ -496,7 +496,7 @@
 .loc-btn:hover { border-color:var(--oranje); background:#fff8f5; }
 .afstand-rij #radiusSelect { height:38px; border:1.5px solid #ddd; border-radius:8px; padding:0 10px; font-size:.9rem; background:#fff; cursor:pointer; }
 .soh-badge{background:#e8f5e9;color:#2e7d32;border-radius:4px;padding:2px 6px;font-size:.8rem;font-weight:600;margin-left:2px;}
-#trendingRij{display:flex;align-items:center;gap:8px;padding:10px 20px;background:var(--kaart);border-bottom:1px solid #e8e8e2;overflow-x:auto;scrollbar-width:none;flex-wrap:nowrap;}#trendingRij::-webkit-scrollbar{display:none;}.trend-label{font-size:11px;font-weight:700;color:var(--oranje);text-transform:uppercase;letter-spacing:.06em;flex-shrink:0;white-space:nowrap;margin-right:4px;}.trend-pill{display:inline-block;padding:5px 13px;background:#f5f5f0;border:1.5px solid #e2e2da;border-radius:20px;font-size:13px;font-weight:500;color:var(--tekst);cursor:pointer;transition:background .18s,border-color .18s,color .18s;flex-shrink:0;white-space:nowrap;font-family:inherit;line-height:1.4;vertical-align:middle;}.trend-pill:hover{background:var(--oranje);border-color:var(--oranje);color:#fff;}.trend-pill.actief{background:var(--oranje);border-color:var(--oranje);color:#fff;font-weight:600;}.trend-pill small{font-size:11px;opacity:.65;}.trend-pill:hover small,.trend-pill.actief small{opacity:.85;}</style>
+#trendingRij{display:flex;align-items:center;gap:8px;padding:10px 20px;background:var(--kaart);border-bottom:1px solid #e8e8e2;overflow-x:auto;scrollbar-width:none;flex-wrap:nowrap;}#trendingRij::-webkit-scrollbar{display:none;}.trend-label{font-size:11px;font-weight:700;color:var(--oranje);text-transform:uppercase;letter-spacing:.06em;flex-shrink:0;white-space:nowrap;margin-right:4px;}.trend-pill{display:inline-block;padding:5px 13px;background:#f5f5f0;border:1.5px solid #e2e2da;border-radius:20px;font-size:13px;font-weight:500;color:var(--tekst);cursor:pointer;transition:background .18s,border-color .18s,color .18s;flex-shrink:0;white-space:nowrap;font-family:inherit;line-height:1.4;vertical-align:middle;}.trend-pill:hover{background:var(--oranje);border-color:var(--oranje);color:#fff;}.trend-pill.actief{background:var(--oranje);border-color:var(--oranje);color:#fff;font-weight:600;}.trend-pill small{font-size:11px;opacity:.65;}.trend-pill:hover small,.trend-pill.actief small{opacity:.85;}#mobileFilterBtn{display:none;width:100%;padding:10px 14px;background:#f5f5f0;border:1.5px solid #e2e2da;border-radius:10px;font-size:14px;font-weight:600;color:var(--tekst);cursor:pointer;align-items:center;justify-content:space-between;font-family:inherit;margin-bottom:6px;transition:background .15s;}#mobileFilterBtn:hover{background:#e8e6e0;}#mobileFilterCount{background:var(--oranje);color:#fff;border-radius:10px;padding:1px 7px;font-size:11px;font-weight:700;display:none;}#mobileFilterCount.actief{display:inline-block;}@media(max-width:640px){.hero{padding:8px 14px;}nav{padding:0 10px;}.filter-kaart{padding:10px 14px 6px;}#mobileFilterBtn{display:flex;}#filterRowsWrap{display:none;}#filterRowsWrap.open{display:block;}.filter-rij{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;}.filter-item select,.filter-range select{font-size:13px;}.toggle-btns{gap:2px;}.toggle-btn{font-size:12px;padding:5px 8px;}.vinden-btn{width:100%;position:sticky;bottom:10px;border-radius:14px;box-shadow:0 4px 20px rgba(232,76,21,.4);font-size:16px;padding:14px;margin-top:10px;}#trendingRij{padding:8px 12px;gap:6px;}.trend-pill{font-size:12px;padding:4px 10px;}.auto-grid{grid-template-columns:1fr;gap:10px;padding:10px 12px;}.resultaten-header{padding:10px 14px;flex-wrap:wrap;gap:6px;}}@media(min-width:420px) and (max-width:640px){.auto-grid{grid-template-columns:1fr 1fr;}}</style>
 </head>
 <body>
 
@@ -530,6 +530,8 @@
       </div>
     </div>
 
+    <button id="mobileFilterBtn" onclick="toggleMobileFilters()" class="mobile-filter-toggle"><span>⚙️ Filters</span><span id="mobileFilterCount"></span></button>
+    <div id="filterRowsWrap">
     <!-- Rij 1: Merk | Model | Bouwjaar | Prijs -->
     <div class="filter-rij">
       <div class="filter-item">
@@ -674,7 +676,7 @@
         <div class="toggle-btns">
           <button class="actief" data-val="" onclick="setTransmissie(this)">Alles</button>
           <button data-val="automaat" onclick="setTransmissie(this)">Automaat</button>
-          <button data-val="handgeschakeld" onclick="setTransmissie(this)">Handgeschakeld</button>
+          <button data-val="handgeschakeld" onclick="setTransmissie(this)">Schakel</button>
         </div>
       </div>
       <div class="filter-item">
@@ -709,6 +711,7 @@
           </select>
         </div>
       </div>
+    </div>
     </div>
       <button class="vinden-btn" onclick="zoekNu()">
         Zoeken <span class="vinden-count" id="vindenCount"></span>
@@ -1844,5 +1847,8 @@ function sluitMarkt() {
     </div>
   </div>
 </div>
+<script>
+function toggleMobileFilters(){var w=document.getElementById('filterRowsWrap');var btn=document.getElementById('mobileFilterBtn');if(!w)return;var open=w.classList.contains('open');w.classList.toggle('open',!open);btn.children[0].innerHTML=open?'⚙️ Filters':'✖ Sluiten';_updMobCount();}function _updMobCount(){var n=0;['merkSel','modelSel','brandstofSel','carrosserieSel'].forEach(function(id){var e=document.getElementById(id);if(e&&e.value)n++;});['jaarMin','jaarMax','prijsMin','prijsMax','kmMin','kmMax'].forEach(function(id){var e=document.getElementById(id);if(e&&e.value)n++;});var b=document.getElementById('mobileFilterCount');if(b){b.textContent=n>0?n:'';b.className=n>0?'actief':'';}}
+</script>
 </body>
 </html>
