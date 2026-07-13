@@ -1992,55 +1992,59 @@ window.addEventListener('load',function(){
 
 <script>
 // === Detail panel enhancements ===
-window.addEventListener('load', function() {
-  var _origOD = window.openDetail;
-  if (typeof _origOD === 'function') {
-    window.openDetail = function(auto) {
-      // Close any open filter sheet first
-      if (typeof closeSheet === 'function') closeSheet();
-      _origOD.apply(this, arguments);
-      // Fix iOS scroll: reset body overflow so fixed panel can scroll
+(function() {
+  // MutationObserver: fires when detailInhoud gets content (after galRender)
+  var _obs = new MutationObserver(function() {
+    var btn = document.querySelector('#detailInhoud .btn-mp');
+    var footer = document.getElementById('detailFooter');
+    if (!footer) return;
+    if (btn && btn.href) {
+      // Populate sticky footer
+      footer.innerHTML = '<a class="btn-mp" href="' + btn.href + '" target="_blank" rel="noopener noreferrer">Bekijk op ' + (btn.textContent.includes('Markt') ? 'Marktplaats' : 'advertentie') + ' →</a>';
+      footer.className = 'aktief';
+      // Fix iOS: clear body overflow so panel can scroll
       document.body.style.overflow = '';
-      // Populate sticky footer from the just-rendered btn-mp
-      var footer = document.getElementById('detailFooter');
-      var existingBtn = document.querySelector('#detailInhoud .btn-mp');
-      if (footer && existingBtn && existingBtn.href) {
-        footer.innerHTML = '<a class="btn-mp" href="' + existingBtn.href + '" target="_blank" rel="noopener noreferrer">Bekijk advertentie →</a>';
-        footer.className = 'aktief';
-      }
-      // Scroll panel to top
-      var panel = document.getElementById('detailPanel');
-      if (panel) { panel.scrollTop = 0; _initDetailSwipe(panel); }
-    };
-  }
-  var _origSD = window.sluitDetail;
-  if (typeof _origSD === 'function') {
-    window.sluitDetail = function() {
-      _origSD.apply(this, arguments);
-      document.body.style.overflow = '';
-      var footer = document.getElementById('detailFooter');
-      if (footer) { footer.className = ''; footer.innerHTML = ''; }
-    };
-  }
-});
-function _initDetailSwipe(panel) {
-  if (!panel || panel._swipeReady) return;
-  panel._swipeReady = true;
-  var sx, sy;
-  panel.addEventListener('touchstart', function(e) {
-    sx = e.touches[0].clientX; sy = e.touches[0].clientY;
-  }, { passive: true });
-  panel.addEventListener('touchmove', function(e) {
-    var dx = e.touches[0].clientX - sx;
-    if (dx > 0) panel.style.transform = 'translateX(' + Math.min(dx, 200) + 'px)';
-  }, { passive: true });
-  panel.addEventListener('touchend', function(e) {
-    var dx = e.changedTouches[0].clientX - sx;
-    var dy = Math.abs(e.changedTouches[0].clientY - sy);
-    panel.style.transform = '';
-    if (dx > 80 && dy < 80 && typeof sluitDetail === 'function') sluitDetail();
-  }, { passive: true });
-}
+    } else if (!btn) {
+      footer.className = '';
+      footer.innerHTML = '';
+    }
+  });
+
+  // Wrap sluitDetail to also reset body overflow
+  window.addEventListener('load', function() {
+    var di = document.getElementById('detailInhoud');
+    if (di) _obs.observe(di, { childList: true, subtree: false });
+
+    // Swipe-to-dismiss on detail panel
+    var panel = document.getElementById('detailPanel');
+    if (!panel) return;
+    var sx, sy;
+    panel.addEventListener('touchstart', function(e) {
+      sx = e.touches[0].clientX;
+      sy = e.touches[0].clientY;
+    }, { passive: true });
+    panel.addEventListener('touchmove', function(e) {
+      var dx = e.touches[0].clientX - sx;
+      if (dx > 0) panel.style.transform = 'translateX(' + Math.min(dx, 220) + 'px)';
+    }, { passive: true });
+    panel.addEventListener('touchend', function(e) {
+      var dx = e.changedTouches[0].clientX - sx;
+      var dy = Math.abs(e.changedTouches[0].clientY - sy);
+      panel.style.transform = '';
+      if (dx > 80 && dy < 80 && typeof sluitDetail === 'function') sluitDetail();
+    }, { passive: true });
+
+    // Patch sluitDetail to reset body overflow
+    var _origSD = window.sluitDetail;
+    if (typeof _origSD === 'function') {
+      window.sluitDetail = function() {
+        _origSD.apply(this, arguments);
+        document.body.style.overflow = '';
+      };
+    }
+  });
+}());
+function _initDetailSwipe() {}
 </script>
 </body>
 </html>
