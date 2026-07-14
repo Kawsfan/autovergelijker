@@ -566,6 +566,19 @@
 #stickyZoekInput{flex:1;border:none;background:transparent;font-size:14px;color:var(--tekst);font-family:inherit;outline:none;min-width:0;}
 #stickyZoekInput::placeholder{color:#aaa;}
 #stickyZoekInput::-webkit-search-cancel-button{-webkit-appearance:none;}
+/* === Senior UX: Infinite scroll + Range sliders + Fav toggle === */
+.rs-wrap{position:relative;padding:22px 6px 4px;}
+.rs-track{height:4px;background:#e0dfd9;border-radius:2px;position:relative;}
+.rs-fill{position:absolute;height:4px;background:var(--oranje);top:0;border-radius:2px;}
+.rs-in{position:absolute;top:-8px;left:0;width:100%;-webkit-appearance:none;appearance:none;background:transparent;pointer-events:none;height:20px;padding:0;margin:0;}
+.rs-in::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:var(--oranje);border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.2);cursor:pointer;pointer-events:all;}
+.rs-in::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:var(--oranje);border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.2);cursor:pointer;pointer-events:all;}
+.rs-label{display:flex;justify-content:space-between;font-size:11px;color:var(--subtekst);margin-top:6px;}
+#is-sentinel{height:2px;}
+.paginering{display:none!important;}
+#favToggleBtn{display:none;align-items:center;gap:5px;padding:5px 12px;background:transparent;border:1.5px solid #d0cfc9;border-radius:14px;font-size:13px;font-weight:500;color:var(--tekst);cursor:pointer;font-family:inherit;margin:6px 14px 2px;transition:all .15s;}
+#favToggleBtn.aktief{background:#fff0ec;border-color:var(--oranje);color:var(--oranje);}
+#favToggleBtn:hover:not(.aktief){border-color:#aaa;}
 </style>
 </head>
 <body>
@@ -2089,6 +2102,161 @@ window.addEventListener('load', function() {
     if (el) el.addEventListener('change', function(){ clearTimeout(_dZoekTimer); _dZoekTimer = setTimeout(function(){ if(typeof zoekNu==='function')zoekNu(); },30); });
   });
 });
+</script>
+
+<script>
+(function(){
+"use strict";
+
+window._paginaControls=function(tot,pg,pp){
+  if(tot<=pp)return'';
+  return'<div id="is-sentinel"></div>';
+};
+var _isApp=false,_origTR=window.toonResultaten;
+window.toonResultaten=function(lijst){
+  _origTR.apply(this,arguments);
+  if(_isApp)return;
+  setTimeout(function(){
+    var s=document.getElementById('is-sentinel');
+    if(!s)return;
+    if(window._scObs)window._scObs.disconnect();
+    window._scObs=new IntersectionObserver(function(e){
+      if(!e[0].isIntersecting)return;
+      _meerLaden();
+    },{rootMargin:'400px'});
+    window._scObs.observe(s);
+  },80);
+};
+function _meerLaden(){
+  var g=document.getElementById('autoGrid');
+  if(!g)return;
+  if(window._scObs)window._scObs.disconnect();
+  var saved='';
+  Array.from(g.children).forEach(function(c){if(c.id!=='is-sentinel')saved+=c.outerHTML;});
+  _isApp=true;
+  window['gaan'+'Pagina']((window._pagina||1)+1);
+  _isApp=false;
+  var nc='';
+  Array.from(g.children).forEach(function(c){if(c.id!=='is-sentinel')nc+=c.outerHTML;});
+  var more=!!document.getElementById('is-sentinel');
+  var sntnl='<div id=\'is-sentinel\'></div>';
+  g.innerHTML=saved+nc+(more?sntnl:'');
+  if(more){
+    var ns=document.getElementById('is-sentinel');
+    window._scObs=new IntersectionObserver(function(e){
+      if(!e[0].isIntersecting)return; _meerLaden();
+    },{rootMargin:'400px'});
+    window._scObs.observe(ns);
+  }
+}
+
+function _buildSlider(loId,hiId,fmt){
+  var loS=document.getElementById(loId),hiS=document.getElementById(hiId);
+  if(!loS||!hiS)return;
+  var opts=Array.from(loS.options).map(function(o){return o.value;}).filter(function(v){return v!=='';});
+  if(!opts.length)return;
+  var mx=opts.length-1;
+  var wrap=document.createElement('div');wrap.className='rs-wrap';
+  wrap.innerHTML='<div class="rs-track"><div class="rs-fill" id="rsf-'+loId+'"></div></div>'
+    +'<input type="range" class="rs-in" id="rsi-'+loId+'" min="0" max="'+mx+'" value="0" step="1">'
+    +'<input type="range" class="rs-in" id="rsi-'+hiId+'" min="0" max="'+mx+'" value="'+mx+'" step="1">'
+    +'<div class="rs-label"><span id="rsl-'+loId+'">Geen min</span><span id="rsl-'+hiId+'">Geen max</span></div>';
+  loS.style.display='none';hiS.style.display='none';
+  loS.parentNode.appendChild(wrap);
+  var rLo=document.getElementById('rsi-'+loId),rHi=document.getElementById('rsi-'+hiId);
+  var fill=document.getElementById('rsf-'+loId);
+  var lblLo=document.getElementById('rsl-'+loId),lblHi=document.getElementById('rsl-'+hiId);
+  function upd(fire){
+    var lo=+rLo.value,hi=+rHi.value;
+    if(lo>hi){rLo.value=hi;rHi.value=lo;lo=+rLo.value;hi=+rHi.value;}
+    fill.style.left=(lo/mx*100)+'%';fill.style.width=((hi-lo)/mx*100)+'%';
+    lblLo.textContent=lo===0?'Geen min':fmt(opts[lo]);
+    lblHi.textContent=hi===mx?'Geen max':fmt(opts[hi]);
+    loS.value=lo===0?'':opts[lo];hiS.value=hi===mx?'':opts[hi];
+    if(fire&&typeof zoekNu==='function')zoekNu();
+  }
+  rLo.addEventListener('input',function(){upd(false);});
+  rLo.addEventListener('change',function(){upd(true);});
+  rHi.addEventListener('input',function(){upd(false);});
+  rHi.addEventListener('change',function(){upd(true);});
+  upd(false);
+  loS._rsSync=function(){var i=opts.indexOf(loS.value);if(i>=0){rLo.value=i;upd(false);}};
+  hiS._rsSync=function(){var i=opts.indexOf(hiS.value);if(i>=0){rHi.value=i;upd(false);}};
+}
+window.addEventListener('load',function(){
+  _buildSlider('prijsMin','prijsMax',function(v){return '€ '+Number(v).toLocaleString('nl-NL');});
+  _buildSlider('kmMin','kmMax',function(v){return Number(v).toLocaleString('nl-NL')+' km';});
+});
+
+var _uf=['merkFilter','modelInput','brandstofFilter','carrosserieFilter','jaarMin','jaarMax','prijsMin','prijsMax','kmMin','kmMax'];
+function _toURL(){
+  try{
+    var p=new URLSearchParams();
+    _uf.forEach(function(id){var e=document.getElementById(id);if(e&&e.value)p.set(id,e.value);});
+    var zi=document.getElementById('zoekInput');if(zi&&zi.value)p.set('q',zi.value);
+    var qs=p.toString();
+    history.replaceState(null,'',qs?'?'+qs:location.pathname);
+  }catch(ex){}
+}
+function _fromURL(){
+  try{
+    var p=new URLSearchParams(location.search);
+    ['bust','v','nocache'].forEach(function(k){p.delete(k);});
+    if(!p.toString())return;
+    _uf.forEach(function(id){
+      var v=p.get(id);if(!v)return;
+      var e=document.getElementById(id);if(!e)return;
+      e.value=v;if(e._rsSync)e._rsSync();
+    });
+    var q=p.get('q');
+    if(q){var zi=document.getElementById('zoekInput');var si=document.getElementById('stickyZoekInput');
+      if(zi)zi.value=q;if(si)si.value=q;}
+  }catch(ex){}
+}
+var _origZNu=window.zoekNu;
+window.zoekNu=function(){_toURL();return _origZNu.apply(this,arguments);};
+_fromURL();
+
+window._toonFavs=false;
+function _favN(){return window._favs instanceof Set?window._favs.size:0;}
+function _updFavBtn(){
+  var b=document.getElementById('favToggleBtn');if(!b)return;
+  var n=_favN();
+  if(n===0)window._toonFavs=false;
+  b.style.display=n>0?'inline-flex':'none';
+  b.textContent=(window._toonFavs?'♥':'♡')+' Favorieten'+(n?' ('+n+')':'');
+  b.classList.toggle('aktief',window._toonFavs);
+}
+var _origTF=window.toggleFav;
+window.toggleFav=function(e,id){
+  var r=_origTF?_origTF.apply(this,arguments):undefined;
+  _updFavBtn();
+  if(window._toonFavs&&typeof zoekNu==='function')zoekNu();
+  return r;
+};
+var _origZNf=window.zoekNu;
+window.zoekNu=function(){
+  if(window._toonFavs&&window._favs instanceof Set&&window._favs.size>0){
+    var orig=window._alleAutos;
+    window._alleAutos=(orig||[]).filter(function(a){return window._favs.has(a.id);});
+    var r=_origZNf.apply(this,arguments);
+    window._alleAutos=orig;return r;
+  }
+  return _origZNf.apply(this,arguments);
+};
+window.addEventListener('load',function(){
+  var chips=document.getElementById('activeChips');if(!chips)return;
+  var b=document.createElement('button');
+  b.id='favToggleBtn';b.style.display='none';
+  b.onclick=function(){
+    window._toonFavs=!window._toonFavs;
+    _updFavBtn();
+    if(typeof zoekNu==='function')zoekNu();
+  };
+  chips.parentNode.insertBefore(b,chips);
+  _updFavBtn();
+});
+}());
 </script>
 </body>
 </html>
