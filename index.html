@@ -2262,17 +2262,14 @@ window.addEventListener('load',function(){
 
 /* 5. PRIJSDALING FILTER */
 window._toonPrijsDaling=false;
-var _origZNpd=window.zoekNu;
-window.zoekNu=function(){
-  if(window._toonPrijsDaling){
-    var orig=window._alleAutos;
-    window._alleAutos=(orig||[]).filter(function(a){
+var _origTRpd=window.toonResultaten;
+window.toonResultaten=function(lijst){
+  if(window._toonPrijsDaling&&lijst&&lijst.length){
+    lijst=lijst.filter(function(a){
       return a.prijsHistorie&&a.prijsHistorie.length>0&&a.prijsHistorie.some(function(h){return h.prijs>a.prijs;});
     });
-    var r=_origZNpd.apply(this,arguments);
-    window._alleAutos=orig;return r;
   }
-  return _origZNpd.apply(this,arguments);
+  return _origTRpd.apply(this,[lijst]);
 };
 (function(){
   function _addPrijsdalingBtn(){
