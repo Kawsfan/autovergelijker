@@ -579,6 +579,9 @@
 #favToggleBtn{display:none;align-items:center;gap:5px;padding:5px 12px;background:transparent;border:1.5px solid #d0cfc9;border-radius:14px;font-size:13px;font-weight:500;color:var(--tekst);cursor:pointer;font-family:inherit;margin:6px 14px 2px;transition:all .15s;}
 #favToggleBtn.aktief{background:#fff0ec;border-color:var(--oranje);color:var(--oranje);}
 #favToggleBtn:hover:not(.aktief){border-color:#aaa;}
+#prijsdalingBtn{display:none;align-items:center;gap:5px;padding:5px 12px;background:transparent;border:1.5px solid #d0cfc9;border-radius:14px;font-size:13px;font-weight:500;color:var(--tekst);cursor:pointer;font-family:inherit;margin:6px 14px 2px;transition:all .15s;}
+#prijsdalingBtn.aktief{background:#fff0ec;border-color:var(--oranje);color:var(--oranje);}
+#prijsdalingBtn:hover:not(.aktief){border-color:#aaa;}
 </style>
 </head>
 <body>
@@ -2256,6 +2259,44 @@ window.addEventListener('load',function(){
   chips.parentNode.insertBefore(b,chips);
   _updFavBtn();
 });
+
+/* 5. PRIJSDALING FILTER */
+window._toonPrijsDaling=false;
+var _origZNpd=window.zoekNu;
+window.zoekNu=function(){
+  if(window._toonPrijsDaling){
+    var orig=window._alleAutos;
+    window._alleAutos=(orig||[]).filter(function(a){
+      return a.prijsHistorie&&a.prijsHistorie.length>0&&a.prijsHistorie.some(function(h){return h.prijs>a.prijs;});
+    });
+    var r=_origZNpd.apply(this,arguments);
+    window._alleAutos=orig;return r;
+  }
+  return _origZNpd.apply(this,arguments);
+};
+(function(){
+  function _addPrijsdalingBtn(){
+    var existing=document.getElementById("prijsdalingBtn");
+    if(existing)return;
+    var btn=document.createElement("button");
+    btn.id="prijsdalingBtn";
+    btn.innerHTML="&#128201; Prijsdaling";
+    btn.style.display="flex";
+    btn.addEventListener("click",function(){
+      window._toonPrijsDaling=!window._toonPrijsDaling;
+      btn.classList.toggle("aktief",window._toonPrijsDaling);
+      window._pagina=1;window.zoekNu();
+    });
+    var fbtn=document.getElementById("favToggleBtn");
+    if(fbtn&&fbtn.parentNode){fbtn.parentNode.insertBefore(btn,fbtn.nextSibling);}
+    else{
+      var ac=document.querySelector("#activeChips")||document.querySelector(".actieve-chips");
+      if(ac&&ac.parentNode)ac.parentNode.insertBefore(btn,ac);
+    }
+  }
+  if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",_addPrijsdalingBtn);}
+  else{_addPrijsdalingBtn();}
+}());
 }());
 </script>
 </body>
