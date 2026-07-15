@@ -2126,7 +2126,7 @@ window.toonResultaten=function(lijst){
     window._scObs=new IntersectionObserver(function(e){
       if(!e[0].isIntersecting)return;
       _meerLaden();
-    },{rootMargin:'400px'});
+    },{rootMargin:'50px'});
     window._scObs.observe(s);
   },80);
 };
@@ -2143,12 +2143,14 @@ function _meerLaden(){
   Array.from(g.children).forEach(function(c){if(c.id!=='is-sentinel')nc+=c.outerHTML;});
   var more=!!document.getElementById('is-sentinel');
   var sntnl='<div id=\'is-sentinel\'></div>';
+  var _sy=window.scrollY||window.pageYOffset;
   g.innerHTML=saved+nc+(more?sntnl:'');
+  window.scrollTo(0,_sy);
   if(more){
     var ns=document.getElementById('is-sentinel');
     window._scObs=new IntersectionObserver(function(e){
       if(!e[0].isIntersecting)return; _meerLaden();
-    },{rootMargin:'400px'});
+    },{rootMargin:'50px'});
     window._scObs.observe(ns);
   }
 }
