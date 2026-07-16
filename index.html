@@ -1897,17 +1897,35 @@ function sluitMarkt() {
   function _injectCarSchema(cars) {
     var old = document.getElementById("_ld-cars");
     if (old) old.remove();
-    var top = cars.filter(function(a){ return a.prijs && _getMerk(a.titel); }).slice(0, 12);
+    var top = cars.filter(function(a){ return a.prijs && (a.merk || extraheerMerk(a.titel||'')); }).slice(0, 24);
     if (!top.length) return;
     var items = top.map(function(a, i) {
-      var item = { "@type": "Car", "name": a.titel || (_getMerk(a.titel) + " " + (_getModel(a.titel)||"")), "url": a.url || "" };
-      if (a.prijs) item.offers = { "@type": "Offer", "price": a.prijs, "priceCurrency": "EUR", "availability": "https://schema.org/InStock" };
+      var merk = a.merk || extraheerMerk(a.titel||'') || '';
+      var parts = [
+        a.jaar ? 'Bouwjaar ' + a.jaar : '',
+        a.km ? a.km.toLocaleString('nl-NL') + ' km' : '',
+        a.brandstof || '',
+        a.transmissie || '',
+        a.bron ? 'Via ' + a.bron : ''
+      ].filter(Boolean);
+      var desc = merk + (parts.length ? ' — ' + parts.join(', ') + '.' : '.');
+      var item = {
+        "@type": "Car",
+        "name": a.titel || (merk + (a.jaar ? ' ' + a.jaar : '')),
+        "description": desc,
+        "brand": { "@type": "Brand", "name": merk },
+        "offers": {
+          "@type": "Offer",
+          "price": a.prijs,
+          "priceCurrency": "EUR",
+          "availability": "https://schema.org/InStock"
+        }
+      };
+      if (a.url) item.offers.url = a.url;
       if (a.jaar) item.vehicleModelDate = String(a.jaar);
       if (a.km) item.mileageFromOdometer = { "@type": "QuantitativeValue", "value": a.km, "unitCode": "KMT" };
       if (a.brandstof) item.fuelType = a.brandstof;
       if (a.transmissie) item.vehicleTransmission = a.transmissie;
-      if (a.kleur) item.color = a.kleur;
-      if (a.imgSrc) item.image = a.imgSrc;
       return { "@type": "ListItem", "position": i + 1, "item": item };
     });
     var ld = { "@context": "https://schema.org", "@type": "ItemList",
@@ -1916,7 +1934,8 @@ function sluitMarkt() {
       "numberOfItems": cars.length,
       "itemListElement": items };
     var s = document.createElement("script");
-    s.type = "application/ld+json"; s.id = "_ld-cars";
+    s.type = "application/ld+json";
+    s.id = "_ld-cars";
     s.textContent = JSON.stringify(ld);
     document.head.appendChild(s);
   }
