@@ -1,3 +1,10 @@
+[build]
+  publish = "."
+
+[[edge_functions]]
+  function = "occasions"
+  path = "/occasions/*"
+
 [[headers]]
   for = "/*"
   [headers.values]
@@ -8,3 +15,8 @@
   for = "/data/*"
   [headers.values]
     Cache-Control = "no-cache, no-store, must-revalidate"
+
+[[headers]]
+  for = "/occasions/*"
+  [headers.values]
+    Cache-Control = "public, max-age=1800, stale-while-revalidate=3600"
