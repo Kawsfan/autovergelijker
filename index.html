@@ -246,7 +246,9 @@
     .auto-foto img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s; }
     .auto-card:hover .auto-foto img { transform: scale(1.04); }
 
-    .nieuw-badge {
+    .dealer-badge { position:absolute;top:10px;right:42px;background:#1a56db;color:#fff;font-size:10px;font-weight:700;padding:2px 6px;border-radius:3px;letter-spacing:.3px;z-index:2;pointer-events:none; }
+  .particulier-badge { position:absolute;top:10px;right:42px;background:#16a34a;color:#fff;font-size:10px;font-weight:700;padding:2px 6px;border-radius:3px;letter-spacing:.3px;z-index:2;pointer-events:none; }
+  .nieuw-badge {
       position: absolute; top: 10px; left: 10px;
       background: #16a34a; color: #fff;
       font-size: 11px; font-weight: 700;
@@ -838,6 +840,7 @@
         <option value="prijs-desc">Prijs ↓</option>
         <option value="jaar-desc">Nieuwste eerst</option>
         <option value="km-asc">Minste km</option>
+        <option value="deal-score">Beste deal ↓</option>
       </select>
     </div>
   </div>
@@ -1026,6 +1029,17 @@ function resetFilters() {
 }
 
 // ── TONEN ─────────────────────────────────────────────────────────────────────
+function isDealer(a) {
+  if (!a) return null;
+  var b = (a.bron||"").toLowerCase();
+  if (b === "gaspedaal" || b === "viabovag" || b === "autoscout24") return true;
+  var t = (a.titel||"").toLowerCase();
+  var dealerWords = ["dealer","garage","occasions","autobedrijf","autohandel"];
+  if (dealerWords.some(w => t.includes(w))) return true;
+  if (b === "marktplaats" || b === "autotrack") return null; // unknown
+  return null;
+}
+
 function toonResultaten(lijst) {
   const sort = document.getElementById('sortering').value;
   const gesorteerd = sorteer([...lijst], sort);
@@ -1040,9 +1054,9 @@ function toonResultaten(lijst) {
   if (!gesorteerd.length) {
     document.getElementById('autoGrid').innerHTML = `
       <div class="geen-resultaten">
-        <span class="icon">🔍</span>
-        <h3>Geen resultaten</h3>
-        <p>Probeer andere filters of zoek direct op <a href="https://www.gaspedaal.nl/" target="_blank">Gaspedaal</a>.</p>
+        <span class="icon">${window._toonPrijsDaling ? '📉' : window._toonTopDeals ? '🏆' : '🔍'}</span>
+        <h3>${window._toonPrijsDaling ? 'Geen prijsdalingen gevonden' : window._toonTopDeals ? 'Geen top deals gevonden' : 'Geen resultaten'}</h3>
+        <p>${window._toonPrijsDaling ? 'Geen advertenties met recente prijsverlaging. <a href="#" onclick="window._toonPrijsDaling=false;document.getElementById(\'prijsdalingBtn\').classList.remove(\'aktief\');zoekNu();return false">Filter verwijderen</a>' : window._toonTopDeals ? 'Geen top deals gevonden. Probeer ruimere prijs- of km-filters.' : 'Probeer andere filters of zoek direct op <a href="https://www.gaspedaal.nl/" target="_blank">Gaspedaal</a>.'}</p>
       </div>`;
     return;
   }
@@ -1055,6 +1069,7 @@ function toonResultaten(lijst) {
         <button class="fav-btn${_favs.has(a.id)?' fav-actief':''}" data-fav="${a.id}" onclick="toggleFav(event,'${a.id}')" title="Fav">${_favs.has(a.id)?'♥':'♡'}</button>
         <button class="vgl-btn${_vgl.includes(a.id)?' vgl-actief':''}" data-vgl="${a.id}" onclick="toggleVergelijk(event,'${a.id}')" title="Vergelijk">⊕</button>
         ${(()=>{window._vglData[a.id]=a;return a.bijgewerkt===new Date().toISOString().slice(0,10)?'<span class=\"nieuw-badge\">NIEUW</span>':''})()}
+        ${isDealer(a)===true?'<span class=\"dealer-badge\">DEALER</span>':isDealer(a)===false?'<span class=\"particulier-badge\">PRIVÉ</span>':''}
         ${(()=>{if(a.prijsHistorie&&a.prijsHistorie.length){
           var oud=a.prijsHistorie[a.prijsHistorie.length-1].prijs;
           return '<span class="prijs-daling">↘ was €'+Number(oud).toLocaleString('nl-NL')+'</span>';
@@ -1094,6 +1109,10 @@ function sorteer(lijst, sort) {
   if (sort === 'prijs-desc') return lijst.sort((a,b) => b.prijs - a.prijs);
   if (sort === 'jaar-desc')  return lijst.sort((a,b) => (b.jaar||0) - (a.jaar||0));
   if (sort === 'km-asc')     return lijst.sort((a,b) => (a.km||999999) - (b.km||999999));
+  if (sort === 'deal-score') {
+    var _pr=lijst.map(a=>a.prijs).filter(Boolean).sort((a,b)=>a-b),_med=_pr[Math.floor(_pr.length/2)]||20000,_hj=new Date().getFullYear();
+    return lijst.map(a=>{var _p=Math.max(0,(_med-a.prijs)/_med),_l=Math.max(1,_hj-(a.jaar||_hj-5)),_k=Math.max(0,1-(a.km||80000)/(_l*15000)),_j=Math.max(0,Math.min(1,((a.jaar||_hj-5)-2005)/(_hj-2005)));a._score=0.4*_p+0.4*_k+0.2*_j;return a;}).sort((a,b)=>b._score-a._score);
+  }
   return lijst;
 }
 
