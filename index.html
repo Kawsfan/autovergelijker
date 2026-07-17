@@ -872,6 +872,10 @@
   <h2 style="font-size:1.05rem;font-weight:700;margin-bottom:.75rem;color:var(--tekst)">Marktoverzicht occasions per merk</h2>
   <div id="merk-stats-grid" style="display:grid;gap:.6rem;"></div>
 </section>
+<section id="merken-links-section" style="max-width:960px;margin:2.5rem auto 0;padding:0 1rem">
+  <h2 style="font-size:1rem;font-weight:600;color:#444;margin-bottom:.75rem">Occasions per merk</h2>
+  <div id="merken-links-grid" style="display:flex;flex-wrap:wrap;gap:.4rem"></div>
+</section>
 
 <footer>
   <strong>AutoVergelijker</strong> — Dagelijks bijgewerkte data van Gaspedaal · Klik op een advertentie om naar de originele pagina te gaan.
@@ -902,6 +906,7 @@ async function laadListings() {
     alleResultaten.forEach(function(a){if(!a.merk)a.merk=extraheerMerk(a.titel||"");});
     berekenTrending();
     _renderMerkStats(alleResultaten);
+    _renderMerkenLinks(alleResultaten);
     if (typeof _injectCarSchema === 'function') _injectCarSchema(alleResultaten);
 
     if (alleResultaten.length === 0) {
@@ -1936,6 +1941,8 @@ function sluitMarkt() {
     return '<article class="merk-stat-card"><h3>'+merk+' <span class="merk-count">'+autos.length+' occasions</span></h3><dl>'+rows+'</dl></article>';
   }).join('');
 }
+function _renderMerkenLinks(listings){var el=document.getElementById("merken-links-grid");if(!el||!listings||!listings.length)return;var D={bmw:"BMW",vw:"Volkswagen",volkswagen:"Volkswagen",audi:"Audi",mercedes:"Mercedes-Benz",toyota:"Toyota",ford:"Ford",opel:"Opel",renault:"Renault",peugeot:"Peugeot",honda:"Honda",nissan:"Nissan",mazda:"Mazda",kia:"Kia",hyundai:"Hyundai",seat:"SEAT",skoda:"Skoda",volvo:"Volvo",tesla:"Tesla",mini:"MINI",fiat:"Fiat",porsche:"Porsche",dacia:"Dacia",citroen:"Citroen",polestar:"Polestar",suzuki:"Suzuki"};var c={};listings.forEach(function(a){var m=(a.merk||"").toLowerCase().trim();if(m)c[m]=(c[m]||0)+1;});var top=Object.entries(c).filter(function(e){return e[1]>=3;}).sort(function(a,b){return b[1]-a[1];}).slice(0,16);el.innerHTML=top.map(function(e){var d=D[e[0]]||(e[0].charAt(0).toUpperCase()+e[0].slice(1));return'<a href="/occasions/'+e[0]+'/" style="display:inline-flex;align-items:center;gap:.3rem;background:#fff;border:1px solid #e5e5ea;border-radius:20px;padding:.3rem .9rem;font-size:.83rem;color:#1a56db;text-decoration:none">'+d+' <span style="color:#aaa;font-size:.75rem">('+e[1]+')</span></a>';}).join("");}
+
 function _injectCarSchema(cars) {
     var old = document.getElementById("_ld-cars");
     if (old) old.remove();
