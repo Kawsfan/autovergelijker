@@ -189,7 +189,7 @@ function buildPage({ merkSlug, modelSlug, filtered, listings }) {
     '  '+statsHtml+'\n' +
     (merkLinks?'  <div class="model-nav">'+merkLinks+'</div>\n':'') +
     (modelLinks?'  <div class="model-nav">'+modelLinks+'</div>\n':'') +
-    '  <div class="occ-grid">'+(cards||'<p class="empty">Geen resultaten gevonden.</p>')+'</div>\n' +
+    ((!merkSlug) ? '  <section style="background:#fff;border:1px solid #e5e5ea;border-radius:10px;padding:1.25rem 1.5rem;margin-bottom:1.25rem">' +'<h2 style="font-size:1rem;font-weight:700;margin-bottom:.5rem">Tweedehands auto kopen in Nederland</h2>' +'<p style="font-size:.875rem;color:#444;line-height:1.6">AutoVergelijker toont dagelijks bijgewerkte occasions van <strong>Marktplaats, AutoScout24, Gaspedaal en ViaBOVAG</strong> op &eacute;&eacute;n overzichtelijke plek. Vergelijk '+listings.length+' tweedehands auto&rsquo;s op prijs, km-stand en merk &mdash; zonder meerdere sites te hoeven bezoeken. Klik op een merk om het volledige aanbod te zien, of ga terug naar de <a href="/" style="color:#1a56db">live zoekmachine</a> voor uitgebreide filters.</p>' +'</section>\n' : '') +'  <div class="occ-grid">'+(cards||'<p class="empty">Geen occasions gevonden voor deze combinatie. Probeer een andere merk- of modelcombinatie, of bekijk het <a href="/occasions/" style="color:#1a56db">volledige aanbod</a>.</p>')+'</div>\n' +
     geoText +
     '  <a href="/" class="back-link">&larr; Terug naar live zoeken</a>\n' +
     '  </div>\n</body>\n</html>';
