@@ -1299,7 +1299,61 @@ async function main() {
     listings
   };
 
-    const bronStats = {};
+    
+  // ── LUCAS: OUTLIER FILTER ────────────────────────────────────────────────
+  const voorFilter = listings.length;
+  listings = listings.filter(l => {
+    if (l.prijs != null && (l.prijs < 300 || l.prijs > 500000)) return false;
+    if (l.km != null && l.km > 1000000) return false;
+    return true;
+  });
+  if (listings.length < voorFilter)
+    console.log(`🔍 ${voorFilter - listings.length} outliers gefilterd (prijs/km buiten bereik)`);
+
+  // ── LUCAS: DEAL SCORE (z-score per merk+model) ──────────────────────────
+  {
+    const _extMerk = t => {
+      const merken = ['Tesla','BMW','Mercedes','Audi','Volkswagen','VW','Ford','Toyota','Renault','Peugeot','Opel','Kia','Hyundai','Volvo','Seat','Skoda','Nissan','Honda','Mazda','Dacia','Porsche','Fiat'];
+      const s = (t||'').toLowerCase();
+      for (const m of merken) if (s.startsWith(m.toLowerCase())) return m.toLowerCase();
+      return s.split(' ')[0];
+    };
+    const _extModel = t => ((t||'').split(' ').slice(1,3).join(' ')).toLowerCase();
+    const groepen = {};
+    for (const l of listings) {
+      if (l.prijs == null) continue;
+      const key = _extMerk(l.titel) + '|' + _extModel(l.titel);
+      (groepen[key] = groepen[key] || []).push(l.prijs);
+    }
+    const gStats = {};
+    for (const [key, prijzen] of Object.entries(groepen)) {
+      if (prijzen.length < 3) continue;
+      const gem = prijzen.reduce((a,b)=>a+b,0) / prijzen.length;
+      const std = Math.sqrt(prijzen.map(p=>(p-gem)**2).reduce((a,b)=>a+b,0) / prijzen.length);
+      gStats[key] = { gem, std };
+    }
+    let scored = 0;
+    for (const l of listings) {
+      if (l.prijs == null) { l.dealScore = 50; continue; }
+      const key = _extMerk(l.titel) + '|' + _extModel(l.titel);
+      const s = gStats[key];
+      if (!s || s.std < 200) { l.dealScore = 50; continue; }
+      const z = (l.prijs - s.gem) / s.std;
+      l.dealScore = Math.round(Math.max(0, Math.min(100, ((-z + 3) / 6) * 100)));
+      scored++;
+    }
+    console.log(`🎯 DealScore (z-score) berekend voor ${scored} listings`);
+  }
+
+  // ── LUCAS: PRIJS TREND ───────────────────────────────────────────────────
+  for (const l of listings) {
+    if (!l.prijsHistorie || l.prijsHistorie.length < 2) { l.priceTrend = 'stabiel'; continue; }
+    const recent = l.prijsHistorie.slice(-7);
+    const pct = (recent[recent.length-1].prijs - recent[0].prijs) / recent[0].prijs;
+    l.priceTrend = pct < -0.02 ? 'dalend' : pct > 0.02 ? 'stijgend' : 'stabiel';
+  }
+
+  const bronStats = {};
   for (const l of nieuw) { const b = l.bron || 'Onbekend'; bronStats[b] = (bronStats[b] || 0) + 1; }
   const rapport = { timestamp: new Date().toISOString(), totaalNieuw: nieuw.length, bronnen: bronStats };
   const rapportPad = path.join(__dirname, '..', 'data', 'scrape-report.json');
