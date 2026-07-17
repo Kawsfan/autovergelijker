@@ -21,10 +21,13 @@ jobs:
       - name: Scrape auto listings
         run: node scripts/scrape.js
 
+      - name: Genereer occasions pagina's
+        run: node generate-occasions.js
+
       - name: Commit resultaten
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          git add data/listings.json data/scrape-report.json sitemap.xml
-          git diff --staged --quiet || git commit -m "Auto: listings bijgewerkt"
+          git add data/listings.json data/scrape-report.json sitemap.xml occasions/
+          git diff --staged --quiet || git commit -m "Auto: listings + occasions bijgewerkt"
           git push
