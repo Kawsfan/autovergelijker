@@ -167,9 +167,10 @@ function main() {
   listings.forEach(function(a){ if(!a.merk) a.merk = extraheerMerk(a.titel||''); });
   fs.mkdirSync(OUT_DIR, { recursive: true });
   let pageCount = 0;
+  const generatedUrls = [];
 
   fs.writeFileSync(path.join(OUT_DIR, 'index.html'), buildPage({ merkSlug: null, modelSlug: null, filtered: listings, listings: listings }), 'utf-8');
-  pageCount++; console.log('  [OK] /occasions/');
+  pageCount++; generatedUrls.push('/occasions/'); console.log('  [OK] /occasions/');
 
   const merkCounts = {};
   listings.forEach(function(a){ const m=(a.merk||'').toLowerCase().trim(); if(m) merkCounts[m]=(merkCounts[m]||0)+1; });
@@ -184,7 +185,7 @@ function main() {
     const merkDir = path.join(OUT_DIR, merkSlug);
     fs.mkdirSync(merkDir, { recursive: true });
     fs.writeFileSync(path.join(merkDir, 'index.html'), buildPage({ merkSlug: merkSlug, modelSlug: null, filtered: filtered, listings: listings }), 'utf-8');
-    pageCount++; console.log('  [OK] /occasions/'+merkSlug+'/ ('+filtered.length+')');
+    pageCount++; generatedUrls.push('/occasions/'+merkSlug+'/'); console.log('  [OK] /occasions/'+merkSlug+'/ ('+filtered.length+')');
 
     const mc = {};
     filtered.forEach(function(a){ const w=(a.titel||'').toLowerCase().split(' '); if(w.length>1){const m=w[1];if(m&&m.length>1&&!/^\d+$/.test(m))mc[m]=(mc[m]||0)+1;} });
@@ -195,9 +196,24 @@ function main() {
       const mDir=path.join(merkDir,modelSlug);
       fs.mkdirSync(mDir,{recursive:true});
       fs.writeFileSync(path.join(mDir,'index.html'),buildPage({merkSlug:merkSlug,modelSlug:modelSlug,filtered:mf,listings:listings}),'utf-8');
-      pageCount++; console.log('    [OK] /occasions/'+merkSlug+'/'+modelSlug+'/ ('+mf.length+')');
+      pageCount++; generatedUrls.push('/occasions/'+merkSlug+'/'+modelSlug+'/'); console.log('    [OK] /occasions/'+merkSlug+'/'+modelSlug+'/ ('+mf.length+')');
     });
   });
+
+
+  // Update sitemap.xml
+  const today = new Date().toISOString().split('T')[0];
+  const sitemapUrls = [
+    { loc: SITE_ORIGIN + '/', priority: '1.0', changefreq: 'daily' },
+    ...generatedUrls.map(function(u) {
+      return { loc: SITE_ORIGIN + u, priority: u.split('/').filter(Boolean).length > 2 ? '0.7' : '0.8', changefreq: 'daily' };
+    })
+  ];
+  const sitemapXml = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
+    sitemapUrls.map(function(u){ return '  <url>\n    <loc>'+u.loc+'</loc>\n    <changefreq>'+u.changefreq+'</changefreq>\n    <priority>'+u.priority+'</priority>\n    <lastmod>'+today+'</lastmod>\n  </url>'; }).join('\n') +
+    '\n</urlset>\n';
+  fs.writeFileSync(path.join(__dirname, 'sitemap.xml'), sitemapXml, 'utf-8');
+  console.log('Sitemap bijgewerkt: ' + sitemapUrls.length + ' URLs');
 
   console.log('\nKlaar: '+pageCount+' pagina\'s gegenereerd in '+OUT_DIR);
 }
