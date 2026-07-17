@@ -872,6 +872,28 @@
   <h2 style="font-size:1.05rem;font-weight:700;margin-bottom:.75rem;color:var(--tekst)">Marktoverzicht occasions per merk</h2>
   <div id="merk-stats-grid" style="display:grid;gap:.6rem;"></div>
 </section>
+<section id="faq-sectie" style="max-width:960px;margin:2.5rem auto 0;padding:0 1rem">
+  <h2 style="font-size:1.1rem;font-weight:700;color:#1d1d1f;margin-bottom:1rem">Veelgestelde vragen</h2>
+  <div style="display:grid;gap:.6rem">
+    <details style="background:#fff;border:1px solid #e5e5ea;border-radius:10px;padding:.9rem 1.1rem">
+      <summary style="font-weight:600;cursor:pointer;font-size:.9rem">Hoe werkt AutoVergelijker?</summary>
+      <p style="margin-top:.6rem;font-size:.875rem;color:#444;line-height:1.6">We verzamelen dagelijks advertenties van Marktplaats, AutoScout24, Gaspedaal en ViaBOVAG en tonen ze op &eacute;&eacute;n plek. Je filtert op merk, prijs, km-stand, brandstof en transmissie &mdash; en vergelijkt direct zonder van site naar site te hoeven.</p>
+    </details>
+    <details style="background:#fff;border:1px solid #e5e5ea;border-radius:10px;padding:.9rem 1.1rem">
+      <summary style="font-weight:600;cursor:pointer;font-size:.9rem">Is AutoVergelijker gratis?</summary>
+      <p style="margin-top:.6rem;font-size:.875rem;color:#444;line-height:1.6">Ja, volledig gratis. Geen account aanmaken, geen abonnement, geen verborgen kosten. Klik op een advertentie om rechtstreeks naar de verkoper te gaan &mdash; de aankoop vindt altijd plaats bij de originele adverteerder.</p>
+    </details>
+    <details style="background:#fff;border:1px solid #e5e5ea;border-radius:10px;padding:.9rem 1.1rem">
+      <summary style="font-weight:600;cursor:pointer;font-size:.9rem">Hoe actueel is het aanbod?</summary>
+      <p style="margin-top:.6rem;font-size:.875rem;color:#444;line-height:1.6">Het aanbod wordt meerdere keren per dag bijgewerkt. Zo zie je ook de nieuwste advertenties die net zijn geplaatst. De "Nieuw" badge geeft aan welke auto's vandaag zijn toegevoegd.</p>
+    </details>
+    <details style="background:#fff;border:1px solid #e5e5ea;border-radius:10px;padding:.9rem 1.1rem">
+      <summary style="font-weight:600;cursor:pointer;font-size:.9rem">Kan ik een auto kopen via AutoVergelijker?</summary>
+      <p style="margin-top:.6rem;font-size:.875rem;color:#444;line-height:1.6">AutoVergelijker is een vergelijkingstool, geen verkoopplatform. We linken je door naar de originele advertentie op Marktplaats, AutoScout24 of een ander platform &mdash; daar handel je de aankoop af met de verkoper.</p>
+    </details>
+  </div>
+</section>
+
 <section id="merken-links-section" style="max-width:960px;margin:2.5rem auto 0;padding:0 1rem">
   <h2 style="font-size:1rem;font-weight:600;color:#444;margin-bottom:.75rem">Occasions per merk</h2>
   <div id="merken-links-grid" style="display:flex;flex-wrap:wrap;gap:.4rem"></div>
@@ -1063,8 +1085,9 @@ function toonResultaten(lijst) {
     document.getElementById('autoGrid').innerHTML = `
       <div class="geen-resultaten">
         <span class="icon">🔍</span>
-        <h3>Geen resultaten</h3>
-        <p>Probeer andere filters of zoek direct op <a href="https://www.gaspedaal.nl/" target="_blank">Gaspedaal</a>.</p>
+        <h3>Geen resultaten gevonden</h3>
+        <p>Pas je filters aan of verbreed je zoekopdracht. Tip: verwijder het km-filter of verhoog het maximumbudget om meer occasions te zien.</p>
+        <p style="margin-top:.4rem"><a href="/" onclick="window.location.reload()" style="color:#1a56db;font-size:.875rem">Alle filters wissen &rarr;</a></p>
       </div>`;
     return;
   }
