@@ -134,6 +134,31 @@ function buildPage({ merkSlug, modelSlug, filtered, listings }) {
     ? '<section class="geo-section" aria-label="Marktinformatie '+merkName+'"><h2>Marktoverzicht '+merkName+(modelName?' '+modelName:'')+' occasions</h2><p>Op basis van '+filtered.length+' actuele advertenties ligt de gemiddelde vraagprijs van een tweedehands '+merkName+(modelName?' '+modelName:'')+' op <strong>&euro; '+(gemPrijs?fmt(gemPrijs):'onbekend')+'</strong>. Mediaanprijs: &euro; '+(medPrijs?fmt(medPrijs):'onbekend')+'. Mediaan km-stand: '+(medKm?fmt(medKm)+' km':'onbekend')+'. AutoVergelijker vergelijkt dagelijks aanbod van Marktplaats, AutoScout24, Gaspedaal en ViaBOVAG.</p></section>'
     : '';
 
+  // FAQ schema (alleen op merk/model pagina's met voldoende data)
+  let faqSchema = null;
+  if (merkSlug && filtered.length >= 5) {
+    const faqItems = [];
+    faqItems.push({
+      '@type': 'Question',
+      'name': 'Wat kost een tweedehands ' + merkName + (modelName ? ' ' + modelName : '') + ' gemiddeld?',
+      'acceptedAnswer': { '@type': 'Answer', 'text': gemPrijs
+        ? 'Op basis van ' + filtered.length + ' actuele advertenties is de gemiddelde vraagprijs van een tweedehands ' + merkName + (modelName ? ' ' + modelName : '') + ' op AutoVergelijker EUR ' + fmt(gemPrijs) + '. De mediaanprijs bedraagt EUR ' + (medPrijs ? fmt(medPrijs) : 'onbekend') + '.'
+        : 'Er zijn momenteel onvoldoende prijsdata beschikbaar.' }
+    });
+    if (medKm) faqItems.push({
+      '@type': 'Question',
+      'name': 'Hoeveel kilometer heeft een tweedehands ' + merkName + (modelName ? ' ' + modelName : '') + ' gemiddeld?',
+      'acceptedAnswer': { '@type': 'Answer', 'text': 'De mediaan kilometerstand van tweedehands ' + merkName + (modelName ? ' ' + modelName : '') + ' occasions op AutoVergelijker is ' + fmt(medKm) + ' km, gebaseerd op ' + filtered.filter(function(a){return a.km;}).length + ' advertenties.' }
+    });
+    faqItems.push({
+      '@type': 'Question',
+      'name': 'Waar kan ik een tweedehands ' + merkName + (modelName ? ' ' + modelName : '') + ' kopen?',
+      'acceptedAnswer': { '@type': 'Answer', 'text': 'AutoVergelijker toont ' + filtered.length + ' tweedehands ' + merkName + (modelName ? ' ' + modelName : '') + ' occasions van Marktplaats, AutoScout24, Gaspedaal en ViaBOVAG op één plek. Het aanbod wordt dagelijks bijgewerkt.' }
+    });
+    faqSchema = { '@context': 'https://schema.org', '@type': 'FAQPage', 'mainEntity': faqItems };
+  }
+
+
   return '<!DOCTYPE html>\n<html lang="nl">\n<head>\n' +
     '  <meta charset="UTF-8">\n' +
     '  <meta name="viewport" content="width=device-width,initial-scale=1">\n' +
@@ -142,6 +167,7 @@ function buildPage({ merkSlug, modelSlug, filtered, listings }) {
     '  <link rel="canonical" href="'+SITE_ORIGIN+canonicalPath+'">\n' +
     '  <script type="application/ld+json">'+JSON.stringify(schema)+'<\/script>\n' +
     '  <script type="application/ld+json">'+JSON.stringify(bcSchema)+'<\/script>\n' +
+    (faqSchema ? '  <script type="application/ld+json">'+JSON.stringify(faqSchema)+'<\/script>\n' : '') +
     '  <style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#f5f5f7;color:#1d1d1f;line-height:1.5}nav{background:#fff;border-bottom:1px solid #e5e5ea;padding:.75rem 1rem;font-size:.875rem}nav a{color:#1a56db;text-decoration:none}nav a+a::before{content:" > ";color:#aaa;margin:0 .3rem}.container{max-width:960px;margin:0 auto;padding:1rem 1rem 3rem}h1{font-size:1.5rem;font-weight:700;margin:1.5rem 0 .3rem}.subtitle{color:#666;font-size:.9rem;margin-bottom:1.25rem}.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:.5rem;margin-bottom:1.25rem}.stat{background:#fff;border-radius:10px;padding:.7rem 1rem;border:1px solid #e5e5ea}.stat-lbl{display:block;font-size:.72rem;color:#888;margin-bottom:.15rem}.stat strong{font-size:.95rem}.model-nav{display:flex;flex-wrap:wrap;gap:.4rem;margin-bottom:1.25rem}.model-link{background:#fff;border:1px solid #e5e5ea;border-radius:20px;padding:.3rem .85rem;font-size:.83rem;color:#1a56db;text-decoration:none}.model-link span{color:#aaa;font-size:.78rem}.occ-grid{display:grid;gap:.6rem}.occ-card{background:#fff;border-radius:10px;border:1px solid #e5e5ea;overflow:hidden;display:flex}.occ-card img,.occ-img-placeholder{width:140px;height:100px;object-fit:cover;flex-shrink:0;background:#f0f0f5}.occ-info{padding:.75rem 1rem;flex:1;min-width:0}.occ-titel{font-size:.9rem;font-weight:600;margin-bottom:.25rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.occ-meta{font-size:.78rem;color:#666;margin-bottom:.25rem}.occ-prijs{font-size:1.05rem;font-weight:700;color:#1a56db}.occ-bron{display:inline-block;font-size:.72rem;color:#888;margin-top:.25rem}.occ-link{display:inline-block;margin-top:.35rem;font-size:.8rem;color:#1a56db;text-decoration:none}.back-link{display:inline-block;margin-top:2rem;color:#1a56db;font-size:.875rem;text-decoration:none}.empty{text-align:center;padding:3rem;color:#888}.geo-section{margin-top:2rem;padding:1.25rem;background:#fff;border-radius:10px;border:1px solid #e5e5ea}.geo-section h2{font-size:1rem;margin-bottom:.5rem}.geo-section p{font-size:.875rem;color:#444;line-height:1.6}@media(max-width:580px){.occ-card img,.occ-img-placeholder{width:90px;height:80px}}<\/style>\n' +
     '</head>\n<body>\n' +
     '  <nav><a href="/">AutoVergelijker</a><a href="/occasions/">Occasions</a>' +
@@ -167,10 +193,9 @@ function main() {
   listings.forEach(function(a){ if(!a.merk) a.merk = extraheerMerk(a.titel||''); });
   fs.mkdirSync(OUT_DIR, { recursive: true });
   let pageCount = 0;
-  const generatedUrls = [];
 
   fs.writeFileSync(path.join(OUT_DIR, 'index.html'), buildPage({ merkSlug: null, modelSlug: null, filtered: listings, listings: listings }), 'utf-8');
-  pageCount++; generatedUrls.push('/occasions/'); console.log('  [OK] /occasions/');
+  pageCount++; console.log('  [OK] /occasions/');
 
   const merkCounts = {};
   listings.forEach(function(a){ const m=(a.merk||'').toLowerCase().trim(); if(m) merkCounts[m]=(merkCounts[m]||0)+1; });
@@ -185,7 +210,7 @@ function main() {
     const merkDir = path.join(OUT_DIR, merkSlug);
     fs.mkdirSync(merkDir, { recursive: true });
     fs.writeFileSync(path.join(merkDir, 'index.html'), buildPage({ merkSlug: merkSlug, modelSlug: null, filtered: filtered, listings: listings }), 'utf-8');
-    pageCount++; generatedUrls.push('/occasions/'+merkSlug+'/'); console.log('  [OK] /occasions/'+merkSlug+'/ ('+filtered.length+')');
+    pageCount++; console.log('  [OK] /occasions/'+merkSlug+'/ ('+filtered.length+')');
 
     const mc = {};
     filtered.forEach(function(a){ const w=(a.titel||'').toLowerCase().split(' '); if(w.length>1){const m=w[1];if(m&&m.length>1&&!/^\d+$/.test(m))mc[m]=(mc[m]||0)+1;} });
@@ -196,24 +221,9 @@ function main() {
       const mDir=path.join(merkDir,modelSlug);
       fs.mkdirSync(mDir,{recursive:true});
       fs.writeFileSync(path.join(mDir,'index.html'),buildPage({merkSlug:merkSlug,modelSlug:modelSlug,filtered:mf,listings:listings}),'utf-8');
-      pageCount++; generatedUrls.push('/occasions/'+merkSlug+'/'+modelSlug+'/'); console.log('    [OK] /occasions/'+merkSlug+'/'+modelSlug+'/ ('+mf.length+')');
+      pageCount++; console.log('    [OK] /occasions/'+merkSlug+'/'+modelSlug+'/ ('+mf.length+')');
     });
   });
-
-
-  // Update sitemap.xml
-  const today = new Date().toISOString().split('T')[0];
-  const sitemapUrls = [
-    { loc: SITE_ORIGIN + '/', priority: '1.0', changefreq: 'daily' },
-    ...generatedUrls.map(function(u) {
-      return { loc: SITE_ORIGIN + u, priority: u.split('/').filter(Boolean).length > 2 ? '0.7' : '0.8', changefreq: 'daily' };
-    })
-  ];
-  const sitemapXml = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
-    sitemapUrls.map(function(u){ return '  <url>\n    <loc>'+u.loc+'</loc>\n    <changefreq>'+u.changefreq+'</changefreq>\n    <priority>'+u.priority+'</priority>\n    <lastmod>'+today+'</lastmod>\n  </url>'; }).join('\n') +
-    '\n</urlset>\n';
-  fs.writeFileSync(path.join(__dirname, 'sitemap.xml'), sitemapXml, 'utf-8');
-  console.log('Sitemap bijgewerkt: ' + sitemapUrls.length + ' URLs');
 
   console.log('\nKlaar: '+pageCount+' pagina\'s gegenereerd in '+OUT_DIR);
 }
