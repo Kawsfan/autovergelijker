@@ -1353,6 +1353,10 @@ async function main() {
     l.priceTrend = pct < -0.02 ? 'dalend' : pct > 0.02 ? 'stijgend' : 'stabiel';
   }
 
+  for (const l of listings) {
+    l.eersteGezien = (byId[l.id] && byId[l.id].eersteGezien) ? byId[l.id].eersteGezien : new Date().toISOString().slice(0,10);
+  }
+
   const bronStats = {};
   for (const l of nieuw) { const b = l.bron || 'Onbekend'; bronStats[b] = (bronStats[b] || 0) + 1; }
   const rapport = { timestamp: new Date().toISOString(), totaalNieuw: nieuw.length, bronnen: bronStats };
@@ -1424,6 +1428,23 @@ async function main() {
     fs.writeFileSync(_mhPath, JSON.stringify(_mhData));
     console.log(`📊  Markthistorie: ${Object.keys(_segStats).length} segmenten → ${_mhPath}`);
   } catch (_mhErr) { console.warn('⚠️  Markthistorie fout:', _mhErr.message); }
+
+  // Stuur ntfy.sh digest bij prijsdalingen
+  const NTFY_TOPIC = process.env.NTFY_PRIJSALERT_TOPIC || 'autovergelijker-prijzen';
+  const prijsDalend = listings.filter(l => l.priceTrend === 'dalend').slice(0, 8);
+  if (prijsDalend.length > 0) {
+    const ntfyMsg = 'Prijsdalingen vandaag:\n' + prijsDalend.map(l =>
+      '* ' + (l.merk || '') + ' ' + (l.titel || '').slice(0, 35) + ' - EUR ' + l.prijs
+    ).join('\n');
+    try {
+      await fetch('https://ntfy.sh/' + NTFY_TOPIC, {
+        method: 'POST', body: ntfyMsg,
+        headers: { Title: 'AutoVergelijker Prijsdalingen', Priority: '3', Tags: 'moneybag' }
+      });
+      console.log('  ntfy: ' + prijsDalend.length + ' prijsdalingen verstuurd naar ' + NTFY_TOPIC);
+    } catch (ntfyErr) { console.warn('  ntfy fout:', ntfyErr.message); }
+  }
+
 
   console.log(`Ã¢ÂÂ Opgeslagen naar ${outPath}`);
 }
