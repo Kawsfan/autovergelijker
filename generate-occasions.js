@@ -130,13 +130,31 @@ function buildPage({ merkSlug, modelSlug, filtered, listings }) {
       '</div></article>';
   }).join('');
 
+
+  const MODEL_INTRO = {
+    "bmw|3-serie": "De BMW 3 Serie combineert sportief rijplezier met luxe comfort. Let bij aankoop op de staat van de remmen, koelingsysteem en controleer de kilometers zorgvuldig.",
+    "bmw|5-serie": "De BMW 5 Serie is een veelzijdige zakelijke auto. Controleer bij aankoop de staat van de motor, versnellingsbak en zorg voor een volledige onderhoudshistorie.",
+    "audi|a4": "De Audi A4 staat bekend om zijn premium afwerking en rijeigenschappen. Check de staat van het interieur en het DSG-versnellingsbak bij aankoop.",
+    "audi|a6": "De Audi A6 biedt veel ruimte en luxe. Let op de staat van het quattro-systeem en het elektricasysteem bij een tweedehands exemplaar.",
+    "volkswagen|golf": "De Volkswagen Golf is de meest betrouwbare keuze. Controleer of de distributieriem vervangen is en let op roestvorming aan de onderkant.",
+    "volkswagen|polo": "De Volkswagen Polo is ideaal voor dagelijks gebruik. Let op de staat van de versnellingsbak en controleer de APK-status.",
+    "mercedes-benz|c-klasse": "De Mercedes C-Klasse combineert luxe met betrouwbaarheid. Controleer bij aankoop de servicehistorie en let op het elektronicapakket.",
+    "mercedes-benz|e-klasse": "De Mercedes E-Klasse is een premium reiswagen. Let op de staat van de luchtvering (indien aanwezig) en het navigatiesysteem.",
+    "ford|focus": "De Ford Focus is een populaire gezinsauto. Check de staat van de PowerShift versnellingsbak en de elektrische ramen.",
+    "toyota|corolla": "De Toyota Corolla staat bekend om zijn betrouwbaarheid en lage onderhoudskosten. Een uitstekende keuze als dagelijkse auto.",
+    "renault|megane": "De Renault Megane is ruim en comfortabel. Let bij aankoop op de staat van de automatische versnellingsbak en controleer de elektrische systemen.",
+    "opel|astra": "De Opel Astra biedt goede waarde voor het geld. Controleer de staat van de motor en versnellingsbak en vraag naar de onderhoudshistorie."
+  };
+
   // Merk-specifieke kooptips
   var MERK_TIPS = {"bmw":"Let bij een tweedehands BMW op de onderhoudshistorie en controleer of de hogere kilometeronderhoudsbeurten zijn uitgevoerd. Laat altijd een BOVAG- of ANWB-keuring uitvoeren. BMW's houden doorgaans goed hun waarde en zijn betrouwbaar bij goed onderhoud.","audi":"Audi's staan bekend om hun afwerking en rijeigenschappen. Check bij aankoop de DSG-versnellingsbak en controleer op olielekken. Kies bij voorkeur een exemplaar met volledige dealerhistorie.","volkswagen":"Volkswagen occasions zijn uitstekend als dagelijks rijder. Let op de DSG-versnellingsbak (7-traps) bij modellen voor 2015 en controleer de distributieketting bij TSI-motoren. Goed onderhouden VW's gaan gemakkelijk 200.000 km mee.","vw":"Volkswagen occasions zijn uitstekend als dagelijks rijder. Let op de DSG-versnellingsbak (7-traps) bij modellen voor 2015. Goed onderhouden exemplaren gaan gemakkelijk 200.000 km mee.","toyota":"Toyota staat in de top voor betrouwbaarheid. De hybride modellen (Yaris, Corolla, RAV4) zijn zuinig en vragen weinig onderhoud. Controleer bij oudere exemplaren de hybride-accu — Toyota geeft daar 8 jaar garantie op.","volvo":"Volvo's scoren uitstekend op veiligheid en comfort. Let op de onderhoudskosten bij modellen met 4-cilinder turbomotoren. Kies bij voorkeur een exemplaar jonger dan 10 jaar voor lagere reparatiekosten.","mercedes":"Mercedes-Benz occasions bieden premium comfort. Let bij aankoop op de servicehistorie en controleer of de grote beurten zijn gedaan. Elektrische problemen zijn een bekend aandachtspunt bij oudere modellen.","mercedes-benz":"Mercedes-Benz occasions bieden premium comfort. Controleer altijd de servicehistorie bij een dealer en let op elektrische systemen bij modellen ouder dan 5 jaar.","ford":"Ford occasions zijn betaalbaar en onderdelen zijn goed verkrijgbaar. De Focus en Fiesta zijn populaire keuzes. Check de PowerShift automaat bij modellen voor 2018 — die gaf regelmatig problemen.","renault":"Renault heeft de afgelopen jaren grote kwaliteitsverbeteringen doorgevoerd. Let bij elektrische modellen (Zoe) op de accu-status. Benzine- en dieselversies zijn betrouwbaar als het onderhoud klopt.","opel":"Opel occasions zijn scherp geprijsd en bieden goede waar voor je geld. De Astra en Insignia zijn populaire keuzes. Let op roestvorming bij exemplaren ouder dan 8 jaar.","kia":"Kia is uitgegroeid tot een van de meest betrouwbare merken. De fabrieksgarantie van 7 jaar is een uniek voordeel bij jonge occasions. Check of de resterende garantie overdraagbaar is.","hyundai":"Hyundai en Kia delen veel technologie en staan beiden hoog in betrouwbaarheidsonderzoeken. De 5 jaar fabrieksgarantie is een pluspunt. Elektrische modellen (Ioniq, Kona) zijn populair en rijden zuinig.","tesla":"Tesla occasions vragen specifieke aandacht: controleer het accubereik (staat in de auto) en de laadgeschiedenishistorie. Kies bij voorkeur een exemplaar met minimaal 85% accucapaciteit.","porsche":"Porsche occasions houden hun waarde uitstekend. Controleer de volledige onderhoudshistorie bij een officieel dealer. Let bij de Cayenne en Macan op de timing chain en versnellingsbak."};
   var kooptip = merkSlug ? MERK_TIPS[merkSlug] || '' : '';
+  var modelIntro = (merkSlug && modelSlug) ? (MODEL_INTRO[merkSlug+'|'+modelSlug] || '') : '';
 
   const geoText = merkSlug && filtered.length > 0
     ? '<section class="geo-section" aria-label="Marktinformatie '+merkName+'">' +
       '<h2>Tweedehands '+merkName+(modelName?' '+modelName:'')+' kopen — wat moet je weten?</h2>' +
+      (modelIntro ? '<div class="model-intro-blok"><p>'+modelIntro+'</p></div>' : '') +
       (kooptip ? '<p class="kooptip">'+kooptip+'</p>' : '') +
       '<h3 style="font-size:.9rem;margin-top:.75rem;margin-bottom:.3rem">Actuele marktdata</h3>' +
       '<p>Op basis van <strong>'+filtered.length+' actuele advertenties</strong> is de gemiddelde vraagprijs van een tweedehands '+merkName+(modelName?' '+modelName:'')+' <strong>&euro; '+(gemPrijs?fmt(gemPrijs):'onbekend')+'</strong>. De mediaanprijs &mdash; waarbij de helft van de occasions goedkoper is &mdash; ligt op &euro; '+(medPrijs?fmt(medPrijs):'onbekend')+'. De mediaan kilometerstand is '+(medKm?fmt(medKm)+' km':'onbekend')+'. AutoVergelijker vergelijkt dagelijks aanbod van Marktplaats, AutoScout24, Gaspedaal en ViaBOVAG.</p>' +
@@ -178,7 +196,7 @@ function buildPage({ merkSlug, modelSlug, filtered, listings }) {
     '  <script type="application/ld+json">'+JSON.stringify(schema)+'<\/script>\n' +
     '  <script type="application/ld+json">'+JSON.stringify(bcSchema)+'<\/script>\n' +
     (faqSchema ? '  <script type="application/ld+json">'+JSON.stringify(faqSchema)+'<\/script>\n' : '') +
-    '  <style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#f5f5f7;color:#1d1d1f;line-height:1.5}nav{background:#fff;border-bottom:1px solid #e5e5ea;padding:.75rem 1rem;font-size:.875rem}nav a{color:#1a56db;text-decoration:none}nav a+a::before{content:" > ";color:#aaa;margin:0 .3rem}.container{max-width:960px;margin:0 auto;padding:1rem 1rem 3rem}h1{font-size:1.5rem;font-weight:700;margin:1.5rem 0 .3rem}.subtitle{color:#666;font-size:.9rem;margin-bottom:1.25rem}.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:.5rem;margin-bottom:1.25rem}.stat{background:#fff;border-radius:10px;padding:.7rem 1rem;border:1px solid #e5e5ea}.stat-lbl{display:block;font-size:.72rem;color:#888;margin-bottom:.15rem}.stat strong{font-size:.95rem}.model-nav{display:flex;flex-wrap:wrap;gap:.4rem;margin-bottom:1.25rem}.model-link{background:#fff;border:1px solid #e5e5ea;border-radius:20px;padding:.3rem .85rem;font-size:.83rem;color:#1a56db;text-decoration:none}.model-link span{color:#aaa;font-size:.78rem}.occ-grid{display:grid;gap:.6rem}.occ-card{background:#fff;border-radius:10px;border:1px solid #e5e5ea;overflow:hidden;display:flex}.occ-card img,.occ-img-placeholder{width:140px;height:100px;object-fit:cover;flex-shrink:0;background:#f0f0f5}.occ-info{padding:.75rem 1rem;flex:1;min-width:0}.occ-titel{font-size:.9rem;font-weight:600;margin-bottom:.25rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.occ-meta{font-size:.78rem;color:#666;margin-bottom:.25rem}.occ-prijs{font-size:1.05rem;font-weight:700;color:#1a56db}.occ-bron{display:inline-block;font-size:.72rem;color:#888;margin-top:.25rem}.occ-link{display:inline-block;margin-top:.35rem;font-size:.8rem;color:#1a56db;text-decoration:none}.back-link{display:inline-block;margin-top:2rem;color:#1a56db;font-size:.875rem;text-decoration:none}.empty{text-align:center;padding:3rem;color:#888}.geo-section{margin-top:2rem;padding:1.25rem;background:#fff;border-radius:10px;border:1px solid #e5e5ea}.geo-section h2{font-size:1rem;margin-bottom:.5rem}.geo-section p{font-size:.875rem;color:#444;line-height:1.6}.geo-section h3{color:#333}.geo-section .kooptip{background:#f0f4ff;border-left:3px solid #1a56db;padding:.6rem .8rem;border-radius:0 6px 6px 0;margin-bottom:.5rem}@media(max-width:580px){.occ-card img,.occ-img-placeholder{width:90px;height:80px}}<\/style>\n' +
+    '  <style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#f5f5f7;color:#1d1d1f;line-height:1.5}nav{background:#fff;border-bottom:1px solid #e5e5ea;padding:.75rem 1rem;font-size:.875rem}nav a{color:#1a56db;text-decoration:none}nav a+a::before{content:" > ";color:#aaa;margin:0 .3rem}.container{max-width:960px;margin:0 auto;padding:1rem 1rem 3rem}h1{font-size:1.5rem;font-weight:700;margin:1.5rem 0 .3rem}.subtitle{color:#666;font-size:.9rem;margin-bottom:1.25rem}.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:.5rem;margin-bottom:1.25rem}.stat{background:#fff;border-radius:10px;padding:.7rem 1rem;border:1px solid #e5e5ea}.stat-lbl{display:block;font-size:.72rem;color:#888;margin-bottom:.15rem}.stat strong{font-size:.95rem}.model-nav{display:flex;flex-wrap:wrap;gap:.4rem;margin-bottom:1.25rem}.model-link{background:#fff;border:1px solid #e5e5ea;border-radius:20px;padding:.3rem .85rem;font-size:.83rem;color:#1a56db;text-decoration:none}.model-link span{color:#aaa;font-size:.78rem}.occ-grid{display:grid;gap:.6rem}.occ-card{background:#fff;border-radius:10px;border:1px solid #e5e5ea;overflow:hidden;display:flex}.occ-card img,.occ-img-placeholder{width:140px;height:100px;object-fit:cover;flex-shrink:0;background:#f0f0f5}.occ-info{padding:.75rem 1rem;flex:1;min-width:0}.occ-titel{font-size:.9rem;font-weight:600;margin-bottom:.25rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.occ-meta{font-size:.78rem;color:#666;margin-bottom:.25rem}.occ-prijs{font-size:1.05rem;font-weight:700;color:#1a56db}.occ-bron{display:inline-block;font-size:.72rem;color:#888;margin-top:.25rem}.occ-link{display:inline-block;margin-top:.35rem;font-size:.8rem;color:#1a56db;text-decoration:none}.back-link{display:inline-block;margin-top:2rem;color:#1a56db;font-size:.875rem;text-decoration:none}.empty{text-align:center;padding:3rem;color:#888}.geo-section{margin-top:2rem;padding:1.25rem;background:#fff;border-radius:10px;border:1px solid #e5e5ea}.geo-section h2{font-size:1rem;margin-bottom:.5rem}.geo-section p{font-size:.875rem;color:#444;line-height:1.6}.geo-section h3{color:#333}.geo-section .model-intro-blok{background:#eff6ff;border-left:4px solid #3b82f6;padding:.75rem 1rem;margin-bottom:.75rem;border-radius:0 8px 8px 0;font-size:.9rem;color:#1e40af}.kooptip{background:#f0f4ff;border-left:3px solid #1a56db;padding:.6rem .8rem;border-radius:0 6px 6px 0;margin-bottom:.5rem}@media(max-width:580px){.occ-card img,.occ-img-placeholder{width:90px;height:80px}}<\/style>\n' +
     '</head>\n<body>\n' +
     '  <nav><a href="/">AutoVergelijker</a><a href="/occasions/">Occasions</a>' +
     (merkSlug ? '<a href="/occasions/'+merkSlug+'/">'+merkName+'</a>' : '') +
@@ -193,6 +211,63 @@ function buildPage({ merkSlug, modelSlug, filtered, listings }) {
     geoText +
     '  <a href="/" class="back-link">&larr; Terug naar live zoeken</a>\n' +
     '  </div>\n</body>\n</html>';
+}
+
+const STEDEN = {
+  "amsterdam":  { naam: "Amsterdam",  regio: "Noord-Holland", tekst: "Amsterdam heeft een groot en gevarieerd aanbod tweedehands auto's. Door de drukte in de stad kiezen veel Amsterdammers voor een compacte of elektrische auto." },
+  "rotterdam":  { naam: "Rotterdam",  regio: "Zuid-Holland",  tekst: "Rotterdam biedt veel keuze in occasions van particulieren en dealers. Ideaal voor wie een betrouwbare auto zoekt voor woon-werkverkeer." },
+  "den-haag":   { naam: "Den Haag",   regio: "Zuid-Holland",  tekst: "In Den Haag vind je veel tweedehands auto's in het middensegment. Populaire keuzes zijn compacte gezinsauto's en hybrides." },
+  "utrecht":    { naam: "Utrecht",    regio: "Utrecht",        tekst: "Utrecht heeft een actieve occasionmarkt. Veel studenten en forensen zoeken hier een betrouwbare en zuinige auto." },
+  "eindhoven":  { naam: "Eindhoven",  regio: "Noord-Brabant", tekst: "In de regio Eindhoven zijn veel technisch goed onderhouden auto's te vinden, vaak van eigenaren werkzaam in de maakindustrie." },
+  "groningen":  { naam: "Groningen",  regio: "Groningen",     tekst: "Groningen heeft een gevarieerd tweedehands aanbod. Veel jonge eigenaren bieden hier praktische stadsauto's aan." },
+  "tilburg":    { naam: "Tilburg",    regio: "Noord-Brabant", tekst: "Tilburg biedt een goed aanbod occasions in alle prijsklassen, van instapmodellen tot luxere segmenten." },
+  "almere":     { naam: "Almere",     regio: "Flevoland",     tekst: "Almere heeft als groeigemeente een actieve occasionmarkt met veel goed onderhouden gezinsauto's." },
+  "breda":      { naam: "Breda",      regio: "Noord-Brabant", tekst: "In Breda vind je veel kwalitatieve occasions, mede dankzij de aanwezigheid van grote dealerbedrijven in de regio." },
+  "nijmegen":   { naam: "Nijmegen",   regio: "Gelderland",    tekst: "Nijmegen heeft een diverse occasionmarkt. Studenten en gezinnen zoeken hier betaalbare en betrouwbare auto's." }
+};
+
+function buildStadPage(stadSlug, stad, filtered, listings) {
+  const gemPrijs = filtered.length ? Math.round(filtered.reduce((s,l)=>s+(l.prijs||0),0)/filtered.length) : 0;
+  const medPrijs = filtered.length ? [...filtered].sort((a,b)=>(a.prijs||0)-(b.prijs||0))[Math.floor(filtered.length/2)].prijs : 0;
+  const cards = filtered.slice(0,24).map(l =>
+    '<article class="occ-card"><a href="'+l.url+'" target="_blank" rel="noopener noreferrer">'+
+    (l.imgSrc ? '<img src="'+l.imgSrc+'" alt="'+l.titel+'" loading="lazy" width="300" height="200">' : '')+
+    '<div class="occ-info"><h3>'+l.titel+'</h3>'+
+    '<p class="occ-prijs">&#8364; '+Number(l.prijs||0).toLocaleString("nl-NL")+'</p>'+
+    '<p class="occ-meta">'+(l.km?l.km.toLocaleString("nl-NL")+' km &bull; ':'')+(l.bouwjaar||'')+'</p>'+
+    '</div></a></article>'
+  ).join('');
+  return '<!doctype html><html lang="nl"><head>'+
+    '<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'+
+    '<title>Tweedehands auto '+stad.naam+' | AutoVergelijker</title>'+
+    '<meta name="description" content="Bekijk '+filtered.length+' tweedehands auto occasions in '+stad.naam+', '+stad.regio+'. Vergelijk prijzen en vind jouw ideale occasion.">'+
+    '<link rel="canonical" href="https://kawsfan.github.io/autovergelijker/occasions/'+stadSlug+'/">'+
+    '<style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:#f5f5f7;color:#1d1d1f;line-height:1.5}'+
+    'nav{background:#fff;border-bottom:1px solid #e5e5ea;padding:.75rem 1rem;font-size:.875rem}nav a{color:#1a56db;text-decoration:none}'+
+    '.container{max-width:960px;margin:0 auto;padding:1rem}h1{font-size:1.5rem;font-weight:700;margin:1.5rem 0 .3rem}'+
+    '.subtitle{color:#666;font-size:.9rem;margin-bottom:1rem}.geo-blok{background:#f0fdf4;border-left:4px solid #16a34a;padding:.75rem 1rem;margin-bottom:1rem;border-radius:0 8px 8px 0}'+
+    '.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:.75rem;margin:1rem 0}'+
+    '.stat-card{background:#fff;border-radius:8px;padding:.75rem 1rem;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,.08)}'+
+    '.stat-val{font-size:1.25rem;font-weight:700;color:#1a56db}.stat-label{font-size:.75rem;color:#666;margin-top:.2rem}'+
+    '.occ-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1rem;margin-top:1rem}'+
+    '.occ-card{background:#fff;border-radius:10px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.1);transition:box-shadow .2s}'+
+    '.occ-card:hover{box-shadow:0 4px 12px rgba(0,0,0,.15)}.occ-card a{text-decoration:none;color:inherit;display:block}'+
+    '.occ-card img{width:100%;height:160px;object-fit:cover}.occ-info{padding:.75rem}'+
+    '.occ-info h3{font-size:.9rem;font-weight:600;margin-bottom:.3rem}.occ-prijs{color:#1a56db;font-weight:700;font-size:1rem}'+
+    '.occ-meta{color:#666;font-size:.8rem;margin-top:.2rem}</style></head><body>'+
+    '<nav><a href="/">AutoVergelijker</a> &rsaquo; <a href="/occasions/">Occasions</a> &rsaquo; '+stad.naam+'</nav>'+
+    '<div class="container">'+
+    '<h1>Tweedehands auto occasions '+stad.naam+'</h1>'+
+    '<p class="subtitle">'+filtered.length+' occasions gevonden in en rond '+stad.naam+', '+stad.regio+'</p>'+
+    '<div class="geo-blok"><p>'+stad.tekst+'</p></div>'+
+    '<div class="stats-grid">'+
+    '<div class="stat-card"><div class="stat-val">'+filtered.length+'</div><div class="stat-label">Occasions</div></div>'+
+    '<div class="stat-card"><div class="stat-val">&#8364; '+(Math.round(gemPrijs/100)*100).toLocaleString("nl-NL")+'</div><div class="stat-label">Gem. prijs</div></div>'+
+    '<div class="stat-card"><div class="stat-val">&#8364; '+(Math.round(medPrijs/100)*100).toLocaleString("nl-NL")+'</div><div class="stat-label">Mediaan</div></div>'+
+    '</div>'+
+    '<div class="occ-grid">'+cards+'</div>'+
+    (filtered.length === 0 ? '<p style="color:#666;margin-top:1rem">Geen occasions gevonden in '+stad.naam+'. Bekijk ons <a href="/">volledig aanbod</a>.</p>' : '')+
+    '</div></body></html>';
 }
 
 function main() {
@@ -234,6 +309,41 @@ function main() {
       pageCount++; console.log('    [OK] /occasions/'+merkSlug+'/'+modelSlug+'/ ('+mf.length+')');
     });
   });
+
+  // Regiopagina's per stad
+  const OUT_STAD = path.join(OUT_DIR, '..');
+  const generatedStadUrls = [];
+  for (const [stadSlug, stad] of Object.entries(STEDEN)) {
+    const filtered = listings.filter(l => {
+      const loc = (l.locatie || l.stad || '').toLowerCase();
+      return loc.includes(stad.naam.toLowerCase()) || loc.includes(stadSlug);
+    });
+    if (filtered.length < 3) continue;
+    const stadDir = path.join(OUT_STAD, stadSlug);
+    fs.mkdirSync(stadDir, {recursive: true});
+    fs.writeFileSync(path.join(stadDir, 'index.html'), buildStadPage(stadSlug, stad, filtered, listings), 'utf-8');
+    generatedStadUrls.push('occasions/'+stadSlug+'/');
+    pageCount++;
+    console.log('  [OK] /occasions/'+stadSlug+'/ ('+filtered.length+')');
+  }
+
+  // Sitemap bijwerken
+  const sitemapPath = path.join(process.cwd(), 'sitemap.xml');
+  if (fs.existsSync(sitemapPath)) {
+    let sitemap = fs.readFileSync(sitemapPath, 'utf-8');
+    const today = new Date().toISOString().slice(0,10);
+    const base = 'https://kawsfan.github.io/autovergelijker/';
+    const allUrls = [...generatedStadUrls];
+    for (const u of allUrls) {
+      const full = base + u;
+      if (!sitemap.includes(full)) {
+        const entry = '  <url><loc>'+full+'</loc><lastmod>'+today+'</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>';
+        sitemap = sitemap.replace('</urlset>', entry + '\n</urlset>');
+      }
+    }
+    fs.writeFileSync(sitemapPath, sitemap, 'utf-8');
+    console.log('Sitemap bijgewerkt: '+allUrls.length+' URLs');
+  }
 
   console.log('\nKlaar: '+pageCount+' pagina\'s gegenereerd in '+OUT_DIR);
 }
