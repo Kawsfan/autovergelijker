@@ -63,7 +63,7 @@
       --blauw: #1a56db;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Segoe UI', Arial, sans-serif; background: var(--grijs); color: var(--tekst); min-height: 100vh; }
+    body { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; font-family: 'Segoe UI', Arial, sans-serif; background: var(--grijs); color: var(--tekst); min-height: 100vh; }
 
     /* NAV */
     nav {
@@ -234,17 +234,19 @@
     .sortering select { border: 1px solid var(--grijs2); border-radius: 6px; padding: 6px 10px; font-size: 13px; outline: none; color: var(--tekst); }
 
     /* AUTO GRID */
-    .auto-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+    .auto-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 18px; }
 
     .auto-card {
-      background: white; border-radius: 10px; overflow: hidden; box-shadow: var(--shadow);
-      transition: transform 0.2s, box-shadow 0.2s; cursor: pointer; display: flex; flex-direction: column;
+      background: #fff; border-radius: 14px; overflow: hidden;
+      box-shadow: 0 1px 4px rgba(0,0,0,.06), 0 4px 16px rgba(0,0,0,.04);
+      border: 1px solid rgba(0,0,0,.07);
+      transition: transform 0.18s ease, box-shadow 0.18s ease; cursor: pointer; display: flex; flex-direction: column;
     }
-    .auto-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,0.13); }
+    .auto-card:hover { transform: translateY(-4px); box-shadow: 0 8px 32px rgba(0,0,0,.11); }
 
-    .auto-foto { position: relative; height: 190px; background: var(--grijs); overflow: hidden; }
-    .auto-foto img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s; }
-    .auto-card:hover .auto-foto img { transform: scale(1.04); }
+    .auto-foto { position: relative; aspect-ratio: 16/9; background: var(--grijs); overflow: hidden; }
+    .auto-foto img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.32s ease; }
+    .auto-card:hover .auto-foto img { transform: scale(1.05); }
 
     .merk-stat-card{background:var(--kaart);border-radius:10px;padding:.9rem 1rem;border:1px solid #e5e7eb;}
 .merk-stat-card h3{margin:0 0 .5rem;font-size:.95rem;font-weight:700;}
@@ -269,7 +271,11 @@
     .kaart-popup{min-width:180px}
     .kp-titel{font-size:12px;font-weight:600;color:#111;line-height:1.3;margin-bottom:2px}
     .kp-prijs{font-size:14px;font-weight:700;color:#1a56db}
-        .prijs-daling {
+        .hero-stats{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:14px;}
+    .hero-stat{font-size:13px;color:#374151;}
+    .hero-stat strong{color:#1a56db;}
+    .hero-sep{color:#d1d5db;font-size:14px;}
+    .prijs-daling {
       position: absolute; bottom: 10px; right: 10px;
       background: #ef4444; color: #fff;
       font-size: 11px; font-weight: 700;
@@ -288,8 +294,15 @@
     .bron-autoscout24  { background: #FF6600; }
     .bron-autotrader   { background: #0057B8; }
 
-    .auto-info { padding: 14px; flex: 1; display: flex; flex-direction: column; }
-    .auto-info h4 { font-size: 15px; font-weight: 700; margin-bottom: 6px; color: var(--donker); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .auto-info { padding: 14px 16px 12px; flex: 1; display: flex; flex-direction: column; gap: 6px; }
+    .auto-info h4 { font-size: 14px; font-weight: 700; margin: 0; color: var(--donker); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.38; }
+    .auto-prijs-groot { font-size: 21px; font-weight: 800; color: #111; letter-spacing: -0.4px; margin: 2px 0 0; }
+    .auto-specs-row { display: flex; gap: 10px; flex-wrap: wrap; margin: 2px 0; }
+    .auto-spec-chip { font-size: 11.5px; color: #6b7280; display: flex; align-items: center; gap: 3px; }
+    .auto-spec-chip svg { flex-shrink: 0; }
+    .auto-card-footer { display: flex; align-items: center; justify-content: space-between; margin-top: auto; padding-top: 10px; border-top: 1px solid #f1f2f4; }
+    .auto-bron-tag { font-size: 10px; font-weight: 600; color: #9ca3af; text-transform: uppercase; letter-spacing: .4px; }
+    .auto-deal-pill { font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 20px; }
 
     .auto-meta { display: flex; gap: 14px; font-size: 12px; color: var(--subtekst); margin-bottom: 8px; }
     .auto-meta strong { color: var(--donker); font-weight: 600; }
@@ -621,6 +634,15 @@
 <div class="hero">
   <h1>Tweedehands auto kopen? Één zoekopdracht. 30.000+ occasions.</h1>
   <p>Wij scrapen dagelijks het aanbod van Marktplaats, AutoScout24, Gaspedaal en ViaBOVAG — jij filtert op prijs, merk en kilometerstand en ziet in één oogopslag wat de markt doet. Geen account, geen kosten.</p>
+  <div class="hero-stats">
+    <span class="hero-stat"><strong>30.000+</strong> occasions</span>
+    <span class="hero-sep">·</span>
+    <span class="hero-stat"><strong>4</strong> platforms</span>
+    <span class="hero-sep">·</span>
+    <span class="hero-stat"><strong>Dagelijks</strong> bijgewerkt</span>
+    <span class="hero-sep">·</span>
+    <span class="hero-stat"><strong>Gratis</strong></span>
+  </div>
 </div>
 
 <!-- FILTER KAART -->
@@ -1121,25 +1143,17 @@ function toonResultaten(lijst) {
       </div>
       <div class="auto-info">
         <h4>${a.titel}</h4>
-        <div class="auto-meta">
-          ${a.jaar ? `<span><strong>Bouwjaar:</strong> ${a.jaar}</span>` : ''}
-          ${a.km != null ? `<span><strong>Km.stand:</strong> ${typeof a.km==='number'?a.km.toLocaleString('nl-NL')+' km':a.km}</span>` : ''}
-              ${_parseSoh(a) ? `<span class="soh-badge">⚡ SOH ${_parseSoh(a)}%</span>` : ''}
+        <div class="auto-prijs-groot">€ ${typeof a.prijs==='number'?a.prijs.toLocaleString('nl-NL'):a.prijs||'—'}</div>
+        <div class="auto-specs-row">
+          ${a.jaar?'<span class="auto-spec-chip"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>'+a.jaar+'</span>':''}
+          ${a.km!=null?'<span class="auto-spec-chip"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>'+(typeof a.km==='number'?a.km.toLocaleString('nl-NL')+' km':a.km)+'</span>':''}
+          ${a.brandstof?'<span class="auto-spec-chip"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 22V8l9-6 9 6v14"/><line x1="9" y1="22" x2="9" y2="12"/><line x1="15" y1="22" x2="15" y2="12"/><rect x="9" y="12" width="6" height="10"/></svg>'+a.brandstof+'</span>':''}
+          ${a.transmissie?'<span class="auto-spec-chip">'+a.transmissie+'</span>':''}
         </div>
-        <div class="auto-labels">
-          ${a.brandstof ? `<span class="label-pill">${a.brandstof}</span>` : ''}
-          ${a.transmissie ? `<span class="label-pill">${a.transmissie}</span>` : ''}
-          ${a.carrosserie ? `<span class="label-pill">${a.carrosserie}</span>` : ''}
-          ${a.kleur ? `<span class="label-pill">${a.kleur}</span>` : ''}
-        </div>
-        <div class="auto-footer">
-          <div>
-            <div class="prijs">€ ${a.prijs != null ? a.prijs.toLocaleString('nl-NL') : '–'}</div>
-            <div class="prijs-sub">${a.bron || 'Gaspedaal'}</div>
-          </div>
-          <div class="locatie">📍 ${a.locatie || 'Nederland'}</div>
-        </div>
-      </div>
+        <div class="auto-card-footer">
+          <span class="auto-bron-tag">${a.bron||'—'}</span>
+          ${a.dealScore!=null?'<span class="auto-deal-pill" style="background:'+(a.dealScore>60?'#dcfce7':a.dealScore<35?'#fee2e2':'#fef9c3')+';color:'+(a.dealScore>60?'#15803d':a.dealScore<35?'#b91c1c':'#854d0e')+'">'+Math.round(a.dealScore)+' score</span>':''}
+        </div></div>
     </div>`).join('') + (_paginaControls ? _paginaControls(gesorteerd.length, _pg, _pp) : '');
 }
 
