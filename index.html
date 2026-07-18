@@ -264,7 +264,12 @@
     .verk-badge{position:absolute;top:35px;left:10px;font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px;z-index:2;pointer-events:none}
     .verk-recent{background:#f59e0b;color:#fff}
     .verk-lang{background:#ef4444;color:#fff}
-    .prijs-daling {
+    .kaart-pin{background:#1a56db;color:#fff;font-size:11px;font-weight:700;padding:4px 8px;border-radius:12px;white-space:nowrap;box-shadow:0 2px 6px rgba(0,0,0,.3);border:2px solid #fff;cursor:pointer;transition:transform .1s}
+    .kaart-pin:hover{transform:scale(1.1)}
+    .kaart-popup{min-width:180px}
+    .kp-titel{font-size:12px;font-weight:600;color:#111;line-height:1.3;margin-bottom:2px}
+    .kp-prijs{font-size:14px;font-weight:700;color:#1a56db}
+        .prijs-daling {
       position: absolute; bottom: 10px; right: 10px;
       background: #ef4444; color: #fff;
       font-size: 11px; font-weight: 700;
@@ -1469,6 +1474,7 @@ var NL_CITIES = {
 
 var _kaartMap = null;
 var _kaartLaag = null;
+var _kaartCircle = null;
 var _huidigeLijst = [];
 
 function setView(v) {
@@ -1485,47 +1491,70 @@ function renderKaart() {
     _kaartMap = L.map('kaartCanvas').setView([52.15, 5.28], 7);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-      maxZoom: 18
+      maxZoom: 19
     }).addTo(_kaartMap);
+  } else {
+    _kaartMap.invalidateSize();
   }
-  if (_kaartLaag) { _kaartMap.removeLayer(_kaartLaag); }
-
+  if (_kaartLaag) { _kaartLaag.remove(); _kaartLaag = null; }
+  if (_kaartCircle) { _kaartCircle.remove(); _kaartCircle = null; }
   var markers = [];
   var bounds = [];
-
   _huidigeLijst.forEach(function(auto) {
     if (!auto.locatie) return;
     var key = auto.locatie.toLowerCase().trim();
     var coord = NL_CITIES[key];
     if (!coord) {
-      // try partial match
       for (var city in NL_CITIES) {
-        if (key.includes(city) || city.includes(key.split(' ')[0])) { coord = NL_CITIES[city]; break; }
+        if (key.includes(city) || city.includes(key)) { coord = NL_CITIES[city]; break; }
       }
     }
     if (!coord) return;
-
-    var prijs = auto.prijs ? '€' + auto.prijs.toLocaleString('nl-NL') : '—';
+    var jCoord = [coord[0] + (Math.random()-0.5)*0.012, coord[1] + (Math.random()-0.5)*0.018];
+    var prijs = auto.prijs || 0;
+    var prijsTekst = prijs >= 1000 ? Math.round(prijs/1000)+'K' : ''+prijs;
+    var ds = auto.dealScore || 50;
+    var kleur = ds > 60 ? '#16a34a' : ds < 35 ? '#dc2626' : '#d97706';
+    var icon = L.divIcon({
+      className: '',
+      html: '<div class="kaart-pin" style="background:'+kleur+'">€'+prijsTekst+'</div>',
+      iconSize: [52, 26],
+      iconAnchor: [26, 32]
+    });
+    var autoId = auto.id;
     var popup = '<div class="kaart-popup">'
-      + (auto.afbeelding ? '<img src="' + auto.afbeelding + '" loading="lazy" onerror="this.style.display=\'none\'">' : '')
-      + '<div class="kp-titel">' + (auto.titel||'Auto') + '</div>'
-      + '<div class="kp-prijs">' + prijs + '</div>'
-      + '<a href="' + auto.url + '" target="_blank" rel="noopener">Bekijk advertentie →</a>'
-      + '</div>';
-
-    var marker = L.marker(coord).bindPopup(popup);
+      + (auto.afbeelding ? '<img src="'+auto.afbeelding+'" loading="lazy" onerror="this.style.display='none'" style="width:100%;height:90px;object-fit:cover;border-radius:6px 6px 0 0">' : '')
+      + '<div style="padding:8px 10px 10px">'
+      + '<div class="kp-titel">'+(auto.titel||'Auto')+'</div>'
+      + '<div class="kp-prijs">€ '+prijs.toLocaleString('nl-NL')+'</div>'
+      + '<div style="font-size:11px;color:#666;margin-top:3px">'+(auto.locatie||'')+'</div>'
+      + '<button onclick="document.querySelector('[class*=leaflet-popup-close]').click();setTimeout(function(){openDetail(''+autoId+'')},120)" style="margin-top:8px;width:100%;padding:6px;background:#1a56db;color:#fff;border:none;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer">Bekijk details →</button>'
+      + '</div></div>';
+    var marker = L.marker(jCoord, {icon: icon}).bindPopup(popup, {maxWidth: 220, minWidth: 180});
     markers.push(marker);
-    bounds.push(coord);
+    bounds.push(jCoord);
   });
-
   _kaartLaag = L.layerGroup(markers).addTo(_kaartMap);
-
-  if (bounds.length > 0) {
-    _kaartMap.fitBounds(bounds, { padding: [30, 30], maxZoom: 11 });
+  var locCoord = window._locCoord;
+  var radiusSel = document.getElementById('radiusSelect');
+  var km = (locCoord && radiusSel && radiusSel.value) ? parseFloat(radiusSel.value) : 0;
+  if (locCoord && km > 0) {
+    _kaartCircle = L.circle(locCoord, {
+      radius: km * 1000,
+      color: '#1a56db',
+      fillColor: '#1a56db',
+      fillOpacity: 0.06,
+      weight: 2,
+      dashArray: '6 4'
+    }).addTo(_kaartMap);
+    var zl = km <= 5 ? 12 : km <= 15 ? 11 : km <= 30 ? 10 : km <= 50 ? 9 : 8;
+    _kaartMap.setView(locCoord, zl);
+  } else if (bounds.length > 1) {
+    _kaartMap.fitBounds(bounds, {padding: [30, 30], maxZoom: 11});
+  } else if (bounds.length === 1) {
+    _kaartMap.setView(bounds[0], 10);
   }
-
 }
-
 function openVergelijk() {
   if (_vgl.length < 2) { alert('Selecteer minimaal 2 auto\'s'); return; }
   var cars = _vgl.map(function(id){ return window._vglData[id]; }).filter(Boolean);
