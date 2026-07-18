@@ -982,7 +982,7 @@ async function laadListings() {
   if(window._toonFavs) gesorteerd = gesorteerd.filter(function(a){ return _favs.has(a.id); });
   if(window._toonNieuw){ var _vd=new Date().toISOString().slice(0,10); gesorteerd=gesorteerd.filter(function(a){return a.bijgewerkt===_vd;}); }
   var _rad=parseInt(document.getElementById('radiusSelect')&&document.getElementById('radiusSelect').value)||0;
-  if(_rad>0){ var lc=window._locCoord; if(lc){ gesorteerd=gesorteerd.filter(function(a){ var key=(a.locatie||'').toLowerCase().trim(); var coord=NL_CITIES[key]; if(!coord){ for(var city in NL_CITIES){ if(key.includes(city)||city.includes(key)){ coord=NL_CITIES[city]; break; }}} if(!coord) return true; var dist=Math.sqrt(Math.pow(lc[0]-coord[0],2)+Math.pow(lc[1]-coord[1],2))*111; return dist <= _rad; }); } } var _dlat=(_lc[0]-_ac[0])*Math.PI/180,_dlon=(_lc[1]-_ac[1])*Math.PI/180; var _hav=Math.sin(_dlat/2)*Math.sin(_dlat/2)+Math.cos(_lc[0]*Math.PI/180)*Math.cos(_ac[0]*Math.PI/180)*Math.sin(_dlon/2)*Math.sin(_dlon/2); return 6371*2*Math.atan2(Math.sqrt(_hav),Math.sqrt(1-_hav))<=_rad; }); }}
+  if(_rad>0){ var _lc=window._locCoord; if(!_lc){ var _li=document.getElementById('locInput'); if(_li&&_li.value.trim()){ var _lk=_li.value.trim().toLowerCase(); _lc=NL_CITIES[_lk]||null; if(!_lc){ for(var _ck in NL_CITIES){if(_ck.includes(_lk)||_lk.includes(_ck.split(' ')[0])){_lc=NL_CITIES[_ck];break;}}} window._locCoord=_lc; }} if(_lc){ gesorteerd=gesorteerd.filter(function(a){ if(!a.locatie)return false; var _ac=NL_CITIES[a.locatie.toLowerCase().trim()]; if(!_ac){for(var _c in NL_CITIES){if(a.locatie.toLowerCase().includes(_c)){_ac=NL_CITIES[_c];break;}}} if(!_ac)return false; var _dlat=(_lc[0]-_ac[0])*Math.PI/180,_dlon=(_lc[1]-_ac[1])*Math.PI/180; var _hav=Math.sin(_dlat/2)*Math.sin(_dlat/2)+Math.cos(_lc[0]*Math.PI/180)*Math.cos(_ac[0]*Math.PI/180)*Math.sin(_dlon/2)*Math.sin(_dlon/2); return 6371*2*Math.atan2(Math.sqrt(_hav),Math.sqrt(1-_hav))<=_rad; }); }}
   if(typeof filtersNaarURL==='function')filtersNaarURL();
   document.getElementById('autoGrid').innerHTML = `
         <div class="geen-resultaten">
@@ -1192,23 +1192,19 @@ function sorteer(lijst, sort) {
   if (sort === 'jaar-desc')  return lijst.sort((a,b) => (b.jaar||0) - (a.jaar||0));
   if (sort === 'km-asc')     return lijst.sort((a,b) => (a.km||999999) - (b.km||999999));
   if (sort === 'deal-score') {
+    var _pr=lijst.map(function(a){return a.prijs;}).filter(Boolean).sort(function(a,b){return a-b;});
+    var _med=_pr[Math.floor(_pr.length/2)]||20000;
     var _hj=new Date().getFullYear();
-    var _sorted=lijst.map(function(a){
-      var _ds=Math.max(0,((a.dealScore||50)-50)/50);
+    return lijst.map(function(a){
+      var _p=Math.max(0,(_med-a.prijs)/_med);
       var _l=Math.max(1,_hj-(a.jaar||_hj-5));
       var _k=Math.max(0,1-(a.km||80000)/(_l*15000));
       var _j=Math.max(0,Math.min(1,((a.jaar||_hj-5)-2005)/(_hj-2005)));
-      a._score=0.6*_ds+0.2*_k+0.2*_j;
+      a._score=0.4*_p+0.4*_k+0.2*_j;
       return a;
     }).sort(function(a,b){return b._score-a._score;});
-    var _seen={},_res=[],_rest=[];
-    _sorted.forEach(function(a){
-      var _mk=(a.merk||'')+'|'+(a.titel||'').split(' ').slice(0,3).join(' ');
-      _seen[_mk]=(_seen[_mk]||0)+1;
-      if(_seen[_mk]<=3) _res.push(a); else _rest.push(a);
-    });
-    return _res.concat(_rest);
-  }return lijst;
+  }
+  return lijst;
 }
 
 function herSorteer() { zoekNu(); }
@@ -1230,16 +1226,45 @@ function genereerSamenvatting(a) {
   } else if (a.jaar && a.km != null) {
     delen.push('De kilometerstand is ' + a.km.toLocaleString('nl-NL') + ' km (bouwjaar ' + a.jaar + ').');
   } else if (a.jaar) {
- <div class="gallery-main">
-      <img id="galFoto" referrerpolicy="no-referrer" loading="eager"
-        onerror="this.src='https://placehold.co/720x480/f0f0f0/999?text=Geen+foto'"
-        src="${a.imgSrc?'https://wsrv.nl/?url='+(a.imgSrc.replace(/^https?:/,'').replace(/^\/\//,'').replace(/\$_\d+\.jpg/gi,'\$_86.jpg')):'data:,'}"
-        alt="${a.titel}">
-      <button class="gal-nav gal-prev" onclick="galNav(-1)">&#8249;</button>
-      <button class="gal-nav gal-next" onclick="galNav(1)">&#8250;</button>
-      <span id="galTeller" class="gal-teller"></span>
+    delen.push('Dit voertuig is uit ' + a.jaar + '.');
+  } else if (a.km != null) {
+    delen.push('De kilometerstand bedraagt ' + a.km.toLocaleString('nl-NL') + ' km.');
+  }
+  if (a.brandstof) {
+    const bMap = { 'Elektrisch': 'volledig elektrisch aangedreven', 'Benzine': 'voorzien van een benzinemotor', 'Diesel': 'voorzien van een dieselmotor', 'Hybride': 'hybride aangedreven', 'LPG': 'rijdend op LPG' };
+    const bTekst = bMap[a.brandstof] || ('rijdend op ' + a.brandstof.toLowerCase());
+    const tTekst = a.transmissie ? (' met ' + a.transmissie.toLowerCase() + ' versnellingsbak') : '';
+    delen.push('De auto is ' + bTekst + tTekst + '.');
+  }
+  if (a.carrosserie) {
+    const cMap = { 'SUV': 'een SUV', 'Sedan': 'een sedan', 'Hatchback': 'een hatchback', 'Stationwagen': 'een stationwagen', 'MPV': 'een MPV', 'Terreinwagen': 'een terreinwagen' };
+    delen.push('Het betreft ' + (cMap[a.carrosserie] || 'een ' + a.carrosserie.toLowerCase()) + '.');
+  }
+  if (a.locatie && a.locatie !== 'Nederland') {
+    delen.push('De auto staat te koop in ' + a.locatie + '.');
+  }
+  if (a.km != null && leeftijd != null) {
+    const kmPJ = leeftijd > 0 ? Math.round(a.km / leeftijd) : 99999;
+    if (leeftijd <= 3 && a.km < 30000) delen.push('Gezien het lage aantal kilometers en de jonge leeftijd betreft dit een uitstekend onderhouden occasion.');
+    else if (kmPJ < 10000 && leeftijd > 5) delen.push('Het lage jaarkilometrage wijst op een spaarzaam gebruik — een pluspunt voor de staat van het voertuig.');
+    else if (a.km > 200000) delen.push('Let op de hoge kilometerstand; een goede APK en onderhoudshistorie zijn aan te raden.');
+  }
+  return delen.length ? delen.join(' ') : '';
+}
+
+function openDetail(id) {
+  const a = alleResultaten.find(x => x.id === id);
+  if (!a) return;
+  huidigDetailId = id;
+
+  document.getElementById('detailTitel').textContent = a.titel;
+  window._galImgs = (a.imgs && a.imgs.length) ? a.imgs.filter(u=>!u.match(/marktplaats|gaspedaal/)).slice(0,10) : (a.imgSrc && !a.imgSrc.match(/marktplaats|gaspedaal/) ? [a.imgSrc] : []);
+  window._galIdx = 0;
+  document.getElementById('detailInhoud').innerHTML = `
+    <div class="gallery-main">
+      <img referrerpolicy="no-referrer" loading="lazy" onerror="this.style.display='none'" src="${a.imgSrc?'https://wsrv.nl/?url='+(a.imgSrc.replace(/^https?:/,'').replace(/^\/\//,'').replace(/\$_\d+\.jpg/gi,'$_86.jpg')):'data:,'}" alt="${a.titel}"
+        onerror="this.src='https://placehold.co/720x320/e8e8e3/999?text=${encodeURIComponent((a.titel||'').split(' ').slice(0,2).join(' '))}'" />
     </div>
-    <div id="galThumbs" class="gal-thumbs"></div>
     <div class="detail-content">
       <div class="detail-title-row">
         <h2>${a.titel}</h2>
