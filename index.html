@@ -1284,7 +1284,7 @@ function openDetail(id) {
   huidigDetailId = id;
 
   document.getElementById('detailTitel').textContent = a.titel;
-  window._galImgs = (a.imgs && a.imgs.length) ? a.imgs.filter(u=>!u.match(/marktplaats|gaspedaal/)).slice(0,10) : (a.imgSrc && !a.imgSrc.match(/marktplaats|gaspedaal/) ? [a.imgSrc] : []);
+  window._galImgs = (a.imgs && a.imgs.length) ? a.imgs.slice(0,10) : (a.imgSrc && !a.imgSrc.match(/marktplaats|gaspedaal/) ? [a.imgSrc] : []);
   window._galIdx = 0;
   document.getElementById('detailInhoud').innerHTML = `
     <div class="gallery-main" style="position:relative">
@@ -1361,7 +1361,7 @@ function galRender() {
   if (!mainImg) return;
   if (!imgs.length) { mainImg.style.opacity = '0'; return; }
   mainImg.style.opacity = '';
-  mainImg.src = imgs[idx].replace(/\$_\d+\.jpg/gi, '$_86.jpg');
+  mainImg.src = 'https://wsrv.nl/?url='+(imgs[idx].replace(/\$_\d+\.jpg/gi, '$_86.jpg')).replace(/^https?:/,'').replace(/^\/\//,'');
   document.querySelectorAll('.gal-nav').forEach(b => {
     b.style.display = imgs.length > 1 ? '' : 'none';
   });
