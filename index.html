@@ -828,7 +828,7 @@
       <div class="filter-groep" style="width:100%">
         <label data-i18n="lbl_afstand">📍 Afstand</label>
         <div class="afstand-rij">
-          <input id="locInput" type="text" placeholder="Stad of postcode..." oninput="window._locCoord=null" />
+          <input id="locInput" type="text" placeholder="Stad of postcode..." oninput="_geoLoc(this.value)" />
           <button class="loc-btn" onclick="geolocate()" title="Gebruik mijn locatie">📌 Mijn locatie</button>
           <select id="radiusSelect" onchange="zoekNu()">
             <option value="">Alle afstanden</option>
@@ -969,7 +969,7 @@ async function laadListings() {
   if(window._toonFavs) gesorteerd = gesorteerd.filter(function(a){ return _favs.has(a.id); });
   if(window._toonNieuw){ var _vd=new Date().toISOString().slice(0,10); gesorteerd=gesorteerd.filter(function(a){return a.bijgewerkt===_vd;}); }
   var _rad=parseInt(document.getElementById('radiusSelect')&&document.getElementById('radiusSelect').value)||0;
-  if(_rad>0){ var _lc=window._locCoord; if(!_lc){ var _li=document.getElementById('locInput'); if(_li&&_li.value.trim()){ var _lk=_li.value.trim().toLowerCase(); _lc=NL_CITIES[_lk]||null; if(!_lc){ for(var _ck in NL_CITIES){if(_ck.includes(_lk)||_lk.includes(_ck.split(' ')[0])){_lc=NL_CITIES[_ck];break;}}} window._locCoord=_lc; }} if(_lc){ gesorteerd=gesorteerd.filter(function(a){ if(!a.locatie)return false; var _ac=NL_CITIES[a.locatie.toLowerCase().trim()]; if(!_ac){for(var _c in NL_CITIES){if(a.locatie.toLowerCase().includes(_c)){_ac=NL_CITIES[_c];break;}}} if(!_ac)return false; var _dlat=(_lc[0]-_ac[0])*Math.PI/180,_dlon=(_lc[1]-_ac[1])*Math.PI/180; var _hav=Math.sin(_dlat/2)*Math.sin(_dlat/2)+Math.cos(_lc[0]*Math.PI/180)*Math.cos(_ac[0]*Math.PI/180)*Math.sin(_dlon/2)*Math.sin(_dlon/2); return 6371*2*Math.atan2(Math.sqrt(_hav),Math.sqrt(1-_hav))<=_rad; }); }}
+  if(_rad>0){ var lc=window._locCoord; if(lc){ gesorteerd=gesorteerd.filter(function(a){ var key=(a.locatie||'').toLowerCase().trim(); var coord=NL_CITIES[key]; if(!coord){ for(var city in NL_CITIES){ if(key.includes(city)||city.includes(key)){ coord=NL_CITIES[city]; break; }}} if(!coord) return true; var dist=Math.sqrt(Math.pow(lc[0]-coord[0],2)+Math.pow(lc[1]-coord[1],2))*111; return dist <= _rad; }); } }r _dlat=(_lc[0]-_ac[0])*Math.PI/180,_dlon=(_lc[1]-_ac[1])*Math.PI/180; var _hav=Math.sin(_dlat/2)*Math.sin(_dlat/2)+Math.cos(_lc[0]*Math.PI/180)*Math.cos(_ac[0]*Math.PI/180)*Math.sin(_dlon/2)*Math.sin(_dlon/2); return 6371*2*Math.atan2(Math.sqrt(_hav),Math.sqrt(1-_hav))<=_rad; }); }}
   if(typeof filtersNaarURL==='function')filtersNaarURL();
   document.getElementById('autoGrid').innerHTML = `
         <div class="geen-resultaten">
@@ -1714,6 +1714,21 @@ if("serviceWorker" in navigator){
 }
 
 // Zoekagent
+function _geoLoc(v){
+  window._locCoord=null;
+  if(!v||!v.trim()) return;
+  var lk=v.trim().toLowerCase();
+  var c=NL_CITIES[lk];
+  if(!c){for(var k in NL_CITIES){if(lk.includes(k)||k.includes(lk)){c=NL_CITIES[k];break;}}}
+  if(c){window._locCoord=c;return;}
+  clearTimeout(window._geoTimer);
+  window._geoTimer=setTimeout(function(){
+    fetch('https://nominatim.openstreetmap.org/search?q='+encodeURIComponent(v.trim())+'&countrycodes=nl&format=json&limit=1')
+      .then(function(r){return r.json();})
+      .then(function(d){if(d&&d[0])window._locCoord=[+d[0].lat,+d[0].lon];})
+      .catch(function(){});
+  },600);
+}
 function openAgent(){renderAgentList();document.getElementById("agentModal").style.display="flex";}
 function _agenten(){try{return JSON.parse(localStorage.getItem("zoekagenten")||"[]");}catch(e){return[];}}
 function renderAgentList(){var el=document.getElementById("agentList");var list=_agenten();if(!list.length){el.innerHTML='<p style="color:var(--subtekst);font-size:.9rem;margin:0">Geen zoekagenten opgeslagen.</p>';return;}el.innerHTML=list.map(function(a,i){return'<div style="display:flex;align-items:center;gap:8px;background:var(--achtergrond);border-radius:8px;padding:8px 12px"><span style="flex:1;font-size:.85rem">'+a.label+'</span><button onclick="verwijderAgent('+i+')" style="background:none;border:none;cursor:pointer;color:var(--subtekst);font-size:1.1rem">&#x2715;</button></div>';}).join("");}
