@@ -1284,7 +1284,7 @@ function openDetail(id) {
   huidigDetailId = id;
 
   document.getElementById('detailTitel').textContent = a.titel;
-  window._galImgs = (a.imgs && a.imgs.length) ? a.imgs.slice(0,10) : (a.imgSrc && !a.imgSrc.match(/marktplaats|gaspedaal/) ? [a.imgSrc] : []);
+  window._galImgs = (a.imgs && a.imgs.length) ? a.imgs.slice(0,10) : (a.imgSrc ? [a.imgSrc] : []);
   window._galIdx = 0;
   document.getElementById('detailInhoud').innerHTML = `
     <div class="gallery-main" style="position:relative">
