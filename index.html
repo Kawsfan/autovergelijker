@@ -617,6 +617,10 @@
 #topDealsBtn.aktief{background:#fff8ec;border-color:#e8905a;color:#e8905a;}
 #topDealsBtn:hover:not(.aktief){border-color:#aaa;}
 @media(max-width:600px){
+  .nav-live{display:none;}
+  .nav-txt{display:none;}
+  nav{gap:4px;padding:0 8px;}
+  .info-btn{padding:5px 9px;font-size:17px;}
   .gal-nav{width:44px;height:44px;font-size:28px;}
   .gal-prev{left:4px;}
   .gal-next{right:4px;}
@@ -629,15 +633,14 @@
 
 <nav>
   <div class="logo" onclick="resetFilters()">Auto<span>Vergelijker</span></div>
-  <span style="font-size:13px;color:var(--subtekst)">🟢 Live data</span>
+  <span class="nav-live" style="font-size:13px;color:var(--subtekst)">🟢 Live data</span>
   <div class="lang-switch">
     <button class="lang-btn actief" data-lang="nl" onclick="setLang('nl')">NL</button>
     <button class="lang-btn" data-lang="en" onclick="setLang('en')">EN</button>
   </div>
-  <button class="info-btn" onclick="openInfo()">ℹ️ Info</button>
-
-  <button class="info-btn" id="agentNavBtn" onclick="openAgent()">&#128276; Zoekagent</button>
-  <button class="info-btn" onclick="openMarkt()">&#128202; Marktanalyse</button>
+  <button class="info-btn" onclick="openInfo()">ℹ️<span class="nav-txt"> Info</span></button>
+  <button class="info-btn" id="agentNavBtn" onclick="openAgent()">&#128276;<span class="nav-txt"> Zoekagent</span></button>
+  <button class="info-btn" onclick="openMarkt()">&#128202;<span class="nav-txt"> Markt</span></button>
 </nav>
 
 <div class="hero">
