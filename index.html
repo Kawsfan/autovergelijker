@@ -261,6 +261,9 @@
       padding: 3px 9px; border-radius: 4px;
       letter-spacing: .5px; z-index: 2; pointer-events: none;
     }
+    .verk-badge{position:absolute;top:35px;left:10px;font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px;z-index:2;pointer-events:none}
+    .verk-recent{background:#f59e0b;color:#fff}
+    .verk-lang{background:#ef4444;color:#fff}
     .prijs-daling {
       position: absolute; bottom: 10px; right: 10px;
       background: #ef4444; color: #fff;
@@ -1108,6 +1111,7 @@ function toonResultaten(lijst) {
           onerror="this.src='https://placehold.co/600x380/e8e8e3/999?text=${encodeURIComponent((a.titel||'').split(' ').slice(0,2).join(' '))}'"
           loading="lazy" />
         ${a.bijgewerkt === VANDAAG ? '<span class="nieuw-badge">NIEUW</span>' : ''}
+       ${(()=>{if(!a.eersteGezien)return '';const _d=Math.round((Date.now()-new Date(a.eersteGezien+'T12:00:00').getTime())/86400000);if(_d<1)return '';if(_d<14)return '<span class="verk-badge verk-recent">'+_d+'d online</span>';return '<span class="verk-badge verk-lang">2+ weken</span>';})()}
         <span class="bron-label bron-${(a.bron||'Gaspedaal').toLowerCase().replace(/[^a-z0-9]/g,'')}">${a.bron || 'Gaspedaal'}</span>
       </div>
       <div class="auto-info">
@@ -1264,9 +1268,6 @@ function openDetail(id) {
         out+='<div style="display:flex;justify-content:space-between;font-size:11px;color:var(--subtekst);margin-top:2px"><span>'+all[0].datum+'</span><span>Nu: &#8364;'+Number(a.prijs).toLocaleString("nl-NL")+'</span></div>';
         out+='</div>';return out;
       })()}
-      <div class="cta-row">
-        <a class="btn-mp" href="${a.url}" target="_blank">Bekijk op ${a.bron || 'Gaspedaal'} →</a>
-      </div>
       <p style="font-size:12px;color:var(--subtekst);margin-top:12px;text-align:center">
         Foto's en volledige omschrijving staan op de originele advertentie.
       </p>
