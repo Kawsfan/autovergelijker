@@ -1284,7 +1284,7 @@ function openDetail(id) {
   huidigDetailId = id;
 
   document.getElementById('detailTitel').textContent = a.titel;
-  window._galImgs = (a.imgs && a.imgs.length) ? a.imgs.slice(0,10) : (a.imgSrc ? [a.imgSrc] : []);
+  window._galImgs = (a.imgs && a.imgs.length) ? a.imgs.slice(0,10).map(u=>u.replace('/250x188.webp','/800x600.webp').replace('/250x188.jpg','/800x600.jpg')) : (a.imgSrc ? [a.imgSrc.replace('/250x188.webp','/800x600.webp')] : []);
   window._galIdx = 0;
   document.getElementById('detailInhoud').innerHTML = `
     <div class="gallery-main" style="position:relative">
