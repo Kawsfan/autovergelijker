@@ -157,8 +157,8 @@ function parseerAutoScout24(html, offset = 0) {
           transmissie: item.vehicle?.transmissionType?.name || '',
           locatie: item.seller?.city || 'Nederland',
           url: url || 'https://www.autoscout24.nl',
-          imgSrc: item.images?.[0]?.url || '',
-          imgs: (item.images || []).slice(0, 10).map(im => im.url).filter(Boolean),
+          imgSrc: (item.images?.[0]?.url||'').replace('/250x188.webp','/800x600.webp').replace('/250x188.jpg','/800x600.jpg') || '',
+          imgs: (item.images || []).slice(0, 10).map(im => (im.url||'').replace('/250x188.webp','/800x600.webp').replace('/250x188.jpg','/800x600.jpg')).filter(Boolean),
           bijgewerkt: new Date().toISOString().split('T')[0]
         });
       }
