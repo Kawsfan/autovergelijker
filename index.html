@@ -81,10 +81,25 @@
     /* HERO (alleen titel) */
     .hero {
       background: linear-gradient(135deg, var(--donker) 0%, #16213e 60%, #0f3460 100%);
-      color: white; padding: 32px 24px 24px; text-align: center;
+      color: white; padding: 44px 24px 36px; text-align: center;
     }
-    .hero h1 { font-size: 26px; font-weight: 800; margin-bottom: 6px; }
-    .hero p { font-size: 14px; opacity: 0.75; }
+    .hero-inner { max-width: 680px; margin: 0 auto; }
+    .hero h1 { font-size: 34px; font-weight: 800; margin-bottom: 12px; line-height: 1.2; letter-spacing: -0.5px; }
+    .hero p { font-size: 15px; opacity: 0.8; line-height: 1.65; margin-bottom: 24px; }
+    .hero-cta {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: var(--oranje,#f60); color: white; border: none;
+      padding: 15px 32px; border-radius: 50px; font-size: 16px; font-weight: 700;
+      cursor: pointer; margin-bottom: 28px; letter-spacing: 0.2px;
+      box-shadow: 0 4px 20px rgba(255,102,0,0.4); transition: transform .15s, box-shadow .15s;
+    }
+    .hero-cta:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(255,102,0,0.5); }
+    .hero-badges { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+    .hero-badge {
+      background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.18);
+      border-radius: 50px; padding: 7px 16px; font-size: 13px; font-weight: 600; color: white;
+    }
+    .hero-badge strong { color: var(--oranje,#f60); }
 
     /* FILTER KAART */
     .filter-kaart {
@@ -671,16 +686,17 @@
 </nav>
 
 <div class="hero">
-  <h1>Tweedehands auto kopen? Één zoekopdracht. 30.000+ occasions.</h1>
-  <p>Wij scrapen dagelijks het aanbod van Marktplaats, AutoScout24, Gaspedaal en ViaBOVAG — jij filtert op prijs, merk en kilometerstand en ziet in één oogopslag wat de markt doet. Geen account, geen kosten.</p>
-  <div class="hero-stats">
-    <span class="hero-stat"><strong>30.000+</strong> occasions</span>
-    <span class="hero-sep">·</span>
-    <span class="hero-stat"><strong>4</strong> platforms</span>
-    <span class="hero-sep">·</span>
-    <span class="hero-stat"><strong>Dagelijks</strong> bijgewerkt</span>
-    <span class="hero-sep">·</span>
-    <span class="hero-stat"><strong>Gratis</strong></span>
+  <div class="hero-inner">
+    <h1>Alle occasions.<br>Één zoekopdracht.</h1>
+    <p>Dagelijks gescraped van Marktplaats, AutoScout24,<br>Gaspedaal en ViaBOVAG. Geen account, geen kosten.</p>
+    <button class="hero-cta" onclick="const el=document.getElementById('zoekInput');if(el){el.focus();el.scrollIntoView({behavior:'smooth',block:'center'})}">
+      🔍 Zoek jouw auto
+    </button>
+    <div class="hero-badges">
+      <span class="hero-badge">🚗 <strong id="heroCnt">31.000+</strong> occasions</span>
+      <span class="hero-badge">📡 <strong>4</strong> platforms</span>
+      <span class="hero-badge">✅ Gratis</span>
+    </div>
   </div>
 </div>
 
@@ -1144,7 +1160,7 @@ function toonResultaten(lijst) {
   const gesorteerd = sorteer([...lijst], sort);
   const header = document.getElementById('resultatenHeader');
 
-  document.getElementById('aantalTekst').textContent =
+  const _hc=document.getElementById('heroCnt');if(_hc)_hc.textContent=(window._alleAutos?.length||0).toLocaleString('nl-NL')+'+';document.getElementById('aantalTekst').textContent =
     TRANS[window.lang||'nl'].result(gesorteerd.length);
   const bronnenLijst = [...new Set(lijst.map(l => l.bron).filter(Boolean))];
   document.getElementById('aantalSub').textContent = TRANS[window.lang||'nl'].sub(bronnenLijst);
