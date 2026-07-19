@@ -1374,27 +1374,34 @@ function galGoTo(i) {
   galRender();
 }
 function galRender() {
-  const imgs = window._galImgs || [];
-  const idx  = window._galIdx  || 0;
-  const mainImg = document.getElementById('galFoto');
-  const teller  = document.getElementById('galTeller');
-  const thumbs  = document.getElementById('galThumbs');
+  var imgs = window._galImgs || [];
+  var n    = imgs.length;
+  var raw  = window._galIdx || 0;
+  var idx  = n ? ((raw % n) + n) % n : 0;
+  if (n) window._galIdx = idx;
+  var mainImg = document.getElementById('galFoto');
+  var teller  = document.getElementById('galTeller');
+  var thumbs  = document.getElementById('galThumbs');
   if (!mainImg) return;
-  if (!imgs.length) { mainImg.style.opacity = '0'; return; }
+  if (!n) { mainImg.style.opacity = '0'; return; }
   mainImg.style.opacity = '';
-  mainImg.src = 'https://wsrv.nl/?url='+(imgs[idx].replace(/\$_\d+\.jpg/gi, '$_86.jpg')).replace(/^https?:/,'').replace(/^\/\//,'');
-  document.querySelectorAll('.gal-nav').forEach(b => {
-    b.style.display = imgs.length > 1 ? '' : 'none';
+  mainImg.src = 'https://wsrv.nl/?url='+(imgs[idx].replace(/\$_\d+\.jpg/gi,'\$_86.jpg')).replace(/^https?:/,'').replace(/^\/\//,'');
+  document.querySelectorAll('.gal-nav').forEach(function(b) {
+    b.style.display = n > 1 ? '' : 'none';
   });
-  if (teller) teller.textContent = imgs.length > 1 ? (idx+1) + ' / ' + imgs.length : '';
+  if (teller) teller.textContent = n > 1 ? (idx+1)+' / '+n : '';
   if (thumbs) {
-    thumbs.style.display = imgs.length > 1 ? 'flex' : 'none';
+    thumbs.style.display = n > 0 ? 'flex' : 'none';
     thumbs.innerHTML = imgs.map(function(url, i) {
-      return '<img referrerpolicy="no-referrer" onerror="this.style.display=\'none\'" class="gal-thumb' + (i===idx?' actief':'') + '" src="' + url.replace(/\$_\d+\.jpg/gi, '$_86.jpg') + '" onclick="galGoTo(' + i + ')" onerror="this.style.display=\'none\'" />';
+      var bdr = i === idx ? '#e84c15' : 'transparent';
+      var opc = i === idx ? '1' : '.65';
+      var ts = 'https://wsrv.nl/?url='+(url.replace(/\$_\d+\.jpg/gi,'\$_82.jpg')).replace(/^https?:/,'').replace(/^\/\//,'');
+      return '<img referrerpolicy="no-referrer" onerror="this.style.display=\'none\'" onclick="galGoTo('+i+')" src="'+ts+'" style="width:72px;height:54px;object-fit:cover;border-radius:6px;cursor:pointer;flex-shrink:0;border:2px solid '+bdr+';opacity:'+opc+';transition:.15s">';
     }).join('');
+    var at = thumbs.children[idx];
+    if (at) at.scrollIntoView({block:'nearest',inline:'center',behavior:'smooth'});
   }
 }
-
 function sluitDetail() {
   document.getElementById('overlay').classList.remove('open');
   document.getElementById('detailPanel').classList.remove('open');
