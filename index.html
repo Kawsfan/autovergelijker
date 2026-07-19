@@ -1793,6 +1793,104 @@ function resetVergelijk(){_vgl=[];updateVglBar();document.querySelectorAll("[dat
 function filtersNaarURL(){var p=new URLSearchParams();var g=function(id){var e=document.getElementById(id);return e?e.value:"";};var sv=function(k,v){if(v)p.set(k,v);};sv("q",g("zoekInput"));sv("merk",g("merkFilter"));sv("model",g("modelInput"));sv("brandstof",g("brandstofFilter"));sv("jaarMin",g("jaarMin"));sv("jaarMax",g("jaarMax"));sv("prijsMin",g("prijsMin"));sv("prijsMax",g("prijsMax"));sv("kmMin",g("kmMin"));sv("kmMax",g("kmMax"));sv("carrosserie",g("carrosserieFilter"));if(window._actieveTrans)sv("trans",window._actieveTrans);history.replaceState(null,"",p.toString()?"?"+p.toString():location.pathname);}
 function urlNaarFilters(){var p=new URLSearchParams(location.search);if(!p.toString())return;var set=function(id,val){var e=document.getElementById(id);if(e&&val)e.value=val;};set("zoekInput",p.get("q"));set("merkFilter",p.get("merk"));set("modelInput",p.get("model"));set("brandstofFilter",p.get("brandstof"));set("jaarMin",p.get("jaarMin"));set("jaarMax",p.get("jaarMax"));set("prijsMin",p.get("prijsMin"));set("prijsMax",p.get("prijsMax"));set("kmMin",p.get("kmMin"));set("kmMax",p.get("kmMax"));set("carrosserieFilter",p.get("carrosserie"));if(p.get("trans")){var tb=document.querySelector("[data-val=\""+p.get("trans")+"\"]");if(tb)setTransmissie(tb);}zoekNu();}
 document.addEventListener("DOMContentLoaded",urlNaarFilters);
+
+
+// Elena – Extended EN translations
+(function() {
+  var _origSetLang = window.setLang;
+  window.setLang = function(l) {
+    _origSetLang(l);
+    _applyExtraEN(l);
+  };
+
+  function _applyExtraEN(l) {
+    var en = l === 'en';
+
+    // Nav text spans: Zoekagent, Markt
+    document.querySelectorAll('.nav-txt').forEach(function(el) {
+      if (!el.dataset.nl) el.dataset.nl = el.textContent.trim();
+      var m = {'Zoekagent':'Alerts','Markt':'Market'};
+      if (m[el.dataset.nl]) el.textContent = en ? m[el.dataset.nl] : el.dataset.nl;
+    });
+
+    // Map button
+    var bk = document.getElementById('btnKaart');
+    if (bk) bk.innerHTML = en ? '🗺 Map' : '🗺 Kaart';
+
+    // Price drop button
+    var pb = document.getElementById('prijsdalingBtn');
+    if (pb) {
+      if (!pb.dataset.nl) pb.dataset.nl = pb.innerHTML;
+      pb.innerHTML = en ? '📉 Price drops' : pb.dataset.nl;
+    }
+
+    // Close sheet button
+    var sc = document.getElementById('sheetCloseBtn');
+    if (sc) sc.textContent = en ? '✕ Close' : '✕ Sluiten';
+
+    // Search button with count
+    var vb = document.querySelector('.vinden-btn');
+    if (vb) {
+      var cnt = (vb.textContent.match(/[d.,]+/) || [''])[0];
+      vb.textContent = en ? 'Search (' + cnt + ')' : 'Zoeken (' + cnt + ')';
+    }
+
+    // Select first options
+    var optMap = {
+      'radiusSelect': ['Alle afstanden','All distances'],
+      'modelInput':   ['Selecteer eerst een merk','Select a make first'],
+      'mModel':       ['Alle modellen','All models'],
+      'mJaar':        ['Alle jaren','All years'],
+      'mTrans':       ['Alle transmissies','All transmissions']
+    };
+    Object.keys(optMap).forEach(function(id) {
+      var s = document.getElementById(id);
+      if (s && s.options[0]) s.options[0].text = en ? optMap[id][1] : optMap[id][0];
+    });
+
+    // Range placeholders: van/t/m
+    ['prijsMin','kmMin'].forEach(function(id) {
+      var s = document.getElementById(id);
+      if (s && s.options[0]) s.options[0].text = en ? 'from' : 'van';
+    });
+    ['prijsMax','kmMax'].forEach(function(id) {
+      var s = document.getElementById(id);
+      if (s && s.options[0]) s.options[0].text = en ? 'to' : 't/m';
+    });
+
+    // FAQ summaries
+    var faq = {
+      'Hoe werkt AutoVergelijker?': 'How does AutoVergelijker work?',
+      'Is AutoVergelijker gratis?': 'Is AutoVergelijker free?',
+      'Kan ik een auto kopen via AutoVergelijker?': 'Can I buy a car through AutoVergelijker?',
+      'Hoe vaak worden advertenties bijgewerkt?': 'How often are listings updated?',
+      'Waarom zie ik sommige advertenties niet meer?': 'Why have some listings disappeared?'
+    };
+    document.querySelectorAll('summary').forEach(function(s) {
+      if (!s.dataset.nl) s.dataset.nl = s.textContent.trim();
+      if (faq[s.dataset.nl]) s.textContent = en ? faq[s.dataset.nl] : s.dataset.nl;
+    });
+
+    // H2 headings
+    var h2map = {
+      'Marktoverzicht occasions per merk': 'Used car market by brand',
+      'Hoe werkt AutoVergelijker?': 'How AutoVergelijker works'
+    };
+    document.querySelectorAll('h2').forEach(function(h) {
+      if (!h.dataset.nl) h.dataset.nl = h.textContent.trim();
+      if (h2map[h.dataset.nl]) h.textContent = en ? h2map[h.dataset.nl] : h.dataset.nl;
+    });
+  }
+
+  // Apply on init
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function() {
+      _applyExtraEN(window.lang || localStorage.getItem('lang') || 'nl');
+    });
+  } else {
+    _applyExtraEN(window.lang || localStorage.getItem('lang') || 'nl');
+  }
+})();
 </script><script>
 // ── Paginering ──
 window._pagina=1;
