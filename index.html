@@ -2611,5 +2611,210 @@ window.toonResultaten=function(lijst){
   else setTimeout(_addTDBtn,300);
 }());
 </script>
-</body>
+
+<!-- ═══ FAVORIETEN PANEL ═══ -->
+<div id="favOverlay" onclick="sluitFavPanel()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:440"></div>
+<div id="favPanel" style="display:none;position:fixed;top:0;right:0;height:100vh;width:min(400px,100vw);background:white;z-index:450;overflow-y:auto;box-shadow:-4px 0 24px rgba(0,0,0,.18);transform:translateX(100%);transition:transform .3s cubic-bezier(.4,0,.2,1)">
+  <div style="padding:16px 20px;border-bottom:1px solid #e8e8e3;display:flex;align-items:center;gap:12px;position:sticky;top:0;background:white;z-index:5">
+    <button onclick="sluitFavPanel()" style="background:none;border:1px solid #e8e8e3;border-radius:8px;padding:7px 14px;cursor:pointer;font-size:13px;font-family:inherit">← Terug</button>
+    <span style="font-size:15px;font-weight:700;color:#1a1a2e">❤️ Favorieten</span>
+    <span id="favTeller" style="background:#e84c15;color:white;border-radius:20px;padding:2px 9px;font-size:12px;font-weight:700;margin-left:auto"></span>
+  </div>
+  <div id="favLijst" style="padding:16px"></div>
+</div>
+
+<!-- ═══ VERGELIJK BAR ═══ -->
+<div id="vglBar2" style="display:none;position:fixed;bottom:0;left:0;right:0;background:white;border-top:2px solid #e84c15;padding:12px 20px;z-index:350;box-shadow:0 -4px 20px rgba(0,0,0,.12);align-items:center;gap:10px;flex-wrap:wrap">
+  <span style="font-size:13px;font-weight:700;color:#1a1a2e;white-space:nowrap">⚖️ Vergelijken</span>
+  <div id="vglSlots2" style="display:flex;gap:8px;flex:1;flex-wrap:wrap;min-width:0"></div>
+  <button id="vglGaBtn" onclick="openVglModal()" style="background:#e84c15;color:white;border:none;padding:10px 22px;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;white-space:nowrap;font-family:inherit">Vergelijk →</button>
+  <button onclick="resetVgl2()" style="background:none;border:1px solid #e8e8e3;padding:10px 14px;border-radius:8px;font-size:13px;cursor:pointer;font-family:inherit">Wis alles</button>
+</div>
+
+<!-- ═══ VERGELIJK MODAL ═══ -->
+<div id="vglModal2" onclick="if(event.target===this)sluitVglModal2()" style="display:none;position:fixed;inset:0;z-index:500;overflow-y:auto;background:rgba(0,0,0,.55);padding:24px 16px">
+  <div style="background:white;max-width:960px;margin:0 auto;border-radius:16px;overflow:hidden">
+    <div style="padding:16px 24px;border-bottom:1px solid #e8e8e3;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:white;z-index:5">
+      <span style="font-size:17px;font-weight:700;color:#1a1a2e">⚖️ Vergelijking</span>
+      <button onclick="sluitVglModal2()" style="background:none;border:1px solid #e8e8e3;border-radius:8px;padding:6px 14px;font-size:13px;cursor:pointer;font-family:inherit">× Sluiten</button>
+    </div>
+    <div id="vglTabel2" style="padding:24px;overflow-x:auto"></div>
+  </div>
+</div>
+
+<!-- ═══ TOAST ═══ -->
+<div id="_avToast" style="position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#1a1a2e;color:white;padding:10px 18px;border-radius:20px;font-size:13px;font-weight:600;z-index:999;opacity:0;transition:opacity .2s;pointer-events:none;white-space:nowrap"></div>
+
+<style>
+.fav-btn{color:#9ca3af;transition:color .15s,transform .15s}
+.fav-btn.fav-actief{color:#ef4444}
+.fav-btn.fav-actief::before{content:"♥";position:absolute}
+.vgl-btn.vgl-actief{background:#e84c15!important;color:white!important}
+</style>
+
+<script>
+(function(){
+  if(!window._vgl)window._vgl=[];
+  if(!window._favs)window._favs=new Set(JSON.parse(localStorage.getItem('_av_favs')||'[]'));
+
+  function toast(msg){
+    var t=document.getElementById('_avToast');
+    if(!t)return;
+    t.textContent=msg;t.style.opacity='1';
+    clearTimeout(window._tt);
+    window._tt=setTimeout(function(){t.style.opacity='0';},2200);
+  }
+
+  // ── FAVORIETEN ──
+  window.toggleFav=function(event,id){
+    event.stopPropagation();
+    var had=_favs.has(id);
+    had?_favs.delete(id):_favs.add(id);
+    localStorage.setItem('_av_favs',JSON.stringify([..._favs]));
+    document.querySelectorAll('[data-fav="'+id+'"]').forEach(function(b){
+      b.classList.toggle('fav-actief',!had);
+      b.textContent=!had?'♥':'♡';
+    });
+    toast(had?'🗑️ Verwijderd uit favorieten':'❤️ Opgeslagen als favoriet');
+    var c=document.getElementById('navFavCount');
+    if(c){c.textContent=_favs.size||'';c.style.display=_favs.size?'inline':'none';}
+  };
+
+  window.openFavPanel=function(){
+    var panel=document.getElementById('favPanel');
+    var overlay=document.getElementById('favOverlay');
+    var lijst=document.getElementById('favLijst');
+    var teller=document.getElementById('favTeller');
+    if(!panel)return;
+    var ids=[..._favs];
+    if(teller)teller.textContent=ids.length?ids.length+' auto'+(ids.length!==1?"'s":''):'';
+    if(!ids.length){
+      lijst.innerHTML='<div style="text-align:center;padding:48px 20px;color:#9ca3af"><div style="font-size:48px;margin-bottom:16px">💔</div><p style="font-size:15px;line-height:1.6">Nog geen favorieten opgeslagen.<br>Klik het ♡ icoontje op een auto-kaart.</p></div>';
+    } else {
+      var autos=window._alleAutos||[];
+      lijst.innerHTML=ids.map(function(id){
+        var a=autos.find(function(x){return x.id===id;});
+        if(!a)return '';
+        var p=(a.prijs||0).toLocaleString('nl-NL');
+        var s=[a.jaar,a.km!=null?a.km.toLocaleString('nl-NL')+' km':null,a.brandstof].filter(Boolean).join(' · ');
+        return '<div onclick="sluitFavPanel();setTimeout(function(){openDetail(''+id+'')},200)" style="display:flex;gap:12px;padding:12px;border:1px solid #e8e8e3;border-radius:10px;margin-bottom:10px;cursor:pointer;transition:border-color .15s;align-items:center">'
+          +'<img src="'+a.imgSrc+'" style="width:80px;height:60px;object-fit:cover;border-radius:6px;flex-shrink:0;background:#f5f5f0" onerror="this.style.display='none'">'
+          +'<div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:700;color:#1a1a2e;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+a.titel+'</div>'
+          +'<div style="font-size:16px;font-weight:800;color:#e84c15;margin:2px 0">€ '+p+'</div>'
+          +'<div style="font-size:11px;color:#9ca3af">'+s+'</div></div>'
+          +'<button data-fav="'+id+'" onclick="event.stopPropagation();toggleFav(event,''+id+'');setTimeout(openFavPanel,80)" style="background:none;border:none;font-size:20px;cursor:pointer;color:#ef4444;flex-shrink:0;padding:4px" class="fav-actief">♥</button>'
+          +'</div>';
+      }).filter(Boolean).join('')||'<p style="color:#9ca3af;text-align:center;padding:32px">Herlaad de pagina om favorieten te laden.</p>';
+    }
+    panel.style.display='block';overlay.style.display='block';
+    document.body.style.overflow='hidden';
+    requestAnimationFrame(function(){panel.style.transform='translateX(0)';});
+  };
+
+  window.sluitFavPanel=function(){
+    var p=document.getElementById('favPanel');var o=document.getElementById('favOverlay');
+    if(!p)return;
+    p.style.transform='translateX(100%)';o.style.display='none';
+    setTimeout(function(){p.style.display='none';},300);
+    document.body.style.overflow='';
+  };
+
+  // ── VERGELIJKEN ──
+  window.toggleVergelijk=function(event,id){
+    event.stopPropagation();
+    var i=_vgl.indexOf(id);
+    if(i>=0){
+      _vgl.splice(i,1);
+    } else {
+      if(_vgl.length>=3){toast('Max. 3 auto’s vergelijken');return;}
+      _vgl.push(id);
+      toast('✓ Geselecteerd — '+(_vgl.length<2?'selecteer nog 1 auto om te vergelijken':'klik Vergelijk →'));
+    }
+    updateVglBar();
+    document.querySelectorAll('[data-vgl="'+id+'"]').forEach(function(b){b.classList.toggle('vgl-actief',_vgl.indexOf(id)>=0);});
+  };
+
+  window.updateVglBar=function(){
+    var bar=document.getElementById('vglBar2');
+    var slots=document.getElementById('vglSlots2');
+    if(!bar||!slots)return;
+    if(!_vgl.length){bar.style.display='none';return;}
+    bar.style.display='flex';
+    var autos=window._alleAutos||[];
+    slots.innerHTML=_vgl.map(function(id){
+      var a=autos.find(function(x){return x.id===id;});
+      var naam=a?a.titel.substring(0,22)+(a.titel.length>22?'…':''):id;
+      var prijs=a?'€ '+((a.prijs||0).toLocaleString('nl-NL')):'';
+      return '<div style="display:flex;align-items:center;gap:6px;background:#f5f5f0;border-radius:8px;padding:6px 10px;min-width:0">'
+        +'<div style="min-width:0"><div style="font-weight:700;color:#1a1a2e;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:130px">'+naam+'</div>'
+        +'<div style="color:#e84c15;font-weight:700;font-size:12px">'+prijs+'</div></div>'
+        +'<button onclick="toggleVergelijk(event,''+id+'')" style="background:none;border:none;cursor:pointer;color:#9ca3af;font-size:18px;padding:0;line-height:1;flex-shrink:0">×</button>'
+        +'</div>';
+    }).join('');
+    var gb=document.getElementById('vglGaBtn');
+    if(gb)gb.style.opacity=_vgl.length<2?'0.5':'1';
+  };
+
+  window.resetVgl2=function(){
+    _vgl.length=0;
+    document.querySelectorAll('.vgl-actief').forEach(function(el){el.classList.remove('vgl-actief');});
+    updateVglBar();
+  };
+
+  window.openVglModal=function(){
+    if(_vgl.length<2){toast('Selecteer minimaal 2 auto’s');return;}
+    var autos=window._alleAutos||[];
+    var sel=_vgl.map(function(id){return autos.find(function(x){return x.id===id;});}).filter(Boolean);
+    var tabel=document.getElementById('vglTabel2');
+    var cw=Math.floor(72/sel.length);
+    var rows=[
+      {l:'Foto',r:function(a){return '<img src="'+a.imgSrc+'" style="width:100%;max-width:150px;height:95px;object-fit:cover;border-radius:8px" onerror="this.style.display='none'">';}},
+      {l:'Prijs',r:function(a){return '<span style="font-size:20px;font-weight:800;color:#1a1a2e">€ '+((a.prijs||0).toLocaleString('nl-NL'))+'</span>';}},
+      {l:'Bouwjaar',r:function(a){return '<b>'+(a.jaar||'—')+'</b>';}},
+      {l:'Km-stand',r:function(a){return '<b>'+(a.km!=null?a.km.toLocaleString('nl-NL')+' km':'—')+'</b>';}},
+      {l:'Brandstof',r:function(a){return a.brandstof||'—';}},
+      {l:'Transmissie',r:function(a){return a.transmissie||'—';}},
+      {l:'Bron',r:function(a){var m={'Marktplaats':'#0063D3','Gaspedaal':'#E87722','AutoScout24':'#FF6600','ViaBovag':'#003082'};var c=m[a.bron]||'#9ca3af';return '<span style="font-weight:700;color:'+c+'">'+(a.bron||'—')+'</span>';}},
+      {l:'Dealscore',r:function(a){var s=a.dealScore;if(s==null)return '—';var col=s>60?'#15803d':s<35?'#b91c1c':'#854d0e';var bg=s>60?'#dcfce7':s<35?'#fee2e2':'#fef9c3';return '<span style="background:'+bg+';color:'+col+';padding:3px 10px;border-radius:20px;font-size:12px;font-weight:700">'+Math.round(s)+' score</span>';}},
+    ];
+    tabel.innerHTML='<table style="width:100%;border-collapse:collapse;font-size:14px">'
+      +'<thead><tr><th style="width:28%;padding:10px 8px;text-align:left;border-bottom:2px solid #e8e8e3;font-size:11px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.4px">Kenmerk</th>'
+      +sel.map(function(a){return '<th style="width:'+cw+'%;padding:10px 8px;text-align:left;border-bottom:2px solid #e84c15;font-size:13px;font-weight:700;color:#1a1a2e">'+a.titel.substring(0,35)+(a.titel.length>35?'…':'')+'</th>';}).join('')
+      +'</tr></thead><tbody>'
+      +rows.map(function(row,ri){
+        return '<tr style="'+(ri%2?'background:#fafafa':'')+'">'
+          +'<td style="padding:12px 8px;border-bottom:1px solid #f1f2f4;font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.3px">'+row.l+'</td>'
+          +sel.map(function(a){return '<td style="padding:12px 8px;border-bottom:1px solid #f1f2f4">'+row.r(a)+'</td>';}).join('')
+          +'</tr>';
+      }).join('')
+      +'</tbody></table>'
+      +'<div style="display:flex;gap:10px;margin-top:20px;flex-wrap:wrap">'
+      +sel.map(function(a){return '<a href="'+(a.url||'#')+'" target="_blank" style="flex:1;min-width:140px;padding:12px 16px;background:#e84c15;color:white;border-radius:8px;text-align:center;text-decoration:none;font-weight:700;font-size:14px">Bekijk op '+(a.bron||'bron')+' →</a>';}).join('')
+      +'</div>';
+    document.getElementById('vglModal2').style.display='block';
+    document.body.style.overflow='hidden';
+  };
+
+  window.sluitVglModal2=function(){
+    document.getElementById('vglModal2').style.display='none';
+    document.body.style.overflow='';
+  };
+
+  // ── FAV BUTTON IN NAV ──
+  function addFavBtn(){
+    var nav=document.querySelector('nav');
+    if(!nav||document.getElementById('navFavBtn'))return;
+    var btn=document.createElement('button');
+    btn.id='navFavBtn';
+    btn.onclick=openFavPanel;
+    btn.style.cssText='background:rgba(0,0,0,0.05);border:none;border-radius:20px;padding:6px 14px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;color:var(--tekst,#333);display:flex;align-items:center;gap:5px;transition:.15s';
+    btn.innerHTML='❤️ Favorieten <span id="navFavCount" style="background:#e84c15;color:white;border-radius:10px;padding:1px 6px;font-size:11px;font-weight:700;display:none"></span>';
+    nav.appendChild(btn);
+    var c=document.getElementById('navFavCount');
+    if(c&&_favs.size){c.textContent=_favs.size;c.style.display='inline';}
+  }
+  if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',addFavBtn);}
+  else{setTimeout(addFavBtn,200);}
+})();
+</script></body>
 </html>
