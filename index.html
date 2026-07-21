@@ -1673,7 +1673,7 @@ function renderKaart() {
       + '<div class="kp-titel">'+(auto.titel||'Auto')+'</div>'
       + '<div class="kp-prijs">€ '+prijs.toLocaleString('nl-NL')+'</div>'
       + '<div style="font-size:11px;color:#666;margin-top:3px">'+(auto.locatie||'')+'</div>'
-      + '<button onclick="document.querySelector('[class*=leaflet-popup-close]').click();setTimeout(function(){openDetail(''+autoId+'')},120)" style="margin-top:8px;width:100%;padding:6px;background:#1a56db;color:#fff;border:none;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer">Bekijk details →</button>'
+      + '<button onclick="document.querySelector(\'[class*=leaflet-popup-close]\').click();setTimeout(function(){openDetail(autoId)},120)" style="margin-top:8px;width:100%;padding:6px;background:#1a56db;color:#fff;border:none;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer">Bekijk details →</button>'
       + '</div></div>';
     var marker = L.marker(jCoord, {icon: icon}).bindPopup(popup, {maxWidth: 220, minWidth: 180});
     markers.push(marker);
