@@ -1648,37 +1648,35 @@ function renderKaart() {
   var markers = [];
   var bounds = [];
   var _lijstVoorKaart = (_huidigeLijst && _huidigeLijst.length > 0) ? _huidigeLijst : (window._alleAutos || []).slice(0, 800);
-  _lijstVoorKaart.forEach(function(auto) {
-    if (!auto.locatie) return;
-    var key = auto.locatie.toLowerCase().trim();
-    var coord = NL_CITIES[key];
-    if (!coord) {
-      for (var city in NL_CITIES) {
-        if (key.includes(city) || city.includes(key)) { coord = NL_CITIES[city]; break; }
-      }
-    }
-    if (!coord) return;
-    var jCoord = [coord[0] + (Math.random()-0.5)*0.012, coord[1] + (Math.random()-0.5)*0.018];
-    var prijs = auto.prijs || 0;
-    var prijsTekst = prijs >= 1000 ? Math.round(prijs/1000)+'K' : ''+prijs;
-    var ds = auto.dealScore || 50;
-    var kleur = ds > 60 ? '#16a34a' : ds < 35 ? '#dc2626' : '#d97706';
-    var icon = L.divIcon({
-      className: '',
-      html: '<div class="kaart-pin" style="background:'+kleur+'">€'+prijsTekst+'</div>',
-      iconSize: [52, 26],
-      iconAnchor: [26, 32]
-    });
-    var autoId = auto.id;
-    var popup = '<div class="kaart-popup">'
-      + (auto.afbeelding ? '<img src="'+auto.afbeelding+'" loading="lazy" onerror="this.style.display=\'none\'" style="width:100%;height:90px;object-fit:cover;border-radius:6px 6px 0 0">' : '')
-      + '<div style="padding:8px 10px 10px">'
-      + '<div class="kp-titel">'+(auto.titel||'Auto')+'</div>'
-      + '<div class="kp-prijs">€ '+prijs.toLocaleString('nl-NL')+'</div>'
-      + '<div style="font-size:11px;color:#666;margin-top:3px">'+(auto.locatie||'')+'</div>'
-      + '<button onclick="document.querySelector(\'[class*=leaflet-popup-close]\').click();setTimeout(function(){openDetail(autoId)},120)" style="margin-top:8px;width:100%;padding:6px;background:#1a56db;color:#fff;border:none;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer">Bekijk details →</button>'
-      + '</div></div>';
-    var marker = L.marker(jCoord, {icon: icon}).bindPopup(popup, {maxWidth: 220, minWidth: 180});
+  var _cityMap={};
+  _lijstVoorKaart.forEach(function(auto){
+    if(!auto.locatie)return;
+    var k=auto.locatie.toLowerCase().trim();
+    var c=NL_CITIES[k];
+    if(!c){for(var ct in NL_CITIES){if(k.indexOf(ct)>=0||ct.indexOf(k)>=0){c=NL_CITIES[ct];break;}}}
+    if(!c)return;
+    var ck=c[0]+':'+c[1];
+    if(!_cityMap[ck])_cityMap[ck]={c:c,list:[],min:Infinity,loc:auto.locatie};
+    _cityMap[ck].list.push(auto);
+    if(auto.prijs&&auto.prijs<_cityMap[ck].min)_cityMap[ck].min=auto.prijs;
+  });
+  Object.keys(_cityMap).forEach(function(ck){
+    var g=_cityMap[ck];
+    var n=g.list.length;
+    var p=g.min<Infinity?g.min:0;
+    var kleur=p>0&&p<5000?'#c0392b':p<15000?'#d35400':'#27ae60';
+    var pt=p>=1000?'\u20ac'+Math.round(p/1000)+'K':p>0?'\u20ac'+p:'?';
+    var badge=n>1?' ('+n+')':'';
+    var jCoord=[g.c[0],g.c[1]];
+    var icon=L.divIcon({className:'',html:'<div class'+String.fromCharCode(61)+'"kaart-pin" style'+String.fromCharCode(61)+'"background:'+kleur+'">'+pt+badge+'</div>',iconSize:[70,26],iconAnchor:[35,32]});
+    var topAuto=g.list.sort(function(a,b){return(a.prijs||999999)-(b.prijs||999999);})[0];
+    var autoId=topAuto.id;
+    var popup='<div class'+String.fromCharCode(61)+'"kaart-popup"><b>'+g.loc+'</b> ('+n+')<br>';
+    g.list.slice(0,3).forEach(function(a){popup+='<hr style'+String.fromCharCode(61)+'"margin:3px 0"><small>'+(a.titel||'').substring(0,35)+'<br>\u20ac'+(a.prijs||'?')+'</small>';});
+    if(n>3)popup+='<br><small>+'+(n-3)+' meer</small>';
+    popup+='<br><button onclick'+String.fromCharCode(61)+'"setTimeout(function(){openDetail('+autoId+')},120)" style'+String.fromCharCode(61)+'"margin-top:8px;width:100%;padding:6px;background:#1a56db;color:#fff;border:none;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer">Bekijk details \u2192</button></div>';
+    var marker=L.marker(jCoord,{icon:icon});
+    marker.bindPopup(popup,{maxWidth:220});
     markers.push(marker);
     bounds.push(jCoord);
   });
