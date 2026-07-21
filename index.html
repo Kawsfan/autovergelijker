@@ -674,7 +674,7 @@
   .filter-rij select,.filter-rij input[type=text],.filter-rij input[type=number]{min-height:40px;}
 }
 </style>
-</head>
+<style>.leaflet-tile{opacity:1!important}</style></head>
 <body>
 
 <nav>
@@ -1635,7 +1635,7 @@ function setView(v) {
 
 function renderKaart() {
   if (!_kaartMap) {
-    _kaartMap = L.map('kaartCanvas').setView([52.15, 5.28], 7);
+    _kaartMap = L.map('kaartCanvas', {fadeAnimation: false, zoomAnimation: false}).setView([52.15, 5.28], 7);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
       maxZoom: 19
