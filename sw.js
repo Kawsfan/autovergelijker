@@ -1,4 +1,4 @@
-const CACHE = "autovergelijker-v6";
+const CACHE = "autovergelijker-v7";
 const STATIC = ["/autovergelijker/","/autovergelijker/index.html"];
 self.addEventListener("install",function(e){
   e.waitUntil(caches.open(CACHE).then(function(c){return c.addAll(STATIC);}));
