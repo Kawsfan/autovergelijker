@@ -1056,6 +1056,7 @@ async function laadListings() {
 
     updateVindenCount(alleResultaten.length);
     zoekNu();
+    if (document.getElementById('kaartView').style.display !== 'none') renderKaart();
   } catch (err) {
     document.getElementById('autoGrid').innerHTML = `
       <div class="geen-resultaten">
@@ -1133,6 +1134,7 @@ function zoekNu() {
     n === totaal ? `${totaal} advertenties` : `${n} van ${totaal} advertenties`;
 
   updateVindenCount(n);
+  _huidigeLijst = gefilterd;
   toonResultaten(gefilterd);
 }
 
@@ -1645,7 +1647,8 @@ function renderKaart() {
   if (_kaartCircle) { _kaartCircle.remove(); _kaartCircle = null; }
   var markers = [];
   var bounds = [];
-  _huidigeLijst.forEach(function(auto) {
+  var _lijstVoorKaart = (_huidigeLijst && _huidigeLijst.length > 0) ? _huidigeLijst : (window._alleAutos || []).slice(0, 800);
+  _lijstVoorKaart.forEach(function(auto) {
     if (!auto.locatie) return;
     var key = auto.locatie.toLowerCase().trim();
     var coord = NL_CITIES[key];
