@@ -1630,7 +1630,7 @@ function setView(v) {
   document.getElementById('kaartView').style.display = isKaart ? 'block' : 'none';
   document.getElementById('btnLijst').classList.toggle('actief', !isKaart);
   document.getElementById('btnKaart').classList.toggle('actief', isKaart);
-  if (isKaart) renderKaart();
+  if (isKaart) { renderKaart(); setTimeout(function(){ if(window._kaartMap) window._kaartMap.invalidateSize(); }, 150); }
 }
 
 function renderKaart() {
