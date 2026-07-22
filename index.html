@@ -2,7 +2,7 @@
 <html lang="nl">
 <head>
   <meta charset="UTF-8" />
-  <meta name="description" content="30.000+ tweedehands auto's van 4 platforms, dagelijks bijgewerkt. Filter op merk, prijs en km-stand Ã¢ÂÂ en zie direct of je een goede deal hebt. Gratis, geen account.">
+  <meta name="description" content="30.000+ tweedehands auto's van 4 platforms, dagelijks bijgewerkt. Filter op merk, prijs en km-stand  -  en zie direct of je een goede deal hebt. Gratis, geen account.">
   <meta name="keywords" content="tweedehands auto, auto kopen, auto vergelijken, marktplaats auto, nederland, occasions">
   <meta name="robots" content="index, follow">
   <link rel="canonical" href="https://kawsfan.github.io/autovergelijker/">
@@ -10,8 +10,8 @@
   <!-- Open Graph -->
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://kawsfan.github.io/autovergelijker/">
-  <meta property="og:title" content="AutoVergelijker Ã¢ÂÂ Alle tweedehands auto's van Nederland">
-  <meta property="og:description" content="30.000+ tweedehands auto's van 4 platforms op ÃÂ©ÃÂ©n plek. Vergelijk, filter en zie direct of je een goede deal hebt Ã¢ÂÂ gratis en dagelijks bijgewerkt.">
+  <meta property="og:title" content="AutoVergelijker  -  Alle tweedehands auto's van Nederland">
+  <meta property="og:description" content="30.000+ tweedehands auto's van 4 platforms op ÃÂ©ÃÂ©n plek. Vergelijk, filter en zie direct of je een goede deal hebt  -  gratis en dagelijks bijgewerkt.">
   <meta property="og:locale" content="nl_NL">
   <meta property="og:locale:alternate" content="en_GB">
   <meta property="og:image" content="https://kawsfan.github.io/autovergelijker/og-image.jpg">
@@ -22,7 +22,7 @@
 
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="AutoVergelijker Ã¢ÂÂ Alle tweedehands auto's van Nederland">
+  <meta name="twitter:title" content="AutoVergelijker  -  Alle tweedehands auto's van Nederland">
   <meta name="twitter:description" content="30.000+ tweedehands auto's van 4 platforms, dagelijks bijgewerkt. Filter op merk, prijs en km-stand en zie direct of je een goede deal hebt.">
   <meta name="twitter:image" content="https://kawsfan.github.io/autovergelijker/og-image.jpg">
 
@@ -46,7 +46,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
   <meta name="theme-color" content="#1a1a1a" media="(prefers-color-scheme: dark)">
-  <title>AutoVergelijker Ã¢ÂÂ Live zoeken</title>
+  <title>AutoVergelijker  -  Live zoeken</title>
   <style>
     :root {
       --kaart: #ffffff;
@@ -628,7 +628,7 @@
   #detailFooter.aktief{display:block;}
   .detail-swipe-hint{display:block;}
   .detail-panel{padding-bottom:0;}
-  /* Hide scrolled-to cta-row on mobile Ã¢ÂÂ sticky footer replaces it */
+  /* Hide scrolled-to cta-row on mobile  -  sticky footer replaces it */
   #detailInhoud .cta-row{display:none;}
 }
 
@@ -1205,7 +1205,7 @@ function toonResultaten(lijst) {
       </div>
       <div class="auto-info">
         <h4>${a.titel}</h4>
-        <div class="auto-prijs-groot">Ã¢ÂÂ¬ ${typeof a.prijs==='number'?a.prijs.toLocaleString('nl-NL'):a.prijs||'Ã¢ÂÂ'}</div>
+        <div class="auto-prijs-groot">Ã¢ÂÂ¬ ${typeof a.prijs==='number'?a.prijs.toLocaleString('nl-NL'):a.prijs||' - '}</div>
         <div class="auto-specs-row">
           ${a.jaar?'<span class="auto-spec-chip"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>'+a.jaar+'</span>':''}
           ${a.km!=null?'<span class="auto-spec-chip"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>'+(typeof a.km==='number'?a.km.toLocaleString('nl-NL')+' km':a.km)+'</span>':''}
@@ -1213,7 +1213,7 @@ function toonResultaten(lijst) {
           ${a.transmissie?'<span class="auto-spec-chip">'+a.transmissie+'</span>':''}
         </div>
         <div class="auto-card-footer">
-          <span class="auto-bron-tag" style="color:${({'Marktplaats':'#0063D3','Gaspedaal':'#E87722','ViaBovag':'#003082','AutoScout24':'#FF6600','AutoTrack':'#1B5FA8'})[a.bron]||'#9ca3af'}">${a.bron||'Ã¢ÂÂ'}</span>
+          <span class="auto-bron-tag" style="color:${({'Marktplaats':'#0063D3','Gaspedaal':'#E87722','ViaBovag':'#003082','AutoScout24':'#FF6600','AutoTrack':'#1B5FA8'})[a.bron]||'#9ca3af'}">${a.bron||' - '}</span>
           ${a.dealScore!=null?'<span class="auto-deal-pill" data-tip="Dealscore: vergelijkt prijs met soortgelijke occasions. Groen (60+) = goede deal, rood (<35) = duur." style="background:'+(a.dealScore>60?'#dcfce7':a.dealScore<35?'#fee2e2':'#fef9c3')+';color:'+(a.dealScore>60?'#15803d':a.dealScore<35?'#b91c1c':'#854d0e')+'">'+Math.round(a.dealScore)+' score</span>':''}
         </div></div>
     </div>`).join('') + (_paginaControls ? _paginaControls(gesorteerd.length, _pg, _pp) : '');
@@ -1271,7 +1271,7 @@ function genereerSamenvatting(a) {
     else if (kmPerJaar < 18000) slijtage = 'een normaal jaarkilometrage';
     else if (kmPerJaar < 25000) slijtage = 'een bovengemiddeld jaarkilometrage';
     else slijtage = 'een hoog jaarkilometrage';
-    delen.push('Deze ' + a.titel + ' uit ' + a.jaar + ' heeft ' + a.km.toLocaleString('nl-NL') + ' km gereden Ã¢ÂÂ dat is ' + slijtage + ' van gemiddeld ' + kmPerJaar.toLocaleString('nl-NL') + ' km per jaar.');
+    delen.push('Deze ' + a.titel + ' uit ' + a.jaar + ' heeft ' + a.km.toLocaleString('nl-NL') + ' km gereden  -  dat is ' + slijtage + ' van gemiddeld ' + kmPerJaar.toLocaleString('nl-NL') + ' km per jaar.');
   } else if (a.jaar && a.km != null) {
     delen.push('De kilometerstand is ' + a.km.toLocaleString('nl-NL') + ' km (bouwjaar ' + a.jaar + ').');
   } else if (a.jaar) {
@@ -1295,7 +1295,7 @@ function genereerSamenvatting(a) {
   if (a.km != null && leeftijd != null) {
     const kmPJ = leeftijd > 0 ? Math.round(a.km / leeftijd) : 99999;
     if (leeftijd <= 3 && a.km < 30000) delen.push('Gezien het lage aantal kilometers en de jonge leeftijd betreft dit een uitstekend onderhouden occasion.');
-    else if (kmPJ < 10000 && leeftijd > 5) delen.push('Het lage jaarkilometrage wijst op een spaarzaam gebruik Ã¢ÂÂ een pluspunt voor de staat van het voertuig.');
+    else if (kmPJ < 10000 && leeftijd > 5) delen.push('Het lage jaarkilometrage wijst op een spaarzaam gebruik  -  een pluspunt voor de staat van het voertuig.');
     else if (a.km > 200000) delen.push('Let op de hoge kilometerstand; een goede APK en onderhoudshistorie zijn aan te raden.');
   }
   return delen.length ? delen.join(' ') : '';
@@ -2797,7 +2797,7 @@ window.toonResultaten=function(lijst){
     } else {
       if(_vgl.length>=3){toast('Max. 3 autoÃ¢ÂÂs vergelijken');return;}
       _vgl.push(id);
-      toast('Ã¢ÂÂ Geselecteerd Ã¢ÂÂ '+(_vgl.length<2?'selecteer nog 1 auto om te vergelijken':'klik Vergelijk Ã¢ÂÂ'));
+      toast('Ã¢ÂÂ Geselecteerd  -  '+(_vgl.length<2?'selecteer nog 1 auto om te vergelijken':'klik Vergelijk Ã¢ÂÂ'));
     }
     updateVglBar();
     document.querySelectorAll('[data-vgl="'+id+'"]').forEach(function(b){b.classList.toggle('vgl-actief',_vgl.indexOf(id)>=0);});
@@ -2839,12 +2839,12 @@ window.toonResultaten=function(lijst){
     var rows=[
       {l:'Foto',r:function(a){return '<img src="'+a.imgSrc+'" style="width:100%;max-width:150px;height:95px;object-fit:cover;border-radius:8px" onerror="this.style.display='none'">';}},
       {l:'Prijs',r:function(a){return '<span style="font-size:20px;font-weight:800;color:#1a1a2e">Ã¢ÂÂ¬ '+((a.prijs||0).toLocaleString('nl-NL'))+'</span>';}},
-      {l:'Bouwjaar',r:function(a){return '<b>'+(a.jaar||'Ã¢ÂÂ')+'</b>';}},
-      {l:'Km-stand',r:function(a){return '<b>'+(a.km!=null?a.km.toLocaleString('nl-NL')+' km':'Ã¢ÂÂ')+'</b>';}},
-      {l:'Brandstof',r:function(a){return a.brandstof||'Ã¢ÂÂ';}},
-      {l:'Transmissie',r:function(a){return a.transmissie||'Ã¢ÂÂ';}},
-      {l:'Bron',r:function(a){var m={'Marktplaats':'#0063D3','Gaspedaal':'#E87722','AutoScout24':'#FF6600','ViaBovag':'#003082'};var c=m[a.bron]||'#9ca3af';return '<span style="font-weight:700;color:'+c+'">'+(a.bron||'Ã¢ÂÂ')+'</span>';}},
-      {l:'Dealscore',r:function(a){var s=a.dealScore;if(s==null)return 'Ã¢ÂÂ';var col=s>60?'#15803d':s<35?'#b91c1c':'#854d0e';var bg=s>60?'#dcfce7':s<35?'#fee2e2':'#fef9c3';return '<span style="background:'+bg+';color:'+col+';padding:3px 10px;border-radius:20px;font-size:12px;font-weight:700">'+Math.round(s)+' score</span>';}},
+      {l:'Bouwjaar',r:function(a){return '<b>'+(a.jaar||' - ')+'</b>';}},
+      {l:'Km-stand',r:function(a){return '<b>'+(a.km!=null?a.km.toLocaleString('nl-NL')+' km':' - ')+'</b>';}},
+      {l:'Brandstof',r:function(a){return a.brandstof||' - ';}},
+      {l:'Transmissie',r:function(a){return a.transmissie||' - ';}},
+      {l:'Bron',r:function(a){var m={'Marktplaats':'#0063D3','Gaspedaal':'#E87722','AutoScout24':'#FF6600','ViaBovag':'#003082'};var c=m[a.bron]||'#9ca3af';return '<span style="font-weight:700;color:'+c+'">'+(a.bron||' - ')+'</span>';}},
+      {l:'Dealscore',r:function(a){var s=a.dealScore;if(s==null)return ' - ';var col=s>60?'#15803d':s<35?'#b91c1c':'#854d0e';var bg=s>60?'#dcfce7':s<35?'#fee2e2':'#fef9c3';return '<span style="background:'+bg+';color:'+col+';padding:3px 10px;border-radius:20px;font-size:12px;font-weight:700">'+Math.round(s)+' score</span>';}},
     ];
     tabel.innerHTML='<table style="width:100%;border-collapse:collapse;font-size:14px">'
       +'<thead><tr><th style="width:28%;padding:10px 8px;text-align:left;border-bottom:2px solid #e8e8e3;font-size:11px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.4px">Kenmerk</th>'
