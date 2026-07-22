@@ -1743,6 +1743,85 @@ function openVergelijk() {
   modal.style.display = 'flex';
   document.body.style.overflow = 'hidden';
 }
+var _rdwData={};
+async function fetchRDW(kt,idx){
+  var n=kt.replace(/-/g,'').toUpperCase().slice(0,8);
+  var inp=document.querySelector('.vgl-kt-input[data-idx="'+idx+'"]');
+  if(inp){inp.disabled=true;inp.classList.add('vgl-kt-load');inp.value=n;}
+  try{
+    var res=await Promise.all([
+      fetch('https://opendata.rdw.nl/resource/m9d7-ebf2.json?kenteken='+n+'&$limit=1').then(function(r){return r.json();}),
+      fetch('https://opendata.rdw.nl/resource/8ys7-d773.json?kenteken='+n+'&$limit=1').then(function(r){return r.json();})
+    ]);
+    _rdwData[idx]={v:res[0][0]||null,b:res[1][0]||null};
+    if(inp){inp.classList.remove('vgl-kt-load');inp.classList.add('vgl-kt-ok');}
+  }catch(e){
+    _rdwData[idx]={err:true};
+    if(inp){inp.classList.remove('vgl-kt-load');inp.classList.add('vgl-kt-err');}
+  }
+  _updateRDWRows();
+}
+function _driveLabel(c){var m={'1':'Voorwiel','2':'Achterwiel','4':'4WD','A':'Alle wielen'};return m[String(c)]||c;}
+function _rdwDate(s){if(!s)return null;s=String(s);return s.slice(6,8)+'-'+s.slice(4,6)+'-'+s.slice(0,4);}
+function _updateRDWRows(){
+  var cars=_vgl.slice(0,3);var n=cars.length;
+  var specs=[
+    ['Aandrijving',function(d){return d&&d.v&&d.v.aandrijving?_driveLabel(d.v.aandrijving):null;}],
+    ['Vermogen',function(d){if(!d||!d.b)return null;var kw=parseFloat(d.b.nettomaximumvermogen||d.b.netto_max_vermogen_elektrisch||0);return kw>0?Math.round(kw)+' kW ('+Math.round(kw*1.36)+' pk)':null;}],
+    ['Actieradius',function(d){return d&&d.b&&d.b.actieradius_gecombineerd?d.b.actieradius_gecombineerd+' km':null;}],
+    ['CO2 (g/km)',function(d){return d&&d.b&&d.b.co2_uitstoot_gecombineerd?d.b.co2_uitstoot_gecombineerd+' g/km':null;}],
+    ['Verbruik',function(d){return d&&d.b&&d.b.brandstofverbruik_gecombineerd?d.b.brandstofverbruik_gecombineerd+' l/100km':null;}],
+    ['Massa rijklaar',function(d){return d&&d.v&&d.v.massa_rijklaar?parseInt(d.v.massa_rijklaar).toLocaleString('nl-NL')+' kg':null;}],
+    ['Wielbasis',function(d){return d&&d.v&&d.v.wielbasis?parseInt(d.v.wielbasis)+' mm':null;}],
+    ['Zitplaatsen',function(d){return d&&d.v&&d.v.aantal_zitplaatsen?String(d.v.aantal_zitplaatsen):null;}],
+    ['APK vervalt',function(d){return _rdwDate(d&&d.v&&d.v.vervaldatum_apk);}],
+    ['1e tenaamstelling NL',function(d){return _rdwDate(d&&d.v&&d.v.datum_eerste_tenaamstelling_in_nederland);}]
+  ];
+  var body=document.getElementById('vgl-rdw-body');
+  if(!body)return;
+  if(!Object.keys(_rdwData).length){body.innerHTML='';return;}
+  var nc=n+1;
+  var divider='<tr class="vgl-rdw-divider"><td colspan="'+nc+'"><span>RDW-gegevens</span></td></tr>';
+  var rows=specs.map(function(sp){
+    var anyReal=false;
+    var tds=cars.map(function(a,i){
+      var d=_rdwData[i];
+      if(!d)return '<td class="vgl-spec-val vgl-rdw-pending">...</td>';
+      if(d.err)return '<td class="vgl-spec-val vgl-rdw-err">?</td>';
+      var v=sp[1](d);anyReal=anyReal||(v!=null);
+      return '<td class="vgl-spec-val">'+(v||'-')+'</td>';
+    });
+    if(!anyReal)return '';
+    var tvs=cars.map(function(a,i){var d=_rdwData[i];if(!d||d.err)return null;return sp[1](d);}).filter(Boolean);
+    var same=tvs.length>1&&tvs.every(function(v,ii,arr){return v===arr[0];});
+    return '<tr class="vgl-spec-row'+(same?'':tvs.length>1?' vgl-diff':'')+'">'
+      +'<td class="vgl-spec-label">'+sp[0]+'</td>'+tds.join('')+'</tr>';
+  }).filter(Boolean).join('');
+  body.innerHTML=divider+rows;
+}
+var _origOV=openVergelijk;
+openVergelijk=function(){
+  _rdwData={};
+  _origOV();
+  var ov=document.getElementById('vergelijkOverlay');
+  if(!ov)return;
+  ov.querySelectorAll('.vgl-car-col').forEach(function(col,i){
+    var w=document.createElement('div');w.className='vgl-kt-row';
+    var inp=document.createElement('input');
+    inp.className='vgl-kt-input';inp.placeholder='Kenteken (bv. AB-12-CD)';
+    inp.dataset.idx=i;
+    inp.addEventListener('input',function(){
+      var v=this.value.replace(/[-\s]/g,'').toUpperCase();
+      if(v.length>=6)fetchRDW(v,parseInt(this.dataset.idx));
+    });
+    w.appendChild(inp);col.appendChild(w);
+  });
+  var tbl=ov.querySelector('.vgl-spec-body');
+  if(tbl&&!document.getElementById('vgl-rdw-body')){
+    var tb=document.createElement('tbody');tb.id='vgl-rdw-body';tbl.appendChild(tb);
+  }
+};
+
 var _kofferbakDB={
 'tesla model 3':561,'tesla model y':854,'tesla model s':804,'tesla model x':2182,
 'byd seal u':512,'byd atto 3':440,'byd atto 2':308,'byd dolphin surf':345,'byd dolphin':345,'byd sealion 7':520,'byd sealion 6':425,'byd seal':400,'byd han':440,'byd tang':192,
@@ -2719,6 +2798,17 @@ window.toonResultaten=function(lijst){
 .fav-btn.fav-actief{color:#ef4444}
 .fav-btn.fav-actief::before{content:"Ã¢ÂÂ¥";position:absolute}
 .vgl-btn.vgl-actief{background:#e84c15!important;color:white!important}
+.vgl-kt-row{margin-top:8px;}
+.vgl-kt-input{width:100%;padding:5px 8px;border:1.5px solid #e0e0e0;border-radius:8px;font-size:11px;letter-spacing:1px;text-transform:uppercase;box-sizing:border-box;transition:border-color .2s,background .2s;}
+.vgl-kt-input:focus{outline:none;border-color:#007aff;}
+.vgl-kt-input.vgl-kt-load{border-color:#ffcc00;background:#fffbe6;}
+.vgl-kt-input.vgl-kt-ok{border-color:#34c759;background:#f0fff4;}
+.vgl-kt-input.vgl-kt-err{border-color:#ff3b30;background:#fff5f5;}
+.vgl-rdw-divider td{padding:10px 12px 4px;background:transparent;}
+.vgl-rdw-divider span{font-size:10px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.5px;background:#f5f5f5;padding:2px 10px;border-radius:20px;}
+.vgl-rdw-pending{color:#ccc;font-style:italic;}
+.vgl-rdw-err{color:#aaa;}
+
 </style>
 
 <script>
