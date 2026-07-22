@@ -1630,13 +1630,15 @@ function setView(v) {
   document.getElementById('kaartView').style.display = isKaart ? 'block' : 'none';
   document.getElementById('btnLijst').classList.toggle('actief', !isKaart);
   document.getElementById('btnKaart').classList.toggle('actief', isKaart);
-  if (isKaart) { requestAnimationFrame(function(){ requestAnimationFrame(function(){ renderKaart(); }); }); }
+  if (isKaart) { window.scrollTo(0,0); requestAnimationFrame(function(){ requestAnimationFrame(function(){ renderKaart(); }); }); }
 }
 
 function renderKaart() {
   if (_kaartMap) { try{_kaartMap.remove();}catch(e){} _kaartMap=null; }
   document.getElementById('kaartCanvas').innerHTML='';
-  _kaartMap = L.map('kaartCanvas', {fadeAnimation: false}).setView([52.15, 5.28], 7);
+  _kaartMap = L.map('kaartCanvas', {fadeAnimation: false});
+  _kaartMap.invalidateSize({animate: false});
+  _kaartMap.setView([52.15, 5.28], 7);
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
     maxZoom: 19
