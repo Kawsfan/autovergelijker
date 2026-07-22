@@ -9,7 +9,7 @@ const path = require('path');
 // Config
 const LISTINGS_PATH  = path.join(__dirname, 'data', 'listings.json');
 const OUT_DIR        = path.join(__dirname, 'occasions');
-const SITE_ORIGIN    = 'https://kawsfan.github.io/autovergelijker';
+const SITE_ORIGIN    = 'https://carkijker.nl';
 const MIN_MERK_COUNT = 3;
 const MIN_MODEL_COUNT = 2;
 const MAX_MODELS     = 10;
@@ -241,7 +241,7 @@ function buildStadPage(stadSlug, stad, filtered, listings) {
     '<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'+
     '<title>Tweedehands auto '+stad.naam+' | AutoVergelijker</title>'+
     '<meta name="description" content="Bekijk '+filtered.length+' tweedehands auto occasions in '+stad.naam+', '+stad.regio+'. Vergelijk prijzen en vind jouw ideale occasion.">'+
-    '<link rel="canonical" href="https://kawsfan.github.io/autovergelijker/occasions/'+stadSlug+'/">'+
+    '<link rel="canonical" href="https://carkijker.nl/occasions/'+stadSlug+'/">'+
     '<style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:#f5f5f7;color:#1d1d1f;line-height:1.5}'+
     'nav{background:#fff;border-bottom:1px solid #e5e5ea;padding:.75rem 1rem;font-size:.875rem}nav a{color:#1a56db;text-decoration:none}'+
     '.container{max-width:960px;margin:0 auto;padding:1rem}h1{font-size:1.5rem;font-weight:700;margin:1.5rem 0 .3rem}'+
@@ -332,7 +332,7 @@ function main() {
   if (fs.existsSync(sitemapPath)) {
     let sitemap = fs.readFileSync(sitemapPath, 'utf-8');
     const today = new Date().toISOString().slice(0,10);
-    const base = 'https://kawsfan.github.io/autovergelijker/';
+    const base = 'https://carkijker.nl/';
     const allUrls = [...generatedStadUrls];
     for (const u of allUrls) {
       const full = base + u;
