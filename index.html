@@ -1630,19 +1630,17 @@ function setView(v) {
   document.getElementById('kaartView').style.display = isKaart ? 'block' : 'none';
   document.getElementById('btnLijst').classList.toggle('actief', !isKaart);
   document.getElementById('btnKaart').classList.toggle('actief', isKaart);
-  if (isKaart) { setTimeout(function(){ renderKaart(); }, 50); }
+  if (isKaart) { requestAnimationFrame(function(){ requestAnimationFrame(function(){ renderKaart(); }); }); }
 }
 
 function renderKaart() {
-  if (!_kaartMap) {
-    _kaartMap = L.map('kaartCanvas', {fadeAnimation: false}).setView([52.15, 5.28], 7);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-      maxZoom: 19
-    }).addTo(_kaartMap);
-  } else {
-    _kaartMap.invalidateSize();
-  }
+  if (_kaartMap) { try{_kaartMap.remove();}catch(e){} _kaartMap=null; }
+  document.getElementById('kaartCanvas').innerHTML='';
+  _kaartMap = L.map('kaartCanvas', {fadeAnimation: false}).setView([52.15, 5.28], 7);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+    maxZoom: 19
+  }).addTo(_kaartMap);
   if (_kaartLaag) { _kaartLaag.remove(); _kaartLaag = null; }
   if (_kaartCircle) { _kaartCircle.remove(); _kaartCircle = null; }
   var markers = [];
