@@ -2,7 +2,7 @@
 <html lang="nl">
 <head>
   <meta charset="UTF-8" />
-  <meta name="description" content="30.000+ tweedehands auto's van 4 platforms, dagelijks bijgewerkt. Filter op merk, prijs en km-stand  -  en zie direct of je een goede deal hebt. Gratis, geen account.">
+  <meta name="description" content="30.000+ tweedehands auto's van 4 platforms, dagelijks bijgewerkt. Filter op merk, prijs en km-stand — en zie direct of je een goede deal hebt. Gratis, geen account.">
   <meta name="keywords" content="tweedehands auto, auto kopen, auto vergelijken, marktplaats auto, nederland, occasions">
   <meta name="robots" content="index, follow">
   <link rel="canonical" href="https://kawsfan.github.io/autovergelijker/">
@@ -10,8 +10,8 @@
   <!-- Open Graph -->
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://kawsfan.github.io/autovergelijker/">
-  <meta property="og:title" content="AutoVergelijker  -  Alle tweedehands auto's van Nederland">
-  <meta property="og:description" content="30.000+ tweedehands auto's van 4 platforms op ÃÂ©ÃÂ©n plek. Vergelijk, filter en zie direct of je een goede deal hebt  -  gratis en dagelijks bijgewerkt.">
+  <meta property="og:title" content="AutoVergelijker — Alle tweedehands auto's van Nederland">
+  <meta property="og:description" content="30.000+ tweedehands auto's van 4 platforms op ÃÂ©ÃÂ©n plek. Vergelijk, filter en zie direct of je een goede deal hebt — gratis en dagelijks bijgewerkt.">
   <meta property="og:locale" content="nl_NL">
   <meta property="og:locale:alternate" content="en_GB">
   <meta property="og:image" content="https://kawsfan.github.io/autovergelijker/og-image.jpg">
@@ -22,7 +22,7 @@
 
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="AutoVergelijker  -  Alle tweedehands auto's van Nederland">
+  <meta name="twitter:title" content="AutoVergelijker — Alle tweedehands auto's van Nederland">
   <meta name="twitter:description" content="30.000+ tweedehands auto's van 4 platforms, dagelijks bijgewerkt. Filter op merk, prijs en km-stand en zie direct of je een goede deal hebt.">
   <meta name="twitter:image" content="https://kawsfan.github.io/autovergelijker/og-image.jpg">
 
@@ -46,7 +46,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
   <meta name="theme-color" content="#1a1a1a" media="(prefers-color-scheme: dark)">
-  <title>AutoVergelijker  -  Live zoeken</title>
+  <title>AutoVergelijker — Live zoeken</title>
   <style>
     :root {
       --kaart: #ffffff;
@@ -628,7 +628,7 @@
   #detailFooter.aktief{display:block;}
   .detail-swipe-hint{display:block;}
   .detail-panel{padding-bottom:0;}
-  /* Hide scrolled-to cta-row on mobile  -  sticky footer replaces it */
+  /* Hide scrolled-to cta-row on mobile — sticky footer replaces it */
   #detailInhoud .cta-row{display:none;}
 }
 
@@ -1271,7 +1271,7 @@ function genereerSamenvatting(a) {
     else if (kmPerJaar < 18000) slijtage = 'een normaal jaarkilometrage';
     else if (kmPerJaar < 25000) slijtage = 'een bovengemiddeld jaarkilometrage';
     else slijtage = 'een hoog jaarkilometrage';
-    delen.push('Deze ' + a.titel + ' uit ' + a.jaar + ' heeft ' + a.km.toLocaleString('nl-NL') + ' km gereden  -  dat is ' + slijtage + ' van gemiddeld ' + kmPerJaar.toLocaleString('nl-NL') + ' km per jaar.');
+    delen.push('Deze ' + a.titel + ' uit ' + a.jaar + ' heeft ' + a.km.toLocaleString('nl-NL') + ' km gereden — dat is ' + slijtage + ' van gemiddeld ' + kmPerJaar.toLocaleString('nl-NL') + ' km per jaar.');
   } else if (a.jaar && a.km != null) {
     delen.push('De kilometerstand is ' + a.km.toLocaleString('nl-NL') + ' km (bouwjaar ' + a.jaar + ').');
   } else if (a.jaar) {
@@ -1295,7 +1295,7 @@ function genereerSamenvatting(a) {
   if (a.km != null && leeftijd != null) {
     const kmPJ = leeftijd > 0 ? Math.round(a.km / leeftijd) : 99999;
     if (leeftijd <= 3 && a.km < 30000) delen.push('Gezien het lage aantal kilometers en de jonge leeftijd betreft dit een uitstekend onderhouden occasion.');
-    else if (kmPJ < 10000 && leeftijd > 5) delen.push('Het lage jaarkilometrage wijst op een spaarzaam gebruik  -  een pluspunt voor de staat van het voertuig.');
+    else if (kmPJ < 10000 && leeftijd > 5) delen.push('Het lage jaarkilometrage wijst op een spaarzaam gebruik — een pluspunt voor de staat van het voertuig.');
     else if (a.km > 200000) delen.push('Let op de hoge kilometerstand; een goede APK en onderhoudshistorie zijn aan te raden.');
   }
   return delen.length ? delen.join(' ') : '';
@@ -2797,7 +2797,7 @@ window.toonResultaten=function(lijst){
     } else {
       if(_vgl.length>=3){toast('Max. 3 autoÃ¢ÂÂs vergelijken');return;}
       _vgl.push(id);
-      toast('Ã¢ÂÂ Geselecteerd  -  '+(_vgl.length<2?'selecteer nog 1 auto om te vergelijken':'klik Vergelijk Ã¢ÂÂ'));
+      toast('Ã¢ÂÂ Geselecteerd — '+(_vgl.length<2?'selecteer nog 1 auto om te vergelijken':'klik Vergelijk Ã¢ÂÂ'));
     }
     updateVglBar();
     document.querySelectorAll('[data-vgl="'+id+'"]').forEach(function(b){b.classList.toggle('vgl-actief',_vgl.indexOf(id)>=0);});
