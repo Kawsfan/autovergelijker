@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://kawsfan.github.io/autovergelijker/sitemap.xml
+Sitemap: https://carkijker.nl/sitemap.xml
