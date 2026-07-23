@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TCO-calculator – Totale autokosten berekenen | Carkijker</title>
+<meta name="description" content="Bereken de totale kosten van een auto per jaar: brandstof, wegenbelasting en verzekering. Gratis TCO-calculator van Carkijker.">
+<link rel="canonical" href="https://www.carkijker.nl/tco/">
+<meta property="og:title" content="TCO-calculator – Totale autokosten berekenen | Carkijker">
+<meta property="og:description" content="Bereken de totale kosten van een auto per jaar: brandstof, wegenbelasting en verzekering.">
+<meta property="og:url" content="https://www.carkijker.nl/tco/">
+<meta name="robots" content="index, follow">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "TCO-calculator",
+  "description": "Bereken de totale kosten van een auto per jaar",
+  "url": "https://www.carkijker.nl/tco/",
+  "applicationCategory": "FinanceApplication",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "EUR" },
+  "publisher": { "@type": "Organization", "name": "Carkijker", "url": "https://www.carkijker.nl" }
+}
+</script>
+<style>
+  :root {
+    --oranje: #e84c15;
+    --oranje-dark: #c73e0f;
+    --bg: #f5f5f0;
+    --card: #ffffff;
+    --border: #e2e2da;
+    --text: #1a1a18;
+    --muted: #6b6b60;
+    --green: #16a34a;
+    --radius: 14px;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* NAV */
+  nav {
+    background: #fff;
+    border-bottom: 1px solid var(--border);
+    padding: 0 24px;
+    height: 58px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .logo { font-size: 1.3rem; font-weight: 800; text-decoration: none; color: var(--text); letter-spacing: -.5px; }
+  .logo span { color: var(--oranje); }
+  .nav-back { font-size: 13px; color: var(--muted); text-decoration: none; display: flex; align-items: center; gap: 5px; }
+  .nav-back:hover { color: var(--oranje); }
+
+  /* HERO */
+  .hero {
+    background: linear-gradient(135deg, #1a1a18 0%, #2d2d2a 100%);
+    color: white;
+    padding: 40px 24px 36px;
+    text-align: center;
+  }
+  .hero h1 { font-size: clamp(1.5rem, 4vw, 2rem); font-weight: 800; letter-spacing: -.5px; margin-bottom: 8px; }
+  .hero p { color: rgba(255,255,255,.65); font-size: 15px; max-width: 480px; margin: 0 auto; }
+
+  /* LAYOUT */
+  .page { max-width: 720px; margin: 0 auto; padding: 24px 16px 60px; }
+
+  /* CARD */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 22px 20px;
+    margin-bottom: 16px;
+  }
+  .card-title {
+    font-size: 14px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    color: var(--muted);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .card-title .icon { font-size: 16px; }
+
+  /* FORM GRID */
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media(max-width: 500px){ .form-grid { grid-template-columns: 1fr; } }
+
+  .field { display: flex; flex-direction: column; gap: 5px; }
+  .field label { font-size: 13px; font-weight: 600; color: var(--text); }
+  .field small { font-size: 11px; color: var(--muted); }
+  .field-unit { position: relative; }
+  .field-unit input { padding-right: 48px; }
+  .unit-badge {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 12px;
+    color: var(--muted);
+    font-weight: 600;
+    pointer-events: none;
+  }
+
+  input[type="number"], input[type="range"], select {
+    width: 100%;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 12px;
+    font-size: 15px;
+    font-family: inherit;
+    color: var(--text);
+    background: #fafaf8;
+    transition: border-color .15s;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+  input:focus, select:focus { outline: none; border-color: var(--oranje); background: #fff; }
+  select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b6b60' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 32px; }
+
+  /* RESULTS */
+  .results {
+    background: linear-gradient(135deg, var(--oranje) 0%, var(--oranje-dark) 100%);
+    border-radius: var(--radius);
+    padding: 24px 20px;
+    color: white;
+    margin-bottom: 16px;
+  }
+  .results-title { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; opacity: .75; margin-bottom: 16px; }
+  .results-total {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 20px;
+  }
+  .total-label { font-size: 15px; opacity: .85; }
+  .total-amount { font-size: 2.4rem; font-weight: 800; line-height: 1; }
+  .total-sub { font-size: 13px; opacity: .7; }
+  .results-breakdown { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+  .breakdown-item {
+    background: rgba(255,255,255,.15);
+    border-radius: 10px;
+    padding: 12px 10px;
+    text-align: center;
+  }
+  .breakdown-label { font-size: 11px; opacity: .8; margin-bottom: 4px; }
+  .breakdown-amount { font-size: 1.1rem; font-weight: 700; }
+  .breakdown-sub { font-size: 10px; opacity: .65; }
+
+  /* BARS */
+  .bar-section { margin-top: 20px; }
+  .bar-row { margin-bottom: 12px; }
+  .bar-header { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 5px; }
+  .bar-label { font-weight: 600; }
+  .bar-value { color: var(--muted); }
+  .bar-bg { background: var(--border); border-radius: 6px; height: 8px; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 6px; transition: width .5s ease; }
+  .bar-brandstof { background: #e84c15; }
+  .bar-wegenbelasting { background: #6366f1; }
+  .bar-verzekering { background: #16a34a; }
+
+  /* KMBAR */
+  .km-result {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px 20px;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .km-label { font-size: 14px; color: var(--muted); }
+  .km-value { font-size: 1.4rem; font-weight: 800; color: var(--green); }
+
+  /* INFO BOX */
+  .info-box {
+    background: #f0f9ff;
+    border: 1px solid #bae6fd;
+    border-radius: 10px;
+    padding: 14px 16px;
+    font-size: 13px;
+    color: #0369a1;
+    margin-top: 8px;
+    line-height: 1.5;
+  }
+
+  /* BUTTON */
+  .calc-btn {
+    width: 100%;
+    background: var(--oranje);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 15px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background .15s, transform .1s;
+    margin-top: 4px;
+  }
+  .calc-btn:active { background: var(--oranje-dark); transform: scale(.98); }
+
+  /* DISCLAIMER */
+  .disclaimer {
+    font-size: 12px;
+    color: var(--muted);
+    text-align: center;
+    line-height: 1.6;
+    margin-top: 24px;
+  }
+
+  /* FAQ */
+  .faq-item { border-top: 1px solid var(--border); padding: 16px 0; }
+  .faq-item:last-child { border-bottom: 1px solid var(--border); }
+  .faq-q { font-size: 14px; font-weight: 700; cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+  .faq-icon { font-size: 18px; color: var(--muted); flex-shrink: 0; transition: transform .2s; }
+  .faq-item.open .faq-icon { transform: rotate(45deg); }
+  .faq-a { font-size: 13px; color: var(--muted); line-height: 1.6; margin-top: 10px; display: none; }
+  .faq-item.open .faq-a { display: block; }
+
+  /* LINK TO MAIN */
+  .cta-link {
+    display: block;
+    text-align: center;
+    background: var(--text);
+    color: white;
+    text-decoration: none;
+    border-radius: 12px;
+    padding: 15px;
+    font-size: 15px;
+    font-weight: 700;
+    margin-top: 16px;
+    transition: background .15s;
+  }
+  .cta-link:hover { background: #333; }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="logo">Car<span>kijker</span></a>
+  <a href="/" class="nav-back">← Terug naar zoeken</a>
+</nav>
+
+<div class="hero">
+  <h1>TCO-calculator</h1>
+  <p>Bereken wat een auto je echt kost per jaar, per maand en per kilometer.</p>
+</div>
+
+<div class="page">
+
+  <!-- BRANDSTOF -->
+  <div class="card">
+    <div class="card-title"><span class="icon">⛽</span> Brandstof</div>
+    <div class="form-grid">
+      <div class="field">
+        <label for="brandstof">Brandstoftype</label>
+        <select id="brandstof" onchange="updatePrijs()">
+          <option value="benzine">Benzine</option>
+          <option value="diesel">Diesel</option>
+          <option value="elektrisch">Elektrisch</option>
+          <option value="hybride">Plug-in hybride</option>
+          <option value="lpg">LPG</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="verbruik" id="verbruikLabel">Verbruik (L/100km)</label>
+        <div class="field-unit">
+          <input type="number" id="verbruik" value="7" min="1" max="30" step="0.1">
+          <span class="unit-badge" id="verbruikUnit">L/100</span>
+        </div>
+      </div>
+      <div class="field">
+        <label for="brandstofPrijs" id="brandstofPrijsLabel">Prijs per liter (€)</label>
+        <div class="field-unit">
+          <input type="number" id="brandstofPrijs" value="2.00" min="0.5" max="5" step="0.01">
+          <span class="unit-badge" id="brandstofPrijsUnit">€/L</span>
+        </div>
+      </div>
+      <div class="field">
+        <label for="kmJaar">Kilometers per jaar</label>
+        <div class="field-unit">
+          <input type="number" id="kmJaar" value="15000" min="1000" max="100000" step="500">
+          <span class="unit-badge">km</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- WEGENBELASTING -->
+  <div class="card">
+    <div class="card-title"><span class="icon">🛣️</span> Wegenbelasting (MRB)</div>
+    <div class="form-grid">
+      <div class="field">
+        <label for="gewicht">Gewicht leegrijdend (kg)</label>
+        <div class="field-unit">
+          <input type="number" id="gewicht" value="1300" min="500" max="3500" step="50">
+          <span class="unit-badge">kg</span>
+        </div>
+        <small>Staat in je kentekenbewijs (deel 1A)</small>
+      </div>
+      <div class="field">
+        <label for="provincie">Provincie</label>
+        <select id="provincie" onchange="berekenMRB()">
+          <option value="1.00">Gemiddeld (NL)</option>
+          <option value="0.97">Friesland</option>
+          <option value="0.98">Groningen</option>
+          <option value="0.99">Drenthe</option>
+          <option value="1.00">Overijssel</option>
+          <option value="1.01">Flevoland</option>
+          <option value="1.01">Gelderland</option>
+          <option value="1.02">Utrecht</option>
+          <option value="1.03">Noord-Holland</option>
+          <option value="1.03">Zuid-Holland</option>
+          <option value="0.99">Zeeland</option>
+          <option value="1.00">Noord-Brabant</option>
+          <option value="1.01">Limburg</option>
+        </select>
+      </div>
+    </div>
+    <div class="info-box" id="mrbInfo" style="margin-top:14px;">
+      Wegenbelasting wordt automatisch berekend op basis van gewicht en brandstoftype.
+    </div>
+  </div>
+
+  <!-- VERZEKERING -->
+  <div class="card">
+    <div class="card-title"><span class="icon">🛡️</span> Verzekering</div>
+    <div class="form-grid">
+      <div class="field">
+        <label for="verzekeringType">Type verzekering</label>
+        <select id="verzekeringType" onchange="updateVerzekering()">
+          <option value="wa">WA (wettelijk verplicht)</option>
+          <option value="waplus" selected>WA+ / Beperkt casco</option>
+          <option value="allrisk">Allrisk / Volledig casco</option>
+          <option value="handmatig">Handmatig invoeren</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="autoWaarde">Dagwaarde auto (€)</label>
+        <div class="field-unit">
+          <input type="number" id="autoWaarde" value="15000" min="500" max="200000" step="500" onchange="updateVerzekering()">
+          <span class="unit-badge">€</span>
+        </div>
+      </div>
+      <div class="field">
+        <label for="verzekeringPremie">Premie per maand (€)</label>
+        <div class="field-unit">
+          <input type="number" id="verzekeringPremie" value="85" min="10" max="500" step="5">
+          <span class="unit-badge">€/mnd</span>
+        </div>
+        <small>Inclusief eigen risico schatting</small>
+      </div>
+    </div>
+  </div>
+
+  <!-- BEREKEN KNOP -->
+  <button class="calc-btn" onclick="bereken()">Bereken mijn TCO →</button>
+
+  <!-- RESULTATEN -->
+  <div id="resultaten" style="display:none; margin-top:20px;">
+
+    <div class="results">
+      <div class="results-title">Totale kosten per jaar</div>
+      <div class="results-total">
+        <div>
+          <div class="total-label">Totaal TCO</div>
+          <div class="total-amount" id="totaalJaar">€0</div>
+          <div class="total-sub" id="totaalMaand">€0 per maand</div>
+        </div>
+      </div>
+      <div class="results-breakdown">
+        <div class="breakdown-item">
+          <div class="breakdown-label">⛽ Brandstof</div>
+          <div class="breakdown-amount" id="resBrandstof">€0</div>
+          <div class="breakdown-sub">per jaar</div>
+        </div>
+        <div class="breakdown-item">
+          <div class="breakdown-label">🛣️ Wegenbelasting</div>
+          <div class="breakdown-amount" id="resMRB">€0</div>
+          <div class="breakdown-sub">per jaar</div>
+        </div>
+        <div class="breakdown-item">
+          <div class="breakdown-label">🛡️ Verzekering</div>
+          <div class="breakdown-amount" id="resVerzekering">€0</div>
+          <div class="breakdown-sub">per jaar</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="km-result">
+      <div class="km-label">Kosten per kilometer</div>
+      <div class="km-value" id="resKm">€0,00/km</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Verdeling kosten</div>
+      <div class="bar-section">
+        <div class="bar-row">
+          <div class="bar-header"><span class="bar-label">⛽ Brandstof</span><span class="bar-value" id="barBrandstofVal"></span></div>
+          <div class="bar-bg"><div class="bar-fill bar-brandstof" id="barBrandstof" style="width:0%"></div></div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-header"><span class="bar-label">🛣️ Wegenbelasting</span><span class="bar-value" id="barMRBVal"></span></div>
+          <div class="bar-bg"><div class="bar-fill bar-wegenbelasting" id="barMRB" style="width:0%"></div></div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-header"><span class="bar-label">🛡️ Verzekering</span><span class="bar-value" id="barVerzekeringVal"></span></div>
+          <div class="bar-bg"><div class="bar-fill bar-verzekering" id="barVerzekering" style="width:0%"></div></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- FAQ -->
+  <div class="card" style="margin-top:8px;">
+    <div class="card-title">Veelgestelde vragen</div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">Wat is TCO? <span class="faq-icon">+</span></div>
+      <div class="faq-a">TCO staat voor Total Cost of Ownership — de totale eigendomskosten van een auto. Deze calculator richt zich op de drie grootste terugkerende kostenposten: brandstof, wegenbelasting en verzekering.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">Hoe nauwkeurig is de wegenbelasting? <span class="faq-icon">+</span></div>
+      <div class="faq-a">De berekening gebruikt de officiële MRB-tarieven van de Belastingdienst 2024/2025. Het uiteindelijke bedrag kan iets afwijken afhankelijk van je exacte gewichtsklasse en provincie. Check altijd de <a href="https://www.belastingdienst.nl/wps/wcm/connect/bldcontentnl/belastingdienst/auto_en_vervoer/belastingen_op_auto_en_motor/motorrijtuigenbelasting/tarief_mrb/" target="_blank" rel="noopener" style="color:#0369a1">Belastingdienst website</a> voor het definitieve bedrag.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">Wat zit er NIET in deze calculator? <span class="faq-icon">+</span></div>
+      <div class="faq-a">Afschrijving, onderhoud, APK, banden, parkeergeld en rekeningrijden zijn niet meegenomen. Dit zijn wél relevante kostenposten, maar ze zijn sterk afhankelijk van rijgedrag en voertuig. Een vuistregel: tel €0,05–€0,10 per km extra voor onderhoud en afschrijving.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">Elektrisch goedkoper dan benzine? <span class="faq-icon">+</span></div>
+      <div class="faq-a">Bij elektrisch rijd je momenteel zonder of met sterk verlaagde wegenbelasting (vrijstelling loopt af). Energiekosten (thuis laden) zijn doorgaans €0,02–€0,04 per km. Bij meer dan ~15.000 km/jaar is elektrisch vaak goedkoper in gebruik, maar de aanschafprijs ligt hoger.</div>
+    </div>
+  </div>
+
+  <a href="/" class="cta-link">🔍 Zoek occasions op Carkijker →</a>
+
+  <p class="disclaimer">
+    Berekeningen zijn indicatief op basis van opgegeven waarden en de MRB-tarieven 2024/2025.<br>
+    Raadpleeg de Belastingdienst en je verzekeraar voor definitieve bedragen.
+  </p>
+
+</div>
+
+<script>
+// MRB tarieftabel benzine (per kwartaal, nationaal basispercentage)
+// Bron: Belastingdienst 2024/2025
+const MRB_BENZINE = [
+  [900,   89], [950,   97], [1000, 104], [1050, 112], [1100, 121],
+  [1150, 129], [1200, 137], [1250, 145], [1300, 153], [1350, 162],
+  [1400, 170], [1450, 180], [1500, 189], [1550, 199], [1600, 208],
+  [1650, 219], [1700, 228], [1750, 240], [1800, 252], [1850, 264],
+  [1900, 276], [1950, 290], [2000, 303], [2100, 327], [2200, 352],
+  [2300, 378], [2400, 405], [2500, 432], [9999, 460]
+];
+
+function getMRBBenzine(kg) {
+  for (var i = 0; i < MRB_BENZINE.length; i++) {
+    if (kg <= MRB_BENZINE[i][0]) return MRB_BENZINE[i][1];
+  }
+  return MRB_BENZINE[MRB_BENZINE.length - 1][1];
+}
+
+function berekenMRB() {
+  var brandstof = document.getElementById('brandstof').value;
+  var gewicht = parseFloat(document.getElementById('gewicht').value) || 1300;
+  var provincFactor = parseFloat(document.getElementById('provincie').value) || 1.0;
+
+  var kwartaalBase = getMRBBenzine(gewicht);
+  var factor = 1.0;
+
+  if (brandstof === 'diesel') factor = 3.2; // diesel toeslag
+  else if (brandstof === 'elektrisch') factor = 0.0; // vrijgesteld (2024)
+  else if (brandstof === 'hybride') factor = 0.5; // PHEV: circa halftarief
+  else if (brandstof === 'lpg') factor = 1.6;
+  else factor = 1.0; // benzine
+
+  var mrb_jaar = kwartaalBase * factor * provincFactor * 4;
+
+  // Info bijwerken
+  var infoEl = document.getElementById('mrbInfo');
+  if (brandstof === 'elektrisch') {
+    infoEl.textContent = '⚡ Elektrische auto\'s zijn in 2024 vrijgesteld van wegenbelasting. Vanaf 2025 geldt een gereduceerd tarief.';
+    infoEl.style.background = '#f0fdf4';
+    infoEl.style.borderColor = '#86efac';
+    infoEl.style.color = '#15803d';
+  } else {
+    infoEl.textContent = 'Geschatte MRB: €' + Math.round(mrb_jaar) + ' per jaar (€' + Math.round(mrb_jaar/4) + '/kwartaal). Gebaseerd op ' + gewicht + ' kg, ' + brandstof + ', provincie ' + (document.getElementById('provincie').options[document.getElementById('provincie').selectedIndex].text) + '.';
+    infoEl.style.background = '#f0f9ff';
+    infoEl.style.borderColor = '#bae6fd';
+    infoEl.style.color = '#0369a1';
+  }
+
+  return Math.round(mrb_jaar);
+}
+
+function updatePrijs() {
+  var brandstof = document.getElementById('brandstof').value;
+  var prijsInput = document.getElementById('brandstofPrijs');
+  var prijsUnit = document.getElementById('brandstofPrijsUnit');
+  var verbruikLabel = document.getElementById('verbruikLabel');
+  var verbruikUnit = document.getElementById('verbruikUnit');
+  var verbruikInput = document.getElementById('verbruik');
+  var prijsLabel = document.getElementById('brandstofPrijsLabel');
+
+  if (brandstof === 'benzine") { prijsInput.value = '2.00'; prijsUnit.textContent = '€/L'; verbruikLabel.textContent = 'Verbruik (L/100km)'; verbruikUnit.textContent = 'L/100'; verbruikInput.value = '7'; prijsLabel.textContent = 'Prijs per liter (€)'; }
+  else if (brandstof === 'diesel') { prijsInput.value = '1.75'; prijsUnit.textContent = '€/L'; verbruikLabel.textContent = 'Verbruik (L/100km)'; verbruikUnit.textContent = 'L/100'; verbruikInput.value = '5.5'; prijsLabel.textContent = 'Prijs per liter (€)'; }
+  else if (brandstof === 'elektrisch') { prijsInput.value = '0.28'; prijsUnit.textContent = '€/kWh'; verbruikLabel.textContent = 'Verbruik (kWh/100km)'; verbruikUnit.textContent = 'kWh/100'; verbruikInput.value = '18'; prijsLabel.textContent = 'Prijs per kWh (€)'; }
+  else if (brandstof === 'hybride') { prijsInput.value = '2.00'; prijsUnit.textContent = '€/L'; verbruikLabel.textContent = 'Verbruik (L/100km)'; verbruikUnit.textContent = 'L/100'; verbruikInput.value = '5'; prijsLabel.textContent = 'Prijs per liter (€)'; }
+  else if (brandstof === 'lpg') { prijsInput.value = '0.90'; prijsUnit.textContent = '€/L'; verbruikLabel.textContent = 'Verbruik (L/100km)'; verbruikUnit.textContent = 'L/100'; verbruikInput.value = '9'; prijsLabel.textContent = 'Prijs per liter (€)'; }
+
+  berekenMRB();
+}
+
+function updateVerzekering() {
+  var type = document.getElementById('verzekeringType').value;
+  var waarde = parseFloat(document.getElementById('autoWaarde').value) || 15000;
+  var premieInput = document.getElementById('verzekeringPremie');
+
+  if (type === 'handmatig') return;
+
+  // Schatting op basis van waarde
+  var base = 0;
+  if (type === 'wa') base = Math.max(30, Math.min(80, 30 + waarde * 0.001));
+  else if (type === 'waplus') base = Math.max(50, Math.min(150, 45 + waarde * 0.003));
+  else if (type === 'allrisk') base = Math.max(80, Math.min(300, 60 + waarde * 0.007));
+
+  premieInput.value = Math.round(base);
+}
+
+function fmt(n) {
+  return '€' + Math.round(n).toLocaleString('nl-NL');
+}
+
+function bereken() {
+  var brandstof = document.getElementById('brandstof').value;
+  var verbruik = parseFloat(document.getElementById('verbruik').value) || 0;
+  var prijs = parseFloat(document.getElementById('brandstofPrijs').value) || 0;
+  var km = parseFloat(document.getElementById('kmJaar').value) || 0;
+  var verzekeringPremie = parseFloat(document.getElementById('verzekeringPremie').value) || 0;
+
+  // Brandstofkosten
+  var brandstofJaar = (verbruik / 100) * km * prijs;
+
+  // MRB
+  var mrbJaar = berekenMRB();
+
+  // Verzekering
+  var verzekeringJaar = verzekeringPremie * 12;
+
+  var totaal = brandstofJaar + mrbJaar + verzekeringJaar;
+  var totaalMaand = totaal / 12;
+  var perKm = totaal / km;
+
+  // Toon resultaten
+  document.getElementById('resultaten').style.display = 'block';
+  document.getElementById('totaalJaar').textContent = fmt(totaal);
+  document.getElementById('totaalMaand').textContent = fmt(totaalMaand) + ' per maand';
+  document.getElementById('resBrandstof').textContent = fmt(brandstofJaar);
+  document.getElementById('resMRB').textContent = fmt(mrbJaar);
+  document.getElementById('resVerzekering').textContent = fmt(verzekeringJaar);
+  document.getElementById('resKm').textContent = '€' + perKm.toFixed(2).replace('.', ',') + '/km';
+
+  // Bars
+  var maxVal = Math.max(brandstofJaar, mrbJaar, verzekeringJaar, 1);
+  document.getElementById('barBrandstof').style.width = (brandstofJaar / totaal * 100) + '%';
+  document.getElementById('barMRB').style.width = (mrbJaar / totaal * 100) + '%';
+  document.getElementById('barVerzekering').style.width = (verzekeringJaar / totaal * 100) + '%';
+  document.getElementById('barBrandstofVal').textContent = fmt(brandstofJaar) + ' (' + Math.round(brandstofJaar/totaal*100) + '%)';
+  document.getElementById('barMRBVal').textContent = fmt(mrbJaar) + ' (' + Math.round(mrbJaar/totaal*100) + '%)';
+  document.getElementById('barVerzekeringVal').textContent = fmt(verzekeringJaar) + ' (' + Math.round(verzekeringJaar/totaal*100) + '%)';
+
+  // Scroll to results
+  document.getElementById('resultaten').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function toggleFaq(el) {
+  var item = el.closest('.faq-item');
+  item.classList.toggle('open');
+}
+
+// Init
+updatePrijs();
+updateVerzekering();
+</script>
+</body>
+</html>
