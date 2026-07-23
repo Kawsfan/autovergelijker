@@ -3,19 +3,19 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>TCO-calculator – Totale autokosten berekenen | Carkijker</title>
-<meta name="description" content="Bereken de totale kosten van een auto per jaar: brandstof, wegenbelasting en verzekering. Gratis TCO-calculator van Carkijker.">
+<title>Wat kost mijn auto per maand? – Autokosten berekenen | Carkijker</title>
+<meta name="description" content="Bereken wat jouw auto per maand kost: brandstof, wegenbelasting en verzekering. Gratis autokosten calculator van Carkijker.">
 <link rel="canonical" href="https://www.carkijker.nl/tco/">
-<meta property="og:title" content="TCO-calculator – Totale autokosten berekenen | Carkijker">
-<meta property="og:description" content="Bereken de totale kosten van een auto per jaar: brandstof, wegenbelasting en verzekering.">
+<meta property="og:title" content="Wat kost mijn auto per maand? | Carkijker">
+<meta property="og:description" content="Bereken wat jouw auto per maand kost: brandstof, wegenbelasting en verzekering.">
 <meta property="og:url" content="https://www.carkijker.nl/tco/">
 <meta name="robots" content="index, follow">
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "WebApplication",
-  "name": "TCO-calculator",
-  "description": "Bereken de totale kosten van een auto per jaar",
+  "name": "Wat kost mijn auto per maand?",
+  "description": "Bereken wat jouw auto per maand kost: brandstof, wegenbelasting en verzekering",
   "url": "https://www.carkijker.nl/tco/",
   "applicationCategory": "FinanceApplication",
   "offers": { "@type": "Offer", "price": "0", "priceCurrency": "EUR" },
@@ -258,11 +258,32 @@
 </nav>
 
 <div class="hero">
-  <h1>TCO-calculator</h1>
-  <p>Bereken wat een auto je echt kost per jaar, per maand en per kilometer.</p>
+  <h1>Wat kost mijn auto per maand?</h1>
+  <p>Bereken de echte kosten van jouw auto: brandstof, wegenbelasting en verzekering.</p>
 </div>
 
 <div class="page">
+
+  <!-- AUTO TYPE PRESETS -->
+  <div class="card">
+    <div class="card-title"><span class="icon">🚗</span> Type auto</div>
+    <div class="field">
+      <label for="autoType">Selecteer je auto type (vult waarden automatisch in)</label>
+      <select id="autoType" onchange="applyPreset()">
+        <option value="">— Kies een type of vul zelf in —</option>
+        <option value="stadsauto">Stadsauto (bijv. VW Polo, Opel Corsa)</option>
+        <option value="gezinsauto">Gezinsauto (bijv. VW Golf, Ford Focus)</option>
+        <option value="grote-gezinsauto">Grote gezinsauto (bijv. Skoda Octavia, Passat)</option>
+        <option value="suv-compact">Compacte SUV (bijv. VW T-Roc, Toyota C-HR)</option>
+        <option value="suv-groot">Grote SUV (bijv. VW Tiguan, Volvo XC60)</option>
+        <option value="elektrisch-compact">Elektrisch compact (bijv. VW ID.3, Renault Zoe)</option>
+        <option value="elektrisch-groot">Elektrisch groot (bijv. Tesla Model 3, Kia EV6)</option>
+        <option value="hybride">Hybride (bijv. Toyota Yaris, Peugeot 208)</option>
+        <option value="diesel">Diesel gezinsauto (bijv. Skoda Superb, BMW 3)</option>
+        <option value="bestelwagen">Bestelwagen (bijv. VW Transporter, Mercedes Sprinter)</option>
+      </select>
+    </div>
+  </div>
 
   <!-- BRANDSTOF -->
   <div class="card">
@@ -519,7 +540,7 @@ function updatePrijs() {
   var verbruikInput = document.getElementById('verbruik');
   var prijsLabel = document.getElementById('brandstofPrijsLabel');
 
-  if (brandstof === 'benzine") { prijsInput.value = '2.00'; prijsUnit.textContent = '€/L'; verbruikLabel.textContent = 'Verbruik (L/100km)'; verbruikUnit.textContent = 'L/100'; verbruikInput.value = '7'; prijsLabel.textContent = 'Prijs per liter (€)'; }
+  if (brandstof === 'benzine') { prijsInput.value = '2.00'; prijsUnit.textContent = '€/L'; verbruikLabel.textContent = 'Verbruik (L/100km)'; verbruikUnit.textContent = 'L/100'; verbruikInput.value = '7'; prijsLabel.textContent = 'Prijs per liter (€)'; }
   else if (brandstof === 'diesel') { prijsInput.value = '1.75'; prijsUnit.textContent = '€/L'; verbruikLabel.textContent = 'Verbruik (L/100km)'; verbruikUnit.textContent = 'L/100'; verbruikInput.value = '5.5'; prijsLabel.textContent = 'Prijs per liter (€)'; }
   else if (brandstof === 'elektrisch') { prijsInput.value = '0.28'; prijsUnit.textContent = '€/kWh'; verbruikLabel.textContent = 'Verbruik (kWh/100km)'; verbruikUnit.textContent = 'kWh/100'; verbruikInput.value = '18'; prijsLabel.textContent = 'Prijs per kWh (€)'; }
   else if (brandstof === 'hybride') { prijsInput.value = '2.00'; prijsUnit.textContent = '€/L'; verbruikLabel.textContent = 'Verbruik (L/100km)'; verbruikUnit.textContent = 'L/100'; verbruikInput.value = '5'; prijsLabel.textContent = 'Prijs per liter (€)'; }
@@ -593,6 +614,34 @@ function bereken() {
 function toggleFaq(el) {
   var item = el.closest('.faq-item');
   item.classList.toggle('open');
+}
+
+// Auto type presets: [brandstofType, verbruik, gewicht, verzekeringType, autoWaarde]
+var PRESETS = {
+  'stadsauto':        ['benzine', 6.5,  1050, 'waplus',  8000],
+  'gezinsauto':       ['benzine', 7.2,  1280, 'waplus',  12000],
+  'grote-gezinsauto': ['benzine', 7.8,  1380, 'waplus',  18000],
+  'suv-compact':      ['benzine', 8.2,  1480, 'waplus',  22000],
+  'suv-groot':        ['benzine', 9.5,  1680, 'allrisk', 30000],
+  'elektrisch-compact': ['elektrisch', 16, 1650, 'waplus', 25000],
+  'elektrisch-groot': ['elektrisch', 18, 1830, 'allrisk', 40000],
+  'hybride':          ['hybride', 4.5,  1200, 'waplus',  18000],
+  'diesel':           ['diesel',  5.5,  1400, 'waplus',  20000],
+  'bestelwagen':      ['diesel',  9.0,  1900, 'wa',      15000]
+};
+
+function applyPreset() {
+  var type = document.getElementById('autoType').value;
+  if (!type || !PRESETS[type]) return;
+  var p = PRESETS[type];
+  document.getElementById('brandstof').value = p[0];
+  updatePrijs();
+  document.getElementById('verbruik').value = p[1];
+  document.getElementById('gewicht').value = p[2];
+  document.getElementById('verzekeringType').value = p[3];
+  document.getElementById('autoWaarde').value = p[4];
+  updateVerzekering();
+  berekenMRB();
 }
 
 // Init
