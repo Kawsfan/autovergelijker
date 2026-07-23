@@ -705,6 +705,24 @@
   </div>
 </div>
 
+<!-- POPULAIRE ZOEKOPDRACHTEN -->
+<div class="pop-zoek">
+  <div class="pop-zoek-inner">
+    <span class="pop-label">Populair:</span>
+    <div class="pop-chips">
+      <button onclick="setMerkFilter('volkswagen')">Volkswagen</button>
+      <button onclick="setMerkFilter('bmw')">BMW</button>
+      <button onclick="setMerkFilter('toyota')">Toyota</button>
+      <button onclick="setMerkFilter('audi')">Audi</button>
+      <button onclick="setMerkFilter('ford')">Ford</button>
+      <button onclick="setMerkFilter('seat')">SEAT</button>
+      <button onclick="setMerkFilter('opel')">Opel</button>
+      <button onclick="setMerkFilter('skoda')">Skoda</button>
+      <button onclick="setMerkFilter('mercedes-benz')">Mercedes</button>
+      <button onclick="setMerkFilter('peugeot')">Peugeot</button>
+    </div>
+  </div>
+</div>
 <!-- FILTER KAART -->
 <div class="filter-kaart">
   <div class="filter-kaart-inner">
@@ -938,6 +956,7 @@
         <option value="jaar-desc" selected>Nieuwste eerst</option>
         <option value="km-asc">Minste km</option>
               <option value="deal-score">Beste deal �</option>
+        <option value="pkm-asc">Laagste €/km</option>
       </select>
     </div>
   </div>
@@ -1218,6 +1237,7 @@ function toonResultaten(lijst) {
           ${a.km!=null?'<span class="auto-spec-chip"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>'+(typeof a.km==='number'?a.km.toLocaleString('nl-NL')+' km':a.km)+'</span>':''}
           ${a.brandstof?'<span class="auto-spec-chip"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 22V8l9-6 9 6v14"/><line x1="9" y1="22" x2="9" y2="12"/><line x1="15" y1="22" x2="15" y2="12"/><rect x="9" y="12" width="6" height="10"/></svg>'+a.brandstof+'</span>':''}
           ${a.transmissie?'<span class="auto-spec-chip">'+a.transmissie+'</span>':''}
+          ${a.km > 0 && a.prijs ? '<span class="auto-spec-chip pkm" title="Prijs per km">€' + (a.prijs/a.km).toFixed(2) + '/km</span>' : ''}
         </div>
         <div class="auto-card-footer">
           <span class="auto-bron-tag" style="color:${({'Marktplaats':'#0063D3','Gaspedaal':'#E87722','ViaBovag':'#003082','AutoScout24':'#FF6600','AutoTrack':'#1B5FA8'})[a.bron]||'#9ca3af'}">${a.bron||'—'}</span>
@@ -1259,6 +1279,12 @@ function sorteer(lijst, sort) {
       a._score=0.4*_p+0.4*_k+0.2*_j;
       return a;
     }).sort(function(a,b){return b._score-a._score;});
+  }
+  if (sort === 'pkm-asc') {
+    var _withKm = lijst.filter(function(a){return a.km > 0 && a.prijs > 0;});
+    var _noKm = lijst.filter(function(a){return !a.km || !a.prijs;});
+    _withKm.sort(function(a,b){return (a.prijs/a.km)-(b.prijs/b.km);});
+    return _withKm.concat(_noKm);
   }
   return lijst;
 }
@@ -2804,7 +2830,13 @@ window.toonResultaten=function(lijst){
 .fav-btn{color:#9ca3af;transition:color .15s,transform .15s}
 .fav-btn.fav-actief{color:#ef4444}
 .fav-btn.fav-actief::before{content:"♥";position:absolute}
-.vgl-btn.vgl-actief{background:#e84c15!important;color:white!important}
+.vgl-btn.vgl-actief{background:#e84c15!important;color
+    .pop-zoek { background: white; border-bottom: 1px solid #e8e8e3; padding: 10px 24px; }
+    .pop-zoek-inner { max-width: 1100px; margin: 0 auto; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .pop-label { font-size: 12px; font-weight: 700; color: #666; white-space: nowrap; text-transform: uppercase; letter-spacing: .4px; }
+    .pop-chips { display: flex; gap: 6px; flex-wrap: wrap; }
+    .pop-chips button { padding: 5px 12px; border: 1.5px solid #e8e8e3; border-radius: 20px; background: white; font-size: 12px; font-weight: 600; color: #444; cursor: pointer; transition: all .15s; white-space: nowrap; font-family: inherit; }
+    .pop-chips button:hover { background: #e84c15; color: white; border-color: #e84c15; }:white!important}
 .vgl-kt-row{margin-top:8px;}
 .vgl-kt-input{width:100%;padding:5px 8px;border:1.5px solid #e0e0e0;border-radius:8px;font-size:11px;letter-spacing:1px;text-transform:uppercase;box-sizing:border-box;transition:border-color .2s,background .2s;}
 .vgl-kt-input:focus{outline:none;border-color:#007aff;}
@@ -2815,7 +2847,8 @@ window.toonResultaten=function(lijst){
 .vgl-rdw-divider span{font-size:10px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.5px;background:#f5f5f5;padding:2px 10px;border-radius:20px;}
 .vgl-rdw-pending{color:#ccc;font-style:italic;}
 .vgl-rdw-err{color:#aaa;}
-</style>
+
+    .pkm { color: #16a34a; font-weight: 600; }</style>
 
 <script>
 (function(){
@@ -2981,5 +3014,10 @@ window.toonResultaten=function(lijst){
   if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',addFavBtn);}
   else{setTimeout(addFavBtn,200);}
 })();
+
+function setMerkFilter(merk) {
+  var _m = document.getElementById('merkFilter');
+  if (_m) { _m.value = merk; if (typeof updateModelDropdown === 'function') updateModelDropdown(); zoekNu(); window.scrollTo({top: document.getElementById('resultatenHeader')?.offsetTop || 400, behavior: 'smooth'}); }
+}
 </script></body>
 </html>
