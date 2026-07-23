@@ -2,6 +2,7 @@
 <html lang="nl">
 <head>
   <meta charset="UTF-8" />
+  <link rel="preload" href="data/listings.json" as="fetch" crossorigin>
   <meta name="description" content="30.000+ tweedehands auto's van 4 platforms, dagelijks bijgewerkt. Filter op merk, prijs en km-stand — en zie direct of je een goede deal hebt. Gratis, geen account.">
   <meta name="keywords" content="tweedehands auto, auto kopen, auto vergelijken, marktplaats auto, nederland, occasions">
   <meta name="robots" content="index, follow">
@@ -933,7 +934,7 @@
       <select id="sortering" onchange="herSorteer()">
         <option value="prijs-asc">Prijs ↑</option>
         <option value="prijs-desc">Prijs ↓</option>
-        <option value="jaar-desc">Nieuwste eerst</option>
+        <option value="jaar-desc" selected>Nieuwste eerst</option>
         <option value="km-asc">Minste km</option>
               <option value="deal-score">Beste deal �</option>
       </select>
@@ -995,6 +996,9 @@
 </footer>
 
 <script>
+
+function _saveFilters(){var s={z:document.getElementById("zoekInput").value,m:document.getElementById("merkFilter").value,mo:document.getElementById("modelInput").value,jn:document.getElementById("jaarMin").value,jx:document.getElementById("jaarMax").value,pn:document.getElementById("prijsMin").value,px:document.getElementById("prijsMax").value,kn:document.getElementById("kmMin").value,kx:document.getElementById("kmMax").value,b:(document.getElementById("brandstofFilter")||{}).value||"",c:(document.getElementById("carrosserieFilter")||{}).value||"",t:transmissieActief,s:document.getElementById("sortering").value};var any=s.z||s.m||s.mo||s.jn||s.jx||s.pn||s.px||s.kn||s.kx||s.b||s.c||s.t;if(any||s.s!="jaar-desc")localStorage.setItem("_ck_st",JSON.stringify(s));else localStorage.removeItem("_ck_st");}
+function _restoreFilters(){if(window.location.search)return;var raw=localStorage.getItem("_ck_st");if(!raw)return;try{var s=JSON.parse(raw);if(s.z)document.getElementById("zoekInput").value=s.z;if(s.m){document.getElementById("merkFilter").value=s.m;if(typeof updateModelDropdown==="function")updateModelDropdown();}if(s.mo)document.getElementById("modelInput").value=s.mo;if(s.jn)document.getElementById("jaarMin").value=s.jn;if(s.jx)document.getElementById("jaarMax").value=s.jx;if(s.pn)document.getElementById("prijsMin").value=s.pn;if(s.px)document.getElementById("prijsMax").value=s.px;if(s.kn)document.getElementById("kmMin").value=s.kn;if(s.kx)document.getElementById("kmMax").value=s.kx;var bf=document.getElementById("brandstofFilter");if(s.b&&bf)bf.value=s.b;var cf=document.getElementById("carrosserieFilter");if(s.c&&cf)cf.value=s.c;if(s.t)transmissieActief=s.t;if(s.s)document.getElementById("sortering").value=s.s;}catch(e){}}
 var _vgl = [];
 var _favs = new Set(JSON.parse(localStorage.getItem('_av_favs') || '[]'));
 window._vglData = {};
@@ -1055,6 +1059,7 @@ async function laadListings() {
     }
 
     updateVindenCount(alleResultaten.length);
+    _restoreFilters();
     zoekNu();
     if (document.getElementById('kaartView').style.display !== 'none') renderKaart();
   } catch (err) {
@@ -1135,6 +1140,7 @@ function zoekNu() {
 
   updateVindenCount(n);
   _huidigeLijst = gefilterd;
+  _saveFilters();
   toonResultaten(gefilterd);
 }
 
@@ -1154,7 +1160,7 @@ function resetFilters() {
   var _tf=document.getElementById('transmissieFilter');if(_tf)_tf.value='';
   transmissieActief = '';
   document.querySelectorAll('.toggle-btns button').forEach((b, i) => b.classList.toggle('actief', i === 0));
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+  localStorage.removeItem('_ck_st'); window.scrollTo({ top: 0, behavior: 'smooth' });
   if (alleResultaten.length > 0) {
     updateVindenCount(alleResultaten.length);
     toonResultaten(alleResultaten);
@@ -1579,7 +1585,7 @@ document.addEventListener('DOMContentLoaded', function(){ if(window.lang !== 'nl
 </script>
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
-<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js" defer></script>
 <script>
 // ── Nederlandse steden coördinaten ──
 var NL_CITIES = {
