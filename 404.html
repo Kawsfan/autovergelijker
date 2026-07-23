@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pagina niet gevonden – Carkijker</title>
+  <meta name="robots" content="noindex, follow" />
+  <style>
+    :root {
+      --oranje: #e84c15;
+      --donker: #1a1a2e;
+      --grijs: #f5f5f0;
+      --subtekst: #666;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: var(--grijs);
+      color: #333;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    nav {
+      background: rgba(255,255,255,0.96);
+      border-bottom: 1px solid rgba(0,0,0,0.08);
+      padding: 0 28px;
+      height: 62px;
+      display: flex;
+      align-items: center;
+    }
+    .logo { font-size: 22px; font-weight: 800; color: var(--oranje); text-decoration: none; letter-spacing: -0.5px; }
+    .logo span { color: var(--donker); }
+    main {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 60px 24px;
+      text-align: center;
+    }
+    .container { max-width: 500px; }
+    .icon { font-size: 72px; margin-bottom: 24px; display: block; }
+    h1 { font-size: 28px; font-weight: 800; color: var(--donker); margin-bottom: 12px; }
+    p { font-size: 16px; color: var(--subtekst); line-height: 1.6; margin-bottom: 32px; }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--oranje);
+      color: white;
+      text-decoration: none;
+      padding: 14px 32px;
+      border-radius: 50px;
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: 0.2px;
+      box-shadow: 0 4px 20px rgba(232,76,21,0.35);
+      transition: transform .15s, box-shadow .15s;
+    }
+    .btn:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(232,76,21,0.5); }
+    .code { font-size: 120px; font-weight: 900; color: rgba(232,76,21,0.12); line-height: 1; margin-bottom: 8px; letter-spacing: -4px; }
+    footer { background: var(--donker); color: rgba(255,255,255,0.5); text-align: center; padding: 20px; font-size: 13px; }
+    footer strong { color: rgba(255,255,255,0.8); }
+  </style>
+</head>
+<body>
+  <nav>
+    <a href="/" class="logo">Car<span>kijker</span></a>
+  </nav>
+  <main>
+    <div class="container">
+      <div class="code">404</div>
+      <span class="icon">🔍</span>
+      <h1>Pagina niet gevonden</h1>
+      <p>De auto die je zoekt is er niet meer — of de link klopt niet. Geen paniek, er staan duizenden occasions op je te wachten.</p>
+      <a href="/" class="btn">← Terug naar Carkijker</a>
+    </div>
+  </main>
+  <footer>
+    <strong>Carkijker</strong> &mdash; Alle tweedehands auto's van Nederland
+  </footer>
+</body>
+</html>
