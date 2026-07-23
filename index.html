@@ -2472,7 +2472,7 @@ window.addEventListener('load',function(){
     if (!footer) return;
     if (btn && btn.href) {
       // Populate sticky footer
-      footer.innerHTML = '<a class="btn-mp" href="' + btn.href + '" target="_blank" rel="noopener noreferrer">Bekijk op ' + (btn.textContent.includes('Markt') ? 'Marktplaats' : 'advertentie') + ' →</a>';
+      footer.innerHTML = '<a class="btn-mp" href="' + btn.href + '" target="_blank" rel="noopener noreferrer">Bekijk op ' + (btn.textContent.includes('Markt') ? 'Marktplaats' : 'advertentie') + ' →</a><a href="/tco/" style="display:flex;align-items:center;justify-content:center;margin-top:8px;padding:10px;font-size:13px;font-weight:600;color:#e84c15;text-decoration:none;border:1.5px solid #e84c15;border-radius:10px;">⛽ Bereken TCO voor deze auto →</a>';
       footer.className = 'aktief';
       // Fix iOS: clear body overflow so panel can scroll
       document.body.style.overflow = '';
