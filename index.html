@@ -1248,7 +1248,6 @@ function toonResultaten(lijst) {
           ${a.km!=null?'<span class="auto-spec-chip"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>'+(typeof a.km==='number'?a.km.toLocaleString('nl-NL')+' km':a.km)+'</span>':''}
           ${a.brandstof?'<span class="auto-spec-chip"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 22V8l9-6 9 6v14"/><line x1="9" y1="22" x2="9" y2="12"/><line x1="15" y1="22" x2="15" y2="12"/><rect x="9" y="12" width="6" height="10"/></svg>'+a.brandstof+'</span>':''}
           ${a.transmissie?'<span class="auto-spec-chip">'+transLabel(a.transmissie)+'</span>':''}
-          ${a.km > 0 && a.prijs ? '<span class="auto-spec-chip pkm" title="Prijs per km">€' + (a.prijs/a.km).toFixed(2) + '/km</span>' : ''}
         </div>
         <div class="auto-card-footer">
           <span class="auto-bron-tag" style="color:${({'Marktplaats':'#0063D3','Gaspedaal':'#E87722','ViaBovag':'#003082','AutoScout24':'#FF6600','AutoTrack':'#1B5FA8'})[a.bron]||'#9ca3af'}">${a.bron||'—'}</span>
