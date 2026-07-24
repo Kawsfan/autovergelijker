@@ -499,9 +499,10 @@
 
 /* ── Kaartweergave ── */
 .view-toggle { display: flex; gap: 4px; }
-.view-btn { background: none; border: 1px solid var(--rand); color: var(--subtekst); border-radius: 6px; padding: 4px 10px; cursor: pointer; font-size: 13px; transition: .2s; }
+.view-btn { background: none; border: 1.5px solid var(--rand); color: var(--subtekst); border-radius: 20px; padding: 6px 14px; cursor: pointer; font-size: 13px; font-weight: 500; transition: .2s; }
 .view-btn:hover { border-color: var(--oranje); color: var(--oranje); }
 .view-btn.actief { background: var(--oranje); border-color: var(--oranje); color: #fff; }
+    #sortering { border-radius: 20px; border: 1.5px solid var(--rand); padding: 6px 14px; font-size: 13px; background: white; color: var(--tekst); cursor: pointer; appearance: none; -webkit-appearance: none; font-family: inherit; }
 #kaartView { display: none; border-radius: 12px; overflow: hidden; margin-top: 16px; }
 #kaartCanvas { height: 560px; width: 100%; }
 .leaflet-popup-content { font-family: inherit; min-width: 180px; }
