@@ -1234,7 +1234,7 @@ function toonResultaten(lijst) {
           var oud=a.prijsHistorie[a.prijsHistorie.length-1].prijs;
           return '<span class="prijs-daling">↘ was €'+Number(oud).toLocaleString('nl-NL')+'</span>';
         }return '';})()}
-        <img referrerpolicy="no-referrer" loading="lazy" src="${(a.imgSrc&&!a.imgSrc.includes('cdn.gaspedaal.nl'))?(a.imgSrc.startsWith('//')?'https:'+a.imgSrc:a.imgSrc):'x'}" alt="${a.titel}" onerror="this.onerror=null;this.closest('.auto-foto').style.cssText='display:flex;align-items:center;justify-content:center;background:#f0f0ed';this.style.display='none'" />
+        <img referrerpolicy="no-referrer" loading="lazy" src="${(a.imgSrc&&!a.imgSrc.includes('cdn.gaspedaal.nl'))?(a.imgSrc.startsWith('//')?'https:'+a.imgSrc:a.imgSrc):'x'}" alt="${a.titel}" onerror="if(this.closest('.auto-foto').style.display==='none')return;this.onerror=null;this.closest('.auto-foto').style.cssText='display:flex;align-items:center;justify-content:center;background:#f0f0ed';this.style.display='none'" />
         ${a.bijgewerkt === VANDAAG ? '<span class="nieuw-badge">NIEUW</span>' : ''}
        ${(()=>{if(!a.eersteGezien)return '';const _d=Math.round((Date.now()-new Date(a.eersteGezien+'T12:00:00').getTime())/86400000);if(_d<1)return '';if(_d<14)return '<span class="verk-badge verk-recent">'+_d+((window.lang||'nl')==='en'?' listed':' online')+'</span>';return '<span class="verk-badge verk-lang">2+ '+((window.lang||'nl')==='en'?'weeks':'weken')+'</span>';})()}
 
