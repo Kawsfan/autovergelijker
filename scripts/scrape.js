@@ -1201,6 +1201,64 @@ function parseerAutoTrader(html, gezien, label) {
 
 // ÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂ MAIN ÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂ
 
+
+// ── GASPEDAAL IMAGE DOWNLOADER ─────────────────────────────────────────────
+async function downloadGaspedaalImages(listings) {
+  const imgDir = path.join(process.cwd(), 'data', 'images');
+  if (!fs.existsSync(imgDir)) fs.mkdirSync(imgDir, { recursive: true });
+
+  const IMG_HEADERS = {
+    'Referer': 'https://www.gaspedaal.nl/',
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+    'Accept': 'image/avif,image/webp,image/apng,image/*,*/*;q=0.8',
+    'Accept-Language': 'nl-NL,nl;q=0.9'
+  };
+
+  // Clean up images for listings that no longer exist
+  const currentIds = new Set(listings.map(l => l.id));
+  try {
+    const existing = fs.readdirSync(imgDir);
+    for (const f of existing) {
+      if (!currentIds.has(f.replace('.jpg', ''))) {
+        try { fs.unlinkSync(path.join(imgDir, f)); } catch(e) {}
+      }
+    }
+  } catch(e) {}
+
+  let downloaded = 0, skipped = 0, failed = 0;
+  const MAX_NEW = 300; // max nieuwe downloads per run
+
+  for (const listing of listings) {
+    const rawSrc = listing.imgSrc || '';
+    if (!rawSrc.includes('cdn.gaspedaal.nl')) continue;
+
+    const localFile = path.join(imgDir, listing.id + '.jpg');
+
+    if (fs.existsSync(localFile)) {
+      listing.imgSrc = '/data/images/' + listing.id + '.jpg';
+      skipped++;
+      continue;
+    }
+
+    if (downloaded >= MAX_NEW) continue;
+
+    try {
+      const cleanSrc = rawSrc.split('?source=')[0];
+      const resp = await fetch(cleanSrc, { headers: IMG_HEADERS });
+      if (!resp.ok) throw new Error('HTTP ' + resp.status);
+      const buf = await resp.arrayBuffer();
+      if (buf.byteLength < 1000) throw new Error('too small');
+      fs.writeFileSync(localFile, Buffer.from(buf));
+      listing.imgSrc = '/data/images/' + listing.id + '.jpg';
+      downloaded++;
+      await sleep(400);
+    } catch(e) {
+      failed++;
+    }
+  }
+  console.log('  Afbeeldingen: ' + downloaded + ' nieuw, ' + skipped + ' al aanwezig, ' + failed + ' mislukt');
+}
+
 async function main() {
   console.log('ÃÂ°ÃÂÃÂÃÂ Scraper gestart:', new Date().toISOString());
 
@@ -1211,6 +1269,9 @@ async function main() {
   console.log('\nÃÂ¢ÃÂÃÂ½ Gaspedaal (algemeen + elektrisch)...');
   const gpListings = await scrapeGaspedaal();
   console.log(`ÃÂ¢ÃÂÃÂ Gaspedaal: ${gpListings.length} listings`);
+
+  console.log('\n Gaspedaal afbeeldingen downloaden...');
+  await downloadGaspedaalImages(gpListings);
 
   console.log('\nÃÂ°ÃÂÃÂÃÂ·ÃÂ¯ÃÂ¸ÃÂ viaBOVAG (algemeen + elektrisch)...');
   const vbListings = await scrapeViaBovag();
