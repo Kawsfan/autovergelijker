@@ -679,6 +679,18 @@
   .filter-rij{gap:8px;padding:6px 10px;}
   .filter-rij select,.filter-rij input[type=text],.filter-rij input[type=number]{min-height:40px;}
 }
+
+    /* === CTA buttons === */
+    .btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 10px 20px; border-radius: 20px;
+      border: 1.5px solid var(--grijs3);
+      background: var(--kaart); color: var(--tekst);
+      font-size: 14px; font-weight: 600; cursor: pointer;
+      transition: background .15s, border-color .15s;
+      white-space: nowrap;
+    }
+    .btn:hover { background: var(--grijs2); border-color: var(--grijs3); }
 </style>
 <style>.leaflet-tile{opacity:1!important}</style></head>
 <body>
