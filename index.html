@@ -2080,13 +2080,37 @@ function sluitMarkt() {
     document.body.style.overflow = '';
   }
 
-  function updateMarktModellen(merk) {
+  function normalizeModel(model, merk) {
+  if (!model) return '';
+  var ml = model.toLowerCase().replace(/\s+/g,'');
+  if (/^\d{4}$/.test(model.trim())) return '';
+  var noise = ['motors','motor','inc','hearse','black','white','red','blue','grey','gray','silver','performance'];
+  if (noise.indexOf(model.toLowerCase().trim()) !== -1) return '';
+  var maps = {
+    'Tesla': {'model':'Model 3','model3':'Model 3','models':'Model S','models':'Model S','modelx':'Model X','modely':'Model Y','roadster':'Roadster','cybertruck':'Cybertruck','semi':'Semi'},
+    'BMW': {'1serie':'1 Serie','2serie':'2 Serie','3serie':'3 Serie','4serie':'4 Serie','5serie':'5 Serie','7serie':'7 Serie','x1':'X1','x2':'X2','x3':'X3','x4':'X4','x5':'X5','x6':'X6','x7':'X7','m3':'M3','m4':'M4','m5':'M5','z4':'Z4','i3':'i3','i4':'i4','i8':'i8'},
+    'Volkswagen': {'golf':'Golf','polo':'Polo','tiguan':'Tiguan','passat':'Passat','touareg':'Touareg','caddy':'Caddy','up':'Up','troc':'T-Roc','arteon':'Arteon','touran':'Touran','sharan':'Sharan','t-roc':'T-Roc'},
+    'Mercedes-Benz': {'a-klasse':'A-Klasse','b-klasse':'B-Klasse','c-klasse':'C-Klasse','e-klasse':'E-Klasse','s-klasse':'S-Klasse','gle':'GLE','glc':'GLC','gla':'GLA','glb':'GLB','cla':'CLA','cls':'CLS','sl':'SL'},
+    'Audi': {'a1':'A1','a2':'A2','a3':'A3','a4':'A4','a5':'A5','a6':'A6','a7':'A7','a8':'A8','q2':'Q2','q3':'Q3','q4':'Q4 e-tron','q5':'Q5','q7':'Q7','q8':'Q8','tt':'TT','r8':'R8'},
+    'Opel': {'astra':'Astra','corsa':'Corsa','insignia':'Insignia','mokka':'Mokka','zafira':'Zafira','vectra':'Vectra','grandland':'Grandland'},
+    'Ford': {'focus':'Focus','fiesta':'Fiesta','kuga':'Kuga','mondeo':'Mondeo','mustang':'Mustang','puma':'Puma','explorer':'Explorer'},
+    'Toyota': {'yaris':'Yaris','corolla':'Corolla','rav4':'RAV4','camry':'Camry','prius':'Prius','chr':'C-HR','c-hr':'C-HR','aygo':'Aygo','highlander':'Highlander'},
+    'Seat': {'leon':'Leon','ibiza':'Ibiza','ateca':'Ateca','arona':'Arona','tarraco':'Tarraco','alhambra':'Alhambra'},
+    'Skoda': {'octavia':'Octavia','fabia':'Fabia','superb':'Superb','kodiaq':'Kodiaq','karoq':'Karoq','scala':'Scala','kamiq':'Kamiq'},
+  };
+  var brandMap = maps[merk];
+  if (brandMap) {
+    if (brandMap[ml]) return brandMap[ml];
+  }
+  return model.charAt(0).toUpperCase() + model.slice(1);
+}
+function updateMarktModellen(merk) {
     var sel = document.getElementById('mModel');
     sel.innerHTML = '<option value="">Alle modellen</option>';
     if (!merk) return;
     var seen = {};
     (window._alleAutos||[]).forEach(function(a){
-      if (_getMerk(a.titel)===merk) { var mod=_getModel(a.titel,merk); if(mod&&!seen[mod]){seen[mod]=1;} }
+      if (_getMerk(a.titel)===merk) { var mod=normalizeModel(_getModel(a.titel,merk),merk); if(mod&&!seen[mod]){seen[mod]=1;} }
     });
     Object.keys(seen).sort().forEach(function(m){ var o=document.createElement('option'); o.value=m; o.textContent=m; sel.appendChild(o); });
   }
@@ -2101,7 +2125,7 @@ function sluitMarkt() {
     var data = (window._alleAutos||[]).filter(function(a){
       if (!a.prijs || a.prijs < 500) return false;
       if (merk && _getMerk(a.titel) !== merk) return false;
-      if (model && _getModel(a.titel, merk) !== model) return false;
+      if (model && normalizeModel(_getModel(a.titel, merk), merk) !== model) return false;
       if (jaarMin && (!a.jaar || a.jaar < jaarMin)) return false;
       if (brandstof && a.brandstof !== brandstof) return false;
       if (trans && a.transmissie !== trans) return false;
