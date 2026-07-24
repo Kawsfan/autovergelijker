@@ -259,7 +259,7 @@ function parseerMPItems(items, gezien) {
       kleur: attrs.color || '',
       locatie: item.location?.cityName || 'Nederland',
       url: fullUrl,
-      imgSrc: item.imageUrls?.[0] || item.pictures?.[0]?.url || '',
+      imgSrc: (item.pictures?.[0] ? (typeof item.pictures[0]==='string' ? item.pictures[0] : (item.pictures[0].extraExtraLargeUrl || item.pictures[0].largeUrl || item.pictures[0].mediumUrl || item.pictures[0].url || '')) : item.imageUrls?.[0]) || '',
       imgs: [...new Set([...(item.imageUrls||[]),...(item.pictures||[]).map(function(p){return typeof p==='string'?p:(p.extraExtraLargeUrl||p.largeUrl||p.mediumUrl||p.url||'')})])].filter(Boolean).slice(0,20),
       bijgewerkt: new Date().toISOString().split('T')[0]
     });
