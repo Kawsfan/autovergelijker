@@ -1214,8 +1214,8 @@ function toonResultaten(lijst) {
     document.getElementById('autoGrid').innerHTML = `
       <div class="geen-resultaten">
         <span class="icon">ð</span>
-        <h3>Geen resultaten gevonden</h3>
-        <p>Pas je filters aan of verbreed je zoekopdracht. Tip: verwijder het km-filter of verhoog het maximumbudget om meer occasions te zien.</p>
+        <h3>${(window.lang||'nl')==='en'?"No results found":"Geen resultaten gevonden"}</h3>
+        <p>${(window.lang||'nl')==='en'?"Try adjusting your filters or widening your search.":"Pas je filters aan of verbreed je zoekopdracht."}</p>
         <p style="margin-top:.4rem"><a href="/" onclick="window.location.reload()" style="color:#1a56db;font-size:.875rem">Alle filters wissen &rarr;</a></p>
       </div>`;
     return;
@@ -1237,7 +1237,7 @@ function toonResultaten(lijst) {
           onerror="this.src='https://placehold.co/600x380/e8e8e3/999?text=${encodeURIComponent((a.titel||'').split(' ').slice(0,2).join(' '))}'"
           loading="lazy" />
         ${a.bijgewerkt === VANDAAG ? '<span class="nieuw-badge">NIEUW</span>' : ''}
-       ${(()=>{if(!a.eersteGezien)return '';const _d=Math.round((Date.now()-new Date(a.eersteGezien+'T12:00:00').getTime())/86400000);if(_d<1)return '';if(_d<14)return '<span class="verk-badge verk-recent">'+_d+'d online</span>';return '<span class="verk-badge verk-lang">2+ weken</span>';})()}
+       ${(()=>{if(!a.eersteGezien)return '';const _d=Math.round((Date.now()-new Date(a.eersteGezien+'T12:00:00').getTime())/86400000);if(_d<1)return '';if(_d<14)return '<span class="verk-badge verk-recent">'+_d+((window.lang||'nl')==='en'?' listed':' online')+'</span>';return '<span class="verk-badge verk-lang">2+ '+((window.lang||'nl')==='en'?'weeks':'weken')+'</span>';})()}
 
       </div>
       <div class="auto-info">
@@ -1375,10 +1375,10 @@ function openDetail(id) {
       <div class="specs-grid">
         ${a.jaar ? `<div class="spec-item"><div class="spec-icon">ð</div><div class="spec-val">${a.jaar}</div><div class="spec-lbl">Bouwjaar</div></div>` : ''}
         ${a.km != null ? `<div class="spec-item"><div class="spec-icon">ð£ï¸</div><div class="spec-val">${typeof a.km==='number'?a.km.toLocaleString('nl-NL'):a.km}</div><div class="spec-lbl">Kilometer</div></div>` : ''}
-        ${a.brandstof ? `<div class="spec-item"><div class="spec-icon">â½</div><div class="spec-val">${a.brandstof}</div><div class="spec-lbl">Brandstof</div></div>` : ''}
+        ${a.brandstof ? `<div class="spec-item"><div class="spec-icon">â½</div><div class="spec-val">${a.brandstof}</div><div class="spec-lbl">${(window.lang||'nl')==='en'?"Fuel type":"Brandstof"}</div></div>` : ''}
         ${a.transmissie ? `<div class="spec-item"><div class="spec-icon">âï¸</div><div class="spec-val">${transLabel(a.transmissie)}</div><div class="spec-lbl">${(window.lang||"nl")==="en"?"Transmission":"Transmissie"}</div></div>` : ''}
-        <div class="spec-item"><div class="spec-icon">ð</div><div class="spec-val" style="font-size:12px">${a.locatie || 'Nederland'}</div><div class="spec-lbl">Locatie</div></div>
-        ${a.carrosserie ? `<div class="spec-item"><div class="spec-icon">ð</div><div class="spec-val">${a.carrosserie}</div><div class="spec-lbl">Carrosserie</div></div>` : ''}
+        <div class="spec-item"><div class="spec-icon">ð</div><div class="spec-val" style="font-size:12px">${a.locatie || 'Nederland'}</div><div class="spec-lbl">${(window.lang||'nl')==='en'?"Location":"Locatie"}</div></div>
+        ${a.carrosserie ? `<div class="spec-item"><div class="spec-icon">ð</div><div class="spec-val">${a.carrosserie}</div><div class="spec-lbl">${(window.lang||'nl')==='en'?"Body type":"Carrosserie"}</div></div>` : ''}
       </div>
       ${genereerSamenvatting(a) ? `<div class="ai-samenvatting"><div class="ai-label">â¦ Samenvatting</div><p>${genereerSamenvatting(a)}</p></div>` : ''}
 
@@ -1398,7 +1398,7 @@ function openDetail(id) {
         out+='<div style="display:flex;justify-content:space-between;font-size:11px;color:var(--subtekst);margin-top:2px"><span>'+all[0].datum+'</span><span>Nu: &#8364;'+Number(a.prijs).toLocaleString("nl-NL")+'</span></div>';
         out+='</div>';return out;
       })()}
-      <a href="${a.url}" target="_blank" rel="noopener noreferrer" style="display:block;background:#e84c15;color:white;text-align:center;padding:14px 20px;border-radius:10px;font-size:15px;font-weight:700;text-decoration:none;margin:16px 0">Bekijk advertentie op ${a.bron||'bron'} &rarr;</a>
+      <a href="${a.url}" target="_blank" rel="noopener noreferrer" style="display:block;background:#e84c15;color:white;text-align:center;padding:14px 20px;border-radius:10px;font-size:15px;font-weight:700;text-decoration:none;margin:16px 0">${(window.lang||'nl')==='en'?"View listing on":"Bekijk advertentie op"} ${a.bron||'bron'} &rarr;</a>
       <p style="font-size:12px;color:var(--subtekst);margin-top:8px;text-align:center">
         Foto's en volledige omschrijving staan op de originele advertentie.
       </p>
@@ -1533,6 +1533,20 @@ var TRANS = {
     kosten: "Kosten",
     spec_trans: "Transmissie",
     spec_brand: "Brandstof",
+    empty_h3: "Geen resultaten gevonden",
+    empty_p: "Pas je filters aan of verbreed je zoekopdracht.",
+    verk_recent: "d online",
+    verk_lang: "2+ weken",
+    spec_carro: "Carrosserie",
+    spec_loc: "Locatie",
+    agent_desc: "Sla je zoekcriteria op en ontvang een melding als er nieuwe auto's verschijnen.",
+    agent_geen: "Geen zoekagenten opgeslagen.",
+    agent_opslaan: "💾 Huidige filters opslaan",
+    agent_check: "🔍 Nu controleren",
+    fav_btn: "Favorieten",
+    bekijk_adv: "Bekijk advertentie op",
+    vgl_sel: "auto's geselecteerd",
+    vgl_btn: "Vergelijk nu",
     opt_merken: "Alle merken", opt_brandstoffen: "Alle brandstoffen", opt_types: "Alle types",
     opt_auto: "Automaat", opt_hand: "Handgeschakeld",
     eigen_p: "Eigen bedrag...", eigen_k: "Eigen km...",
@@ -1555,6 +1569,20 @@ var TRANS = {
     kosten: "Costs",
     spec_trans: "Transmission",
     spec_brand: "Fuel type",
+    empty_h3: "No results found",
+    empty_p: "Try adjusting your filters or widening your search.",
+    verk_recent: "d listed",
+    verk_lang: "2+ weeks",
+    spec_carro: "Body type",
+    spec_loc: "Location",
+    agent_desc: "Save your search and get notified when new cars appear.",
+    agent_geen: "No saved alerts.",
+    agent_opslaan: "💾 Save current filters",
+    agent_check: "🔍 Check now",
+    fav_btn: "Favourites",
+    bekijk_adv: "View listing on",
+    vgl_sel: "cars selected",
+    vgl_btn: "Compare now",
     opt_merken: "All makes", opt_brandstoffen: "All fuel types", opt_types: "All types",
     opt_auto: "Automatic", opt_hand: "Manual",
     eigen_p: "Custom...", eigen_k: "Custom...",
@@ -1652,7 +1680,28 @@ function setLang(l) {
   document.querySelectorAll('.hero-badge').forEach(function(b) {
     if (/Gratis|Free/.test(b.textContent)) b.innerHTML = b.innerHTML.replace(/Gratis|Free/, tr.gratis);
   });
-  // Alles transmission button
+  
+  // Zoekagent modal static content
+  var _agDesc = document.querySelector('#agentModal p, [id*="agent"] p');
+  if (_agDesc && /Sla je|Save your/.test(_agDesc.textContent)) _agDesc.textContent = tr.agent_desc;
+  document.querySelectorAll('.btn').forEach(function(b) {
+    var t = b.textContent.trim();
+    if (/Huidige filters opslaan|Save current/.test(t)) b.innerHTML = tr.agent_opslaan;
+    else if (/Nu controleren|Check now/.test(t)) b.innerHTML = tr.agent_check;
+  });
+  // Compare bar
+  var _vglSpan = document.querySelector('#vglBar span');
+  if (_vglSpan) {
+    var _cnt2 = (_vglSpan.textContent.match(/d+/) || ['0'])[0];
+    _vglSpan.innerHTML = '<b id="vglCount">' + _cnt2 + '</b> ' + tr.vgl_sel;
+  }
+  // Favorieten button
+  document.querySelectorAll('button').forEach(function(b) {
+    if (/Favorieten|Favourites/.test(b.textContent) && b.textContent.includes('♥')) {
+      b.innerHTML = b.innerHTML.replace(/Favorieten|Favourites/, tr.fav_btn);
+    }
+  });
+// Alles transmission button
   document.querySelectorAll('[data-val=""]').forEach(function(b) {
     if (/Alles|All/.test(b.textContent)) b.textContent = tr.alles;
   });
@@ -1953,7 +2002,7 @@ function _lookupKofferbak(titel){if(!titel)return null;var t=titel.toLowerCase()
 function _parseSoh(a){var t=(a.titel||'')+' '+(a.beschrijving||'');var m=t.match(/(\d+(?:[,\.]\d+)?)\s*%\s*soh/i)||t.match(/soh\s*(\d+(?:[,\.]\d+)?)\s*%/i);if(!m)return null;var v=parseFloat((m[1]||m[2]).replace(',','.'));return(v>0&&v<=100)?v:null;}
 function toggleFav(event,id){event.stopPropagation();if(_favs.has(id)){_favs.delete(id);}else{_favs.add(id);}localStorage.setItem('_av_favs',JSON.stringify([..._favs]));var b=event.currentTarget;if(b){b.classList.toggle('fav-actief',_favs.has(id));b.title=_favs.has(id)?'Verwijder uit favorieten':'Voeg toe aan favorieten';}}
 function toggleVergelijk(event,id){event.stopPropagation();var i=_vgl.indexOf(id);if(i>=0){_vgl.splice(i,1);}else{if(_vgl.length>=3){alert("Max. 3 auto\u2019s");return;}_vgl.push(id);}updateVglBar();document.querySelectorAll("[data-vgl=\""+id+"\"]").forEach(function(b){var sel=_vgl.includes(id);b.classList.toggle("vgl-actief",sel);b.title=sel?"Verwijder":"Voeg toe";});}
-function updateVglBar(){var b=document.getElementById("vglBar");if(!b)return;b.style.display=_vgl.length?"flex":"none";document.getElementById("vglCount").textContent=_vgl.length+" geselecteerd";}
+function updateVglBar(){var b=document.getElementById("vglBar");if(!b)return;b.style.display=_vgl.length?"flex":"none";document.getElementById("vglCount").textContent=_vgl.length;var _vst=document.getElementById("vglSelTxt");if(_vst)_vst.textContent=(window.lang||"nl")==="en"?" cars selected":"auto's geselecteerd";;}
 function openVergelijk(){
   if(_vgl.length<2){alert("Selecteer min. 2 auto's");return;}
   var cars=_vgl.map(function(id){return window._vglData[id];}).filter(Boolean);
@@ -2057,7 +2106,7 @@ function _geoLoc(v){
 }
 function openAgent(){renderAgentList();document.getElementById("agentModal").style.display="flex";}
 function _agenten(){try{return JSON.parse(localStorage.getItem("zoekagenten")||"[]");}catch(e){return[];}}
-function renderAgentList(){var el=document.getElementById("agentList");var list=_agenten();if(!list.length){el.innerHTML='<p style="color:var(--subtekst);font-size:.9rem;margin:0">Geen zoekagenten opgeslagen.</p>';return;}el.innerHTML=list.map(function(a,i){return'<div style="display:flex;align-items:center;gap:8px;background:var(--achtergrond);border-radius:8px;padding:8px 12px"><span style="flex:1;font-size:.85rem">'+a.label+'</span><button onclick="verwijderAgent('+i+')" style="background:none;border:none;cursor:pointer;color:var(--subtekst);font-size:1.1rem">&#x2715;</button></div>';}).join("");}
+function renderAgentList(){var el=document.getElementById("agentList");var list=_agenten();if(!list.length){el.innerHTML='<p style="color:var(--subtekst);font-size:.9rem;margin:0">${(window.lang||'nl')==='en'?"No saved alerts.":"Geen zoekagenten opgeslagen."}</p>';return;}el.innerHTML=list.map(function(a,i){return'<div style="display:flex;align-items:center;gap:8px;background:var(--achtergrond);border-radius:8px;padding:8px 12px"><span style="flex:1;font-size:.85rem">'+a.label+'</span><button onclick="verwijderAgent('+i+')" style="background:none;border:none;cursor:pointer;color:var(--subtekst);font-size:1.1rem">&#x2715;</button></div>';}).join("");}
 function verwijderAgent(i){var list=_agenten();list.splice(i,1);localStorage.setItem("zoekagenten",JSON.stringify(list));renderAgentList();}
 function slaZoekagentOp(){var merk=(document.getElementById("merkFilter")||{}).value||"";var qry=(document.getElementById("zoekveld")||{}).value||"";var minP=(document.getElementById("minPrijs")||{}).value||"";var maxP=(document.getElementById("maxPrijs")||{}).value||"";var label=[merk,qry,minP&&("min â¬"+minP),maxP&&("max â¬"+maxP)].filter(Boolean).join(", ")||"Alle auto's";var agent={label:label,merk:merk,q:qry,minPrijs:minP?+minP:null,maxPrijs:maxP?+maxP:null,opgeslagenOp:new Date().toISOString().slice(0,10),gezieneIds:[]};var list=_agenten();list.push(agent);localStorage.setItem("zoekagenten",JSON.stringify(list));renderAgentList();var msg=document.getElementById("agentMsg");if(msg){msg.textContent="Zoekagent opgeslagen!";setTimeout(function(){msg.textContent="";},2500);}}
 function controleerZoekagenten(handmatig){if(!window._alleAutos||!window._alleAutos.length)return;var vandaag=new Date().toISOString().slice(0,10);var list=_agenten();var totaalNieuw=0;list=list.map(function(agent){var matches=window._alleAutos.filter(function(a){if(agent.merk&&!(_getMerk(a.titel)||"").toLowerCase().includes(agent.merk.toLowerCase()))return false;if(agent.q&&!(((a.titel||"")+" "+(_getMerk(a.titel)||"")).toLowerCase().includes(agent.q.toLowerCase())))return false;if(agent.minPrijs!=null&&a.prijs!=null&&a.prijs<agent.minPrijs)return false;if(agent.maxPrijs!=null&&a.prijs!=null&&a.prijs>agent.maxPrijs)return false;return true;});var nieuw=matches.filter(function(a){return a.toegevoegd===vandaag&&!(agent.gezieneIds||[]).includes(a.id);});if(nieuw.length){totaalNieuw+=nieuw.length;agent.gezieneIds=(agent.gezieneIds||[]).concat(nieuw.map(function(a){return a.id;}));if(typeof Notification!=="undefined"&&Notification.permission==="granted"){new Notification("Zoekagent: "+agent.label,{body:nieuw.length+" nieuwe auto's gevonden!",icon:"/autovergelijker/favicon.ico"});}}return agent;});localStorage.setItem("zoekagenten",JSON.stringify(list));if(handmatig){var msg=document.getElementById("agentMsg");if(msg){msg.textContent=totaalNieuw?"Gevonden: "+totaalNieuw+" nieuwe auto('s)!":"Geen nieuwe auto's.";setTimeout(function(){if(msg)msg.textContent="";},3000);}}
@@ -2313,7 +2362,7 @@ function updateMarktModellen(merk) {
 </div>
 <div id="vglModal" onclick="if(event.target===this){this.style.display='none';document.body.style.overflow='';}"></div>
 
-<div id="vglBar" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:9999;background:#1a73e8;color:#fff;padding:14px 24px;align-items:center;justify-content:space-between;gap:12px;box-shadow:0 -2px 10px rgba(0,0,0,.25);"><span style="font-size:1rem;font-weight:500;"><b id="vglCount">0</b>Â auto's geselecteerd</span><div style="display:flex;gap:8px;"><button onclick="openVergelijk()" style="background:#fff;color:#1a73e8;border:none;padding:8px 20px;border-radius:6px;cursor:pointer;font-weight:700;">âï¸ Vergelijk</button><button onclick="_vgl=[];updateVglBar();document.querySelectorAll('.vgl-btn').forEach(function(b){b.classList.remove('vgl-actief');})" style="background:transparent;color:#fff;border:1.5px solid rgba(255,255,255,.7);padding:8px 14px;border-radius:6px;cursor:pointer;">â Wis</button></div></div>
+<div id="vglBar" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:9999;background:#1a73e8;color:#fff;padding:14px 24px;align-items:center;justify-content:space-between;gap:12px;box-shadow:0 -2px 10px rgba(0,0,0,.25);"><span style="font-size:1rem;font-weight:500;"><b id="vglCount">0</b> <span id="vglSelTxt">auto's geselecteerd</span></span><div style="display:flex;gap:8px;"><button onclick="openVergelijk()" style="background:#fff;color:#1a73e8;border:none;padding:8px 20px;border-radius:6px;cursor:pointer;font-weight:700;">âï¸ Vergelijk</button><button onclick="_vgl=[];updateVglBar();document.querySelectorAll('.vgl-btn').forEach(function(b){b.classList.remove('vgl-actief');})" style="background:transparent;color:#fff;border:1.5px solid rgba(255,255,255,.7);padding:8px 14px;border-radius:6px;cursor:pointer;">â Wis</button></div></div>
 <script>
   function _renderMerkStats(listings){
   var el=document.getElementById('merk-stats-grid');
