@@ -736,7 +736,7 @@
     <div class="zoek-rij">
       <div class="zoek-input-wrap">
         <span class="zoek-icon">🔍</span>
-        <input type="text" id="zoekInput" placeholder="Zoek op trefwoord, merk, model of plaats" oninput="_dZoek()" />
+        <input type="text" id="zoekInput" list="zoekSuggestiesData" placeholder="Zoek op trefwoord, merk, model of plaats" oninput="_dZoek()" autocomplete="off" /><datalist id="zoekSuggestiesData"></datalist>
       </div>
     </div>
 
@@ -1084,6 +1084,7 @@ async function laadListings() {
     updateVindenCount(alleResultaten.length);
     _restoreFilters();
     _populeerMerkFilter();
+    _vulZoekSuggesties();
     zoekNu();
     // Background: laad alle listings (wordt stil opgehaald na initieel tonen)
     if (data.isSubset) {
@@ -1296,6 +1297,25 @@ function extraheerMerk(titel){
     'Land Rover','Alfa Romeo','Jaguar','Suzuki','Mitsubishi'];
   var lager=titel.toLowerCase();
   return merken.find(function(m){return lager.startsWith(m.toLowerCase())||lager.includes(' '
+function _vulZoekSuggesties() {
+  var dl = document.getElementById('zoekSuggestiesData');
+  if (!dl || !alleResultaten.length) return;
+  var seen = {}, opts = [];
+  alleResultaten.forEach(function(l) {
+    var merk = l.merk || '';
+    if (merk && !seen[merk]) { seen[merk]=1; opts.push(merk); }
+    var words = (l.titel||'').split(' ');
+    if (words.length >= 2) {
+      var mm = words.slice(0,2).join(' ');
+      if (!seen[mm]) { seen[mm]=1; opts.push(mm); }
+    }
+    if (words.length >= 3) {
+      var mmm = words.slice(0,3).join(' ');
+      if (!seen[mmm]) { seen[mmm]=1; opts.push(mmm); }
+    }
+  });
+  dl.innerHTML = opts.slice(0,300).map(function(s){return '<option value="'+s.replace(/"/g,'&quot;')+'">';}).join('');
+}
 function _populeerMerkFilter() {
   var sel = document.getElementById('merkFilter');
   if (!sel || !alleResultaten.length) return;
