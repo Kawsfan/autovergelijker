@@ -2454,10 +2454,10 @@ function updateMarktModellen(merk) {
     var dalend=trend.filter(function(a){var ph=a.prijsHistorie;return ph[ph.length-1].prijs<ph[0].prijs;}).length;
     var fmt=function(n){return n.toLocaleString('nl-NL');};
     var rows=[
-      gem?('<div><dt>Gem. vraagprijs</dt><dd>\u20ac '+fmt(gem)+'</dd></div>'):'',
-      medKm?('<div><dt>Mediaan km-stand</dt><dd>'+fmt(medKm)+' km</dd></div>'):'',
-      goedkoop?('<div><dt>Goedkoopste nu</dt><dd>\u20ac '+fmt(goedkoop.prijs)+(goedkoop.jaar?' ('+goedkoop.jaar+')':'')+'</dd></div>'):'',
-      trend.length?('<div><dt>Prijsdaling (30d)</dt><dd>'+dalend+' van '+trend.length+'</dd></div>'):''
+      gem?('<div><dt>€ Gem. vraagprijs</dt><dd>\u20ac '+fmt(gem)+'</dd></div>'):'',
+      medKm?('<div><dt>🛣️ Mediaan km-stand</dt><dd>'+fmt(medKm)+' km</dd></div>'):'',
+      goedkoop?('<div><dt>🏷️ Goedkoopste nu</dt><dd>\u20ac '+fmt(goedkoop.prijs)+(goedkoop.jaar?' ('+goedkoop.jaar+')':'')+'</dd></div>'):'',
+      trend.length?('<div><dt>📉 Prijsdaling (30d)</dt><dd>'+dalend+' van '+trend.length+'</dd></div>'):''
     ].filter(Boolean).join('');
     return '<article class="merk-stat-card"><h3>'+merk+' <span class="merk-count">'+autos.length+' occasions</span></h3><dl>'+rows+'</dl></article>';
   }).join('');
