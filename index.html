@@ -746,7 +746,7 @@
     <div class="filter-rij">
       <div class="filter-item">
         <label>Merk</label>
-        <select id="merkFilter" onchange="updateModelDropdown();zoekNu()">
+        <select id="merkFilter" onchange="updateModelDropdown();_laadMerkEnZoek()">
           <option value="">Alle merken</option>
           <option>Volkswagen</option><option>BMW</option><option>Toyota</option>
           <option>Ford</option><option>Audi</option><option>Peugeot</option>
@@ -1091,6 +1091,7 @@ async function laadListings() {
         if(full.length > allleResultaten.length){
           allleResultaten = full;
           window._alleAutos = full;
+          window._isSubset = false;
           zoekNu();
         }
       }).catch(function(){});
@@ -1121,6 +1122,27 @@ function setTransmissie(btn) {
 }
 
 // ── FILTEREN ──────────────────────────────────────────────────────────────────
+async function _laadMerkEnZoek() {
+  if (window._isSubset) {
+    const merk = (document.getElementById('merkFilter')||{}).value || '';
+    if (merk) {
+      const slug = merk.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+      try {
+        const r = await fetch('data/merken/' + slug + '.json');
+        if (r.ok) {
+          const d = await r.json();
+          const merkListings = d.listings || [];
+          const lc = merk.toLowerCase();
+          const other = allleResultaten.filter(function(l){ return (l.merk||'').toLowerCase() !== lc; });
+          allleResultaten = other.concat(merkListings);
+          window._alleAutos = allleResultaten;
+        }
+      } catch(e) {}
+    }
+  }
+  zoekNu();
+}
+
 function zoekNu() {
   if (alleResultaten.length === 0) return;
 
