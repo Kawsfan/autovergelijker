@@ -1308,7 +1308,8 @@ function toonResultaten(lijst) {
 function extraheerMerk(titel){
   var merken=["Alfa Romeo","Aston Martin","Land Rover","Mercedes-Benz","Rolls-Royce","Lynk & Co","Abarth","Citroën","Polestar","Porsche","Renault","Hyundai","Peugeot","Volkswagen","Mitsubishi","Chevrolet","Chrysler","Genesis","Lamborghini","Maserati","Ferrari","Infiniti","Leapmotor","Subaru","Toyota","Nissan","Jaguar","Lexus","Suzuki","Skoda","Dacia","Cupra","Tesla","Honda","Mazda","Volvo","Dodge","Maxus","Seat","Ford","Opel","Jeep","Fiat","Kia","BMW","Audi","MINI","Smart","Saab","Iveco","Voyah","Daihatsu","BYD","MG","DS","VW","Mercedes","Lynk","Isuzu","Lancia","Bentley","McLaren","Lotus","Lada","Ssangyong"];
   var lager=titel.toLowerCase();
-  return merken.find(function(m){return lager.startsWith(m.toLowerCase())||lager.includes(' '
+  return merken.find(function(m){var ml=m.toLowerCase();return lager===ml||lager.startsWith(ml+' ')||lager.startsWith(ml+'-');})||lager.split(/\s+/)[0]||'overig';
+}
 function _vulZoekSuggesties() {
   var dl = document.getElementById('zoekSuggestiesData');
   if (!dl || !alleResultaten.length) return;
