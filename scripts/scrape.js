@@ -1411,6 +1411,12 @@ async function main() {
     else if (/handmatig|manueel/i.test(trRaw)) l.transmissie = 'Handgeschakeld';
   }
   fs.writeFileSync(outPath, JSON.stringify(data, null, 2));
+  // ── listings-top.json: top 5000 by dealScore voor snelle homepage load
+  const _topL = [...(data.listings||[])].sort((a,b)=>(b.dealScore||0)-(a.dealScore||0)).slice(0,5000);
+  const _topData = Object.assign({}, data, {listings: _topL, isSubset: true, subsetSize: 5000});
+  const _topPath = path.join(process.cwd(), 'data', 'listings-top.json');
+  fs.writeFileSync(_topPath, JSON.stringify(_topData, null, 2));
+  console.log(' listings-top.json: top ' + _topL.length + ' deals geschreven');
   // ââ Sitemap genereren ââ
   const _merken = [...new Set((data.listings||[]).map(l => l.merk).filter(Boolean))].sort();
   const _today = new Date().toISOString().slice(0,10);
