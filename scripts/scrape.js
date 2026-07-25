@@ -1,7 +1,6 @@
 // scripts/scrape.js - AutoVergelijker dagelijkse scraper
 
-  console.log('\n Gaspedaal afbeeldingen downloaden...');
-  await downloadGaspedaalImages(gpListings);
+
 // Bronnen: Marktplaats + Gaspedaal + viaBOVAG + AutoTrack + AutoScout24 + AutoTrader
 
 const fs = require('fs');
