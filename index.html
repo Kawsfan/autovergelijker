@@ -1390,10 +1390,12 @@ function openDetail(id) {
         var range=maxP-minP||1;
         var n=prices.length;
         var pts=prices.map(function(p,i){return((i/(n-1))*198+1).toFixed(1)+","+(47-((p-minP)/range)*44).toFixed(1);}).join(" ");
+          var startP=prices[0];var curP=+(a.prijs)||0;var delta=curP-startP;var deltaPct=(startP?(delta/startP*100):0).toFixed(1);var dCol=delta<0?'#16a34a':delta>0?'#dc2626':'var(--subtekst)';var dSym=delta<0?'▼':delta>0?'▲':'—';var dStr=delta!==0?dSym+' €'+Math.abs(delta).toLocaleString('nl-NL')+' ('+deltaPct+'%)':'Stabiel';
+        var dots=prices.map(function(p,i){var x=((i/(n-1))*198+1).toFixed(1);var y=(47-((p-minP)/range)*44).toFixed(1);return'<circle cx="'+x+'" cy="'+y+'" r="2.5" fill="var(--oranje)"/>';}).join('');
         var out='<div style="margin:12px 0;padding:12px;background:var(--achtergrond);border-radius:10px;">';
-        out+='<div style="font-size:12px;color:var(--subtekst);margin-bottom:4px">&#128200; Prijsontwikkeling</div>';
-        out+='<svg width="100%" height="44" viewBox="0 0 200 50" preserveAspectRatio="none" style="display:block"><polyline points="'+pts+'" fill="none" stroke="var(--oranje)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-        out+='<div style="display:flex;justify-content:space-between;font-size:11px;color:var(--subtekst);margin-top:2px"><span>'+all[0].datum+'</span><span>Nu: &#8364;'+Number(a.prijs).toLocaleString("nl-NL")+'</span></div>';
+        out+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><div style="font-size:12px;color:var(--subtekst)">📈 Prijsontwikkeling</div><div style="font-size:12px;font-weight:700;color:'+dCol+'">'+dStr+'</div></div>';
+        out+='<svg width="100%" height="44" viewBox="0 0 200 50" preserveAspectRatio="none" style="display:block"><polyline points="'+pts+'" fill="none" stroke="var(--oranje)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>'+dots+'</svg>';
+        out+='<div style="display:flex;justify-content:space-between;font-size:11px;color:var(--subtekst);margin-top:4px"><span>'+all[0].datum+': €'+Number(startP).toLocaleString("nl-NL")+'</span><span>Nu: €'+Number(curP).toLocaleString("nl-NL")+'</span></div>';
         out+='</div>';return out;
       })()}
       <a href="${a.url}" target="_blank" rel="noopener noreferrer" style="display:block;background:#e84c15;color:white;text-align:center;padding:14px 20px;border-radius:10px;font-size:15px;font-weight:700;text-decoration:none;margin:16px 0">${(window.lang||'nl')==='en'?"View listing on":"Bekijk advertentie op"} ${a.bron||'bron'} &rarr;</a>
