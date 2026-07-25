@@ -1,4 +1,7 @@
 // scripts/scrape.js - AutoVergelijker dagelijkse scraper
+
+  console.log('\n Gaspedaal afbeeldingen downloaden...');
+  await downloadGaspedaalImages(gpListings);
 // Bronnen: Marktplaats + Gaspedaal + viaBOVAG + AutoTrack + AutoScout24 + AutoTrader
 
 const fs = require('fs');
@@ -1203,6 +1206,45 @@ function parseerAutoTrader(html, gezien, label) {
 
 
 // ── GASPEDAAL IMAGE DOWNLOADER ─────────────────────────────────────────────
+async function downloadGaspedaalImages(listings) {
+  const path = require('path');
+  const imgDir = path.join(process.cwd(), 'data', 'images');
+  if (!fs.existsSync(imgDir)) fs.mkdirSync(imgDir, { recursive: true });
+  const IMG_HEADERS = {
+    'Referer': 'https://www.gaspedaal.nl/',
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+    'Accept': 'image/avif,image/webp,image/apng,image/*,*/*;q=0.8',
+    'Accept-Language': 'nl-NL,nl;q=0.9'
+  };
+  const currentIds = new Set(listings.map(l => l.id));
+  try {
+    for (const f of fs.readdirSync(imgDir)) {
+      if (!currentIds.has(f.replace('.jpg',''))) try { fs.unlinkSync(path.join(imgDir,f)); } catch(e) {}
+    }
+  } catch(e) {}
+  let downloaded=0, skipped=0, failed=0;
+  const MAX_NEW = 300;
+  for (const listing of listings) {
+    const rawSrc = listing.imgSrc || '';
+    if (!rawSrc.includes('cdn.gaspedaal.nl')) continue;
+    const localFile = path.join(imgDir, listing.id + '.jpg');
+    if (fs.existsSync(localFile)) { listing.imgSrc = '/data/images/' + listing.id + '.jpg'; skipped++; continue; }
+    if (downloaded >= MAX_NEW) continue;
+    try {
+      const cleanSrc = rawSrc.startsWith('//') ? 'https:' + rawSrc.split('?')[0] : rawSrc.split('?')[0];
+      const resp = await fetch(cleanSrc, { headers: IMG_HEADERS });
+      if (!resp.ok) throw new Error('HTTP ' + resp.status);
+      const buf = await resp.arrayBuffer();
+      if (buf.byteLength < 1000) throw new Error('too small');
+      fs.writeFileSync(localFile, Buffer.from(buf));
+      listing.imgSrc = '/data/images/' + listing.id + '.jpg';
+      downloaded++;
+      await sleep(400);
+    } catch(e) { failed++; }
+  }
+  console.log('  Afbeeldingen: ' + downloaded + ' nieuw, ' + skipped + ' al aanwezig, ' + failed + ' mislukt');
+}
+
 async function main() {
   console.log('ÃÂ°ÃÂÃÂÃÂ Scraper gestart:', new Date().toISOString());
 
