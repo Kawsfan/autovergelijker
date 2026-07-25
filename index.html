@@ -1083,6 +1083,7 @@ async function laadListings() {
 
     updateVindenCount(alleResultaten.length);
     _restoreFilters();
+    _populeerMerkFilter();
     zoekNu();
     // Background: laad alle listings (wordt stil opgehaald na initieel tonen)
     if (data.isSubset) {
@@ -1294,7 +1295,22 @@ function extraheerMerk(titel){
     'Seat','Skoda','Volvo','Tesla','Citro\u00ebn','Dacia','Mini','Fiat','Porsche',
     'Land Rover','Alfa Romeo','Jaguar','Suzuki','Mitsubishi'];
   var lager=titel.toLowerCase();
-  return merken.find(function(m){return lager.startsWith(m.toLowerCase())||lager.includes(' '+m.toLowerCase());})||'';
+  return merken.find(function(m){return lager.startsWith(m.toLowerCase())||lager.includes(' '
+function _populeerMerkFilter() {
+  var sel = document.getElementById('merkFilter');
+  if (!sel || !allleResultaten.length) return;
+  var cur = sel.value;
+  var counts = {};
+  allleResultaten.forEach(function(l) {
+    var m = l.merk || extraheerMerk(l.titel || '');
+    if (m && m !== 'overig') counts[m] = (counts[m]||0) + 1;
+  });
+  var merken = Object.keys(counts).sort(function(a,b){return a.localeCompare(b,'nl');});
+  var html = '<option value="">Alle merken</option>';
+  merken.forEach(function(m) { html += '<option value="'+m+'">'+m+' ('+counts[m]+')</option>'; });
+  sel.innerHTML = html;
+  if (cur) sel.value = cur;
+}+m.toLowerCase());})||'';
 }
 function isDealer(a){
   if(!a)return null;
