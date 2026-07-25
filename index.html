@@ -1086,17 +1086,29 @@ async function laadListings() {
     _populeerMerkFilter();
     _vulZoekSuggesties();
     zoekNu();
-    // Background: laad alle listings (wordt stil opgehaald na initieel tonen)
+    // Background: laad alle listings (uitgesteld — niet meteen bij pageload)
     if (data.isSubset) {
-      fetch('data/listings.json').then(function(r){return r.json();}).then(function(fullData){
-        var full = fullData.listings||[];
-        if(full.length > allleResultaten.length){
-          allleResultaten = full;
-          window._alleAutos = full;
-          window._isSubset = false;
-          zoekNu();
-        }
-      }).catch(function(){});
+      window._laadVolledig = function() {
+        if (window._volledigGeladen) return;
+        window._volledigGeladen = true;
+        fetch('data/listings.json').then(function(r){return r.json();}).then(function(fullData){
+          var full = fullData.listings||[];
+          if(full.length > alleResultaten.length){
+            alleResultaten = full;
+            window._alleAutos = alleResultaten;
+            alleResultaten.forEach(function(a){if(!a.merk)a.merk=extraheerMerk(a.titel||'');});
+            _populeerMerkFilter();
+            _vulZoekSuggesties();
+            zoekNu();
+          }
+        }).catch(function(){});
+      };
+      // Laad pas na 8 seconden (requestIdleCallback indien beschikbaar)
+      if (window.requestIdleCallback) {
+        requestIdleCallback(function(){ setTimeout(window._laadVolledig, 3000); }, {timeout: 10000});
+      } else {
+        setTimeout(window._laadVolledig, 8000);
+      }
     }
     if (document.getElementById('kaartView').style.display !== 'none') renderKaart();
   } catch (err) {
@@ -1146,6 +1158,9 @@ async function _laadMerkEnZoek() {
 }
 
 function zoekNu() {
+    // Trigger volledig laden bij actieve zoekopdracht
+    if (window._laadVolledig && (document.getElementById('zoekInput').value.trim() || document.getElementById('merkFilter').value)) { window._laadVolledig(); }
+
   if (alleResultaten.length === 0) return;
 
   const zoek     = document.getElementById('zoekInput').value.trim().toLowerCase();
