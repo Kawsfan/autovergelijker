@@ -415,15 +415,9 @@ function parseerGaspedaal(html, gezien, label) {
 
 // ÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂ VIABOVAG ÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂÃÂ¢ÃÂÃÂ
 
-const VB_URLS = [
-  'https://www.viabovag.nl/auto/occasion',
-  'https://www.viabovag.nl/auto/occasion?pagina=2',
-  'https://www.viabovag.nl/auto/occasion?pagina=3',
-  'https://www.viabovag.nl/auto/occasion?pagina=4',
-  'https://www.viabovag.nl/auto/occasion?brandstof=Elektrisch',
-  'https://www.viabovag.nl/auto/occasion?brandstof=Elektrisch&pagina=2',
-  'https://www.viabovag.nl/auto/occasion?brandstof=Elektrisch&pagina=3',
-];
+
+function vbUrl(p){ return p===1?'https://www.viabovag.nl/auto/occasion':'https://www.viabovag.nl/auto/occasion'+(p>1?'?pagina='+p:''); }
+const VB_URLS = Array.from({length:30},(_,i)=>vbUrl(i+1));
 
 async function scrapeViaBovag() {
   const all = [];
