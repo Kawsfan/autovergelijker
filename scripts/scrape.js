@@ -1301,7 +1301,7 @@ async function main() {
     .filter(l => l.bijgewerkt >= cutoffStr)
     .filter(l => !(l.bron === 'AutoScout24' && !l.titel && !l.prijs));
   // Merk-extractie: vul l.merk voor alle listings (nodig voor dedup + merkenfilter)
-  const _MERKEN = ["Alfa Romeo","Aston Martin","Land Rover","Mercedes-Benz","Rolls-Royce","Abarth","Citroën","Porsche","Renault","Hyundai","Peugeot","Volkswagen","Mitsubishi","Chevrolet","Chrysler","Genesis","Lamborghini","Maserati","Ferrari","Infiniti","Subaru","Toyota","Nissan","Jaguar","Lexus","Suzuki","Skoda","Škoda","Dacia","Cupra","Tesla","Honda","Mazda","Volvo","Dodge","Seat","Ford","Opel","Jeep","Fiat","Kia","BMW","Audi","MINI","Smart","Saab","DS","VW","Isuzu","Lancia","Pontiac","Buick","Cadillac","Hummer","Bentley","Bugatti","McLaren","Lotus","Lada","Ssangyong","Daihatsu"];
+  const _MERKEN = ["Alfa Romeo","Aston Martin","Land Rover","Mercedes-Benz","Rolls-Royce","Lynk & Co","Abarth","Citroën","Polestar","Porsche","Renault","Hyundai","Peugeot","Volkswagen","Mitsubishi","Chevrolet","Chrysler","Genesis","Lamborghini","Maserati","Ferrari","Infiniti","Leapmotor","Subaru","Toyota","Nissan","Jaguar","Lexus","Suzuki","Skoda","Škoda","Dacia","Cupra","Tesla","Honda","Mazda","Volvo","Dodge","Maxus","Seat","Ford","Opel","Jeep","Fiat","Kia","BMW","Audi","MINI","Smart","Saab","Iveco","Voyah","Daihatsu","BYD","MG","DS","VW","Mercedes","Lynk","Isuzu","Lancia","Bentley","Bugatti","McLaren","Lotus","Lada"];
   listings.forEach(function(l) {
     if (l.merk) return;
     const _titel = (l.titel || '').trim().toLowerCase();
