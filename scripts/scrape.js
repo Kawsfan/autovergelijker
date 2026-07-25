@@ -1417,6 +1417,24 @@ async function main() {
   const _topPath = path.join(process.cwd(), 'data', 'listings-top.json');
   fs.writeFileSync(_topPath, JSON.stringify(_topData, null, 2));
   console.log(' listings-top.json: top ' + _topL.length + ' deals geschreven');
+  // ── Per-merk JSON bestanden genereren (voor lazy brand loading) ──
+  const _merkDir = path.join(process.cwd(), 'data', 'merken');
+  if (!fs.existsSync(_merkDir)) fs.mkdirSync(_merkDir, { recursive: true });
+  const _merkGroups = {};
+  (data.listings||[]).forEach(function(l){
+    const m = (l.merk||'overig').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+    if(!_merkGroups[m]) _merkGroups[m] = [];
+    _merkGroups[m].push(l);
+  });
+  let _merkCount = 0;
+  for(const [_merk, _mListing] of Object.entries(_merkGroups)){
+    if(_mListing.length >= 5){
+      const _mData = Object.assign({}, data, {listings: _mListing, isSubset: false, merk: _merk});
+      fs.writeFileSync(path.join(_merkDir, _merk+'.json'), JSON.stringify(_mData));
+      _merkCount++;
+    }
+  }
+  console.log(' merken/: ' + _merkCount + ' merk-bestanden geschreven');
   // ââ Sitemap genereren ââ
   const _merken = [...new Set((data.listings||[]).map(l => l.merk).filter(Boolean))].sort();
   const _today = new Date().toISOString().slice(0,10);
