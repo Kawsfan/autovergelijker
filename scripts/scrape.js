@@ -1300,6 +1300,20 @@ async function main() {
   let listings = Object.values(byId)
     .filter(l => l.bijgewerkt >= cutoffStr)
     .filter(l => !(l.bron === 'AutoScout24' && !l.titel && !l.prijs));
+  // Merk-extractie: vul l.merk voor alle listings (nodig voor dedup + merkenfilter)
+  const _MERKEN = ["Alfa Romeo","Aston Martin","Land Rover","Mercedes-Benz","Rolls-Royce","Abarth","Citroën","Porsche","Renault","Hyundai","Peugeot","Volkswagen","Mitsubishi","Chevrolet","Chrysler","Genesis","Lamborghini","Maserati","Ferrari","Infiniti","Subaru","Toyota","Nissan","Jaguar","Lexus","Suzuki","Skoda","Škoda","Dacia","Cupra","Tesla","Honda","Mazda","Volvo","Dodge","Seat","Ford","Opel","Jeep","Fiat","Kia","BMW","Audi","MINI","Smart","Saab","DS","VW","Isuzu","Lancia","Pontiac","Buick","Cadillac","Hummer","Bentley","Bugatti","McLaren","Lotus","Lada","Ssangyong","Daihatsu"];
+  listings.forEach(function(l) {
+    if (l.merk) return;
+    const _titel = (l.titel || '').trim().toLowerCase();
+    for (const _m of _MERKEN) {
+      const _ml = _m.toLowerCase();
+      if (_titel === _ml || _titel.startsWith(_ml + ' ') || _titel.startsWith(_ml + '-')) {
+        l.merk = _m;
+        return;
+      }
+    }
+    l.merk = (l.titel || '').trim().split(/\s+/)[0] || 'overig';
+  });
   // Deduplicatie: verwijder zelfde auto van meerdere platforms
   const _dedupMap = {};
   const _dedupList = [];
