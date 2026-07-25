@@ -1163,7 +1163,7 @@ function zoekNu() {
     const titel = (a.titel || '').toLowerCase();
     const locatie = (a.locatie || '').toLowerCase();
     if (zoek && !titel.includes(zoek) && !locatie.includes(zoek)) return false;
-    if (merk && !titel.includes(merk)) return false;
+    if (merk && (a.merk||"").toLowerCase() !== merk && !titel.includes(merk)) return false;
     if (model && !titel.includes(model)) return false;
     if (jaarMin && (a.jaar || 0) < jaarMin) return false;
     if (jaarMax < 9999 && (a.jaar || 9999) > jaarMax) return false;
