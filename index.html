@@ -1298,10 +1298,10 @@ function extraheerMerk(titel){
   return merken.find(function(m){return lager.startsWith(m.toLowerCase())||lager.includes(' '
 function _populeerMerkFilter() {
   var sel = document.getElementById('merkFilter');
-  if (!sel || !allleResultaten.length) return;
+  if (!sel || !alleResultaten.length) return;
   var cur = sel.value;
   var counts = {};
-  allleResultaten.forEach(function(l) {
+  alleResultaten.forEach(function(l) {
     var m = l.merk || extraheerMerk(l.titel || '');
     if (m && m !== 'overig') counts[m] = (counts[m]||0) + 1;
   });
