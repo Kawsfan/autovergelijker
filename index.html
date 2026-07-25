@@ -1043,7 +1043,7 @@ async function laadListings() {
     const data = await resp.json();
     alleResultaten = data.listings || [];
     window._alleAutos = alleResultaten;
-    alleResultaten.forEach(function(a){if(!a.merk)a.merk=extraheerMerk(a.titel||"");});
+    alleResultaten.forEach(function(a){if(!a.merk||!/^[a-zA-ZÀ-ɏ]/.test(a.merk))a.merk=extraheerMerk(a.titel||"");});
     berekenTrending();
     _renderMerkStats(alleResultaten);
     _renderMerkenLinks(alleResultaten);
@@ -1308,7 +1308,7 @@ function toonResultaten(lijst) {
 function extraheerMerk(titel){
   var merken=["Alfa Romeo","Aston Martin","Land Rover","Mercedes-Benz","Rolls-Royce","Lynk & Co","Abarth","Citroën","Polestar","Porsche","Renault","Hyundai","Peugeot","Volkswagen","Mitsubishi","Chevrolet","Chrysler","Genesis","Lamborghini","Maserati","Ferrari","Infiniti","Leapmotor","Subaru","Toyota","Nissan","Jaguar","Lexus","Suzuki","Skoda","Dacia","Cupra","Tesla","Honda","Mazda","Volvo","Dodge","Maxus","Seat","Ford","Opel","Jeep","Fiat","Kia","BMW","Audi","MINI","Smart","Saab","Iveco","Voyah","Daihatsu","BYD","MG","DS","VW","Mercedes","Lynk","Isuzu","Lancia","Bentley","McLaren","Lotus","Lada","Ssangyong"];
   var lager=titel.toLowerCase();
-  return merken.find(function(m){var ml=m.toLowerCase();return lager===ml||lager.startsWith(ml+' ')||lager.startsWith(ml+'-');})||lager.split(/\s+/)[0]||'overig';
+  return merken.find(function(m){var ml=m.toLowerCase();return lager===ml||lager.startsWith(ml+' ')||lager.startsWith(ml+'-');})||(function(){var s=lager.replace(/^[^a-zÀ-ɏ]+/i,'').trim();if(!s)return 'overig';return merken.find(function(m){var ml=m.toLowerCase();return s===ml||s.startsWith(ml+' ')||s.startsWith(ml+'-');})||'overig';})();
 }
 function _vulZoekSuggesties() {
   var dl = document.getElementById('zoekSuggestiesData');
@@ -1336,7 +1336,7 @@ function _populeerMerkFilter() {
   var counts = {};
   alleResultaten.forEach(function(l) {
     var m = l.merk || extraheerMerk(l.titel || '');
-    if (m && m !== 'overig') counts[m] = (counts[m]||0) + 1;
+    if (m && m !== 'overig' && /^[a-zA-ZÀ-ɏ]/.test(m)) counts[m] = (counts[m]||0) + 1;
   });
   var merken = Object.keys(counts).sort(function(a,b){return a.localeCompare(b,'nl');});
   var html = '<option value="">Alle merken</option>';
@@ -2454,10 +2454,10 @@ function updateMarktModellen(merk) {
     var dalend=trend.filter(function(a){var ph=a.prijsHistorie;return ph[ph.length-1].prijs<ph[0].prijs;}).length;
     var fmt=function(n){return n.toLocaleString('nl-NL');};
     var rows=[
-      gem?('<div><dt>€ Gem. vraagprijs</dt><dd>\u20ac '+fmt(gem)+'</dd></div>'):'',
-      medKm?('<div><dt>🛣️ Mediaan km-stand</dt><dd>'+fmt(medKm)+' km</dd></div>'):'',
-      goedkoop?('<div><dt>🏷️ Goedkoopste nu</dt><dd>\u20ac '+fmt(goedkoop.prijs)+(goedkoop.jaar?' ('+goedkoop.jaar+')':'')+'</dd></div>'):'',
-      trend.length?('<div><dt>📉 Prijsdaling (30d)</dt><dd>'+dalend+' van '+trend.length+'</dd></div>'):''
+      gem?('<div><dt>Gem. vraagprijs</dt><dd>\u20ac '+fmt(gem)+'</dd></div>'):'',
+      medKm?('<div><dt>Mediaan km-stand</dt><dd>'+fmt(medKm)+' km</dd></div>'):'',
+      goedkoop?('<div><dt>Goedkoopste nu</dt><dd>\u20ac '+fmt(goedkoop.prijs)+(goedkoop.jaar?' ('+goedkoop.jaar+')':'')+'</dd></div>'):'',
+      trend.length?('<div><dt>Prijsdaling (30d)</dt><dd>'+dalend+' van '+trend.length+'</dd></div>'):''
     ].filter(Boolean).join('');
     return '<article class="merk-stat-card"><h3>'+merk+' <span class="merk-count">'+autos.length+' occasions</span></h3><dl>'+rows+'</dl></article>';
   }).join('');
