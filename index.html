@@ -1291,10 +1291,7 @@ function toonResultaten(lijst) {
 }
 
 function extraheerMerk(titel){
-  var merken=['BMW','Volkswagen','Audi','Mercedes-Benz','Toyota','Ford',
-    'Opel','Renault','Peugeot','Honda','Nissan','Mazda','Kia','Hyundai',
-    'Seat','Skoda','Volvo','Tesla','Citro\u00ebn','Dacia','Mini','Fiat','Porsche',
-    'Land Rover','Alfa Romeo','Jaguar','Suzuki','Mitsubishi'];
+  var merken=["Alfa Romeo","Aston Martin","Land Rover","Mercedes-Benz","Rolls-Royce","Lynk & Co","Abarth","Citroën","Polestar","Porsche","Renault","Hyundai","Peugeot","Volkswagen","Mitsubishi","Chevrolet","Chrysler","Genesis","Lamborghini","Maserati","Ferrari","Infiniti","Leapmotor","Subaru","Toyota","Nissan","Jaguar","Lexus","Suzuki","Skoda","Dacia","Cupra","Tesla","Honda","Mazda","Volvo","Dodge","Maxus","Seat","Ford","Opel","Jeep","Fiat","Kia","BMW","Audi","MINI","Smart","Saab","Iveco","Voyah","Daihatsu","BYD","MG","DS","VW","Mercedes","Lynk","Isuzu","Lancia","Bentley","McLaren","Lotus","Lada","Ssangyong"];
   var lager=titel.toLowerCase();
   return merken.find(function(m){return lager.startsWith(m.toLowerCase())||lager.includes(' '
 function _vulZoekSuggesties() {
