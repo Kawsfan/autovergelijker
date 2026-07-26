@@ -1030,6 +1030,7 @@ const MERK_MODELLEN={'Volkswagen':['Golf','Polo','Passat','Tiguan','T-Roc','ID.4
 function updateModelDropdown(){var merk=document.getElementById('merkFilter').value,sel=document.getElementById('modelInput');if(!merk||!MERK_MODELLEN[merk]){sel.innerHTML='<option value="">Selecteer eerst een merk</option>';sel.disabled=true;sel.style.opacity='0.5';sel.style.cursor='not-allowed';}else{sel.innerHTML='<option value="">Alle modellen</option>'+MERK_MODELLEN[merk].map(function(m){return'<option value="'+m+'">'+m+'</option>';}).join('');sel.disabled=false;sel.style.opacity='1';sel.style.cursor='pointer';}}
 function toggleCustomRange(sel){var grp=(sel.id==='prijsMin'||sel.id==='prijsMax')?'prijs':'km';var hasCustom=document.getElementById(grp+'Min').value==='custom'||document.getElementById(grp+'Max').value==='custom';document.getElementById(grp+'-custom').style.display=hasCustom?'flex':'none';}
 
+function dedupAutos(arr){var seen={};return arr.filter(function(a){if(!a.prijs||!a.km)return true;var k=(a.prijs|0)+(String.fromCharCode(95))+(a.km|0)+(String.fromCharCode(95))+(a.merk||"");if(seen[k]===undefined){seen[k]=a.dealScore||0;return true;}if((a.dealScore||0)>seen[k]){seen[k]=a.dealScore||0;return true;}return false;});}
 let alleResultaten = [];
 let huidigDetailId = null;
 let transmissieActief = '';
@@ -1041,7 +1042,7 @@ async function laadListings() {
     const resp = await fetch('data/listings-top.json');
     if (!resp.ok) throw new Error('HTTP ' + resp.status);
     const data = await resp.json();
-    alleResultaten = data.listings || [];
+    alleResultaten = dedupAutos(data.listings || []);
     window._alleAutos = alleResultaten;
     alleResultaten.forEach(function(a){if(!a.merk||!/^[a-zA-ZÀ-ɏ]/.test(a.merk))a.merk=extraheerMerk(a.titel||"");});
     berekenTrending();
@@ -1094,7 +1095,7 @@ async function laadListings() {
         fetch('data/listings.json').then(function(r){return r.json();}).then(function(fullData){
           var full = fullData.listings||[];
           if(full.length > alleResultaten.length){
-            alleResultaten = full;
+            alleResultaten = dedupAutos(full);
             window._alleAutos = alleResultaten;
             alleResultaten.forEach(function(a){if(!a.merk)a.merk=extraheerMerk(a.titel||'');});
             _populeerMerkFilter();
