@@ -1,0 +1,33 @@
+# Carkijker
+
+> Carkijker is een gratis Nederlandse zoekmachine voor auto's die het aanbod van 6 grote platforms aggregeert op één plek. Met 42.000+ actuele advertenties, een unieke deal score en dagelijkse updates.
+
+## Wat is Carkijker?
+
+Carkijker vergelijkt het volledige auto-aanbod van Nederland — zowel tweedehands als nieuw — op één plek. Gebruikers filteren op merk, model, prijs, kilometerstand, bouwjaar, brandstof en carrosserie. Een algoritme berekent per auto een "deal score" (z-score per merk/model) zodat kopers direct zien of een auto goedkoop of duur is ten opzichte van vergelijkbare exemplaren.
+
+## Kenmerken
+
+- 42.000+ auto-advertenties van 6 platforms, dagelijks bijgewerkt
+- Deal score algoritme: eerlijke prijsvergelijking per merk en model
+- Gratis, geen account nodig
+- Filters: merk, model, prijs, km-stand, bouwjaar, brandstof, transmissie, carrosserie
+- Deduplicatie: dubbele advertenties van meerdere platforms worden samengevoegd
+- Beschikbaar via https://carkijker.nl/
+
+## Databronnen
+
+Carkijker aggregeert van: Autoscout24, Gaspedaal, Marktplaats en andere grote Nederlandse autoplatforms.
+
+## Doelgroep
+
+Nederlanders die een auto willen kopen en het complete aanbod van alle grote platforms in één overzicht willen zien, met eerlijke prijsindicatie.
+
+## Belangrijke pagina's
+
+- Homepage: https://carkijker.nl/
+- Occasions Amsterdam: https://carkijker.nl/occasions/amsterdam/
+- Occasions Rotterdam: https://carkijker.nl/occasions/rotterdam/
+- Occasions Den Haag: https://carkijker.nl/occasions/den-haag/
+- Occasions Utrecht: https://carkijker.nl/occasions/utrecht/
+- Sitemap: https://carkijker.nl/sitemap.xml
