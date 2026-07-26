@@ -1099,6 +1099,8 @@ async function laadListings() {
             alleResultaten.forEach(function(a){if(!a.merk)a.merk=extraheerMerk(a.titel||'');});
             _populeerMerkFilter();
             _vulZoekSuggesties();
+            var _g=document.getElementById('autoGrid');if(_g){_g.style.transition='opacity 0.3s';_g.style.opacity='0.5';}
+            setTimeout(function(){zoekNu();if(_g){setTimeout(function(){_g.style.opacity='1';_g.style.transition='';},150);}},300);
           }
         }).catch(function(){});
       };
