@@ -1,4 +1,4 @@
-const CACHE = "carkijker-v1";
+const CACHE = "carkijker-v2";
 const CACHE_DATA = "carkijker-data-v1";
 const STATIC = ["/","/index.html"];
 
