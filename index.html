@@ -1099,7 +1099,6 @@ async function laadListings() {
             alleResultaten.forEach(function(a){if(!a.merk)a.merk=extraheerMerk(a.titel||'');});
             _populeerMerkFilter();
             _vulZoekSuggesties();
-            zoekNu();
           }
         }).catch(function(){});
       };
