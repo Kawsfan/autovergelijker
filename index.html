@@ -1026,11 +1026,10 @@ var _vgl = [];
 var _favs = new Set(JSON.parse(localStorage.getItem('_av_favs') || '[]'));
 window._vglData = {};
 
-const MERK_MODELLEN={'Volkswagen':['Golf','Polo','Passat','Tiguan','T-Roc','ID.4','ID.3','ID.5'],'BMW':['1-serie','2-serie','3-serie','4-serie','5-serie','7-serie','X1','X3','X5','iX3','i4'],'Toyota':['Corolla','Yaris','RAV4','Prius','Aygo','C-HR','bZ4X'],'Ford':['Focus','Fiesta','Puma','Kuga','Mustang Mach-E','Explorer','Mondeo','Ranger'],'Audi':['A1','A3','A4','A5','A6','Q3','Q5','Q7','e-tron','Q4 e-tron'],'Peugeot':['208','308','3008','2008','508','e-208','e-2008'],'Renault':['Clio','Megane','Captur','Zoe','Scenic','Twingo','Arkana'],'Hyundai':['i10','i20','i30','Tucson','Kona','IONIQ 5','IONIQ 6','Santa Fe'],'Kia':['Picanto','Stonic','Ceed','Sportage','Niro','EV6','Sorento','EV9'],'Tesla':['Model 3','Model S','Model Y','Model X'],'Volvo':['V40','V60','V90','XC40','XC60','XC90','S60','C40'],'Skoda':['Fabia','Octavia','Superb','Kodiaq','Karoq','Scala','Enyaq'],'Mercedes-Benz':['A-Klasse','B-Klasse','C-Klasse','E-Klasse','GLA','GLB','GLC','GLE','EQA','EQC'],'Seat':['Ibiza','Leon','Arona','Ateca','Tarraco'],'Opel':['Corsa','Astra','Mokka','Grandland','Insignia','Corsa-e'],'Fiat':['500','500e','Panda','Tipo','500X'],'Honda':['Civic','Jazz','HR-V','CR-V'],'Mazda':['2','3','6','CX-3','CX-5','CX-30','MX-30'],'Nissan':['Micra','Qashqai','Juke','Leaf','Ariya','X-Trail'],'Citroën':['C1','C3','C3 Aircross','C4','C5 Aircross','e-C4'],'Dacia':['Sandero','Duster','Logan','Spring','Jogger'],'Mini':['Cooper','Clubman','Countryman','Electric'],'Land Rover':['Discovery','Discovery Sport','Range Rover','Defender'],'Porsche':['Cayenne','Macan','Panamera','911','Taycan','Boxster'],'Jeep':['Renegade','Compass','Cherokee','Grand Cherokee','Wrangler','Avenger'],'Alfa Romeo':['Giulia','Stelvio','Tonale','Giulietta','Mito'],'Suzuki':['Swift','Vitara','S-Cross','Jimny','Ignis'],'Mitsubishi':['ASX','Outlander','Eclipse Cross','Space Star'],'Cupra':['Born','Formentor','Ateca','Leon'],'MG':['ZS','HS','MG4','MG5','MG3'],'Polestar':['Polestar 2','Polestar 3','Polestar 4'],'Jaguar':['E-Pace','F-Pace','I-Pace','XE','XF'],'Subaru':['Forester','Outback','XV','Impreza'],'Lexus':['UX','NX','RX','IS','ES','CT'],'BYD':['Atto 3','Han','Tang','Seal','Dolphin'],'Smart':['#1','#3','fortwo'],'DS':['DS3','DS4','DS7','DS9']};
+const MERK_MODELLEN={'Volkswagen':['Golf','Polo','Passat','Tiguan','T-Roc','ID.4','ID.3','ID.5'],'BMW':['1-serie','2-serie','3-serie','4-serie','5-serie','7-serie','X1','X3','X5','iX3','i4'],'Toyota':['Corolla','Yaris','RAV4','Prius','Aygo','C-HR','bZ4X'],'Ford':['Focus','Fiesta','Puma','Kuga','Mustang Mach-E','Explorer','Mondeo','Ranger'],'Audi':['A1','A3','A4','A5','A6','Q3','Q5','Q7','e-tron','Q4 e-tron'],'Peugeot':['208','308','3008','2008','508','e-208','e-2008'],'Renault':['Clio','Megane','Captur','Zoe','Scenic','Twingo','Arkana'],'Hyundai':['i10','i20','i30','Tucson','Kona','IONIQ 5','IONIQ 6','Santa Fe'],'Kia':['Picanto','Stonic','Ceed','Sportage','Niro','EV6','Sorento','EV9'],'Tesla':['Model 3','Model S','Model Y','Model X'],'Volvo':['V40','V60','V90','XC40','XC60','XC90','S60','C40'],'Skoda':['Fabia','Octavia','Superb','Kodiaq','Karoq','Scala','Enyaq'],'Mercedes-Benz':['A-Klasse','B-Klasse','C-Klasse','E-Klasse','GLA','GLB','GLC','GLE','EQA','EQC'],'Seat':['Ibiza','Leon','Arona','Ateca','Tarraco'],'Opel':['Corsa','Astra','Mokka','Grandland','Insignia','Corsa-e'],'Fiat':['500','500e','Panda','Tipo','500X'],'Honda':['Civic','Jazz','HR-V','CR-V'],'Mazda':['2','3','6','CX-3','CX-5','CX-30','MX-30'],'Nissan':['Micra','Qashqai','Juke','Leaf','Ariya','X-Trail'],'Citroën':['C1','C3','C3 Aircross','C4','C5 Aircross','e-C4'],'Dacia':['Sandero','Duster','Logan','Spring','Jogger'],'Mini':['Cooper','Clubman','Countryman','Electric'],'Land Rover':['Discovery','Discovery Sport','Range Rover','Defender'],'Porsche':['Cayenne','Macan','Panamera','911','Taycan','Boxster'],'Jeep':['Renegade','Compass','Cherokee','Grand Cherokee','Wrangler','Avenger'],'Alfa Romeo':['Giulia','Stelvio','Tonale','Giulietta','Mito'],'Suzuki':['Swift','Vitara','S-Cross','Jimny','Ignis'],'Mitsubishi':['ASX','Outlander','Eclipse Cross','Space Star'],'Cupra':['Born','Formentor','Ateca','Leon'],'MG':['ZS','HS','MG4','MG5','MG3'],'Polestar':['Polestar 2','Polestar 3','Polestar 4'],'Jaguar':['E-Pace','F-Pace','I-Pace','XE','XF'],'Subaru':['Forester','Outback','XV','Impreza'],'Lexus':['UX','NX','RX','IS','ES','CT'],'BYD':['Atto 3','Han','Tang','Seal','Dolphin'],'Smart':['#1','#3','fortwo'],'DS':['DS3','DS4','DS7','DS9'],'Zeekr':['001','007','X','X2'],'Xpeng':['P7','G3','G9','P5','G6'],'NIO':['ES6','ES8','ET7','EL6','ET5'],'Leapmotor':['C10','T03'],'Ora':['Funky Cat','Good Cat'],'Aiways':['U5','U6']};
 function updateModelDropdown(){var merk=document.getElementById('merkFilter').value,sel=document.getElementById('modelInput');if(!merk||!MERK_MODELLEN[merk]){sel.innerHTML='<option value="">Selecteer eerst een merk</option>';sel.disabled=true;sel.style.opacity='0.5';sel.style.cursor='not-allowed';}else{sel.innerHTML='<option value="">Alle modellen</option>'+MERK_MODELLEN[merk].map(function(m){return'<option value="'+m+'">'+m+'</option>';}).join('');sel.disabled=false;sel.style.opacity='1';sel.style.cursor='pointer';}}
 function toggleCustomRange(sel){var grp=(sel.id==='prijsMin'||sel.id==='prijsMax')?'prijs':'km';var hasCustom=document.getElementById(grp+'Min').value==='custom'||document.getElementById(grp+'Max').value==='custom';document.getElementById(grp+'-custom').style.display=hasCustom?'flex':'none';}
 
-function dedupAutos(arr){var seen={};return arr.filter(function(a){if(!a.prijs||!a.km)return true;var k=(a.prijs|0)+(String.fromCharCode(95))+(a.km|0)+(String.fromCharCode(95))+(a.merk||"");if(seen[k]===undefined){seen[k]=a.dealScore||0;return true;}if((a.dealScore||0)>seen[k]){seen[k]=a.dealScore||0;return true;}return false;});}
 let alleResultaten = [];
 let huidigDetailId = null;
 let transmissieActief = '';
@@ -1042,7 +1041,7 @@ async function laadListings() {
     const resp = await fetch('data/listings-top.json');
     if (!resp.ok) throw new Error('HTTP ' + resp.status);
     const data = await resp.json();
-    alleResultaten = dedupAutos(data.listings || []);
+    alleResultaten = data.listings || [];
     window._alleAutos = alleResultaten;
     alleResultaten.forEach(function(a){if(!a.merk||!/^[a-zA-ZÀ-ɏ]/.test(a.merk))a.merk=extraheerMerk(a.titel||"");});
     berekenTrending();
@@ -1095,7 +1094,7 @@ async function laadListings() {
         fetch('data/listings.json').then(function(r){return r.json();}).then(function(fullData){
           var full = fullData.listings||[];
           if(full.length > alleResultaten.length){
-            alleResultaten = dedupAutos(full);
+            alleResultaten = full;
             window._alleAutos = alleResultaten;
             alleResultaten.forEach(function(a){if(!a.merk)a.merk=extraheerMerk(a.titel||'');});
             _populeerMerkFilter();
@@ -1281,7 +1280,7 @@ function toonResultaten(lijst) {
       <div class="auto-foto">
         <button class="fav-btn${_favs.has(a.id)?' fav-actief':''}" data-fav="${a.id}" onclick="toggleFav(event,'${a.id}')" title="Fav">${_favs.has(a.id)?'♥':'♡'}</button>
         <button class="vgl-btn${_vgl.includes(a.id)?' vgl-actief':''}" data-vgl="${a.id}" onclick="toggleVergelijk(event,'${a.id}')" title="Vergelijk">⊕</button>
-        ${(()=>{window._vglData[a.id]=a;return a.bijgewerkt===new Date().toISOString().slice(0,10)?'<span class=\"nieuw-badge\">NIEUW</span>':''})()}${(()=>{var _d=isDealer(a);return _d===true?'<span class="dealer-badge">DEALER</span>':_d===false?'<span class="particulier-badge">PRIVÉ</span>':''})()}
+        ${(()=>{window._vglData[a.id]=a;return a.bijgewerkt===new Date().toISOString().slice(0,10)?'<span class=\"nieuw-badge\">NIEUW</span>':''})()}${(()=>{var _d=isDealer(a);return _d===true?'<span class="dealer-badge">DEALER</span>':_d===false?'<span class="particulier-badge">PRIVé</span>':''})()}
         ${(()=>{if(a.prijsHistorie&&a.prijsHistorie.length){
           var oud=a.prijsHistorie[a.prijsHistorie.length-1].prijs;
           return '<span class="prijs-daling">↘ was €'+Number(oud).toLocaleString('nl-NL')+'</span>';
@@ -1308,7 +1307,7 @@ function toonResultaten(lijst) {
 }
 
 function extraheerMerk(titel){
-  var merken=["Alfa Romeo","Aston Martin","Land Rover","Mercedes-Benz","Rolls-Royce","Lynk & Co","Abarth","Citroën","Polestar","Porsche","Renault","Hyundai","Peugeot","Volkswagen","Mitsubishi","Chevrolet","Chrysler","Genesis","Lamborghini","Maserati","Ferrari","Infiniti","Leapmotor","Subaru","Toyota","Nissan","Jaguar","Lexus","Suzuki","Skoda","Dacia","Cupra","Tesla","Honda","Mazda","Volvo","Dodge","Maxus","Seat","Ford","Opel","Jeep","Fiat","Kia","BMW","Audi","MINI","Smart","Saab","Iveco","Voyah","Daihatsu","BYD","MG","DS","VW","Mercedes","Lynk","Isuzu","Lancia","Bentley","McLaren","Lotus","Lada","Ssangyong"];
+  var merken=["Alfa Romeo","Aston Martin","Land Rover","Mercedes-Benz","Rolls-Royce","Lynk & Co","Abarth","Citroën","Polestar","Porsche","Renault","Hyundai","Peugeot","Volkswagen","Mitsubishi","Chevrolet","Chrysler","Genesis","Lamborghini","Maserati","Ferrari","Infiniti","Leapmotor","Subaru","Toyota","Nissan","Jaguar","Lexus","Suzuki","Skoda","Dacia","Cupra","Tesla","Honda","Mazda","Volvo","Dodge","Maxus","Seat","Ford","Opel","Jeep","Fiat","Kia","BMW","Audi","MINI","Smart","Saab","Iveco","Voyah","Daihatsu","BYD","MG","DS","VW","Mercedes","Lynk","Isuzu","Lancia","Bentley","McLaren","Lotus","Lada","Ssangyong","Zeekr","Xpeng","NIO","Leapmotor","Ora","Aiways"];
   var lager=titel.toLowerCase();
   return merken.find(function(m){var ml=m.toLowerCase();return lager===ml||lager.startsWith(ml+' ')||lager.startsWith(ml+'-');})||(function(){var s=lager.replace(/^[^a-zÀ-ɏ]+/i,'').trim();if(!s)return 'overig';return merken.find(function(m){var ml=m.toLowerCase();return s===ml||s.startsWith(ml+' ')||s.startsWith(ml+'-');})||'overig';})();
 }
@@ -1354,16 +1353,13 @@ function isDealer(a){
   if(['dealer','garage','occasions','autobedrijf','autohandel'].some(function(w){return t.includes(w);}))return true;
   return null;
 }
+function sorteer(lijst, sort) {
+  if (sort === 'prijs-asc')  return lijst.sort((a,b) => a.prijs - b.prijs);
+  if (sort === 'prijs-desc') return lijst.sort((a,b) => b.prijs - a.prijs);
+  if (sort === 'jaar-desc')  return lijst.sort((a,b) => (b.jaar||0) - (a.jaar||0));
+  if (sort === 'km-asc')     return lijst.sort((a,b) => (a.km||999999) - (b.km||999999));
   if (sort === 'deal-score') {
     lijst = lijst.sort(function(a,b){ return (b.dealScore||0)-(a.dealScore||0); });
-  }eturn lijst.map(function(a){
-      var _p=Math.max(0,(_med-a.prijs)/_med);
-      var _l=Math.max(1,_hj-(a.jaar||_hj-5));
-      var _k=Math.max(0,1-(a.km||80000)/(_l*15000));
-      var _j=Math.max(0,Math.min(1,((a.jaar||_hj-5)-2005)/(_hj-2005)));
-      a._score=0.4*_p+0.4*_k+0.2*_j;
-      return a;
-    }).sort(function(a,b){return b._score-a._score;});
   }
   if (sort === 'pkm-asc') {
     var _withKm = lijst.filter(function(a){return a.km > 0 && a.prijs > 0;});
