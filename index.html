@@ -29,20 +29,35 @@
 
   <!-- Structured Data -->
   <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "WebSite",
-    "name": "Carkijker",
-    "url": "https://carkijker.nl/",
-    "description": "Vergelijk tweedehands auto's uit heel Nederland op één plek.",
-    "inLanguage": ["nl", "en"],
-    "potentialAction": {
-      "@type": "SearchAction",
-      "target": "https://carkijker.nl/?q={search_term_string}",
-      "query-input": "required name=search_term_string"
+  [
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "Carkijker",
+      "url": "https://carkijker.nl/",
+      "description": "Vergelijk auto's uit heel Nederland op één plek. 42.000+ advertenties van 6 platforms, dagelijks bijgewerkt.",
+      "inLanguage": "nl",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://carkijker.nl/?q={search_term_string}",
+        "query-input": "required name=search_term_string"
+      }
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "Carkijker",
+      "url": "https://carkijker.nl/",
+      "logo": "https://carkijker.nl/og-image.jpg",
+      "description": "Gratis Nederlandse zoekmachine die het volledige auto-aanbod van 6 grote platforms aggregeert op één plek.",
+      "areaServed": {
+        "@type": "Country",
+        "name": "Nederland"
+      },
+      "knowsAbout": ["tweedehands auto's", "occasions", "autovergelijker", "deal score", "automarkt Nederland"]
     }
-  }
-  </script>
+  ]
+</script>
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
