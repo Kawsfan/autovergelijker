@@ -1345,7 +1345,7 @@ function toonResultaten(lijst) {
       <div class="auto-foto">
         <button class="fav-btn${_favs.has(a.id)?' fav-actief':''}" data-fav="${a.id}" onclick="toggleFav(event,'${a.id}')" title="Fav">${_favs.has(a.id)?'♥':'♡'}</button>
         <button class="vgl-btn${_vgl.includes(a.id)?' vgl-actief':''}" data-vgl="${a.id}" onclick="toggleVergelijk(event,'${a.id}')" title="Vergelijk">⊕</button>
-        ${(()=>{window._vglData[a.id]=a;return a.bijgewerkt===new Date().toISOString().slice(0,10)?'<span class=\"nieuw-badge\">NIEUW</span>':''})()}${(()=>{var _d=isDealer(a);return _d===true?'<span class="dealer-badge">DEALER</span>':_d===false?'<span class="particulier-badge">PRIVé</span>':''})()}
+        ${(()=>{window._vglData[a.id]=a;return a.bijgewerkt===new Date().toISOString().slice(0,10)?'<span class=\"nieuw-badge\">NIEUW</span>':''})()}${(()=>{var _d=isDealer(a);return _d===true?'<span class="dealer-badge">DEALER</span>':_d===false?'<span class="particulier-badge">PRIVÉ</span>':''})()}
         ${(()=>{if(a.prijsHistorie&&a.prijsHistorie.length){
           var oud=a.prijsHistorie[a.prijsHistorie.length-1].prijs;
           return '<span class="prijs-daling">↘ was €'+Number(oud).toLocaleString('nl-NL')+'</span>';
