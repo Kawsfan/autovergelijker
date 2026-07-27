@@ -19,7 +19,7 @@ self.addEventListener("fetch",function(e){
   var path=url.pathname;
 
   // Data files: stale-while-revalidate
-  if(path.includes("/data/listings-top.json")||path.includes("/data/merken/")){
+  if(path.includes("/data/listings-top.json")||path.includes("/data/listings.json")||path.includes("/data/merken/")){
     e.respondWith(caches.open(CACHE_DATA).then(function(cache){
       return cache.match(e.request).then(function(cached){
         var fetchPromise=fetch(e.request).then(function(r){
