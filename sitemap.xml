@@ -127,6 +127,12 @@
     <lastmod>2026-07-27</lastmod>
   </url>
   <url>
+    <loc>https://kawsfan.github.io/autovergelijker/?merk=2019</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+    <lastmod>2026-07-27</lastmod>
+  </url>
+  <url>
     <loc>https://kawsfan.github.io/autovergelijker/?merk=2021</loc>
     <changefreq>daily</changefreq>
     <priority>0.7</priority>
@@ -134,6 +140,12 @@
   </url>
   <url>
     <loc>https://kawsfan.github.io/autovergelijker/?merk=230</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+    <lastmod>2026-07-27</lastmod>
+  </url>
+  <url>
+    <loc>https://kawsfan.github.io/autovergelijker/?merk=4x4</loc>
     <changefreq>daily</changefreq>
     <priority>0.7</priority>
     <lastmod>2026-07-27</lastmod>
