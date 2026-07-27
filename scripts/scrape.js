@@ -809,44 +809,6 @@ const ATR_URLS = [
   // Hybride
   'https://www.autotrader.nl/occasion/?brandstof=hybride',
   'https://www.autotrader.nl/occasion/?brandstof=hybride&pagina=2',
-
-  // Jeep
-  'https://www.autotrack.nl/tweedehands-auto/jeep/',
-  'https://www.autotrack.nl/tweedehands-auto/jeep/?pagina=2',
-  // Alfa Romeo
-  'https://www.autotrack.nl/tweedehands-auto/alfa-romeo/',
-  'https://www.autotrack.nl/tweedehands-auto/alfa-romeo/?pagina=2',
-  // Suzuki
-  'https://www.autotrack.nl/tweedehands-auto/suzuki/',
-  'https://www.autotrack.nl/tweedehands-auto/suzuki/?pagina=2',
-  // Mitsubishi
-  'https://www.autotrack.nl/tweedehands-auto/mitsubishi/',
-  'https://www.autotrack.nl/tweedehands-auto/mitsubishi/?pagina=2',
-  // Cupra
-  'https://www.autotrack.nl/tweedehands-auto/cupra/',
-  'https://www.autotrack.nl/tweedehands-auto/cupra/?pagina=2',
-  // MG
-  'https://www.autotrack.nl/tweedehands-auto/mg/',
-  'https://www.autotrack.nl/tweedehands-auto/mg/?pagina=2',
-  // Polestar
-  'https://www.autotrack.nl/tweedehands-auto/polestar/',
-  // Jaguar
-  'https://www.autotrack.nl/tweedehands-auto/jaguar/',
-  'https://www.autotrack.nl/tweedehands-auto/jaguar/?pagina=2',
-  // Subaru
-  'https://www.autotrack.nl/tweedehands-auto/subaru/',
-  'https://www.autotrack.nl/tweedehands-auto/subaru/?pagina=2',
-  // Lexus
-  'https://www.autotrack.nl/tweedehands-auto/lexus/',
-  'https://www.autotrack.nl/tweedehands-auto/lexus/?pagina=2',
-  // BYD
-  'https://www.autotrack.nl/tweedehands-auto/byd/',
-  // Smart
-  'https://www.autotrack.nl/tweedehands-auto/smart/',
-  'https://www.autotrack.nl/tweedehands-auto/smart/?pagina=2',
-  // DS
-  'https://www.autotrack.nl/tweedehands-auto/ds/',
-  'https://www.autotrack.nl/tweedehands-auto/ds/?pagina=2',
 ];
 
 async function scrapeAutoTrader() {
@@ -1300,6 +1262,12 @@ async function main() {
   let listings = Object.values(byId)
     .filter(l => l.bijgewerkt >= cutoffStr)
     .filter(l => !(l.bron === 'AutoScout24' && !l.titel && !l.prijs));
+  // Normaliseer km/prijs naar getallen ÃÂ¢ÃÂÃÂÃÂÃÂ oude gemergde listings kunnen nog strings
+  // bevatten van een eerdere (inmiddels gefixte) parser-bug
+  listings.forEach(function(l) {
+    if (typeof l.km === 'string') l.km = parseInt(l.km.replace(/[^0-9]/g, '')) || null;
+    if (typeof l.prijs === 'string') l.prijs = parseInt(l.prijs.replace(/[^0-9]/g, '')) || null;
+  });
   // Merk-extractie: vul l.merk voor alle listings (nodig voor dedup + merkenfilter)
   const _MERKEN = ["Alfa Romeo","Aston Martin","Land Rover","Mercedes-Benz","Rolls-Royce","Lynk & Co","Abarth","CitroÃ«n","Polestar","Porsche","Renault","Hyundai","Peugeot","Volkswagen","Mitsubishi","Chevrolet","Chrysler","Genesis","Lamborghini","Maserati","Ferrari","Infiniti","Leapmotor","Subaru","Toyota","Nissan","Jaguar","Lexus","Suzuki","Skoda","Å koda","Dacia","Cupra","Tesla","Honda","Mazda","Volvo","Dodge","Maxus","Seat","Ford","Opel","Jeep","Fiat","Kia","BMW","Audi","MINI","Smart","Saab","Iveco","Voyah","Daihatsu","BYD","MG","DS","VW","Mercedes","Lynk","Isuzu","Lancia","Bentley","Bugatti","McLaren","Lotus","Lada"];
   listings.forEach(function(l) {
