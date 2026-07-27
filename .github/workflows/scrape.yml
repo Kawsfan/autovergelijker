@@ -28,7 +28,15 @@ jobs:
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          git add data/listings.json data/listings-top.json data/merken/ data/scrape-report.json sitemap.xml occasions/ data/images/
-          git diff --staged --quiet || git commit -m "Auto: listings + occasions bijgewerkt"
-          git pull --rebase origin main
-          git push
+          git add data/ sitemap.xml occasions/ 2>/dev/null || true
+          if git diff --staged --quiet; then
+            echo "Geen wijzigingen om te committen, klaar."
+            exit 0
+          fi
+          git commit -m "Auto: listings + occasions bijgewerkt"
+          for i in 1 2 3; do
+            git pull --rebase origin main && git push && exit 0
+            echo "Push poging $i mislukt, retry in 10s..."
+            sleep 10
+          done
+          exit 1
