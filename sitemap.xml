@@ -529,6 +529,12 @@
     <lastmod>2026-07-28</lastmod>
   </url>
   <url>
+    <loc>https://kawsfan.github.io/autovergelijker/?merk=dfsk</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+    <lastmod>2026-07-28</lastmod>
+  </url>
+  <url>
     <loc>https://kawsfan.github.io/autovergelijker/?merk=ds</loc>
     <changefreq>daily</changefreq>
     <priority>0.7</priority>
@@ -950,12 +956,6 @@
   </url>
   <url>
     <loc>https://kawsfan.github.io/autovergelijker/?merk=kuga</loc>
-    <changefreq>daily</changefreq>
-    <priority>0.7</priority>
-    <lastmod>2026-07-28</lastmod>
-  </url>
-  <url>
-    <loc>https://kawsfan.github.io/autovergelijker/?merk=laagste</loc>
     <changefreq>daily</changefreq>
     <priority>0.7</priority>
     <lastmod>2026-07-28</lastmod>
@@ -1460,6 +1460,12 @@
   </url>
   <url>
     <loc>https://kawsfan.github.io/autovergelijker/?merk=rs</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+    <lastmod>2026-07-28</lastmod>
+  </url>
+  <url>
+    <loc>https://kawsfan.github.io/autovergelijker/?merk=radical</loc>
     <changefreq>daily</changefreq>
     <priority>0.7</priority>
     <lastmod>2026-07-28</lastmod>
