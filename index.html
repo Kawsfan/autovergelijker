@@ -1094,6 +1094,7 @@ const MERK_MODELLEN={'Volkswagen':['Golf','Polo','Passat','Tiguan','T-Roc','ID.4
 function updateModelDropdown(){var merk=document.getElementById('merkFilter').value,sel=document.getElementById('modelInput');if(!merk||!MERK_MODELLEN[merk]){sel.innerHTML='<option value="">Selecteer eerst een merk</option>';sel.disabled=true;sel.style.opacity='0.5';sel.style.cursor='not-allowed';}else{sel.innerHTML='<option value="">Alle modellen</option>'+MERK_MODELLEN[merk].map(function(m){return'<option value="'+m+'">'+m+'</option>';}).join('');sel.disabled=false;sel.style.opacity='1';sel.style.cursor='pointer';}}
 function toggleCustomRange(sel){var grp=(sel.id==='prijsMin'||sel.id==='prijsMax')?'prijs':'km';var hasCustom=document.getElementById(grp+'Min').value==='custom'||document.getElementById(grp+'Max').value==='custom';document.getElementById(grp+'-custom').style.display=hasCustom?'flex':'none';}
 
+function _filtersActief(){var _tf=document.getElementById('transmissieFilter');return !!(document.getElementById('zoekInput').value.trim()||document.getElementById('merkFilter').value||document.getElementById('modelInput').value.trim()||document.getElementById('jaarMin').value||document.getElementById('jaarMax').value||document.getElementById('prijsMin').value||document.getElementById('prijsMax').value||document.getElementById('kmMin').value||document.getElementById('kmMax').value||document.getElementById('brandstofFilter').value||document.getElementById('carrosserieFilter').value||transmissieActief||(_tf&&_tf.value));}
 function dedupAutos(arr){var seen={};return arr.filter(function(a){if(!a.prijs||!a.km)return true;var k=(a.prijs|0)+(String.fromCharCode(95))+(a.km|0)+(String.fromCharCode(95))+(a.merk||"");if(seen[k]===undefined){seen[k]=a.dealScore||0;return true;}if((a.dealScore||0)>seen[k]){seen[k]=a.dealScore||0;return true;}return false;});}
 let alleResultaten = [];
 let huidigDetailId = null;
@@ -1106,6 +1107,9 @@ async function laadListings() {
     const resp = await fetch('data/listings-top.json');
     if (!resp.ok) throw new Error('HTTP ' + resp.status);
     const data = await resp.json();
+    // data.totaal komt uit de scraper en is identiek in listings-top.json en listings.json —
+    // dit getal verandert dus niet als de volledige dataset later op de achtergrond bijladen wordt.
+    window._totaalAdvertenties = data.totaal || (data.listings || []).length;
     alleResultaten = dedupAutos(data.listings || []);
     window._alleAutos = alleResultaten;
     alleResultaten.forEach(function(a){if(!a.merk||!/^[a-zA-ZÀ-ɏ]/.test(a.merk))a.merk=extraheerMerk(a.titel||"");});
@@ -1138,7 +1142,7 @@ async function laadListings() {
       ? new Date(data.bijgewerkt).toLocaleDateString('nl-NL', { day: 'numeric', month: 'long' })
       : '';
     ((document.getElementById('statusTekst')||{})||{}).textContent =
-      `${alleResultaten.length} advertenties geladen` + (bijgewerkt ? ` · Bijgewerkt: ${bijgewerkt}` : '');
+      `${window._totaalAdvertenties} advertenties geladen` + (bijgewerkt ? ` · Bijgewerkt: ${bijgewerkt}` : '');
 
     // Update bron badge dynamically based on actual data
     const bronnen = [...new Set(alleResultaten.map(l => l.bron).filter(Boolean))];
@@ -1146,7 +1150,7 @@ async function laadListings() {
       (document.getElementById('bronBadge')||{}).textContent = bronnen.join(' · ');
     }
 
-    updateVindenCount(alleResultaten.length);
+    updateVindenCount(window._totaalAdvertenties);
     _restoreFilters();
     _populeerMerkFilter();
     _vulZoekSuggesties();
@@ -1158,14 +1162,23 @@ async function laadListings() {
         window._volledigGeladen = true;
         fetch('data/listings.json').then(function(r){return r.json();}).then(function(fullData){
           var full = fullData.listings||[];
+          // totaal blijft ongewijzigd (zelfde bron als listings-top.json), dus alleen de
+          // achterliggende pool aanvullen — geen zichtbare aantallen laten "springen".
+          window._totaalAdvertenties = fullData.totaal || window._totaalAdvertenties;
           if(full.length > alleResultaten.length){
             alleResultaten = dedupAutos(full);
             window._alleAutos = alleResultaten;
             alleResultaten.forEach(function(a){if(!a.merk)a.merk=extraheerMerk(a.titel||'');});
             _populeerMerkFilter();
             _vulZoekSuggesties();
-            var _g=document.getElementById('autoGrid');if(_g){_g.style.transition='opacity 0.3s';_g.style.opacity='0.5';}
-            setTimeout(function(){zoekNu();if(_g){setTimeout(function(){_g.style.opacity='1';_g.style.transition='';},150);}},300);
+            // Alleen zichtbaar herrenderen (met fade) als de gebruiker al aan het zoeken/filteren
+            // is — dan zijn er mogelijk nieuwe matches. Bij de standaard, ongefilterde weergave
+            // niet herrenderen: dat gaf een storende flikkering en veranderde kaarten/aantallen
+            // zomaar terwijl iemand aan het kijken was.
+            if (_filtersActief()) {
+              var _g=document.getElementById('autoGrid');if(_g){_g.style.transition='opacity 0.3s';_g.style.opacity='0.5';}
+              setTimeout(function(){zoekNu();if(_g){setTimeout(function(){_g.style.opacity='1';_g.style.transition='';},150);}},300);
+            }
           }
         }).catch(function(){});
       };
@@ -1273,11 +1286,12 @@ function zoekNu() {
   });
 
   const n = gefilterd.length;
-  const totaal = alleResultaten.length;
+  const totaal = window._totaalAdvertenties || alleResultaten.length;
+  const filtersActief = _filtersActief();
   ((document.getElementById('statusTekst')||{})||{}).textContent =
-    n === totaal ? `${totaal} advertenties` : `${n} van ${totaal} advertenties`;
+    !filtersActief ? `${totaal} advertenties` : (n === totaal ? `${totaal} advertenties` : `${n} van ${totaal} advertenties`);
 
-  updateVindenCount(n);
+  updateVindenCount(filtersActief ? n : totaal);
   _huidigeLijst = gefilterd;
   _saveFilters();
   toonResultaten(gefilterd);
@@ -1301,7 +1315,7 @@ function resetFilters() {
   document.querySelectorAll('.toggle-btns button').forEach((b, i) => b.classList.toggle('actief', i === 0));
   localStorage.removeItem('_ck_st'); window.scrollTo({ top: 0, behavior: 'smooth' });
   if (alleResultaten.length > 0) {
-    updateVindenCount(alleResultaten.length);
+    updateVindenCount(window._totaalAdvertenties || alleResultaten.length);
     toonResultaten(alleResultaten);
   }
 }
@@ -1321,7 +1335,7 @@ function toonResultaten(lijst) {
   const gesorteerd = sorteer([...lijst], sort);
   const header = document.getElementById('resultatenHeader');
 
-  const _hc=document.getElementById('heroCnt');if(_hc)_hc.textContent=(window._alleAutos?.length||0).toLocaleString('nl-NL')+'+';document.getElementById('aantalTekst').textContent =
+  const _hc=document.getElementById('heroCnt');if(_hc)_hc.textContent=(window._totaalAdvertenties||window._alleAutos?.length||0).toLocaleString('nl-NL')+'+';document.getElementById('aantalTekst').textContent =
     TRANS[window.lang||'nl'].result(gesorteerd.length);
   const bronnenLijst = [...new Set(lijst.map(l => l.bron).filter(Boolean))];
   document.getElementById('aantalSub').textContent = TRANS[window.lang||'nl'].sub(bronnenLijst);
@@ -2206,7 +2220,7 @@ function geolocate(){
 // ── Service Worker ──
 if("serviceWorker" in navigator){
   window.addEventListener("load",function(){
-    navigator.serviceWorker.register("/autovergelijker/sw.js")
+    navigator.serviceWorker.register("/sw.js")
       .then(function(r){console.log("SW geregistreerd:",r.scope);})
       .catch(function(e){console.log("SW fout:",e);});
   });
