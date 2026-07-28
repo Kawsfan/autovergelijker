@@ -492,26 +492,26 @@ function parseerViaBovag(html, gezien, label) {
 
 const AT_URLS = [
   // Algemeen aanbod
-  'https://www.autotrack.nl/tweedehands-auto/',
-  'https://www.autotrack.nl/tweedehands-auto/?pagina=2',
-  'https://www.autotrack.nl/tweedehands-auto/?pagina=3',
+  'https://www.autotrack.nl/aanbod',
+  'https://www.autotrack.nl/aanbod?pageNumber=2&pageSize=30',
+  'https://www.autotrack.nl/aanbod?pageNumber=3&pageSize=30',
   // Hybride
-  'https://www.autotrack.nl/tweedehands-auto/hybride/',
-  'https://www.autotrack.nl/tweedehands-auto/hybride/?pagina=2',
+  'https://www.autotrack.nl/aanbod/brandstofsoort/hybride-benzine',
+  'https://www.autotrack.nl/aanbod/brandstofsoort/hybride-benzine?pageNumber=2&pageSize=30',
   // Elektrisch
-  'https://www.autotrack.nl/tweedehands-auto/elektrisch/',
-  'https://www.autotrack.nl/tweedehands-auto/elektrisch/?pagina=2',
-  'https://www.autotrack.nl/tweedehands-auto/elektrisch/?pagina=3',
-  'https://www.autotrack.nl/tweedehands-auto/tesla/',
-  'https://www.autotrack.nl/tweedehands-auto/tesla/?pagina=2',
-  'https://www.autotrack.nl/tweedehands-auto/tesla/?pagina=3',
+  'https://www.autotrack.nl/aanbod/brandstofsoort/elektriciteit',
+  'https://www.autotrack.nl/aanbod/brandstofsoort/elektriciteit?pageNumber=2&pageSize=30',
+  'https://www.autotrack.nl/aanbod/brandstofsoort/elektriciteit?pageNumber=3&pageSize=30',
+  'https://www.autotrack.nl/aanbod/merk/tesla',
+  'https://www.autotrack.nl/aanbod/merk/tesla?pageNumber=2&pageSize=30',
+  'https://www.autotrack.nl/aanbod/merk/tesla?pageNumber=3&pageSize=30',
   // Ford Mach-E
-  'https://www.autotrack.nl/tweedehands-auto/ford/mach-e/',
-  'https://www.autotrack.nl/tweedehands-auto/ford/mach-e/?pagina=2',
-  'https://www.autotrack.nl/tweedehands-auto/ford/mach-e/?pagina=3',
+  'https://www.autotrack.nl/aanbod/merk/ford/model/mustang-mach-e',
+  'https://www.autotrack.nl/aanbod/merk/ford/model/mustang-mach-e?pageNumber=2&pageSize=30',
+  'https://www.autotrack.nl/aanbod/merk/ford/model/mustang-mach-e?pageNumber=3&pageSize=30',
   // Ford Explorer Elektrisch
-  'https://www.autotrack.nl/tweedehands-auto/ford/explorer/',
-  'https://www.autotrack.nl/tweedehands-auto/ford/explorer/?pagina=2',
+  'https://www.autotrack.nl/aanbod/merk/ford/model/explorer',
+  'https://www.autotrack.nl/aanbod/merk/ford/model/explorer?pageNumber=2&pageSize=30',
 ];
 
 async function scrapeAutoTrack() {
@@ -538,7 +538,7 @@ async function scrapeAutoTrack() {
 }
 
 function parseerAutoTrack(html, gezien, label) {
-  const ldBlocks = [...html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)];
+  const ldBlocks = [...html.matchAll(/<script type="application\/ld\+json"[^>]*>([\s\S]*?)<\/script>/g)];
   let items = [];
 
   for (const block of ldBlocks) {
@@ -579,7 +579,7 @@ function parseerAutoTrack(html, gezien, label) {
     if (gezien.has(url)) continue;
     gezien.add(url);
 
-    const idM = url.match(/\/(\d{6,})\/?$/);
+    const idM = url.match(/(\d{6,})\/?$/);
     if (!idM) continue;
     const id = 'at-' + idM[1];
 
@@ -595,6 +595,9 @@ function parseerAutoTrack(html, gezien, label) {
 
     const imgSrc = (Array.isArray(item.image) ? item.image[0] : item.image) || '';
 
+    // vehicleConfiguration: "Benzine, Handgeschakeld, SUV / Terreinwagen, 113 kW (154 PK)"
+    const configParts = String(item.vehicleConfiguration || '').split(',').map(s => s.trim());
+
     results.push({
       id,
       bron: 'AutoTrack',
@@ -602,9 +605,9 @@ function parseerAutoTrack(html, gezien, label) {
       prijs: typeof prijs === 'string' ? parseInt(prijs.replace(/[^\d]/g, '')) : prijs,
       jaar,
       km,
-      brandstof: item.fuelType || '',
-      carrosserie: item.bodyType || '',
-      transmissie: item.vehicleTransmission || '',
+      brandstof: item.fuelType || configParts[0] || '',
+      carrosserie: item.bodyType || configParts[2] || '',
+      transmissie: item.vehicleTransmission || configParts[1] || '',
       kleur: item.color || '',
       locatie: item.offers?.seller?.address?.addressLocality || 'Nederland',
       url,
@@ -800,15 +803,15 @@ function parseerAutoScout24(html, gezien, label) {
 
 const ATR_URLS = [
   // Algemeen aanbod
-  'https://www.autotrader.nl/occasion/',
-  'https://www.autotrader.nl/occasion/?pagina=2',
-  'https://www.autotrader.nl/occasion/?pagina=3',
+  'https://www.autotrader.nl/auto',
+  'https://www.autotrader.nl/auto?page=2',
+  'https://www.autotrader.nl/auto?page=3',
   // Elektrisch
-  'https://www.autotrader.nl/occasion/?brandstof=elektrisch',
-  'https://www.autotrader.nl/occasion/?brandstof=elektrisch&pagina=2',
-  // Hybride
-  'https://www.autotrader.nl/occasion/?brandstof=hybride',
-  'https://www.autotrader.nl/occasion/?brandstof=hybride&pagina=2',
+  'https://www.autotrader.nl/auto?fuel=E',
+  'https://www.autotrader.nl/auto?fuel=E&page=2',
+  // Hybride (fuel 2 = Elektro/Benzine, 3 = Elektro/Diesel)
+  'https://www.autotrader.nl/auto?fuel=2%2C3',
+  'https://www.autotrader.nl/auto?fuel=2%2C3&page=2',
 ];
 
 async function scrapeAutoTrader() {
@@ -1030,124 +1033,72 @@ async function scrapeAutoTrader() {
   return all;
 }
 
+function titleCaseLocatie(s) {
+  if (!s) return '';
+  return String(s).toLowerCase().replace(/(^|[\s-])(\p{L})/gu, (m, sep, c) => sep + c.toUpperCase());
+}
+
 function parseerAutoTrader(html, gezien, label) {
   const results = [];
 
-  // Poging 1: JSON-LD ItemList (schema.org)
-  const ldBlocks = [...html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)];
-  let items = [];
-
-  for (const block of ldBlocks) {
-    try {
-      const d = JSON.parse(block[1]);
-      if (d['@type'] === 'ItemList' && Array.isArray(d.itemListElement)) {
-        items = d.itemListElement.map(e => e.item || e).filter(Boolean);
-        console.log(` ${label}: ${items.length} JSON-LD items`);
-        break;
-      }
-      // Array van Car-objecten
-      if (Array.isArray(d) && (d[0]?.['@type'] === 'Car' || d[0]?.['@type'] === 'Vehicle')) {
-        items = d;
-        console.log(` ${label}: ${items.length} Car/Vehicle items`);
-        break;
-      }
-    } catch (e) { /* doorgaan */ }
-  }
-
-  if (items.length > 0) {
-    for (const item of items) {
-      const rawUrl = item.url || item['@id'] || '';
-      if (!rawUrl) continue;
-      const url = rawUrl.startsWith('http') ? rawUrl : 'https://www.autotrader.nl' + rawUrl;
-      if (gezien.has(url)) continue;
-      gezien.add(url);
-
-      const idM = url.match(/\/(\d{5,})\/?$/);
-      const id = 'atr-' + (idM ? idM[1] : url.split('/').filter(Boolean).pop());
-      if (!id) continue;
-
-      const prijs = item.offers?.price || item.price || 0;
-      if (!prijs || prijs < 500 || prijs > 500000) continue;
-
-      const kmRaw = item.mileageFromOdometer?.value ?? item.mileage ?? null;
-      const km = kmRaw ? parseInt(String(kmRaw).replace(/[^\d]/g, '')) : null;
-
-      const yearRaw = item.productionDate || item.modelDate || '';
-      const yearM = String(yearRaw).match(/\b(19|20)\d{2}\b/);
-      const jaar = yearM ? parseInt(yearM[0]) : null;
-
-      const imgRaw = (Array.isArray(item.image) ? item.image[0] : item.image) || '';
-
-      results.push({
-        id,
-        bron: 'AutoTrader',
-        titel: (item.name || '').substring(0, 80),
-        prijs: typeof prijs === 'string' ? parseInt(prijs.replace(/[^\d]/g, '')) : prijs,
-        jaar,
-        km,
-        brandstof: item.fuelType || '',
-        carrosserie: item.bodyType || '',
-        transmissie: item.vehicleTransmission || '',
-        kleur: item.color || '',
-        locatie: item.offers?.seller?.address?.addressLocality || 'Nederland',
-        url,
-        imgSrc: typeof imgRaw === 'string' ? imgRaw : '',
-        imgs: (Array.isArray(item.image) ? item.image : (item.image ? [item.image] : [])).slice(0, 10).map(u => typeof u === 'string' ? u : '').filter(Boolean),
-        bijgewerkt: new Date().toISOString().split('T')[0]
-      });
-    }
+  // AutoTrader.nl draait tegenwoordig op het AutoScout24-platform; de listings
+  // zitten in __NEXT_DATA__.props.pageProps.listings
+  const nextMatch = html.match(/<script id="__NEXT_DATA__" type="application\/json">([\s\S]*?)<\/script>/);
+  if (!nextMatch) {
+    console.log(` ${label}: geen __NEXT_DATA__ gevonden (${html.length} chars HTML)`);
     return results;
   }
 
-  // Poging 2: __NEXT_DATA__
-  const nextMatch = html.match(/<script id="__NEXT_DATA__" type="application\/json">([^<]+)<\/script>/);
-  if (nextMatch) {
-    try {
-      const data = JSON.parse(nextMatch[1]);
-      const pp = data?.props?.pageProps;
-      const listings =
-        pp?.listings ||
-        pp?.vehicles ||
-        pp?.searchResult?.listings ||
-        pp?.cars ||
-        [];
+  let listings = [];
+  try {
+    const data = JSON.parse(nextMatch[1]);
+    listings = data?.props?.pageProps?.listings || [];
+    console.log(` ${label}: ${listings.length} items via __NEXT_DATA__`);
+  } catch (e) {
+    console.log(` ${label}: __NEXT_DATA__ parse fout - ${e.message}`);
+    return results;
+  }
 
-      console.log(` ${label}: ${listings.length} items via __NEXT_DATA__`);
+  for (const item of listings) {
+    const crossRefId = item.crossReferenceId || item.identifier?.crossReferenceId || item.id;
+    if (!crossRefId) continue;
+    const id = 'atr-' + crossRefId;
+    if (gezien.has(id)) continue;
+    gezien.add(id);
 
-      for (const item of listings) {
-        const id = 'atr-' + (item.id || item.slug || '');
-        if (!id || id === 'atr-' || gezien.has(id)) continue;
-        gezien.add(id);
+    const prijs = item.price?.priceRaw || 0;
+    if (!prijs || prijs < 500 || prijs > 500000) continue;
 
-        const prijs = item.price?.amount || item.price || item.prijs || 0;
-        if (!prijs || prijs < 500 || prijs > 500000) continue;
+    const relUrl = item.url || '';
+    if (!relUrl) continue;
+    const url = relUrl.startsWith('http') ? relUrl : 'https://www.autotrader.nl' + relUrl;
 
-        const relUrl = item.url || item.slug || '';
-        const url = relUrl.startsWith('http') ? relUrl : 'https://www.autotrader.nl' + relUrl;
-        const imgs = item.images || item.photos || [];
-        const imgSrc = imgs[0]?.url || imgs[0] || '';
+    const vehicle = item.vehicle || {};
+    const kmRaw = item.tracking?.mileage ?? vehicle.mileageInKm ?? null;
+    const km = kmRaw ? parseInt(String(kmRaw).replace(/[^\d]/g, '')) : null;
 
-        results.push({
-          id,
-          bron: 'AutoTrader',
-          titel: (item.title || item.name || `${item.make || ''} ${item.model || ''}`).trim().substring(0, 80),
-          prijs: typeof prijs === 'string' ? parseInt(prijs.replace(/[^\d]/g, '')) : prijs,
-          jaar: item.year || item.registrationYear || null,
-          km: item.mileage || item.km || null,
-          brandstof: item.fuel || item.fuelType || '',
-          carrosserie: item.bodyType || item.body || '',
-          transmissie: item.transmission || item.gearbox || '',
-          kleur: item.color || item.kleur || '',
-          locatie: item.city || item.location?.city || 'Nederland',
-          url,
-          imgSrc: typeof imgSrc === 'string' ? imgSrc : '',
-          imgs: (item.images || item.photos || []).slice(0, 10).map(function(i) { const u = i?.url || i || ''; return typeof u === 'string' ? u : ''; }).filter(Boolean),
-          bijgewerkt: new Date().toISOString().split('T')[0]
-        });
-      }
-    } catch (e) {
-      console.log(` ${label}: __NEXT_DATA__ parse fout - ${e.message}`);
-    }
+    const yearM = String(item.tracking?.firstRegistration || '').match(/\b(19|20)\d{2}\b/);
+    const jaar = yearM ? parseInt(yearM[0]) : null;
+
+    const imgs = Array.isArray(item.images) ? item.images.filter(u => typeof u === 'string') : [];
+
+    results.push({
+      id,
+      bron: 'AutoTrader',
+      titel: `${vehicle.make || ''} ${vehicle.model || ''} ${vehicle.variant || ''}`.trim().substring(0, 80),
+      prijs,
+      jaar,
+      km,
+      brandstof: vehicle.fuel || '',
+      carrosserie: vehicle.variant || '',
+      transmissie: vehicle.transmission || '',
+      kleur: '',
+      locatie: titleCaseLocatie(item.location?.city) || 'Nederland',
+      url,
+      imgSrc: imgs[0] || '',
+      imgs: imgs.slice(0, 10),
+      bijgewerkt: new Date().toISOString().split('T')[0]
+    });
   }
 
   if (results.length === 0) {
