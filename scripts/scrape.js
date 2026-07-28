@@ -1376,12 +1376,12 @@ async function main() {
     if (/automatisch/i.test(trRaw)) l.transmissie = 'Automaat';
     else if (/handmatig|manueel/i.test(trRaw)) l.transmissie = 'Handgeschakeld';
   }
-  fs.writeFileSync(outPath, JSON.stringify(data, null, 2));
+  fs.writeFileSync(outPath, JSON.stringify(data));
   // ââ listings-top.json: top 5000 by dealScore voor snelle homepage load
   const _topL = [...(data.listings||[])].sort((a,b)=>(b.dealScore||0)-(a.dealScore||0)).slice(0,20000);
   const _topData = Object.assign({}, data, {listings: _topL, isSubset: true, subsetSize: 5000});
   const _topPath = path.join(process.cwd(), 'data', 'listings-top.json');
-  fs.writeFileSync(_topPath, JSON.stringify(_topData, null, 2));
+  fs.writeFileSync(_topPath, JSON.stringify(_topData));
   console.log(' listings-top.json: top ' + _topL.length + ' deals geschreven');
   // ââ Per-merk JSON bestanden genereren (voor lazy brand loading) ââ
   const _merkDir = path.join(process.cwd(), 'data', 'merken');

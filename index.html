@@ -1104,7 +1104,7 @@ const VANDAAG = new Date().toISOString().split('T')[0];
 // ── LADEN ─────────────────────────────────────────────────────────────────────
 async function laadListings() {
   try {
-    const resp = await fetch('data/listings-top.json');
+    const resp = await fetch('https://raw.githubusercontent.com/Kawsfan/autovergelijker/main/data/listings-top.json');
     if (!resp.ok) throw new Error('HTTP ' + resp.status);
     const data = await resp.json();
     // data.totaal komt uit de scraper en is identiek in listings-top.json en listings.json —
@@ -1160,7 +1160,7 @@ async function laadListings() {
       window._laadVolledig = function() {
         if (window._volledigGeladen) return;
         window._volledigGeladen = true;
-        fetch('data/listings.json').then(function(r){return r.json();}).then(function(fullData){
+        fetch('https://raw.githubusercontent.com/Kawsfan/autovergelijker/main/data/listings.json').then(function(r){return r.json();}).then(function(fullData){
           var full = fullData.listings||[];
           // totaal blijft ongewijzigd (zelfde bron als listings-top.json), dus alleen de
           // achterliggende pool aanvullen — geen zichtbare aantallen laten "springen".
