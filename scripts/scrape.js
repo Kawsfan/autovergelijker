@@ -1220,9 +1220,8 @@ async function main() {
     if (typeof l.prijs === 'string') l.prijs = parseInt(l.prijs.replace(/[^0-9]/g, '')) || null;
   });
   // Merk-extractie: vul l.merk voor alle listings (nodig voor dedup + merkenfilter)
-  const _MERKEN = ["Alfa Romeo","Aston Martin","Land Rover","Mercedes-Benz","Rolls-Royce","Lynk & Co","Abarth","CitroÃ«n","Polestar","Porsche","Renault","Hyundai","Peugeot","Volkswagen","Mitsubishi","Chevrolet","Chrysler","Genesis","Lamborghini","Maserati","Ferrari","Infiniti","Leapmotor","Subaru","Toyota","Nissan","Jaguar","Lexus","Suzuki","Skoda","Å koda","Dacia","Cupra","Tesla","Honda","Mazda","Volvo","Dodge","Maxus","Seat","Ford","Opel","Jeep","Fiat","Kia","BMW","Audi","MINI","Smart","Saab","Iveco","Voyah","Daihatsu","BYD","MG","DS","VW","Mercedes","Lynk","Isuzu","Lancia","Bentley","Bugatti","McLaren","Lotus","Lada"];
+  const _MERKEN = ["Alfa Romeo","Aston Martin","Land Rover","Mercedes-Benz","Rolls-Royce","Lynk & Co","Abarth","Citroën","Polestar","Porsche","Renault","Hyundai","Peugeot","Volkswagen","Mitsubishi","Chevrolet","Chrysler","Genesis","Lamborghini","Maserati","Ferrari","Infiniti","Leapmotor","Subaru","Toyota","Nissan","Jaguar","Lexus","Suzuki","Skoda","Škoda","Dacia","Cupra","Tesla","Honda","Mazda","Volvo","Dodge","Maxus","Seat","Ford","Opel","Jeep","Fiat","Kia","BMW","Audi","MINI","Smart","Saab","Iveco","Voyah","Daihatsu","BYD","MG","DS","VW","Mercedes","Lynk","Isuzu","Lancia","Bentley","Bugatti","McLaren","Lotus","Lada","Ssangyong","Zeekr","Xpeng","NIO","Ora","Aiways"];
   listings.forEach(function(l) {
-    if (l.merk) return;
     const _titel = (l.titel || '').trim().toLowerCase();
     for (const _m of _MERKEN) {
       const _ml = _m.toLowerCase();
@@ -1231,7 +1230,12 @@ async function main() {
         return;
       }
     }
-    l.merk = (l.titel || '').trim().split(/\s+/)[0] || 'overig';
+    // Geen bekend merk herkend in de titel: niet meer gokken op het eerste woord
+    // (dat leverde troep op als merk, bv. "Betrouwbare", "Mooie" bij
+    // particuliere advertentietitels die niet met het merk beginnen).
+    // Bestaande, niet-canonieke merkwaarden van eerdere runs worden hier ook
+    // teruggezet naar 'overig' zodat oude vervuiling zichzelf herstelt.
+    if (!l.merk || !_MERKEN.includes(l.merk)) l.merk = 'overig';
   });
   // Deduplicatie: verwijder zelfde auto van meerdere platforms
   const _dedupMap = {};
