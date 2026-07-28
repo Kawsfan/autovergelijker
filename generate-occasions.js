@@ -346,7 +346,7 @@ function main() {
   });
 
   // Regiopagina's per stad
-  const OUT_STAD = path.join(OUT_DIR, '..');
+  const OUT_STAD = OUT_DIR;
   const generatedStadUrls = [];
   for (const [stadSlug, stad] of Object.entries(STEDEN)) {
     const filtered = listings.filter(l => {
