@@ -1418,7 +1418,8 @@ function _populeerMerkFilter() {
     var m = l.merk || extraheerMerk(l.titel || '');
     if (m && m !== 'overig' && /^[a-zA-ZÀ-ɏ]/.test(m)) counts[m] = (counts[m]||0) + 1;
   });
-  var merken = Object.keys(counts).sort(function(a,b){return a.localeCompare(b,'nl');});
+  var MIN_MERK_COUNT = 3;
+  var merken = Object.keys(counts).filter(function(m){return counts[m]>=MIN_MERK_COUNT;}).sort(function(a,b){return a.localeCompare(b,'nl');});
   var html = '<option value="">Alle merken</option>';
   merken.forEach(function(m) { html += '<option value="'+m+'">'+m+' ('+counts[m]+')</option>'; });
   sel.innerHTML = html;
