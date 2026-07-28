@@ -1237,6 +1237,35 @@ async function main() {
     // teruggezet naar 'overig' zodat oude vervuiling zichzelf herstelt.
     if (!l.merk || !_MERKEN.includes(l.merk)) l.merk = 'overig';
   });
+  // Model-extractie: vul l.model voor listings met een herkend merk
+  // (nodig voor een betrouwbare dedup-sleutel en schone modelpagina's)
+  const _MODELLEN = {"Volkswagen":["Golf","Polo","Passat","Tiguan","T-Roc","ID.4","ID.3","ID.5","T-Cross","Caddy","Transporter","Up"],"BMW":["1-serie","2-serie","3-serie","4-serie","5-serie","7-serie","X1","X3","X5","iX3","i4"],"Toyota":["Corolla","Yaris","RAV4","Prius","Aygo","C-HR","bZ4X"],"Ford":["Focus","Fiesta","Puma","Kuga","Mustang Mach-E","Explorer","Mondeo","Ranger","Transit"],"Audi":["A1","A3","A4","A5","A6","Q3","Q5","Q7","e-tron","Q4 e-tron"],"Peugeot":["208","308","3008","2008","508","e-208","e-2008"],"Renault":["Clio","Megane","Captur","Zoe","Scenic","Twingo","Arkana"],"Hyundai":["i10","i20","i30","Tucson","Kona","IONIQ 5","IONIQ 6","Santa Fe"],"Kia":["Picanto","Stonic","Ceed","Sportage","Niro","EV6","Sorento","EV9"],"Tesla":["Model 3","Model S","Model Y","Model X"],"Volvo":["V40","V60","V90","XC40","XC60","XC90","S60","C40"],"Skoda":["Fabia","Octavia","Superb","Kodiaq","Karoq","Scala","Enyaq"],"Mercedes-Benz":["A-Klasse","B-Klasse","C-Klasse","E-Klasse","GLA","GLB","GLC","GLE","EQA","EQC"],"Seat":["Ibiza","Leon","Arona","Ateca","Tarraco"],"Opel":["Corsa","Astra","Mokka","Grandland","Insignia","Corsa-e"],"Fiat":["500","500e","Panda","Tipo","500X"],"Honda":["Civic","Jazz","HR-V","CR-V"],"Mazda":["2","3","6","CX-3","CX-5","CX-30","MX-30"],"Nissan":["Micra","Qashqai","Juke","Leaf","Ariya","X-Trail"],"Citroën":["C1","C3","C3 Aircross","C4","C5 Aircross","e-C4"],"Dacia":["Sandero","Duster","Logan","Spring","Jogger"],"Mini":["Cooper","Clubman","Countryman","Electric"],"Land Rover":["Discovery","Discovery Sport","Range Rover","Defender"],"Porsche":["Cayenne","Macan","Panamera","911","Taycan","Boxster"],"Jeep":["Renegade","Compass","Cherokee","Grand Cherokee","Wrangler","Avenger"],"Alfa Romeo":["Giulia","Stelvio","Tonale","Giulietta","Mito"],"Suzuki":["Swift","Vitara","S-Cross","Jimny","Ignis"],"Mitsubishi":["ASX","Outlander","Eclipse Cross","Space Star"],"Cupra":["Born","Formentor","Ateca","Leon"],"MG":["ZS","HS","MG4","MG5","MG3"],"Polestar":["Polestar 2","Polestar 3","Polestar 4"],"Jaguar":["E-Pace","F-Pace","I-Pace","XE","XF"],"Subaru":["Forester","Outback","XV","Impreza"],"Lexus":["UX","NX","RX","IS","ES","CT"],"BYD":["Atto 3","Han","Tang","Seal","Dolphin"],"Smart":["#1","#3","fortwo"],"DS":["DS3","DS4","DS7","DS9"],"Zeekr":["001","007","X","X2"],"Xpeng":["P7","G3","G9","P5","G6"],"NIO":["ES6","ES8","ET7","EL6","ET5"],"Leapmotor":["C10","T03"],"Ora":["Funky Cat","Good Cat"],"Aiways":["U5","U6"]};
+  // Merkaliassen die _MERKEN los herkent maar dezelfde modellenlijst delen
+  _MODELLEN["VW"] = _MODELLEN["Volkswagen"];
+  _MODELLEN["Mercedes"] = _MODELLEN["Mercedes-Benz"];
+  _MODELLEN["MINI"] = _MODELLEN["Mini"];
+  _MODELLEN["Škoda"] = _MODELLEN["Skoda"];
+  // Langste (specifiekste) modelnaam eerst proberen, anders matcht bv. het
+  // bare cijfer "3" (Mazda) al binnen "CX-3" voordat dat model aan bod komt.
+  for (const _merkKey of Object.keys(_MODELLEN)) {
+    _MODELLEN[_merkKey] = _MODELLEN[_merkKey].slice().sort((a, b) => b.length - a.length);
+  }
+
+  function _escapeRegex(s) { return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+  listings.forEach(function(l) {
+    if (!l.merk || l.merk === 'overig') return;
+    const _models = _MODELLEN[l.merk];
+    if (!_models) return;
+    const _titelLower = (l.titel || '').toLowerCase();
+    for (const _m of _models) {
+      const _mLower = _m.toLowerCase();
+      // Puur numerieke modelnamen (Mazda "2"/"3"/"6") mogen niet grenzen aan een
+      // punt, anders matcht "2" op de "2.0" in een motorinhoud-aanduiding.
+      const _boundary = /^\d+$/.test(_mLower) ? '[^a-z0-9.]' : '[^a-z0-9]';
+      const _re = new RegExp('(^|' + _boundary + ')' + _escapeRegex(_mLower) + '(' + _boundary + '|$)');
+      if (_re.test(_titelLower)) { l.model = _m; break; }
+    }
+  });
   // Deduplicatie: verwijder zelfde auto van meerdere platforms
   const _dedupMap = {};
   const _dedupList = [];
@@ -1244,6 +1273,7 @@ async function main() {
     if (!l.merk || !l.prijs) { _dedupList.push(l); continue; }
     const _key = [
       (l.merk || "").toLowerCase().replace(/\s+/g, ""),
+      (l.model || "").toLowerCase().replace(/\s+/g, ""),
       l.jaar || 0,
       Math.round((l.km || 0) / 5000) * 5000,
       Math.round((l.prijs || 0) / 500) * 500
