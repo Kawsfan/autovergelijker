@@ -1221,12 +1221,16 @@ async function main() {
   });
   // Merk-extractie: vul l.merk voor alle listings (nodig voor dedup + merkenfilter)
   const _MERKEN = ["Alfa Romeo","Aston Martin","Land Rover","Mercedes-Benz","Rolls-Royce","Lynk & Co","Abarth","Citroën","Polestar","Porsche","Renault","Hyundai","Peugeot","Volkswagen","Mitsubishi","Chevrolet","Chrysler","Genesis","Lamborghini","Maserati","Ferrari","Infiniti","Leapmotor","Subaru","Toyota","Nissan","Jaguar","Lexus","Suzuki","Skoda","Škoda","Dacia","Cupra","Tesla","Honda","Mazda","Volvo","Dodge","Maxus","Seat","Ford","Opel","Jeep","Fiat","Kia","BMW","Audi","MINI","Smart","Saab","Iveco","Voyah","Daihatsu","BYD","MG","DS","VW","Mercedes","Lynk","Isuzu","Lancia","Bentley","Bugatti","McLaren","Lotus","Lada","Ssangyong","Zeekr","Xpeng","NIO","Ora","Aiways"];
+  // Merkaliassen: verschillende titelvormen voor hetzelfde merk die anders als
+  // aparte merken in de merkenlijst/filter zouden opduiken (bv. "Mercedes" naast
+  // "Mercedes-Benz"). Canonieke vorm rechts, herkende titelvorm(en) links.
+  const _MERK_ALIAS = { "Mercedes": "Mercedes-Benz", "Lynk": "Lynk & Co", "Škoda": "Skoda", "VW": "Volkswagen" };
   listings.forEach(function(l) {
     const _titel = (l.titel || '').trim().toLowerCase();
     for (const _m of _MERKEN) {
       const _ml = _m.toLowerCase();
       if (_titel === _ml || _titel.startsWith(_ml + ' ') || _titel.startsWith(_ml + '-')) {
-        l.merk = _m;
+        l.merk = _MERK_ALIAS[_m] || _m;
         return;
       }
     }
@@ -1234,7 +1238,9 @@ async function main() {
     // (dat leverde troep op als merk, bv. "Betrouwbare", "Mooie" bij
     // particuliere advertentietitels die niet met het merk beginnen).
     // Bestaande, niet-canonieke merkwaarden van eerdere runs worden hier ook
-    // teruggezet naar 'overig' zodat oude vervuiling zichzelf herstelt.
+    // teruggezet naar 'overig' zodat oude vervuiling zichzelf herstelt; bestaande
+    // aliaswaarden (bv. "VW" van vóór deze fix) worden gecanonicaliseerd.
+    if (l.merk && _MERK_ALIAS[l.merk]) { l.merk = _MERK_ALIAS[l.merk]; return; }
     if (!l.merk || !_MERKEN.includes(l.merk)) l.merk = 'overig';
   });
   // Model-extractie: vul l.model voor listings met een herkend merk
