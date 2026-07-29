@@ -443,7 +443,7 @@ function vertaalBrandstof(id) {
   return map[id] || '';
 }
 
-a_™nc function commitNaarGitHub(listings) {
+async function commitNaarGitHub(listings) {
   const inhoud = JSON.stringify({
     bijgewerkt: new Date().toISOString(),
     totaal: listings.length,

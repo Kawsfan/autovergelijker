@@ -1,0 +1,6 @@
+# Cloudflare Workers static assets: max 25 MiB per bestand.
+# Deze twee bestanden overschrijden dat en worden nu rechtstreeks vanaf
+# raw.githubusercontent.com opgehaald door de frontend (zie index.html) —
+# ze hoeven dus niet als static asset meegedeployed te worden.
+data/listings.json
+data/listings-top.json
