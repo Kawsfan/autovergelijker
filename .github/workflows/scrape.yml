@@ -40,3 +40,6 @@ jobs:
             sleep 10
           done
           exit 1
+
+      - name: Controleer scraper-gezondheid per bron
+        run: node scripts/check-scrape-health.js

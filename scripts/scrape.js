@@ -1460,6 +1460,27 @@ async function main() {
     console.log(`Ã°ÂÂÂ  Markthistorie: ${Object.keys(_segStats).length} segmenten Ã¢ÂÂ ${_mhPath}`);
   } catch (_mhErr) { console.warn('Ã¢ÂÂ Ã¯Â¸Â  Markthistorie fout:', _mhErr.message); }
 
+  // Scraper-gezondheid per bron bijhouden: rollend venster van actieve
+  // advertenties per bron, zodat scripts/check-scrape-health.js kan zien of
+  // een bron plotseling wegvalt of fors inzakt (zoals met AutoTrack/AutoTrader
+  // gebeurde — dat bleef maandenlang onopgemerkt zonder dit signaal).
+  try {
+    const _shPath = path.join(process.cwd(), 'data', 'scrape-health.json');
+    const _today = new Date().toISOString().slice(0, 10);
+    const _tellingen = {};
+    for (const l of (data.listings || [])) {
+      if (!l.bron) continue;
+      _tellingen[l.bron] = (_tellingen[l.bron] || 0) + 1;
+    }
+    let _shData = [];
+    try { _shData = JSON.parse(fs.readFileSync(_shPath, 'utf8')); } catch(e) {}
+    _shData = _shData.filter(d => d.datum !== _today);
+    _shData.push({ datum: _today, tellingen: _tellingen });
+    if (_shData.length > 30) _shData = _shData.slice(-30);
+    fs.writeFileSync(_shPath, JSON.stringify(_shData));
+    console.log('Scrape-health bijgewerkt: ' + Object.keys(_tellingen).length + ' bronnen -> ' + _shPath);
+  } catch (_shErr) { console.warn('Scrape-health fout:', _shErr.message); }
+
   console.log(`ÃÂÃÂ¢ÃÂÃÂÃÂÃÂ Opgeslagen naar ${outPath}`);
 }
 
