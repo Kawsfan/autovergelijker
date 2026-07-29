@@ -782,7 +782,7 @@
     </button>
     <div class="hero-badges">
       <span class="hero-badge">🚗 <strong id="heroCnt">31.000+</strong> occasions</span>
-      <span class="hero-badge">📡 <strong>4</strong> platforms</span>
+      <span class="hero-badge">📡 <strong id="platformCnt">6</strong> platforms</span>
       <span class="hero-badge">✅ Gratis</span>
     </div>
   </div>
@@ -1010,7 +1010,6 @@
   <div class="resultaten-header" id="resultatenHeader" style="display:none">
     <div>
       <h2 id="aantalTekst"></h2>
-      <div class="sub" id="aantalSub"></div>
     </div>
     <div>
             <div class="view-toggle">
@@ -1110,6 +1109,7 @@ async function laadListings() {
     // data.totaal komt uit de scraper en is identiek in listings-top.json en listings.json —
     // dit getal verandert dus niet als de volledige dataset later op de achtergrond bijladen wordt.
     window._totaalAdvertenties = data.totaal || (data.listings || []).length;
+    window._totaalPlatforms = (data.bronnen || []).length;
     alleResultaten = dedupAutos(data.listings || []);
     window._alleAutos = alleResultaten;
     alleResultaten.forEach(function(a){if(!a.merk||!/^[a-zA-ZÀ-ɏ]/.test(a.merk))a.merk=extraheerMerk(a.titel||"");});
@@ -1337,14 +1337,13 @@ function toonResultaten(lijst) {
   const header = document.getElementById('resultatenHeader');
 
   const _hc=document.getElementById('heroCnt');if(_hc)_hc.textContent=(window._totaalAdvertenties||window._alleAutos?.length||0).toLocaleString('nl-NL')+'+';
+  const _pc=document.getElementById('platformCnt');if(_pc&&window._totaalPlatforms)_pc.textContent=window._totaalPlatforms;
   // Bij geen actieve filters toont dit hetzelfde (mogelijk nog niet volledig
   // bijgeladen) aantal als de badge bovenaan — dubbel en soms verwarrend
   // afwijkend. Alleen tonen als er daadwerkelijk gefilterd/gezocht is, waar
   // het aantal wél afwijkt van het totaal en dus relevant is.
   document.getElementById('aantalTekst').textContent =
     _filtersActief() ? TRANS[window.lang||'nl'].result(gesorteerd.length) : '';
-  const bronnenLijst = [...new Set(lijst.map(l => l.bron).filter(Boolean))];
-  document.getElementById('aantalSub').textContent = TRANS[window.lang||'nl'].sub(bronnenLijst);
   header.style.display = 'flex';
 
   if (!gesorteerd.length) {
