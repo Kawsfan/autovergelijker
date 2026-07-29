@@ -1156,6 +1156,7 @@ async function laadListings() {
     _vulZoekSuggesties();
     zoekNu();
     // Background: laad alle listings (uitgesteld — niet meteen bij pageload)
+    window._isSubset = !!data.isSubset;
     if (data.isSubset) {
       window._laadVolledig = function() {
         if (window._volledigGeladen) return;
@@ -1226,9 +1227,9 @@ async function _laadMerkEnZoek() {
           const d = await r.json();
           const merkListings = d.listings || [];
           const lc = merk.toLowerCase();
-          const other = allleResultaten.filter(function(l){ return (l.merk||'').toLowerCase() !== lc; });
-          allleResultaten = other.concat(merkListings);
-          window._alleAutos = allleResultaten;
+          const other = alleResultaten.filter(function(l){ return (l.merk||'').toLowerCase() !== lc; });
+          alleResultaten = other.concat(merkListings);
+          window._alleAutos = alleResultaten;
         }
       } catch(e) {}
     }
