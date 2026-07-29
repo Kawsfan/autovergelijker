@@ -1336,8 +1336,13 @@ function toonResultaten(lijst) {
   const gesorteerd = sorteer([...lijst], sort);
   const header = document.getElementById('resultatenHeader');
 
-  const _hc=document.getElementById('heroCnt');if(_hc)_hc.textContent=(window._totaalAdvertenties||window._alleAutos?.length||0).toLocaleString('nl-NL')+'+';document.getElementById('aantalTekst').textContent =
-    TRANS[window.lang||'nl'].result(gesorteerd.length);
+  const _hc=document.getElementById('heroCnt');if(_hc)_hc.textContent=(window._totaalAdvertenties||window._alleAutos?.length||0).toLocaleString('nl-NL')+'+';
+  // Bij geen actieve filters toont dit hetzelfde (mogelijk nog niet volledig
+  // bijgeladen) aantal als de badge bovenaan — dubbel en soms verwarrend
+  // afwijkend. Alleen tonen als er daadwerkelijk gefilterd/gezocht is, waar
+  // het aantal wél afwijkt van het totaal en dus relevant is.
+  document.getElementById('aantalTekst').textContent =
+    _filtersActief() ? TRANS[window.lang||'nl'].result(gesorteerd.length) : '';
   const bronnenLijst = [...new Set(lijst.map(l => l.bron).filter(Boolean))];
   document.getElementById('aantalSub').textContent = TRANS[window.lang||'nl'].sub(bronnenLijst);
   header.style.display = 'flex';
