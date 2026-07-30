@@ -582,6 +582,17 @@
   .markt-deal-hot{background:#fee2e2;color:#b91c1c}
   .markt-deal-ok{background:#fef3c7;color:#92400e}
   .markt-leeg{text-align:center;padding:40px;color:var(--subtekst);font-size:15px}
+  .markt-inruil{margin:14px 24px 4px;padding:16px 18px;background:linear-gradient(135deg,#fff7f2,var(--achtergrond));border:1.5px solid var(--oranje);border-radius:12px}
+  .markt-inruil-title{font-size:14px;font-weight:700;margin-bottom:10px}
+  .markt-inruil-row-input{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  .markt-inruil-row-input label{font-size:12px;color:var(--subtekst);white-space:nowrap}
+  .markt-inruil-row-input input{flex:1;min-width:120px;padding:8px 10px;border-radius:8px;border:1px solid var(--rand);background:var(--kaart);color:var(--tekst);font-size:13px}
+  .markt-inruil-uitkomst{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+  .markt-inruil-card{flex:1;min-width:150px;background:var(--kaart);border-radius:10px;padding:10px 12px}
+  .markt-inruil-card .lbl{font-size:11px;color:var(--subtekst)}
+  .markt-inruil-card .val{font-size:17px;font-weight:700;color:var(--tekst)}
+  .markt-inruil-card.hoofd .val{color:var(--oranje);font-size:19px}
+  .markt-inruil-disclaimer{font-size:11px;color:var(--subtekst);margin-top:10px;line-height:1.4}
   @media(max-width:600px){.markt-two-col{grid-template-columns:1fr}}
 
 .afstand-rij { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
@@ -2428,6 +2439,7 @@ function updateMarktModellen(merk) {
     var sW=scEl.parentElement.clientWidth-24; if(sW<10)sW=600;
     var sH=130; scEl.setAttribute('viewBox','0 0 '+sW+' '+sH);
     var scData=metPrijsKm.length>300?metPrijsKm.filter(function(_,i){return i%Math.ceil(metPrijsKm.length/300)===0;}):metPrijsKm;
+    window._mSegmentData = {n:n, mediaan:mediaan, hasRegressie:false};
     if(scData.length>1){
       var kms=scData.map(function(a){return a.km;}),prs=scData.map(function(a){return a.prijs;});
       var minKm=Math.min.apply(null,kms),maxKm=Math.max.apply(null,kms),minPr=Math.min.apply(null,prs),maxPr=Math.max.apply(null,prs);
@@ -2435,6 +2447,8 @@ function updateMarktModellen(merk) {
       var sX=0,sY=0,sXY=0,sX2=0,sN=scData.length;
       scData.forEach(function(a){sX+=a.km;sY+=a.prijs;sXY+=a.km*a.prijs;sX2+=a.km*a.km;});
       var sl=(sN*sXY-sX*sY)/(sN*sX2-sX*sX)||0,ic=(sY-sl*sX)/sN;
+      window._mSegmentData.sl=sl; window._mSegmentData.ic=ic; window._mSegmentData.hasRegressie=true;
+      window._mSegmentData.minKm=minKm; window._mSegmentData.maxKm=maxKm;
       var toX=function(k){return 14+(k-minKm)/kR*(sW-28);},toY=function(p){return sH-10-(p-minPr)/pR*(sH-20);};
       var out='<line x1="'+toX(minKm)+'" y1="'+toY(ic+sl*minKm)+'" x2="'+toX(maxKm)+'" y2="'+toY(ic+sl*maxKm)+'" stroke="#94a3b8" stroke-width="1" stroke-dasharray="4"/>';
       scData.forEach(function(a){
@@ -2484,8 +2498,41 @@ function updateMarktModellen(merk) {
       document.getElementById('mJaarLabels').innerHTML=
         '<span>'+jaren[0]+'</span>'+(jaren.length>2?'<span>'+jaren[Math.floor(jaren.length/2)]+'</span>':'')+'<span>'+jaren[jaren.length-1]+'</span>';
     }
+    berekenInruilwaarde();
   }
 
+  // Schat marktwaarde + indicatieve inruilwaarde op basis van de prijs/km-regressie
+  // die berekenMarkt() al berekent voor de scatterplot van het huidige segment.
+  // Geen aparte databron nodig — hergebruikt wat er al is.
+  function berekenInruilwaarde() {
+    var leeg = document.getElementById('mInruilLeeg');
+    var uitkomst = document.getElementById('mInruilUitkomst');
+    var disclaimer = document.getElementById('mInruilDisclaimer');
+    if (!leeg || !uitkomst) return;
+    var merk = document.getElementById('mMerk').value;
+    var model = document.getElementById('mModel').value;
+    var km = parseInt(document.getElementById('mInruilKm').value) || 0;
+    var seg = window._mSegmentData;
+
+    function toon(msg) {
+      leeg.textContent = msg; leeg.style.display = '';
+      uitkomst.style.display = 'none'; disclaimer.style.display = 'none';
+    }
+    if (!merk || !model) return toon('Selecteer hierboven een merk en model.');
+    if (!km || km <= 0) return toon('Vul je kilometerstand in voor een schatting.');
+    if (!seg || seg.n < 5 || !seg.hasRegressie) return toon('Onvoldoende vergelijkbare advertenties voor een betrouwbare schatting.');
+
+    var marktwaarde = Math.max(500, Math.round(seg.ic + seg.sl * km));
+    var inruilMin = Math.round(marktwaarde * 0.70 / 50) * 50;
+    var inruilMax = Math.round(marktwaarde * 0.85 / 50) * 50;
+    var fmt = function(p){ return '€' + Math.round(p).toLocaleString('nl-NL'); };
+
+    uitkomst.innerHTML =
+      '<div class="markt-inruil-card"><div class="lbl">Geschatte marktwaarde</div><div class="val">' + fmt(marktwaarde) + '</div></div>' +
+      '<div class="markt-inruil-card hoofd"><div class="lbl">Indicatieve inruilwaarde</div><div class="val">' + fmt(inruilMin) + ' – ' + fmt(inruilMax) + '</div></div>';
+    disclaimer.textContent = 'Schatting op basis van ' + seg.n + ' vergelijkbare advertenties in dit segment (vraagprijs, niet inruil). Geen officiële taxatie — de werkelijke inruilwaarde hangt af van staat, onderhoudshistorie en dealer.';
+    leeg.style.display = 'none'; uitkomst.style.display = ''; disclaimer.style.display = '';
+  }
 </script>
 
 <div id="agentModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:3000;align-items:center;justify-content:center">
@@ -2617,6 +2664,16 @@ function _injectCarSchema(cars) {
         <option value="Automaat">Automaat</option>
         <option value="Handgeschakeld">Handgeschakeld</option>
       </select>
+    </div>
+    <div class="markt-inruil">
+      <div class="markt-inruil-title">&#128176; Wat is mijn auto waard?</div>
+      <div class="markt-inruil-row-input">
+        <label for="mInruilKm">Jouw km-stand</label>
+        <input type="number" id="mInruilKm" placeholder="bv. 85000" min="0" step="1000" oninput="berekenInruilwaarde()">
+      </div>
+      <div id="mInruilLeeg" class="markt-leeg" style="display:none;padding:14px 0 0;font-size:13px">Selecteer hierboven een merk en model.</div>
+      <div id="mInruilUitkomst" class="markt-inruil-uitkomst" style="display:none"></div>
+      <p id="mInruilDisclaimer" class="markt-inruil-disclaimer" style="display:none"></p>
     </div>
     <div id="mLeeg" class="markt-leeg" style="display:none">Geen advertenties gevonden voor deze selectie.</div>
     <div id="mResultaat">
