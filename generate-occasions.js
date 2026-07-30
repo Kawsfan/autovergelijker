@@ -323,6 +323,12 @@ function main() {
   fs.writeFileSync(path.join(OUT_DIR, 'index.html'), buildPage({ merkSlug: null, modelSlug: null, filtered: listings, listings: listings }), 'utf-8');
   pageCount++; console.log('  [OK] /occasions/');
 
+  // Houdt bij welke top-level en merk/model-mappen dit run echt gegenereerd zijn,
+  // zodat verweesde mappen van eerdere runs (merk/model dat onder de drempel is
+  // gezakt) hieronder opgeruimd kunnen worden i.p.v. voor altijd te blijven staan.
+  const validTopDirs = new Set();
+  const validModelDirs = {};
+
   const merkCounts = {};
   listings.forEach(function(a){ const m=(a.merk||'').toLowerCase().trim(); if(m) merkCounts[m]=(merkCounts[m]||0)+1; });
 
@@ -337,6 +343,8 @@ function main() {
     fs.mkdirSync(merkDir, { recursive: true });
     fs.writeFileSync(path.join(merkDir, 'index.html'), buildPage({ merkSlug: merkSlug, modelSlug: null, filtered: filtered, listings: listings }), 'utf-8');
     pageCount++; console.log('  [OK] /occasions/'+merkSlug+'/ ('+filtered.length+')');
+    validTopDirs.add(merkSlug);
+    validModelDirs[merkSlug] = new Set();
 
     const mc = {};
     // # en ? zijn ongeldig in gedeployde bestandsnamen (Netlify) en werken sowieso
@@ -351,6 +359,7 @@ function main() {
       fs.mkdirSync(mDir,{recursive:true});
       fs.writeFileSync(path.join(mDir,'index.html'),buildPage({merkSlug:merkSlug,modelSlug:modelSlug,filtered:mf,listings:listings}),'utf-8');
       pageCount++; console.log('    [OK] /occasions/'+merkSlug+'/'+modelSlug+'/ ('+mf.length+')');
+      validModelDirs[merkSlug].add(modelSlug);
     });
   });
 
@@ -369,7 +378,34 @@ function main() {
     generatedStadUrls.push('occasions/'+stadSlug+'/');
     pageCount++;
     console.log('  [OK] /occasions/'+stadSlug+'/ ('+filtered.length+')');
+    validTopDirs.add(stadSlug);
   }
+
+  // Verweesde mappen opruimen: merk/model/stad-combinaties die niet meer aan de
+  // huidige drempels voldoen (of niet meer bestaan) blijven anders voor altijd
+  // als dode statische pagina's staan.
+  let removedCount = 0;
+  fs.readdirSync(OUT_DIR, { withFileTypes: true }).forEach(function(entry) {
+    if (!entry.isDirectory()) return;
+    const topDir = path.join(OUT_DIR, entry.name);
+    if (!validTopDirs.has(entry.name)) {
+      fs.rmSync(topDir, { recursive: true, force: true });
+      removedCount++;
+      console.log('  [VERWIJDERD] /occasions/'+entry.name+'/ (voldoet niet meer aan drempel)');
+      return;
+    }
+    const models = validModelDirs[entry.name];
+    if (!models) return; // stad-map, heeft geen submappen
+    fs.readdirSync(topDir, { withFileTypes: true }).forEach(function(sub) {
+      if (!sub.isDirectory()) return;
+      if (!models.has(sub.name)) {
+        fs.rmSync(path.join(topDir, sub.name), { recursive: true, force: true });
+        removedCount++;
+        console.log('    [VERWIJDERD] /occasions/'+entry.name+'/'+sub.name+'/ (voldoet niet meer aan drempel)');
+      }
+    });
+  });
+  if (removedCount) console.log(removedCount + ' verweesde pagina(\'s) opgeruimd');
 
   // Sitemap bijwerken
   const sitemapPath = path.join(process.cwd(), 'sitemap.xml');
