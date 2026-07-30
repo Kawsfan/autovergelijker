@@ -2457,19 +2457,21 @@ function sluitMarkt() {
     berekenInruilwaarde();
   }
 
-  // Schat marktwaarde + indicatieve inruilwaarde op basis van een eigen prijs/km-regressie
-  // over alle advertenties van dit merk+model — bewust los van de jaar/brandstof/transmissie-
-  // filters hierboven, zodat de steekproef groot en stabiel blijft.
+  // Schat marktwaarde + indicatieve inruilwaarde op basis van een eigen prijs/km/bouwjaar-
+  // regressie over alle advertenties van dit merk+model — bewust los van de jaar/brandstof/
+  // transmissie-filters hierboven, zodat de steekproef groot en stabiel blijft.
   function berekenInruilwaarde() {
     var leeg = document.getElementById('mInruilLeeg');
     var uitkomst = document.getElementById('mInruilUitkomst');
     var disclaimer = document.getElementById('mInruilDisclaimer');
     var kmInput = document.getElementById('mInruilKm');
+    var jaarInput = document.getElementById('mInruilJaar');
     if (!leeg || !uitkomst) return;
     var merk = document.getElementById('mMerk').value;
     var model = document.getElementById('mModel').value;
 
     if (kmInput) kmInput.disabled = !(merk && model);
+    if (jaarInput) jaarInput.disabled = !(merk && model);
 
     function toon(msg) {
       leeg.textContent = msg; leeg.style.display = '';
@@ -2478,7 +2480,10 @@ function sluitMarkt() {
     if (!merk || !model) return toon('Selecteer hierboven een merk en model.');
 
     var km = parseInt(kmInput.value) || 0;
+    var huidigJaar = new Date().getFullYear();
+    var jaar = parseInt(jaarInput.value) || 0;
     if (!km || km <= 0) return toon('Vul je kilometerstand in voor een schatting.');
+    if (!jaar || jaar < 1980 || jaar > huidigJaar + 1) return toon('Vul het bouwjaar van je auto in voor een schatting.');
 
     var subset = (window._alleAutos||[]).filter(function(a){
       return a.merk===merk && a.model===model && a.prijs>=500;
@@ -2488,13 +2493,42 @@ function sluitMarkt() {
     var metKm = subset.filter(function(a){ return a.km>1000 && a.km<300000; });
     if (metKm.length < 5) return toon('Onvoldoende advertenties met bekende kilometerstand voor een betrouwbare schatting.');
 
-    var sX=0,sY=0,sXY=0,sX2=0,sN=metKm.length;
-    metKm.forEach(function(a){ sX+=a.km; sY+=a.prijs; sXY+=a.km*a.prijs; sX2+=a.km*a.km; });
-    var denom = sN*sX2-sX*sX;
-    var sl = denom ? (sN*sXY-sX*sY)/denom : 0;
-    var ic = (sY-sl*sX)/sN;
+    // Multiple regressie prijs ~ b0 + b1*km + b2*jaar, met bouwjaar als tweede voorspeller
+    // (een jonge auto met veel km is meer waard dan een oude auto met evenveel km).
+    var metKmJaar = metKm.filter(function(a){ return a.jaar>=1980 && a.jaar<=huidigJaar+1; });
 
-    var marktwaarde = Math.max(500, Math.round(ic + sl * km));
+    var marktwaarde;
+    var n;
+    if (metKmJaar.length >= 8) {
+      n = metKmJaar.length;
+      var meanKm=0, meanJaar=0, meanP=0;
+      metKmJaar.forEach(function(a){ meanKm+=a.km; meanJaar+=a.jaar; meanP+=a.prijs; });
+      meanKm/=n; meanJaar/=n; meanP/=n;
+      var Sxx=0, Sxz=0, Szz=0, Sxy=0, Szy=0;
+      metKmJaar.forEach(function(a){
+        var dk=a.km-meanKm, dj=a.jaar-meanJaar, dp=a.prijs-meanP;
+        Sxx+=dk*dk; Sxz+=dk*dj; Szz+=dj*dj; Sxy+=dk*dp; Szy+=dj*dp;
+      });
+      var det = Sxx*Szz - Sxz*Sxz;
+      if (Math.abs(det) > 1e-6 * (Sxx*Szz || 1)) {
+        var b1 = (Sxy*Szz - Szy*Sxz)/det;
+        var b2 = (Szy*Sxx - Sxy*Sxz)/det;
+        var b0 = meanP - b1*meanKm - b2*meanJaar;
+        marktwaarde = Math.max(500, Math.round(b0 + b1*km + b2*jaar));
+      }
+    }
+    if (marktwaarde == null) {
+      // Fallback: te weinig spreiding in jaar of te weinig data voor een stabiele
+      // multiple regressie — dan een enkelvoudige regressie op km.
+      n = metKm.length;
+      var sX=0,sY=0,sXY=0,sX2=0;
+      metKm.forEach(function(a){ sX+=a.km; sY+=a.prijs; sXY+=a.km*a.prijs; sX2+=a.km*a.km; });
+      var denom = n*sX2-sX*sX;
+      var sl = denom ? (n*sXY-sX*sY)/denom : 0;
+      var ic = (sY-sl*sX)/n;
+      marktwaarde = Math.max(500, Math.round(ic + sl * km));
+    }
+
     var inruilMin = Math.round(marktwaarde * 0.70 / 50) * 50;
     var inruilMax = Math.round(marktwaarde * 0.85 / 50) * 50;
     var fmt = function(p){ return '€' + Math.round(p).toLocaleString('nl-NL'); };
@@ -2502,7 +2536,7 @@ function sluitMarkt() {
     uitkomst.innerHTML =
       '<div class="markt-inruil-card"><div class="lbl">Geschatte marktwaarde</div><div class="val">' + fmt(marktwaarde) + '</div></div>' +
       '<div class="markt-inruil-card hoofd"><div class="lbl">Indicatieve inruilwaarde</div><div class="val">' + fmt(inruilMin) + ' – ' + fmt(inruilMax) + '</div></div>';
-    disclaimer.textContent = 'Schatting op basis van ' + metKm.length + ' advertenties van ' + merk + ' ' + model + ' (vraagprijs, niet inruil), los van de jaar/brandstof/transmissie-filters hierboven. Geen officiële taxatie — de werkelijke inruilwaarde hangt af van staat, onderhoudshistorie en dealer.';
+    disclaimer.textContent = 'Schatting op basis van ' + n + ' advertenties van ' + merk + ' ' + model + ' (vraagprijs, niet inruil), rekening houdend met km-stand en bouwjaar, los van de jaar/brandstof/transmissie-filters hierboven. Geen officiële taxatie — de werkelijke inruilwaarde hangt af van staat, onderhoudshistorie en dealer.';
     leeg.style.display = 'none'; uitkomst.style.display = ''; disclaimer.style.display = '';
   }
 </script>
@@ -2642,6 +2676,8 @@ function _injectCarSchema(cars) {
       <div class="markt-inruil-row-input">
         <label for="mInruilKm">Jouw km-stand</label>
         <input type="number" id="mInruilKm" placeholder="bv. 85000" min="0" step="1000" oninput="berekenInruilwaarde()" disabled>
+        <label for="mInruilJaar">Bouwjaar</label>
+        <input type="number" id="mInruilJaar" placeholder="bv. 2019" min="1980" step="1" oninput="berekenInruilwaarde()" disabled>
       </div>
       <div id="mInruilLeeg" class="markt-leeg" style="display:none;padding:14px 0 0;font-size:13px">Selecteer hierboven een merk en model.</div>
       <div id="mInruilUitkomst" class="markt-inruil-uitkomst" style="display:none"></div>
