@@ -1,10 +1,6 @@
 [build]
   publish = "."
 
-[[edge_functions]]
-  function = "occasions"
-  path = "/occasions/*"
-
 [[headers]]
   for = "/*"
   [headers.values]
