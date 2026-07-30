@@ -10,6 +10,10 @@ const path = require('path');
 const LISTINGS_PATH  = path.join(__dirname, 'data', 'listings.json');
 const OUT_DIR        = path.join(__dirname, 'occasions');
 const SITE_ORIGIN    = 'https://carkijker.nl';
+const GA_SNIPPET =
+  '<script async src="https://www.googletagmanager.com/gtag/js?id=G-TD2KWCXTV3"><\/script>' +
+  '<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}' +
+  "gtag('js',new Date());gtag('config','G-TD2KWCXTV3');<\/script>";
 const MIN_MERK_COUNT = 3;
 const MIN_MODEL_COUNT = 2;
 const MAX_MODELS     = 10;
@@ -223,6 +227,7 @@ const MERK_INTRO = {
   return '<!DOCTYPE html>\n<html lang="nl">\n<head>\n' +
     '  <meta charset="UTF-8">\n' +
     '  <meta name="viewport" content="width=device-width,initial-scale=1">\n' +
+    '  ' + GA_SNIPPET + '\n' +
     '  <title>'+pageTitle+'</title>\n' +
     '  <meta name="description" content="'+metaDesc+'">\n' +
     '  <link rel="canonical" href="'+SITE_ORIGIN+canonicalPath+'">\n' +
@@ -274,6 +279,7 @@ function buildStadPage(stadSlug, stad, filtered, listings) {
   ).join('');
   return '<!doctype html><html lang="nl"><head>'+
     '<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'+
+    GA_SNIPPET +
     '<title>Tweedehands auto '+stad.naam+' | Carkijker</title>'+
     '<meta name="description" content="Bekijk '+filtered.length+' tweedehands auto occasions in '+stad.naam+', '+stad.regio+'. Vergelijk prijzen en vind jouw ideale occasion.">'+
     '<link rel="canonical" href="https://carkijker.nl/occasions/'+stadSlug+'/">'+
