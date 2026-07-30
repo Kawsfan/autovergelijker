@@ -1410,7 +1410,7 @@ async function main() {
   // Ã¢ÂÂÃ¢ÂÂ Sitemap genereren Ã¢ÂÂÃ¢ÂÂ
   const _merken = [...new Set((data.listings||[]).map(l => l.merk).filter(Boolean))].sort();
   const _today = new Date().toISOString().slice(0,10);
-  const _BASE = 'https://kawsfan.github.io/autovergelijker/';
+  const _BASE = 'https://carkijker.nl/';
   const _urlTags = _merken.map(m =>
     '  <url>\n    <loc>' + _BASE + '?merk=' + encodeURIComponent(m.toLowerCase()) +
     '</loc>\n    <changefreq>daily</changefreq>\n    <priority>0.7</priority>\n    <lastmod>' + _today + '</lastmod>\n  </url>'
