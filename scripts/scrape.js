@@ -1384,7 +1384,11 @@ async function main() {
   }
   fs.writeFileSync(outPath, JSON.stringify(data));
   // ââ listings-top.json: top 5000 by dealScore voor snelle homepage load
-  const _topL = [...(data.listings||[])].sort((a,b)=>(b.dealScore||0)-(a.dealScore||0)).slice(0,20000);
+  // De volledige imgs-galerij (~49% van de databytes) wordt hier weggelaten - die is
+  // alleen nodig in de detailweergave, niet in de resultatenlijst (die gebruikt imgSrc).
+  // De achtergrond-load van listings.json (met imgs) vult dit binnen enkele seconden aan.
+  const _topL = [...(data.listings||[])].sort((a,b)=>(b.dealScore||0)-(a.dealScore||0)).slice(0,20000)
+    .map(function(l){ var _c = Object.assign({}, l); delete _c.imgs; return _c; });
   const _topData = Object.assign({}, data, {listings: _topL, isSubset: true, subsetSize: 5000});
   const _topPath = path.join(process.cwd(), 'data', 'listings-top.json');
   fs.writeFileSync(_topPath, JSON.stringify(_topData));
