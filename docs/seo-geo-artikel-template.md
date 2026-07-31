@@ -9,6 +9,11 @@ citeerbaar.**
 Meta title/description, FAQ (via interne links) en het auteursprofiel worden apart geregeld —
 dit template gaat over de opbouw en schrijfstijl van de lopende tekst zelf.
 
+**Twee artikeltypes.** §1 t/m §3 (H1, directe-antwoord-alinea, H2/H3-structuur) gelden voor
+elk artikel. §5 ("Aanvullende instructies") is geschreven voor koop-/informatiegidsen, die op
+marktcijfers leunen. Schrijft de eindredacteur een persoonlijk ervaringsverhaal (een review,
+road trip, eerste-keer-ervaring) — dan geldt in plaats daarvan §4 hieronder.
+
 ---
 
 ## 1. H1 — hoofdtitel
@@ -77,7 +82,61 @@ Pas de kopjes aan op het onderwerp, maar houd de answer-first-regel per sectie a
 
 ---
 
-## 4. Aanvullende instructies
+## 4. Variant: persoonlijk ervaringsverhaal (review, road trip, eerste-keer-ervaring)
+
+*Gebruik deze sectie in plaats van §5 wanneer het artikel draait om de eigen ervaring van de
+schrijver — bijvoorbeeld: voor het eerst elektrisch rijden, op vakantie, in een Peugeot 5008.
+§1 t/m §3 (H1, directe-antwoord-alinea, H2/H3-structuur) blijven gewoon van kracht.*
+
+**Aanbevolen lengte: 1.000–1.300 woorden.**
+Onder de ~700 woorden is er te weinig ruimte voor een echte spanningsboog (verwachting →
+onderweg → eindoordeel). Boven de ~1.500 woorden ga je bij een persoonlijk verhaal al snel
+uitrekken, wat ten koste gaat van scanbaarheid en B1-leesbaarheid.
+
+**De openingsalinea geeft een oordeel, geen marktcijfer.**
+Answer-first blijft de regel, maar het "antwoord" is hier de conclusie van de ervaring, niet
+een prijs. Nog steeds: entiteit benoemen, geen opwarmertje, maximaal 2-3 zinnen.
+
+> Goed voorbeeld:
+> Voor het eerst elektrisch rijden op vakantie, in een Peugeot 5008, viel vooral het laden
+> tegen — niet door de techniek, maar door de tijd die het kostte om een vrije snellader te
+> vinden in Frankrijk. Rijden zelf verraste juist positief: stil, comfortabel en met genoeg
+> actieradius voor een dag zonder stress.
+>
+> Fout voorbeeld (vermijden):
+> Deze zomer gingen we op vakantie naar Frankrijk. Voor het eerst met een elektrische auto,
+> best spannend! In dit artikel deel ik mijn ervaringen.
+> *(geen oordeel, geen concreet feit, entiteit niet benoemd)*
+
+**Kopjesstructuur is chronologisch of thematisch, niet prijs-gedreven**
+Bijvoorbeeld: verwachting vooraf → laden onderweg → rijervaring/comfort → actieradius in de
+praktijk → eindoordeel/zou-ik-het-weer-doen. Answer-first per H2 blijft gelden: begin elke
+sectie met wat er feitelijk gebeurde of hoe het voelde, niet met een aankondiging.
+
+**Cijfers zijn persoonlijke ervaring, geen marktdata**
+In plaats van gemiddelde prijzen met steekproefgrootte (§5): concrete, zelf ondervonden getallen
+— werkelijke actieradius versus opgegeven WLTP-waarde, laadtijd bij een specifieke laadpaal,
+aantal laadstops op de route, kosten van laden onderweg. Dat maakt het verhaal net zo
+citeerbaar en geloofwaardig als een cijfermatige koopgids, alleen dan vanuit eigen waarneming.
+
+**Expertise ís het artikel**
+Bij een koopgids is "expertise laten zien" een aanvulling (§5); hier is het de kern. Benoem
+concrete waarnemingen en een eigen, soms afwijkend oordeel in plaats van algemene EV-clichés
+("elektrisch rijden is de toekomst"). Specifiek en persoonlijk verslaan is precies wat dit
+type artikel sterk maakt voor zowel de lezer als AI-antwoordmachines (Experience-signaal).
+
+**Ik-vorm is hier toegestaan**
+Anders dan bij koopadvies (je/jouw, gericht op de lezer) mag dit stuk in de ik-vorm — het is
+een persoonlijk verslag. Blijf wel bij de overige regels: korte zinnen, B1-niveau (§6), geen
+fluff-openers, entiteit (Peugeot 5008 / e-5008) door de tekst heen benoemen.
+
+**Wat ongewijzigd blijft ten opzichte van §5:** entiteit expliciet houden, scanbaarheid, geen
+fluff-openers, interne link naar het relevante occasion-overzicht (bv. `/occasions/peugeot/`),
+en de algemene toon (geen marketingtaal, elke zin bevat informatie).
+
+---
+
+## 5. Aanvullende instructies (koop-/informatiegidsen)
 
 **Feiten en cijfers (GEO-kern)**
 - Elk cijfer krijgt een bron of steekproefgrootte ("op basis van 340 advertenties"), geen
@@ -125,7 +184,7 @@ opvulzinnen.
 
 ---
 
-## 5. Schrijfniveau: B1
+## 6. Schrijfniveau: B1
 
 - Korte zinnen (streef naar één hoofdgedachte per zin), veelgebruikte woorden, actieve vorm.
 - Vaktermen die kopers ook zelf zoeken of nodig hebben om een advertentie te beoordelen
@@ -136,15 +195,16 @@ opvulzinnen.
 
 ---
 
-## 6. Publicatiechecklist
+## 7. Publicatiechecklist
 
 - [ ] H1 aanwezig, bevat de exacte zoekterm
-- [ ] Openingsalinea geeft het directe antwoord, zonder opwarmertje (§2)
+- [ ] Openingsalinea geeft het directe antwoord/oordeel, zonder opwarmertje (§2)
 - [ ] H2's zijn vragen/claims, geen vage kopjes; elk beantwoord in de eerste zin erna (§3)
 - [ ] H3's alleen als logische onderverdeling van een H2, geen headers voor opmaak
-- [ ] Alle cijfers hebben een bron/steekproefgrootte (§4)
+- [ ] Cijfers zijn concreet: marktdata met bron (§5) óf zelf ondervonden getallen (§4)
 - [ ] Onderwerp (merk/model) expliciet benoemd door de tekst heen, niet vervangen door "hij/deze"
 - [ ] Minstens één onderscheidend, ervaren inzicht — niet alleen generiek advies
 - [ ] Interne links naar occasion-overzicht en gerelateerde pagina's
-- [ ] Schrijfniveau B1, met behoud van noodzakelijke vaktermen
+- [ ] Schrijfniveau B1, met behoud van noodzakelijke vaktermen (§6)
 - [ ] Geen ongefundeerde superlatieven of vage claims
+- [ ] Lengte past bij het type: ~1.000–1.300 woorden voor een ervaringsverhaal (§4)
