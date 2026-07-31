@@ -2001,10 +2001,14 @@ function renderKaart() {
     var icon=L.divIcon({className:'',html:'<div class'+String.fromCharCode(61)+'"kaart-pin" style'+String.fromCharCode(61)+'"background:'+kleur+'">'+pt+badge+'</div>',iconSize:[70,26],iconAnchor:[35,32]});
     var topAuto=g.list.sort(function(a,b){return(a.prijs||999999)-(b.prijs||999999);})[0];
     var autoId=topAuto.id;
+    var apos=String.fromCharCode(39);
     var popup='<div class'+String.fromCharCode(61)+'"kaart-popup"><b>'+g.loc+'</b> ('+n+')<br>';
-    g.list.slice(0,3).forEach(function(a){popup+='<hr style'+String.fromCharCode(61)+'"margin:3px 0"><small>'+(a.titel||'').substring(0,35)+'<br>\u20ac'+(a.prijs||'?')+'</small>';});
+    // Elke voorbeeldadvertentie is nu zelf klikbaar (id als string-literal met aanhalingstekens
+    // \u2014 zonder aanhalingstekens werd bv. "gp-138322166" gelezen als "gp min 138322166", een
+    // JS-fout die de klik altijd liet mislukken).
+    g.list.slice(0,3).forEach(function(a){popup+='<hr style'+String.fromCharCode(61)+'"margin:3px 0"><small onclick'+String.fromCharCode(61)+'"setTimeout(function(){openDetail('+apos+a.id+apos+')},120)" style'+String.fromCharCode(61)+'"cursor:pointer;display:block">'+(a.titel||'').substring(0,35)+'<br>\u20ac'+(a.prijs||'?')+'</small>';});
     if(n>3)popup+='<br><small>+'+(n-3)+' meer</small>';
-    popup+='<br><button onclick'+String.fromCharCode(61)+'"setTimeout(function(){openDetail('+autoId+')},120)" style'+String.fromCharCode(61)+'"margin-top:8px;width:100%;padding:6px;background:#1a56db;color:#fff;border:none;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer">Bekijk details \u2192</button></div>';
+    popup+='<br><button onclick'+String.fromCharCode(61)+'"setTimeout(function(){openDetail('+apos+autoId+apos+')},120)" style'+String.fromCharCode(61)+'"margin-top:8px;width:100%;padding:6px;background:#1a56db;color:#fff;border:none;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer">Bekijk goedkoopste \u2192</button></div>';
     var marker=L.marker(jCoord,{icon:icon});
     marker.bindPopup(popup,{maxWidth:220});
     markers.push(marker);
