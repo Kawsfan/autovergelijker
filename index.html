@@ -1366,6 +1366,20 @@ function toonResultaten(lijst) {
   const gesorteerd = sorteer([...lijst], sort);
   const header = document.getElementById('resultatenHeader');
 
+  // renderKaart() werd voorheen alleen aangeroepen bij het wisselen náár de
+  // kaartweergave — wijzig je daarna een filter (merk, prijsdaling, etc.)
+  // terwijl de kaart al open staat, dan bleven de oude/ongefilterde pins
+  // staan. _huidigeLijst hier bijwerken met de definitieve, volledig
+  // gefilterde+gesorteerde lijst (na eventuele prijsdaling/top-deals-
+  // toggles) en de kaart verversen als die zichtbaar is.
+  _huidigeLijst = gesorteerd;
+  var _kv = document.getElementById('kaartView');
+  if (_kv && getComputedStyle(_kv).display !== 'none' && typeof _laadLeaflet === 'function') {
+    _laadLeaflet().then(function(){
+      try { renderKaart(); } catch (kaartErr) { console.error('renderKaart mislukt:', kaartErr); }
+    }).catch(function(){});
+  }
+
   const _hc=document.getElementById('heroCnt');if(_hc)_hc.textContent=(window._totaalAdvertenties||window._alleAutos?.length||0).toLocaleString('nl-NL')+'+';
   const _pc=document.getElementById('platformCnt');if(_pc&&window._totaalPlatforms)_pc.textContent=window._totaalPlatforms;
   // Bij geen actieve filters toont dit hetzelfde (mogelijk nog niet volledig
