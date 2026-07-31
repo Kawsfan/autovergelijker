@@ -2,32 +2,42 @@
 
 > Carkijker is een gratis Nederlandse zoekmachine voor auto's die het aanbod van 6 grote platforms aggregeert op één plek. Met 42.000+ actuele advertenties, een unieke deal score en dagelijkse updates.
 
-## Wat is Carkijker?
+Carkijker vergelijkt het volledige auto-aanbod van Nederland — zowel tweedehands als nieuw — op één plek. Gebruikers filteren op merk, model, prijs, kilometerstand, bouwjaar, brandstof en carrosserie. Een algoritme berekent per auto een "deal score" (z-score per merk/model) zodat kopers direct zien of een auto goedkoop of duur is ten opzichte van vergelijkbare exemplaren. Databronnen: Marktplaats, Gaspedaal, AutoScout24, ViaBOVAG, AutoTrack en AutoTrader, dagelijks bijgewerkt. Gratis, geen account nodig. Doelgroep: Nederlanders die een auto willen kopen en het complete aanbod van alle grote platforms in één overzicht willen zien, met een eerlijke prijsindicatie.
 
-Carkijker vergelijkt het volledige auto-aanbod van Nederland — zowel tweedehands als nieuw — op één plek. Gebruikers filteren op merk, model, prijs, kilometerstand, bouwjaar, brandstof en carrosserie. Een algoritme berekent per auto een "deal score" (z-score per merk/model) zodat kopers direct zien of een auto goedkoop of duur is ten opzichte van vergelijkbare exemplaren.
+## Zoeken
 
-## Kenmerken
+- [Zoekmachine](https://carkijker.nl/): live doorzoekbaar aanbod met filters op merk, model, prijs, km-stand, bouwjaar, brandstof, transmissie en carrosserie
+- [Sitemap](https://carkijker.nl/sitemap.xml): volledige lijst van geïndexeerde pagina's
 
-- 42.000+ auto-advertenties van 6 platforms, dagelijks bijgewerkt
-- Deal score algoritme: eerlijke prijsvergelijking per merk en model
-- Gratis, geen account nodig
-- Filters: merk, model, prijs, km-stand, bouwjaar, brandstof, transmissie, carrosserie
-- Deduplicatie: dubbele advertenties van meerdere platforms worden samengevoegd
-- Beschikbaar via https://carkijker.nl/
+## Occasions per merk
 
-## Databronnen
+- [Ford occasions](https://carkijker.nl/occasions/ford/)
+- [Suzuki occasions](https://carkijker.nl/occasions/suzuki/)
+- [Volkswagen occasions](https://carkijker.nl/occasions/volkswagen/)
+- [Mercedes-Benz occasions](https://carkijker.nl/occasions/mercedes-benz/)
+- [Mitsubishi occasions](https://carkijker.nl/occasions/mitsubishi/)
+- [Audi occasions](https://carkijker.nl/occasions/audi/)
+- [Tesla occasions](https://carkijker.nl/occasions/tesla/)
+- [Peugeot occasions](https://carkijker.nl/occasions/peugeot/)
+- [BMW occasions](https://carkijker.nl/occasions/bmw/)
+- [Jeep occasions](https://carkijker.nl/occasions/jeep/)
+- [Overzicht alle merken](https://carkijker.nl/occasions/): volledige lijst van occasions per merk en model
 
-Carkijker aggregeert van: Autoscout24, Gaspedaal, Marktplaats en andere grote Nederlandse autoplatforms.
+## Occasions per stad
 
-## Doelgroep
+- [Occasions Amsterdam](https://carkijker.nl/occasions/amsterdam/)
+- [Occasions Rotterdam](https://carkijker.nl/occasions/rotterdam/)
+- [Occasions Den Haag](https://carkijker.nl/occasions/den-haag/)
+- [Occasions Utrecht](https://carkijker.nl/occasions/utrecht/)
+- [Occasions Eindhoven](https://carkijker.nl/occasions/eindhoven/)
+- [Occasions Groningen](https://carkijker.nl/occasions/groningen/)
+- [Occasions Tilburg](https://carkijker.nl/occasions/tilburg/)
+- [Occasions Almere](https://carkijker.nl/occasions/almere/)
+- [Occasions Breda](https://carkijker.nl/occasions/breda/)
+- [Occasions Nijmegen](https://carkijker.nl/occasions/nijmegen/)
+- [Occasions Arnhem](https://carkijker.nl/occasions/arnhem/)
+- [Occasions Haarlem](https://carkijker.nl/occasions/haarlem/)
 
-Nederlanders die een auto willen kopen en het complete aanbod van alle grote platforms in één overzicht willen zien, met eerlijke prijsindicatie.
+## Optional
 
-## Belangrijke pagina's
-
-- Homepage: https://carkijker.nl/
-- Occasions Amsterdam: https://carkijker.nl/occasions/amsterdam/
-- Occasions Rotterdam: https://carkijker.nl/occasions/rotterdam/
-- Occasions Den Haag: https://carkijker.nl/occasions/den-haag/
-- Occasions Utrecht: https://carkijker.nl/occasions/utrecht/
-- Sitemap: https://carkijker.nl/sitemap.xml
+- [Robots.txt](https://carkijker.nl/robots.txt): crawler-toegang, inclusief expliciete toestemming voor AI-crawlers (GPTBot, ClaudeBot, PerplexityBot, Googlebot-Extended, CCBot)
