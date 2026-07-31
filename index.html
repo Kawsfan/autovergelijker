@@ -340,13 +340,13 @@
     .bron-autotrader   { background: #0057B8; }
 
     .auto-info { padding: 14px 16px 12px; flex: 1; display: flex; flex-direction: column; gap: 6px; }
-    .auto-info h4 { font-size: 14px; font-weight: 700; margin: 0; color: var(--donker); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.38; }
+    .auto-info h3 { font-size: 14px; font-weight: 700; margin: 0; color: var(--donker); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.38; }
     .auto-prijs-groot { font-size: 21px; font-weight: 800; color: #111; letter-spacing: -0.4px; margin: 2px 0 0; }
     .auto-specs-row { display: flex; gap: 10px; flex-wrap: wrap; margin: 2px 0; }
     .auto-spec-chip { font-size: 11.5px; color: #6b7280; display: flex; align-items: center; gap: 3px; }
     .auto-spec-chip svg { flex-shrink: 0; }
     .auto-card-footer { display: flex; align-items: center; justify-content: space-between; margin-top: auto; padding-top: 10px; border-top: 1px solid #f1f2f4; }
-    .auto-bron-tag { font-size: 10px; font-weight: 600; color: #9ca3af; text-transform: uppercase; letter-spacing: .4px; }
+    .auto-bron-tag { font-size: 10px; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: .4px; }
     .auto-deal-pill { font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 20px; position: relative; cursor: default; }
     .auto-deal-pill::after { content: attr(data-tip); position: absolute; bottom: calc(100% + 6px); right: 0; background: #1a1a2e; color: white; font-size: 11px; font-weight: 500; line-height: 1.45; padding: 6px 10px; border-radius: 6px; white-space: nowrap; z-index: 20; pointer-events: none; box-shadow: 0 2px 8px rgba(0,0,0,0.22); opacity: 0; transition: opacity 0.15s; }
     .auto-deal-pill:hover::after { opacity: 1; }
@@ -790,6 +790,7 @@
   <a href="/tco/" class="info-btn" style="text-decoration:none;">⛽<span class="nav-txt"> Kosten</span></a>
 </nav>
 
+<main>
 <div class="hero">
   <div class="hero-inner">
     <h1>Alle occasions.<br>Één zoekopdracht.</h1>
@@ -826,7 +827,7 @@
     <!-- Rij 1: Merk | Model | Bouwjaar | Prijs -->
     <div class="filter-rij">
       <div class="filter-item">
-        <label>Merk</label>
+        <label for="merkFilter">Merk</label>
         <select id="merkFilter" onchange="updateModelDropdown();_laadMerkEnZoek()">
           <option value="">Alle merken</option>
           <option>Volkswagen</option><option>BMW</option><option>Toyota</option>
@@ -853,7 +854,7 @@
         </select>
       </div>
       <div class="filter-item">
-        <label>Model</label>
+        <label for="modelInput">Model</label>
         <select id="modelInput" disabled onchange="zoekNu()" style="opacity:0.5;cursor:not-allowed;width:100%">
           <option value="">Selecteer eerst een merk</option>
         </select>
@@ -861,7 +862,7 @@
       <div class="filter-range">
         <label>Bouwjaar</label>
         <div class="range-inputs">
-          <select id="jaarMin" onchange="zoekNu()">
+          <select id="jaarMin" onchange="zoekNu()" aria-label="Bouwjaar vanaf">
             <option value="">Min</option>
             <option>2000</option><option>2005</option><option>2008</option>
             <option>2010</option><option>2012</option><option>2014</option>
@@ -870,7 +871,7 @@
             <option>2021</option><option>2022</option><option>2023</option>
             <option>2024</option><option>2025</option><option>2026</option>
           </select>
-          <select id="jaarMax" onchange="zoekNu()">
+          <select id="jaarMax" onchange="zoekNu()" aria-label="Bouwjaar tot">
             <option value="">Max</option>
             <option>2005</option><option>2008</option><option>2010</option>
             <option>2012</option><option>2014</option><option>2015</option>
@@ -884,7 +885,7 @@
       <div class="filter-range">
         <label>Prijs</label>
         <div class="range-inputs">
-          <select id="prijsMin" onchange="toggleCustomRange(this);zoekNu()">
+          <select id="prijsMin" onchange="toggleCustomRange(this);zoekNu()" aria-label="Prijs vanaf">
             <option value="">van</option>
             <option value="1000">€ 1.000</option>
             <option value="2500">€ 2.500</option>
@@ -900,7 +901,7 @@
             <option value="75000">€ 75.000</option>
                     <option value="custom">Eigen bedrag...</option>
         </select>
-          <select id="prijsMax" onchange="toggleCustomRange(this);zoekNu()">
+          <select id="prijsMax" onchange="toggleCustomRange(this);zoekNu()" aria-label="Prijs tot">
             <option value="">t/m</option>
             <option value="2500">€ 2.500</option>
             <option value="5000">€ 5.000</option>
@@ -924,7 +925,7 @@
     <!-- Rij 2: Brandstof | Km. stand | Transmissie | Carrosserie -->
     <div class="filter-rij">
       <div class="filter-item">
-        <label>Brandstof</label>
+        <label for="brandstofFilter">Brandstof</label>
         <select id="brandstofFilter" onchange="zoekNu()">
           <option value="">Alle brandstoffen</option>
           <option value="benzine">Benzine</option>
@@ -936,7 +937,7 @@
      <div class="filter-range">
         <label>Km.stand</label>
         <div class="range-inputs">
-          <select id="kmMin" onchange="toggleCustomRange(this);zoekNu()">
+          <select id="kmMin" onchange="toggleCustomRange(this);zoekNu()" aria-label="Km-stand vanaf">
             <option value="">van</option>
             <option value="10000">10.000 km</option>
             <option value="25000">25.000 km</option>
@@ -947,7 +948,7 @@
             <option value="200000">200.000 km</option>
                     <option value="custom">Eigen km...</option>
         </select>
-          <select id="kmMax" onchange="toggleCustomRange(this);zoekNu()">
+          <select id="kmMax" onchange="toggleCustomRange(this);zoekNu()" aria-label="Km-stand tot">
             <option value="">t/m</option>
             <option value="10000">10.000 km</option>
             <option value="25000">25.000 km</option>
@@ -971,7 +972,7 @@
         </div>
       </div>
       <div class="filter-item">
-        <label>Carrosserie</label>
+        <label for="carrosserieFilter">Carrosserie</label>
         <select id="carrosserieFilter" onchange="zoekNu()">
           <option value="">Alle types</option>
           <option value="hatchback">Hatchback</option>
@@ -993,7 +994,7 @@
         <div class="afstand-rij">
           <input id="locInput" type="text" placeholder="Stad of postcode..." oninput="_geoLoc(this.value)" />
           <button class="loc-btn" onclick="geolocate()" title="Gebruik mijn locatie">📌 Mijn locatie</button>
-          <select id="radiusSelect" onchange="zoekNu()">
+          <select id="radiusSelect" onchange="zoekNu()" aria-label="Afstand">
             <option value="">Alle afstanden</option>
             <option value="10">≤ 10 km</option>
             <option value="25">≤ 25 km</option>
@@ -1033,7 +1034,7 @@
         <button class="view-btn actief" id="btnLijst" onclick="setView('lijst')" title="Lijstweergave">☰ Lijst</button>
         <button class="view-btn" id="btnKaart" onclick="setView('kaart')" title="Kaartweergave">🗺 Kaart</button>
       </div>
-      <select id="sortering" onchange="herSorteer()">
+      <select id="sortering" onchange="herSorteer()" aria-label="Sorteren op">
         <option value="prijs-asc">Prijs ↑</option>
         <option value="prijs-desc">Prijs ↓</option>
         <option value="jaar-desc">Nieuwste eerst</option>
@@ -1092,6 +1093,7 @@
   <h2 style="font-size:1rem;font-weight:600;color:#444;margin-bottom:.75rem">Occasions per merk</h2>
   <div id="merken-links-grid" style="display:flex;flex-wrap:wrap;gap:.4rem"></div>
 </section>
+</main>
 
 <footer>
   <strong>Carkijker</strong> &mdash; Dagelijks bijgewerkt vanuit Marktplaats, AutoScout24, Gaspedaal en ViaBOVAG.<br>
@@ -1402,7 +1404,7 @@ function toonResultaten(lijst) {
 
       </div>
       <div class="auto-info">
-        <h4>${a.titel}</h4>
+        <h3>${a.titel}</h3>
         <div class="auto-prijs-groot">€ ${typeof a.prijs==='number'?a.prijs.toLocaleString('nl-NL'):a.prijs||'—'}</div>
         <div class="auto-specs-row">
           ${a.jaar?'<span class="auto-spec-chip"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>'+a.jaar+'</span>':''}
@@ -2685,9 +2687,9 @@ function _injectCarSchema(cars) {
       <button class="sluit-btn" onclick="sluitMarkt()">&#10005; Sluiten</button>
     </div>
     <div class="markt-filters">
-      <select id="mMerk" onchange="updateMarktModellen(this.value);berekenMarkt()"><option value="">Alle merken</option></select>
-      <select id="mModel" onchange="berekenMarkt()"><option value="">Alle modellen</option></select>
-      <select id="mJaar" onchange="berekenMarkt()">
+      <select id="mMerk" onchange="updateMarktModellen(this.value);berekenMarkt()" aria-label="Merk"><option value="">Alle merken</option></select>
+      <select id="mModel" onchange="berekenMarkt()" aria-label="Model"><option value="">Alle modellen</option></select>
+      <select id="mJaar" onchange="berekenMarkt()" aria-label="Bouwjaar">
         <option value="">Alle jaren</option>
         <option value="2022">2022–heden</option>
         <option value="2020">2020–heden</option>
@@ -2695,7 +2697,7 @@ function _injectCarSchema(cars) {
         <option value="2015">2015–heden</option>
         <option value="2010">2010–heden</option>
       </select>
-      <select id="mBrandstof" onchange="berekenMarkt()">
+      <select id="mBrandstof" onchange="berekenMarkt()" aria-label="Brandstof">
         <option value="">Alle brandstoffen</option>
         <option value="Benzine">Benzine</option>
         <option value="Diesel">Diesel</option>
@@ -2703,7 +2705,7 @@ function _injectCarSchema(cars) {
         <option value="Hybride">Hybride</option>
         <option value="LPG">LPG</option>
       </select>
-      <select id="mTrans" onchange="berekenMarkt()">
+      <select id="mTrans" onchange="berekenMarkt()" aria-label="Transmissie">
         <option value="">Alle transmissies</option>
         <option value="Automaat">Automaat</option>
         <option value="Handgeschakeld">Handgeschakeld</option>
