@@ -1,0 +1,56 @@
+{
+  "slug": "tweedehands-auto-kopen-checklist",
+  "titel": "Tweedehands auto kopen: de complete checklist voor 2026",
+  "metaDescription": "Tweedehands auto kopen? Deze checklist met 8 controlepunten (NAP, APK, proefrit, onderhoudshistorie) helpt je een goede occasion te herkennen en dure fouten te voorkomen.",
+  "categorie": "Kopen",
+  "categorieSlug": "kopen",
+  "gepubliceerd": "2026-08-02",
+  "bijgewerkt": "2026-08-02",
+  "auteur": "Carkijker redactie",
+  "leestijdMinuten": 7,
+  "intro": "Een tweedehands auto kopen zonder verrassingen achteraf lukt het best met een vaste checklist: controleer de NAP-kilometerstand, de APK-geldigheid, de onderhoudshistorie en doe altijd een proefrit vóór je tekent. Hieronder staan alle acht controlepunten die je bij elke occasion moet nalopen, ongeacht bouwjaar of prijsklasse.",
+  "secties": [
+    {
+      "kop": "Waarom is een checklist bij een occasion belangrijk?",
+      "html": "<p>Bij een tweedehands auto zie je alleen wat de verkoper laat zien. Een vaste volgorde van checks voorkomt dat je iets vergeet onder de druk van een leuke auto of een verkoper die staat te wachten. De meeste dure fouten &mdash; een gemanipuleerde kilometerteller, een verzwegen schadeverleden, een APK die over twee weken verloopt &mdash; zijn met vijf minuten controle vooraf te voorkomen.</p>"
+    },
+    {
+      "kop": "1. Check de NAP-kilometerstand",
+      "html": "<p>NAP (Nationale AutoPas) registreert de kilometerstand bij elke APK-keuring, onderhoudsbeurt en RDW-melding. Vraag de verkoper om het NAP-logo op de advertentie, of zoek het kenteken zelf op via <a href=\"https://www.nationaleautopas.nl\" rel=\"nofollow\">nationaleautopas.nl</a>. Een auto zonder NAP-registratie is geen automatisch alarmsignaal, maar wel een reden om extra kritisch naar de rest van de checklist te kijken.</p>"
+    },
+    {
+      "kop": "2. Controleer de APK-geldigheid en -historie",
+      "html": "<p>Zoek het kenteken op bij de <a href=\"https://ovi.rdw.nl\" rel=\"nofollow\">RDW voertuiginformatie</a> voor de actuele APK-vervaldatum én eerdere keuringsuitslagen. Herhaalde afkeuringen op hetzelfde onderdeel (bijvoorbeeld corrosie of remmen) wijzen op een structureel probleem, ook als de auto nu goedgekeurd is.</p>"
+    },
+    {
+      "kop": "3. Vraag om de onderhoudshistorie",
+      "html": "<p>Een volledig onderhoudsboekje met stempels van een erkend garage bedrijf is goud waard. Ontbreekt het boekje, vraag dan naar facturen. Geen van beide aanwezig? Reken dan op onderhoud dat je zelf op korte termijn moet inplannen (en begroten).</p>"
+    },
+    {
+      "kop": "4. Doe altijd een proefrit",
+      "html": "<p>Rijd minimaal 15&ndash;20 minuten, over zowel binnenwegen als (indien mogelijk) de snelweg. Let op: trillingen bij hoge snelheid, vreemde geluiden bij het schakelen, een stuur dat trekt bij remmen, en of alle verlichting en elektronica werkt. Een verkoper die een proefrit weigert, is een directe reden om af te haken.</p>"
+    },
+    {
+      "kop": "5. Inspecteer de carrosserie op schade en roest",
+      "html": "<p>Loop bij daglicht rondom de auto en let op kleurverschillen tussen panelen (kan wijzen op eerdere spuitwerk na schade), oneffenheden in de lak, en roest rond wielkasten en onderstel. Een korte blik onder de auto (of vraag ernaar bij de proefrit) laat vaak meer zien dan de foto's in de advertentie.</p>"
+    },
+    {
+      "kop": "6. Vergelijk de vraagprijs met de markt",
+      "html": "<p>Een prijs die duidelijk onder vergelijkbare occasions ligt, is zelden toeval. Vergelijk merk, model, bouwjaar en km-stand met soortgelijke advertenties &mdash; bijvoorbeeld via de <a href=\"/\">marktanalyse op Carkijker</a> &mdash; om te zien of de vraagprijs realistisch is.</p>"
+    },
+    {
+      "kop": "7. Check of het een particuliere of zakelijke verkoop is",
+      "html": "<p>Bij een particuliere verkoop heb je minder wettelijke bescherming dan bij een dealer (die verplicht is gebreken te melden en vaak garantie biedt). Dat betekent niet dat je een particuliere occasion moet mijden, maar wel dat je zelf strenger moet controleren.</p>"
+    },
+    {
+      "kop": "8. Regel een aankoopkeuring bij twijfel",
+      "html": "<p>Twijfel je na alle checks nog steeds, laat de auto dan onafhankelijk keuren (bijvoorbeeld via de ANWB of BOVAG) voordat je tekent. De kosten (meestal 100&ndash;150 euro) wegen niet op tegen een verkeerde aankoop van duizenden euro's.</p>"
+    }
+  ],
+  "faq": [
+    { "vraag": "Wat is een goede kilometerstand voor een tweedehands auto?", "antwoord": "Een vuistregel is 15.000 km per jaar. Een auto van 5 jaar oud met rond de 75.000 km zit dus in lijn met het gemiddelde. Fors lagere standen kunnen wijzen op weinig gebruik (prima) of een teruggedraaide teller (controleer de NAP)." },
+    { "vraag": "Is een auto zonder onderhoudsboekje een probleem?", "antwoord": "Niet per definitie, maar het is een risico. Vraag naar facturen van onderhoudsbeurten als bewijs, en reken de kosten van een inhaalbeurt mee in je onderhandeling over de prijs." },
+    { "vraag": "Hoe lang duurt een goede proefrit?", "antwoord": "Minimaal 15 tot 20 minuten, over verschillende soorten wegen. Een rondje van 5 minuten om de hoek is te kort om motor, versnellingsbak en onderstel goed te beoordelen." }
+  ],
+  "gerelateerd": { "label": "Bekijk actuele occasions", "url": "/" }
+}
