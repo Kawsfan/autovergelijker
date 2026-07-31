@@ -1207,7 +1207,15 @@ async function laadListings() {
         setTimeout(window._laadVolledig, 0);
       }
     }
-    if (document.getElementById('kaartView').style.display !== 'none') renderKaart();
+    // getComputedStyle i.p.v. .style.display: die laatste is alleen de inline stijl en
+    // staat bij het eerste laden altijd leeg (''), ook al verbergt de stylesheet de
+    // kaart standaard — waardoor renderKaart() voorheen op ELKE pageload draaide, ook
+    // als de kaartweergave niet actief was. Los ook geïsoleerd: als de Leaflet-kaart om
+    // wat voor reden dan ook faalt (CDN niet bereikbaar, ad-blocker), mag dat niet de
+    // hele resultatenlijst wegvagen.
+    if (getComputedStyle(document.getElementById('kaartView')).display !== 'none') {
+      try { renderKaart(); } catch (kaartErr) { console.error('renderKaart mislukt:', kaartErr); }
+    }
   } catch (err) {
     document.getElementById('autoGrid').innerHTML = `
       <div class="geen-resultaten">
