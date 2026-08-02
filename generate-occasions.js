@@ -30,6 +30,14 @@ const MERKEN_DISPLAY = {
   'alfa-romeo': 'Alfa Romeo', jeep: 'Jeep',
 };
 
+function escHtml(s) {
+  return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+// Voorkomt dat een titel met een letterlijke "</script>"-substring het JSON-LD
+// script-blok voortijdig afsluit en de rest als losse HTML injecteert.
+function safeJsonLd(obj) {
+  return JSON.stringify(obj).replace(/</g, '\\u003c');
+}
 function fmt(n) {
   return String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, '.');
 }
@@ -125,13 +133,14 @@ function buildPage({ merkSlug, modelSlug, filtered, listings }) {
 
   const cards = filtered.slice(0,24).map(function(a){
     return '<article class="occ-card" itemscope itemtype="https://schema.org/Car">' +
-      (a.afbeelding ? '<img src="'+a.afbeelding+'" alt="'+(a.titel||'').replace(/"/g,'&quot;')+'" loading="lazy" width="140" height="100">' : '<div class="occ-img-placeholder"></div>') +
-      '<div class="occ-info"><h2 class="occ-titel" itemprop="name">'+(a.titel||merkName)+'</h2>' +
-      '<div class="occ-meta">'+ [a.jaar, a.km?fmt(a.km)+' km':'', a.brandstof, a.transmissie].filter(Boolean).join(' &middot; ') +'</div>' +
+      (a.imgSrc ? '<img src="'+escHtml(a.imgSrc)+'" alt="'+escHtml(a.titel||'')+'" loading="lazy" width="140" height="100">' : '<div class="occ-img-placeholder"></div>') +
+      '<div class="occ-info"><h2 class="occ-titel" itemprop="name">'+escHtml(a.titel||merkName)+'</h2>' +
+      '<div class="occ-meta">'+ [a.jaar, a.km?fmt(a.km)+' km':'', a.brandstof, a.transmissie].filter(Boolean).map(escHtml).join(' &middot; ') +'</div>' +
       '<div class="occ-prijs" itemprop="offers" itemscope itemtype="https://schema.org/Offer"><span itemprop="price" content="'+(a.prijs||'')+'">'+(a.prijs?'&euro; '+fmt(a.prijs):'Prijs op aanvraag')+'</span><meta itemprop="priceCurrency" content="EUR"></div>' +
-      (a.bron?'<span class="occ-bron">'+a.bron+'</span>':'') +
-      (a.url?'<a href="'+a.url+'" target="_blank" rel="noopener noreferrer" class="occ-link">Bekijk advertentie &rarr;</a>':'') +
-      '</div></article>';
+      '<div class="occ-footer">' +
+      (a.bron?'<span class="occ-bron">'+escHtml(a.bron)+'</span>':'') +
+      (a.url?'<a href="'+escHtml(a.url)+'" target="_blank" rel="noopener noreferrer" class="occ-link">Bekijk advertentie &rarr;</a>':'') +
+      '</div></div></article>';
   }).join('');
 
 
@@ -231,10 +240,10 @@ const MERK_INTRO = {
     '  <title>'+pageTitle+'</title>\n' +
     '  <meta name="description" content="'+metaDesc+'">\n' +
     '  <link rel="canonical" href="'+SITE_ORIGIN+canonicalPath+'">\n' +
-    '  <script type="application/ld+json">'+JSON.stringify(schema)+'<\/script>\n' +
-    '  <script type="application/ld+json">'+JSON.stringify(bcSchema)+'<\/script>\n' +
-    (faqSchema ? '  <script type="application/ld+json">'+JSON.stringify(faqSchema)+'<\/script>\n' : '') +
-    '  <style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#f5f5f7;color:#1d1d1f;line-height:1.5}nav{background:#fff;border-bottom:1px solid #e5e5ea;padding:.75rem 1rem;font-size:.875rem}nav a{color:#1a56db;text-decoration:none}nav a+a::before{content:" > ";color:#aaa;margin:0 .3rem}.container{max-width:960px;margin:0 auto;padding:1rem 1rem 3rem}h1{font-size:1.5rem;font-weight:700;margin:1.5rem 0 .3rem}.subtitle{color:#666;font-size:.9rem;margin-bottom:1.25rem}.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:.5rem;margin-bottom:1.25rem}.stat{background:#fff;border-radius:10px;padding:.7rem 1rem;border:1px solid #e5e5ea}.stat-lbl{display:block;font-size:.72rem;color:#888;margin-bottom:.15rem}.stat strong{font-size:.95rem}.model-nav{display:flex;flex-wrap:wrap;gap:.4rem;margin-bottom:1.25rem}.model-link{background:#fff;border:1px solid #e5e5ea;border-radius:20px;padding:.3rem .85rem;font-size:.83rem;color:#1a56db;text-decoration:none}.model-link span{color:#aaa;font-size:.78rem}.occ-grid{display:grid;gap:.6rem}.occ-card{background:#fff;border-radius:10px;border:1px solid #e5e5ea;overflow:hidden;display:flex}.occ-card img,.occ-img-placeholder{width:140px;height:100px;object-fit:cover;flex-shrink:0;background:#f0f0f5}.occ-info{padding:.75rem 1rem;flex:1;min-width:0}.occ-titel{font-size:.9rem;font-weight:600;margin-bottom:.25rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.occ-meta{font-size:.78rem;color:#666;margin-bottom:.25rem}.occ-prijs{font-size:1.05rem;font-weight:700;color:#1a56db}.occ-bron{display:inline-block;font-size:.72rem;color:#888;margin-top:.25rem}.occ-link{display:inline-block;margin-top:.35rem;font-size:.8rem;color:#1a56db;text-decoration:none}.back-link{display:inline-block;margin-top:2rem;color:#1a56db;font-size:.875rem;text-decoration:none}.empty{text-align:center;padding:3rem;color:#888}.geo-section{margin-top:2rem;padding:1.25rem;background:#fff;border-radius:10px;border:1px solid #e5e5ea}.geo-section h2{font-size:1rem;margin-bottom:.5rem}.geo-section p{font-size:.875rem;color:#444;line-height:1.6}.geo-section h3{color:#333}.geo-section .model-intro-blok{background:#eff6ff;border-left:4px solid #3b82f6;padding:.75rem 1rem;margin-bottom:.75rem;border-radius:0 8px 8px 0;font-size:.9rem;color:#1e40af}.kooptip{background:#f0f4ff;border-left:3px solid #1a56db;padding:.6rem .8rem;border-radius:0 6px 6px 0;margin-bottom:.5rem}@media(max-width:580px){.occ-card img,.occ-img-placeholder{width:90px;height:80px}}<\/style>\n' +
+    '  <script type="application/ld+json">'+safeJsonLd(schema)+'<\/script>\n' +
+    '  <script type="application/ld+json">'+safeJsonLd(bcSchema)+'<\/script>\n' +
+    (faqSchema ? '  <script type="application/ld+json">'+safeJsonLd(faqSchema)+'<\/script>\n' : '') +
+    '  <style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#f5f5f7;color:#1d1d1f;line-height:1.5}nav{background:#fff;border-bottom:1px solid #e5e5ea;padding:.75rem 1rem;font-size:.875rem}nav a{color:#1a56db;text-decoration:none}nav a+a::before{content:" > ";color:#aaa;margin:0 .3rem}.container{max-width:960px;margin:0 auto;padding:1rem 1rem 3rem}h1{font-size:1.5rem;font-weight:700;margin:1.5rem 0 .3rem}.subtitle{color:#666;font-size:.9rem;margin-bottom:1.25rem}.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:.5rem;margin-bottom:1.25rem}.stat{background:#fff;border-radius:10px;padding:.7rem 1rem;border:1px solid #e5e5ea}.stat-lbl{display:block;font-size:.72rem;color:#888;margin-bottom:.15rem}.stat strong{font-size:.95rem}.model-nav{display:flex;flex-wrap:wrap;gap:.4rem;margin-bottom:1.25rem}.model-link{background:#fff;border:1px solid #e5e5ea;border-radius:20px;padding:.3rem .85rem;font-size:.83rem;color:#1a56db;text-decoration:none}.model-link span{color:#aaa;font-size:.78rem}.occ-grid{display:grid;gap:.6rem}.occ-card{background:#fff;border-radius:10px;border:1px solid #e5e5ea;overflow:hidden;display:flex}.occ-card img,.occ-img-placeholder{width:140px;height:100px;object-fit:cover;flex-shrink:0;background:#f0f0f5}.occ-info{padding:.75rem 1rem;flex:1;min-width:0}.occ-titel{font-size:.9rem;font-weight:600;margin-bottom:.25rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.occ-meta{font-size:.78rem;color:#666;margin-bottom:.25rem}.occ-prijs{font-size:1.05rem;font-weight:700;color:#1a56db}.occ-footer{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;margin-top:.35rem}.occ-bron{font-size:.72rem;color:#888}.occ-link{font-size:.8rem;color:#1a56db;text-decoration:none;font-weight:600}.back-link{display:inline-block;margin-top:2rem;color:#1a56db;font-size:.875rem;text-decoration:none}.empty{text-align:center;padding:3rem;color:#888}.geo-section{margin-top:2rem;padding:1.25rem;background:#fff;border-radius:10px;border:1px solid #e5e5ea}.geo-section h2{font-size:1rem;margin-bottom:.5rem}.geo-section p{font-size:.875rem;color:#444;line-height:1.6}.geo-section h3{color:#333}.geo-section .model-intro-blok{background:#eff6ff;border-left:4px solid #3b82f6;padding:.75rem 1rem;margin-bottom:.75rem;border-radius:0 8px 8px 0;font-size:.9rem;color:#1e40af}.kooptip{background:#f0f4ff;border-left:3px solid #1a56db;padding:.6rem .8rem;border-radius:0 6px 6px 0;margin-bottom:.5rem}@media(max-width:580px){.occ-card img,.occ-img-placeholder{width:90px;height:80px}}<\/style>\n' +
     '</head>\n<body>\n' +
     '  <nav><a href="/">Carkijker</a><a href="/occasions/">Occasions</a>' +
     (merkSlug ? '<a href="/occasions/'+merkSlug+'/">'+merkName+'</a>' : '') +
@@ -270,9 +279,9 @@ function buildStadPage(stadSlug, stad, filtered, listings) {
   const gemPrijs = filtered.length ? Math.round(filtered.reduce((s,l)=>s+(l.prijs||0),0)/filtered.length) : 0;
   const medPrijs = filtered.length ? [...filtered].sort((a,b)=>(a.prijs||0)-(b.prijs||0))[Math.floor(filtered.length/2)].prijs : 0;
   const cards = filtered.slice(0,24).map(l =>
-    '<article class="occ-card"><a href="'+l.url+'" target="_blank" rel="noopener noreferrer">'+
-    (l.imgSrc ? '<img src="'+l.imgSrc+'" alt="'+l.titel+'" loading="lazy" width="300" height="200">' : '')+
-    '<div class="occ-info"><h3>'+l.titel+'</h3>'+
+    '<article class="occ-card"><a href="'+escHtml(l.url)+'" target="_blank" rel="noopener noreferrer">'+
+    (l.imgSrc ? '<img src="'+escHtml(l.imgSrc)+'" alt="'+escHtml(l.titel)+'" loading="lazy" width="300" height="200">' : '')+
+    '<div class="occ-info"><h3>'+escHtml(l.titel)+'</h3>'+
     '<p class="occ-prijs">&#8364; '+Number(l.prijs||0).toLocaleString("nl-NL")+'</p>'+
     '<p class="occ-meta">'+(l.km?l.km.toLocaleString("nl-NL")+' km &bull; ':'')+(l.bouwjaar||'')+'</p>'+
     '</div></a></article>'
