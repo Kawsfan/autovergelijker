@@ -460,7 +460,7 @@
     /* FOUT / LEEG */
     .geen-resultaten { text-align: center; padding: 60px 20px; color: var(--subtekst); grid-column: 1/-1; }
     .geen-resultaten .icon { font-size: 40px; display: block; margin-bottom: 12px; }
-    .geen-resultaten h3 { font-size: 18px; font-weight: 700; color: var(--donker); margin-bottom: 8px; }
+    .geen-resultaten h2, .geen-resultaten h3 { font-size: 18px; font-weight: 700; color: var(--donker); margin-bottom: 8px; }
     .geen-resultaten p { font-size: 14px; line-height: 1.6; }
     .geen-resultaten a { color: var(--mp-oranje); font-weight: 600; }
 
@@ -1155,7 +1155,7 @@ async function laadListings() {
   document.getElementById('autoGrid').innerHTML = `
         <div class="geen-resultaten">
           <span class="icon">🔄</span>
-          <h3>Nog geen advertenties</h3>
+          <h2>Nog geen advertenties</h2>
           <p>De scraper draait dagelijks om 06:00. Kom morgen terug!<br/>
           Of zoek direct op <a href="https://www.gaspedaal.nl/" target="_blank">Gaspedaal</a>.</p>
         </div>`;
@@ -1248,7 +1248,7 @@ async function laadListings() {
     document.getElementById('autoGrid').innerHTML = `
       <div class="geen-resultaten">
         <span class="icon">⚠️</span>
-        <h3>Laden mislukt</h3>
+        <h2>Laden mislukt</h2>
         <p>Vernieuw de pagina om het opnieuw te proberen.</p>
       </div>`;
     ((document.getElementById('statusTekst')||{})||{}).textContent = 'Laden mislukt';
