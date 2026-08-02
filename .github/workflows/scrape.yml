@@ -24,11 +24,14 @@ jobs:
       - name: Genereer occasions pagina's
         run: node generate-occasions.js
 
+      - name: Genereer artikelen pagina's
+        run: node generate-artikelen.js
+
       - name: Commit resultaten
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          git add data/ sitemap.xml occasions/ 2>/dev/null || true
+          git add data/ sitemap.xml occasions/ artikelen/ llms.txt 2>/dev/null || true
           if git diff --staged --quiet; then
             echo "Geen wijzigingen om te committen, klaar."
             exit 0

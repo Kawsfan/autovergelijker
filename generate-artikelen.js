@@ -195,6 +195,44 @@ function main() {
   artikelen.sort((a, b) => new Date(b.bijgewerkt) - new Date(a.bijgewerkt));
   fs.writeFileSync(path.join(OUT_DIR, 'index.html'), buildIndexPage(artikelen), 'utf-8');
   console.log('  [OK] /artikelen/ (index, ' + artikelen.length + ' artikelen)');
+
+  // Sitemap bijwerken
+  const sitemapPath = path.join(process.cwd(), 'sitemap.xml');
+  if (fs.existsSync(sitemapPath)) {
+    let sitemap = fs.readFileSync(sitemapPath, 'utf-8');
+    const today = new Date().toISOString().slice(0, 10);
+    const urls = ['artikelen/'].concat(artikelen.map(a => 'artikelen/' + a.slug + '/'));
+    let added = 0;
+    for (const u of urls) {
+      const full = SITE_ORIGIN + '/' + u;
+      if (!sitemap.includes(full)) {
+        const prio = u === 'artikelen/' ? '0.7' : '0.6';
+        const entry = '  <url><loc>' + full + '</loc><lastmod>' + today + '</lastmod><changefreq>monthly</changefreq><priority>' + prio + '</priority></url>';
+        sitemap = sitemap.replace('</urlset>', entry + '\n</urlset>');
+        added++;
+      }
+    }
+    if (added) fs.writeFileSync(sitemapPath, sitemap, 'utf-8');
+    console.log('Sitemap bijgewerkt: ' + added + ' nieuwe artikel-URLs');
+  }
+
+  // llms.txt bijwerken — sectie tussen markers wordt elke run herschreven,
+  // zodat nieuwe artikelen (die er wekelijks bijkomen) automatisch verschijnen.
+  const llmsPath = path.join(process.cwd(), 'llms.txt');
+  if (fs.existsSync(llmsPath)) {
+    let llms = fs.readFileSync(llmsPath, 'utf-8');
+    const startMarker = '<!-- ARTIKELEN:START -->';
+    const endMarker = '<!-- ARTIKELEN:END -->';
+    if (llms.includes(startMarker) && llms.includes(endMarker)) {
+      const sectie = '## Artikelen\n\n' +
+        artikelen.map(a => '- [' + a.titel + '](' + SITE_ORIGIN + '/artikelen/' + a.slug + '/): ' + a.metaDescription).join('\n') + '\n';
+      const before = llms.slice(0, llms.indexOf(startMarker) + startMarker.length);
+      const after = llms.slice(llms.indexOf(endMarker));
+      llms = before + '\n' + sectie + '\n' + after;
+      fs.writeFileSync(llmsPath, llms, 'utf-8');
+      console.log('llms.txt bijgewerkt: ' + artikelen.length + ' artikelen');
+    }
+  }
 }
 
 main();
