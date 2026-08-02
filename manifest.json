@@ -1,0 +1,15 @@
+{
+  "name": "Carkijker – Auto vergelijken",
+  "short_name": "Carkijker",
+  "description": "Gratis Nederlandse zoekmachine voor auto's die het aanbod van 6 grote platforms aggregeert op één plek.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#0e1c30",
+  "lang": "nl",
+  "icons": [
+    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }
+  ]
+}
