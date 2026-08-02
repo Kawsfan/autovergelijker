@@ -1133,10 +1133,6 @@ async function laadListings() {
     alleResultaten = dedupAutos(data.listings || []);
     window._alleAutos = alleResultaten;
     alleResultaten.forEach(function(a){if(!a.merk||!/^[a-zA-ZÀ-ɏ]/.test(a.merk))a.merk=extraheerMerk(a.titel||"");});
-    berekenTrending();
-    _renderMerkStats(alleResultaten);
-    _renderMerkenLinks(alleResultaten);
-    if (typeof _injectCarSchema === 'function') _injectCarSchema(alleResultaten);
 
     if (alleResultaten.length === 0) {
       _huidigeLijst = gesorteerd;
@@ -1175,6 +1171,14 @@ async function laadListings() {
     _populeerMerkFilter();
     _vulZoekSuggesties();
     zoekNu();
+    // Trending/merk-stats/schema pas ná de eerste render van de resultatengrid
+    // (niet-kritiek voor wat de gebruiker als eerste ziet) — verbetert LCP.
+    setTimeout(function(){
+      berekenTrending();
+      _renderMerkStats(alleResultaten);
+      _renderMerkenLinks(alleResultaten);
+      if (typeof _injectCarSchema === 'function') _injectCarSchema(alleResultaten);
+    }, 0);
     // Background: laad alle listings (uitgesteld — niet meteen bij pageload)
     window._isSubset = !!data.isSubset;
     if (data.isSubset) {
@@ -2331,12 +2335,12 @@ function berekenTrending(){
   var autos=window._alleAutos;
   if(!autos||!autos.length)return;
   var teller={};
+  // Gebruikt de al-schone a.merk/a.model velden i.p.v. _getMerk(a.titel) opnieuw te
+  // parsen voor elke advertentie (tot 20.000x) — scheelt flink wat rekenwerk op het
+  // kritieke laadpad, en is bovendien nauwkeuriger dan de titel-heuristiek.
   autos.forEach(function(a){
-    var merk=(_getMerk(a.titel)||"").trim();if(!merk)return;
-    var titel=(a.titel||"").trim();var model="";
-    if(titel.toLowerCase().startsWith(merk.toLowerCase())){
-      var rest=titel.slice(merk.length).trim().split(/\s+/);model=rest[0]||"";
-    }
+    var merk=(a.merk||"").trim();if(!merk||merk==='overig')return;
+    var model=(a.model||"").trim();
     var key=merk+(model?" "+model:"");
     teller[key]=(teller[key]||0)+1;
   });
