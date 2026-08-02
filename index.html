@@ -823,7 +823,7 @@
     <div class="zoek-rij">
       <div class="zoek-input-wrap">
         <span class="zoek-icon">🔍</span>
-        <input type="text" id="zoekInput" list="zoekSuggestiesData" placeholder="Zoek op trefwoord, merk, model of plaats" oninput="_dZoek()" autocomplete="off" /><datalist id="zoekSuggestiesData"></datalist>
+        <input type="text" id="zoekInput" list="zoekSuggestiesData" placeholder="Zoek op trefwoord, merk, model of plaats" aria-label="Zoek op trefwoord, merk, model of plaats" oninput="_dZoek()" autocomplete="off" /><datalist id="zoekSuggestiesData"></datalist>
       </div>
     </div>
 
@@ -923,7 +923,7 @@
                     <option value="custom">Eigen bedrag...</option>
         </select>
         </div>
-        <div id="prijs-custom" style="display:none;gap:6px;margin-top:6px;flex-wrap:wrap"><input type="number" id="prijsMinCustom" placeholder="Min (€)" min="0" step="500" oninput="zoekNu()" style="width:48%;padding:6px 8px;border:1px solid var(--grijs2);border-radius:6px;font-size:13px" /><input type="number" id="prijsMaxCustom" placeholder="Max (€)" min="0" step="500" oninput="zoekNu()" style="width:48%;padding:6px 8px;border:1px solid var(--grijs2);border-radius:6px;font-size:13px" /></div>
+        <div id="prijs-custom" style="display:none;gap:6px;margin-top:6px;flex-wrap:wrap"><input type="number" id="prijsMinCustom" placeholder="Min (€)" aria-label="Aangepaste minimumprijs in euro's" min="0" step="500" oninput="zoekNu()" style="width:48%;padding:6px 8px;border:1px solid var(--grijs2);border-radius:6px;font-size:13px" /><input type="number" id="prijsMaxCustom" placeholder="Max (€)" aria-label="Aangepaste maximumprijs in euro's" min="0" step="500" oninput="zoekNu()" style="width:48%;padding:6px 8px;border:1px solid var(--grijs2);border-radius:6px;font-size:13px" /></div>
       </div>
     </div>
 
@@ -966,7 +966,7 @@
                     <option value="custom">Eigen km...</option>
         </select>
         </div>
-        <div id="km-custom" style="display:none;gap:6px;margin-top:6px;flex-wrap:wrap"><input type="number" id="kmMinCustom" placeholder="Min (km)" min="0" step="1000" oninput="zoekNu()" style="width:48%;padding:6px 8px;border:1px solid var(--grijs2);border-radius:6px;font-size:13px" /><input type="number" id="kmMaxCustom" placeholder="Max (km)" min="0" step="1000" oninput="zoekNu()" style="width:48%;padding:6px 8px;border:1px solid var(--grijs2);border-radius:6px;font-size:13px" /></div>
+        <div id="km-custom" style="display:none;gap:6px;margin-top:6px;flex-wrap:wrap"><input type="number" id="kmMinCustom" placeholder="Min (km)" aria-label="Aangepaste minimale kilometerstand" min="0" step="1000" oninput="zoekNu()" style="width:48%;padding:6px 8px;border:1px solid var(--grijs2);border-radius:6px;font-size:13px" /><input type="number" id="kmMaxCustom" placeholder="Max (km)" aria-label="Aangepaste maximale kilometerstand" min="0" step="1000" oninput="zoekNu()" style="width:48%;padding:6px 8px;border:1px solid var(--grijs2);border-radius:6px;font-size:13px" /></div>
       </div>
       <div class="filter-toggle">
         <label>Transmissie</label>
@@ -997,7 +997,7 @@
       <div class="filter-groep" style="width:100%">
         <label data-i18n="lbl_afstand">📍 Afstand</label>
         <div class="afstand-rij">
-          <input id="locInput" type="text" placeholder="Stad of postcode..." oninput="_geoLoc(this.value)" />
+          <input id="locInput" type="text" placeholder="Stad of postcode..." aria-label="Stad of postcode" oninput="_geoLoc(this.value)" />
           <button class="loc-btn" onclick="geolocate()" title="Gebruik mijn locatie">📌 Mijn locatie</button>
           <select id="radiusSelect" onchange="zoekNu()" aria-label="Afstand">
             <option value="">Alle afstanden</option>
@@ -1023,7 +1023,7 @@
 <div id="mobileStickyBar">
   <div id="mobileStickySearch">
     <span style="opacity:.45;flex-shrink:0;font-size:15px">&#128269;</span>
-    <input id="stickyZoekInput" type="search" autocomplete="off" placeholder="Zoek op merk, model of trefwoord" oninput="_syncStickyZoek(this.value)" onfocus="this.select()" />
+    <input id="stickyZoekInput" type="search" autocomplete="off" placeholder="Zoek op merk, model of trefwoord" aria-label="Zoek op merk, model of trefwoord" oninput="_syncStickyZoek(this.value)" onfocus="this.select()" />
   </div>
   <button id="mobileOpenFilterBtn" onclick="openSheet()">Filters <span id="mobileOpenBadge"></span></button>
 </div>
@@ -3022,9 +3022,10 @@ function _buildSlider(loId,hiId,fmt){
   if(!opts.length)return;
   var mx=opts.length-1;
   var wrap=document.createElement('div');wrap.className='rs-wrap';
+  var loLbl=escHtml(loS.getAttribute('aria-label')||loId),hiLbl=escHtml(hiS.getAttribute('aria-label')||hiId);
   wrap.innerHTML='<div class="rs-track"><div class="rs-fill" id="rsf-'+loId+'"></div></div>'
-    +'<input type="range" class="rs-in" id="rsi-'+loId+'" min="0" max="'+mx+'" value="0" step="1">'
-    +'<input type="range" class="rs-in" id="rsi-'+hiId+'" min="0" max="'+mx+'" value="'+mx+'" step="1">'
+    +'<input type="range" class="rs-in" id="rsi-'+loId+'" aria-label="'+loLbl+'" min="0" max="'+mx+'" value="0" step="1">'
+    +'<input type="range" class="rs-in" id="rsi-'+hiId+'" aria-label="'+hiLbl+'" min="0" max="'+mx+'" value="'+mx+'" step="1">'
     +'<div class="rs-label"><span id="rsl-'+loId+'">Geen min</span><span id="rsl-'+hiId+'">Geen max</span></div>';
   loS.style.display='none';hiS.style.display='none';
   loS.parentNode.appendChild(wrap);
