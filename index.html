@@ -1115,6 +1115,11 @@ function toggleCustomRange(sel){var grp=(sel.id==='prijsMin'||sel.id==='prijsMax
 
 function _filtersActief(){var _tf=document.getElementById('transmissieFilter');return !!(document.getElementById('zoekInput').value.trim()||document.getElementById('merkFilter').value||document.getElementById('modelInput').value.trim()||document.getElementById('jaarMin').value||document.getElementById('jaarMax').value||document.getElementById('prijsMin').value||document.getElementById('prijsMax').value||document.getElementById('kmMin').value||document.getElementById('kmMax').value||document.getElementById('brandstofFilter').value||document.getElementById('carrosserieFilter').value||transmissieActief||(_tf&&_tf.value));}
 function dedupAutos(arr){var seen={};return arr.filter(function(a){if(!a.prijs||!a.km)return true;var k=(a.prijs|0)+(String.fromCharCode(95))+(a.km|0)+(String.fromCharCode(95))+(a.merk||"");if(seen[k]===undefined){seen[k]=a.dealScore||0;return true;}if((a.dealScore||0)>seen[k]){seen[k]=a.dealScore||0;return true;}return false;});}
+// Advertentietitels/locaties komen van externe, ongecontroleerde bronnen (iedereen kan
+// een Marktplaats/AutoScout24-advertentie met een willekeurige titel plaatsen). Alle
+// zulke tekst MOET hierdoorheen vóór 'ie in innerHTML/attributen terechtkomt, anders is
+// het een opgeslagen XSS-vector.
+function escHtml(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
 let alleResultaten = [];
 let huidigDetailId = null;
 let transmissieActief = '';
@@ -1417,13 +1422,13 @@ function toonResultaten(lijst) {
           var oud=a.prijsHistorie[a.prijsHistorie.length-1].prijs;
           return '<span class="prijs-daling">↘ was €'+Number(oud).toLocaleString('nl-NL')+'</span>';
         }return '';})()}
-        <img referrerpolicy="no-referrer" loading="${_i<6?'eager':'lazy'}" onerror="this.style.display='none'" onload="if(!this.naturalWidth)this.style.display='none'" src="${(()=>{if(!a.imgSrc)return '';if(a.imgSrc.startsWith('/data/'))return a.imgSrc;let s=a.imgSrc.startsWith('//')?'https:'+a.imgSrc:a.imgSrc;if(s.includes('gaspedaal')||s.includes('marktplaats.com'))return 'https://images.weserv.nl/'+String.fromCharCode(63)+'url='+s.replace(/^https:[/][/]/,'')+'&w=400';return s.replace(/\/\d+x\d+\.webp$/,'/800x600.webp');})()}" alt="${a.titel}" onerror="this.onerror=null;this.closest('.auto-foto').style.cssText='display:flex;align-items:center;justify-content:center;background:#f0f0ed';this.style.display='none'" />
+        <img referrerpolicy="no-referrer" loading="${_i<6?'eager':'lazy'}" onerror="this.style.display='none'" onload="if(!this.naturalWidth)this.style.display='none'" src="${(()=>{if(!a.imgSrc)return '';if(a.imgSrc.startsWith('/data/'))return a.imgSrc;let s=a.imgSrc.startsWith('//')?'https:'+a.imgSrc:a.imgSrc;if(s.includes('gaspedaal')||s.includes('marktplaats.com'))return 'https://images.weserv.nl/'+String.fromCharCode(63)+'url='+s.replace(/^https:[/][/]/,'')+'&w=400';return s.replace(/\/\d+x\d+\.webp$/,'/800x600.webp');})()}" alt="${escHtml(a.titel)}" onerror="this.onerror=null;this.closest('.auto-foto').style.cssText='display:flex;align-items:center;justify-content:center;background:#f0f0ed';this.style.display='none'" />
         ${a.bijgewerkt === VANDAAG ? '<span class="nieuw-badge">NIEUW</span>' : ''}
        ${(()=>{if(!a.eersteGezien)return '';const _d=Math.round((Date.now()-new Date(a.eersteGezien+'T12:00:00').getTime())/86400000);if(_d<1)return '';if(_d<14)return '<span class="verk-badge verk-recent">'+_d+((window.lang||'nl')==='en'?' listed':' online')+'</span>';return '<span class="verk-badge verk-lang">2+ '+((window.lang||'nl')==='en'?'weeks':'weken')+'</span>';})()}
 
       </div>
       <div class="auto-info">
-        <h3>${a.titel}</h3>
+        <h3>${escHtml(a.titel)}</h3>
         <div class="auto-prijs-groot">€ ${typeof a.prijs==='number'?a.prijs.toLocaleString('nl-NL'):a.prijs||'—'}</div>
         <div class="auto-specs-row">
           ${a.jaar?'<span class="auto-spec-chip"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>'+a.jaar+'</span>':''}
@@ -1559,7 +1564,7 @@ function openDetail(id) {
   document.getElementById('detailInhoud').innerHTML = `
     <div class="gallery-main" style="position:relative">
       <button class="gal-prev gal-nav" onclick="galNav(-1)" aria-label="Vorige foto">&#8249;</button>
-      <img id="galFoto" referrerpolicy="no-referrer" loading="lazy" onerror="this.style.display='none'" src="${a.imgSrc?'https://wsrv.nl/?url='+(a.imgSrc.replace(/^https?:/,'').replace(/^\/\//,'').replace(/\$_\d+\.jpg/gi,'$_86.jpg')):'data:,'}" alt="${a.titel}"
+      <img id="galFoto" referrerpolicy="no-referrer" loading="lazy" onerror="this.style.display='none'" src="${a.imgSrc?'https://wsrv.nl/?url='+(a.imgSrc.replace(/^https?:/,'').replace(/^\/\//,'').replace(/\$_\d+\.jpg/gi,'$_86.jpg')):'data:,'}" alt="${escHtml(a.titel)}"
         onerror="this.src='https://placehold.co/720x320/e8e8e3/999?text=${encodeURIComponent((a.titel||'').split(' ').slice(0,2).join(' '))}'" />
       <button class="gal-next gal-nav" onclick="galNav(1)" aria-label="Volgende foto">&#8250;</button>
       <div id="galTeller" class="gal-teller"></div>
@@ -1568,7 +1573,7 @@ function openDetail(id) {
     <div id="galMeerFotos" style="display:none;text-align:center;padding:6px 12px 2px;font-size:13px;color:#888"></div>
     <div class="detail-content">
       <div class="detail-title-row">
-        <h2>${a.titel}</h2>
+        <h2>${escHtml(a.titel)}</h2>
         <div>
           <div class="detail-prijs">€ ${a.prijs != null ? a.prijs.toLocaleString('nl-NL') : '–'}</div>
           <div class="detail-prijs-sub">${a.bron || 'Gaspedaal'}</div>
@@ -1580,10 +1585,10 @@ function openDetail(id) {
         ${a.km != null ? `<div class="spec-item"><div class="spec-icon">🛣️</div><div class="spec-val">${typeof a.km==='number'?a.km.toLocaleString('nl-NL'):a.km}</div><div class="spec-lbl">Kilometer</div></div>` : ''}
         ${a.brandstof ? `<div class="spec-item"><div class="spec-icon">⛽</div><div class="spec-val">${a.brandstof}</div><div class="spec-lbl">${(window.lang||'nl')==='en'?"Fuel type":"Brandstof"}</div></div>` : ''}
         ${a.transmissie ? `<div class="spec-item"><div class="spec-icon">⚙️</div><div class="spec-val">${transLabel(a.transmissie)}</div><div class="spec-lbl">${(window.lang||'nl')==='en'?"Transmission":"Transmissie"}</div></div>` : ''}
-        <div class="spec-item"><div class="spec-icon">📍</div><div class="spec-val" style="font-size:12px">${a.locatie || 'Nederland'}</div><div class="spec-lbl">${(window.lang||'nl')==='en'?"Location":"Locatie"}</div></div>
+        <div class="spec-item"><div class="spec-icon">📍</div><div class="spec-val" style="font-size:12px">${escHtml(a.locatie || 'Nederland')}</div><div class="spec-lbl">${(window.lang||'nl')==='en'?"Location":"Locatie"}</div></div>
         ${a.carrosserie ? `<div class="spec-item"><div class="spec-icon">🚗</div><div class="spec-val">${a.carrosserie}</div><div class="spec-lbl">${(window.lang||'nl')==='en'?"Body type":"Carrosserie"}</div></div>` : ''}
       </div>
-      ${genereerSamenvatting(a) ? `<div class="ai-samenvatting"><div class="ai-label">✦ Samenvatting</div><p>${genereerSamenvatting(a)}</p></div>` : ''}
+      ${genereerSamenvatting(a) ? `<div class="ai-samenvatting"><div class="ai-label">✦ Samenvatting</div><p>${escHtml(genereerSamenvatting(a))}</p></div>` : ''}
 
       
       ${(()=>{
@@ -1603,7 +1608,7 @@ function openDetail(id) {
         out+='<div style="display:flex;justify-content:space-between;font-size:11px;color:var(--subtekst);margin-top:4px"><span>'+all[0].datum+': €'+Number(startP).toLocaleString("nl-NL")+'</span><span>Nu: €'+Number(curP).toLocaleString("nl-NL")+'</span></div>';
         out+='</div>';return out;
       })()}
-      <a href="${a.url}" target="_blank" rel="noopener noreferrer" style="display:block;background:#e84c15;color:white;text-align:center;padding:14px 20px;border-radius:10px;font-size:15px;font-weight:700;text-decoration:none;margin:16px 0">${(window.lang||'nl')==='en'?"View listing on":"Bekijk advertentie op"} ${a.bron||'bron'} &rarr;</a>
+      <a href="${escHtml(a.url)}" target="_blank" rel="noopener noreferrer" style="display:block;background:#e84c15;color:white;text-align:center;padding:14px 20px;border-radius:10px;font-size:15px;font-weight:700;text-decoration:none;margin:16px 0">${(window.lang||'nl')==='en'?"View listing on":"Bekijk advertentie op"} ${a.bron||'bron'} &rarr;</a>
       <p style="font-size:12px;color:var(--subtekst);margin-top:8px;text-align:center">
         Foto's en volledige omschrijving staan op de originele advertentie.
       </p>
@@ -2020,11 +2025,11 @@ function renderKaart() {
     var topAuto=g.list.sort(function(a,b){return(a.prijs||999999)-(b.prijs||999999);})[0];
     var autoId=topAuto.id;
     var apos=String.fromCharCode(39);
-    var popup='<div class'+String.fromCharCode(61)+'"kaart-popup"><b>'+g.loc+'</b> ('+n+')<br>';
+    var popup='<div class'+String.fromCharCode(61)+'"kaart-popup"><b>'+escHtml(g.loc)+'</b> ('+n+')<br>';
     // Elke voorbeeldadvertentie is nu zelf klikbaar (id als string-literal met aanhalingstekens
     // \u2014 zonder aanhalingstekens werd bv. "gp-138322166" gelezen als "gp min 138322166", een
     // JS-fout die de klik altijd liet mislukken).
-    g.list.slice(0,3).forEach(function(a){popup+='<hr style'+String.fromCharCode(61)+'"margin:3px 0"><small onclick'+String.fromCharCode(61)+'"setTimeout(function(){openDetail('+apos+a.id+apos+')},120)" style'+String.fromCharCode(61)+'"cursor:pointer;display:block">'+(a.titel||'').substring(0,35)+'<br>\u20ac'+(a.prijs||'?')+'</small>';});
+    g.list.slice(0,3).forEach(function(a){popup+='<hr style'+String.fromCharCode(61)+'"margin:3px 0"><small onclick'+String.fromCharCode(61)+'"setTimeout(function(){openDetail('+apos+a.id+apos+')},120)" style'+String.fromCharCode(61)+'"cursor:pointer;display:block">'+escHtml((a.titel||'').substring(0,35))+'<br>\u20ac'+(a.prijs||'?')+'</small>';});
     if(n>3)popup+='<br><small>+'+(n-3)+' meer</small>';
     popup+='<br><button onclick'+String.fromCharCode(61)+'"setTimeout(function(){openDetail('+apos+autoId+apos+')},120)" style'+String.fromCharCode(61)+'"margin-top:8px;width:100%;padding:6px;background:#1a56db;color:#fff;border:none;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer">Bekijk goedkoopste \u2192</button></div>';
     var marker=L.marker(jCoord,{icon:icon});
@@ -2069,11 +2074,11 @@ function openVergelijk() {
   ];
   var carCols = cars.map(function(a) {
     var img = a.imgSrc
-      ? '<img class="vgl-car-img" src="'+a.imgSrc+'" alt="" loading="lazy">'
+      ? '<img class="vgl-car-img" src="'+escHtml(a.imgSrc)+'" alt="" loading="lazy">'
       : '<div class="vgl-car-no-img">=€</div>';
-    var nm = a.titel || ((_getMerk(a.titel)||'')+' '+(_getModel(a.titel)||'')).trim() || 'Onbekend';
+    var nm = escHtml(a.titel || ((_getMerk(a.titel)||'')+' '+(_getModel(a.titel)||'')).trim() || 'Onbekend');
     var prijs = a.prijs ? '€'+a.prijs.toLocaleString('nl-NL') : 'Prijs onbekend';
-    var link = a.url ? '<a href="'+a.url+'" target="_blank" class="vgl-lb-link">Bekijk advertentie →</a>' : '';
+    var link = a.url ? '<a href="'+escHtml(a.url)+'" target="_blank" class="vgl-lb-link">Bekijk advertentie →</a>' : '';
     return '<div class="vgl-car-col">'+img+'<div class="vgl-car-name">'+nm+'</div><div class="vgl-car-prijs">'+prijs+'</div>'+link+'</div>';
   }).join('');
   var specRows = specs.map(function(sp) {
@@ -2237,13 +2242,13 @@ function openVergelijk(){
   if(!cars.some(function(a){return a.brandstof&&/elektr|hybr/i.test(a.brandstof)||_parseSoh(a);}))specs=specs.filter(function(s){return s[0]!=='SOH';});
   var thCols=cars.map(function(a){
     var imgH=a.imgSrc
-      ?'<img class="vgl-car-photo" src="'+a.imgSrc+'" alt="" loading="lazy" onerror="this.style.display=\'none\'">'
+      ?'<img class="vgl-car-photo" src="'+escHtml(a.imgSrc)+'" alt="" loading="lazy" onerror="this.style.display=\'none\'">'
       :'<div class="vgl-car-nophoto">=€</div>';
     var prijs=a.prijs?'€'+a.prijs.toLocaleString('nl-NL'):'';
     return '<th class="vgl-car-th">'+imgH
-      +'<div class="vgl-car-ttl">'+(a.titel||'')+'</div>'
+      +'<div class="vgl-car-ttl">'+escHtml(a.titel||'')+'</div>'
       +'<div class="vgl-car-prc">'+prijs+'</div>'
-      +(a.url?'<a href="'+a.url+'" target="_blank" class="vgl-car-btn">Bekijk →</a>':'')
+      +(a.url?'<a href="'+escHtml(a.url)+'" target="_blank" class="vgl-car-btn">Bekijk →</a>':'')
       +'</th>';
   }).join('');
   var rows=specs.map(function(sp){
@@ -2496,8 +2501,8 @@ function sluitMarkt() {
        .sort(function(x,y){return y.dealScore-x.dealScore;}).slice(0,5);
     document.getElementById('mDealsBody').innerHTML=dealsData.length?dealsData.map(function(d){
       var cls=d.pct<-20?'markt-deal-hot':'markt-deal-ok';
-      var naam=(d.a.titel||'').slice(0,32)+(d.a.titel&&d.a.titel.length>32?'…':'');
-      var link=d.a.url?'<a href="'+d.a.url+'" target="_blank" style="color:inherit;text-decoration:none">'+naam+'</a>':naam;
+      var naam=escHtml((d.a.titel||'').slice(0,32)+(d.a.titel&&d.a.titel.length>32?'…':''));
+      var link=d.a.url?'<a href="'+escHtml(d.a.url)+'" target="_blank" style="color:inherit;text-decoration:none">'+naam+'</a>':naam;
       return '<tr><td style="color:var(--subtekst);font-size:12px">'+link+'</td><td>'+fmt(d.a.prijs)+'</td><td><span class="markt-deal-badge '+cls+'">'+d.pct+'%</span></td></tr>';
     }).join(''):'<tr><td colspan="3" style="color:var(--subtekst);padding:10px 8px">Geen opvallende deals</td></tr>';
 
@@ -3250,9 +3255,9 @@ window.zoekNu=function(){
         if(!a)return '';
         var p=(a.prijs||0).toLocaleString('nl-NL');
         var s=[a.jaar,a.km!=null?a.km.toLocaleString('nl-NL')+' km':null,a.brandstof].filter(Boolean).join(' · ');
-        return '<div onclick="sluitFavPanel();setTimeout(function(){openDetail(id)},200)" style="display:flex;gap:12px;padding:12px;border:1px solid #e8e8e3;border-radius:10px;margin-bottom:10px;cursor:pointer;transition:border-color .15s;align-items:center">'
-          +'<img src="'+a.imgSrc+'" style="width:80px;height:60px;object-fit:cover;border-radius:6px;flex-shrink:0;background:#f5f5f0" onerror="this.style.display=\'none\'">'
-          +'<div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:700;color:#1a1a2e;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+a.titel+'</div>'
+        return '<div onclick="sluitFavPanel();setTimeout(function(){openDetail(\''+id+'\')},200)" style="display:flex;gap:12px;padding:12px;border:1px solid #e8e8e3;border-radius:10px;margin-bottom:10px;cursor:pointer;transition:border-color .15s;align-items:center">'
+          +'<img src="'+escHtml(a.imgSrc)+'" style="width:80px;height:60px;object-fit:cover;border-radius:6px;flex-shrink:0;background:#f5f5f0" onerror="this.style.display=\'none\'">'
+          +'<div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:700;color:#1a1a2e;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+escHtml(a.titel)+'</div>'
           +'<div style="font-size:16px;font-weight:800;color:#e84c15;margin:2px 0">€ '+p+'</div>'
           +'<div style="font-size:11px;color:#9ca3af">'+s+'</div></div>'
           +'<button data-fav="'+id+'" onclick="event.stopPropagation();toggleFav(event,\''+id+'\');setTimeout(openFavPanel,80)" style="background:none;border:none;font-size:20px;cursor:pointer;color:#ef4444;flex-shrink:0;padding:4px" class="fav-actief">♥</button>'
@@ -3296,7 +3301,7 @@ window.zoekNu=function(){
     var autos=window._alleAutos||[];
     slots.innerHTML=_vgl.map(function(id){
       var a=autos.find(function(x){return x.id===id;});
-      var naam=a?a.titel.substring(0,22)+(a.titel.length>22?'…':''):id;
+      var naam=a?escHtml(a.titel.substring(0,22)+(a.titel.length>22?'…':'')):escHtml(id);
       var prijs=a?'€ '+((a.prijs||0).toLocaleString('nl-NL')):'';
       return '<div style="display:flex;align-items:center;gap:6px;background:#f5f5f0;border-radius:8px;padding:6px 10px;min-width:0">'
         +'<div style="min-width:0"><div style="font-weight:700;color:#1a1a2e;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:130px">'+naam+'</div>'
@@ -3321,7 +3326,7 @@ window.zoekNu=function(){
     var tabel=document.getElementById('vglTabel2');
     var cw=Math.floor(72/sel.length);
     var rows=[
-      {l:'Foto',r:function(a){return '<img src="'+a.imgSrc+'" style="width:100%;max-width:150px;height:95px;object-fit:cover;border-radius:8px" onerror="this.style.display=\'none\'">';}},
+      {l:'Foto',r:function(a){return '<img src="'+escHtml(a.imgSrc)+'" style="width:100%;max-width:150px;height:95px;object-fit:cover;border-radius:8px" onerror="this.style.display=\'none\'">';}},
       {l:'Prijs',r:function(a){return '<span style="font-size:20px;font-weight:800;color:#1a1a2e">€ '+((a.prijs||0).toLocaleString('nl-NL'))+'</span>';}},
       {l:'Bouwjaar',r:function(a){return '<b>'+(a.jaar||'—')+'</b>';}},
       {l:'Km-stand',r:function(a){return '<b>'+(a.km!=null?a.km.toLocaleString('nl-NL')+' km':'—')+'</b>';}},
@@ -3332,7 +3337,7 @@ window.zoekNu=function(){
     ];
     tabel.innerHTML='<table style="width:100%;border-collapse:collapse;font-size:14px">'
       +'<thead><tr><th style="width:28%;padding:10px 8px;text-align:left;border-bottom:2px solid #e8e8e3;font-size:11px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.4px">Kenmerk</th>'
-      +sel.map(function(a){return '<th style="width:'+cw+'%;padding:10px 8px;text-align:left;border-bottom:2px solid #e84c15;font-size:13px;font-weight:700;color:#1a1a2e">'+a.titel.substring(0,35)+(a.titel.length>35?'…':'')+'</th>';}).join('')
+      +sel.map(function(a){return '<th style="width:'+cw+'%;padding:10px 8px;text-align:left;border-bottom:2px solid #e84c15;font-size:13px;font-weight:700;color:#1a1a2e">'+escHtml(a.titel.substring(0,35)+(a.titel.length>35?'…':''))+'</th>';}).join('')
       +'</tr></thead><tbody>'
       +rows.map(function(row,ri){
         return '<tr style="'+(ri%2?'background:#fafafa':'')+'">'
@@ -3342,7 +3347,7 @@ window.zoekNu=function(){
       }).join('')
       +'</tbody></table>'
       +'<div style="display:flex;gap:10px;margin-top:20px;flex-wrap:wrap">'
-      +sel.map(function(a){return '<a href="'+(a.url||'#')+'" target="_blank" style="flex:1;min-width:140px;padding:12px 16px;background:#e84c15;color:white;border-radius:8px;text-align:center;text-decoration:none;font-weight:700;font-size:14px">Bekijk op '+(a.bron||'bron')+' →</a>';}).join('')
+      +sel.map(function(a){return '<a href="'+escHtml(a.url||'#')+'" target="_blank" style="flex:1;min-width:140px;padding:12px 16px;background:#e84c15;color:white;border-radius:8px;text-align:center;text-decoration:none;font-weight:700;font-size:14px">Bekijk op '+(a.bron||'bron')+' →</a>';}).join('')
       +'</div>';
     document.getElementById('vglModal2').style.display='block';
     document.body.style.overflow='hidden';
