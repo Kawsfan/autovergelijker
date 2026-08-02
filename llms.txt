@@ -38,6 +38,13 @@ Carkijker vergelijkt het volledige auto-aanbod van Nederland — zowel tweedehan
 - [Occasions Arnhem](https://carkijker.nl/occasions/arnhem/)
 - [Occasions Haarlem](https://carkijker.nl/occasions/haarlem/)
 
+<!-- ARTIKELEN:START -->
+## Artikelen
+
+- [Tweedehands auto kopen: de complete checklist voor 2026](https://carkijker.nl/artikelen/tweedehands-auto-kopen-checklist/): Tweedehands auto kopen? Deze checklist met 8 controlepunten (NAP, APK, proefrit, onderhoudshistorie) helpt je een goede occasion te herkennen en dure fouten te voorkomen.
+
+<!-- ARTIKELEN:END -->
+
 ## Optional
 
 - [Robots.txt](https://carkijker.nl/robots.txt): crawler-toegang, inclusief expliciete toestemming voor AI-crawlers (GPTBot, ClaudeBot, PerplexityBot, Googlebot-Extended, CCBot)
