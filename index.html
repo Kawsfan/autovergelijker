@@ -1202,6 +1202,16 @@ async function laadListings() {
             alleResultaten.forEach(function(a){if(!a.merk)a.merk=extraheerMerk(a.titel||'');});
             _populeerMerkFilter();
             _vulZoekSuggesties();
+            // Trending/merk-stats/schema zijn bij het eerste laden berekend op de kleine
+            // top-subset (dealScore-gesorteerd, dus niet representatief voor de volledige
+            // merkverdeling) — nu de complete dataset binnen is, opnieuw berekenen zodat
+            // deze secundaire onderdelen ook kloppen.
+            setTimeout(function(){
+              berekenTrending();
+              _renderMerkStats(alleResultaten);
+              _renderMerkenLinks(alleResultaten);
+              if (typeof _injectCarSchema === 'function') _injectCarSchema(alleResultaten);
+            }, 0);
             // Alleen zichtbaar herrenderen (met fade) als de gebruiker al aan het zoeken/filteren
             // is — dan zijn er mogelijk nieuwe matches. Bij de standaard, ongefilterde weergave
             // niet herrenderen: dat gaf een storende flikkering en veranderde kaarten/aantallen

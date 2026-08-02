@@ -1387,7 +1387,7 @@ async function main() {
   // De volledige imgs-galerij (~49% van de databytes) wordt hier weggelaten - die is
   // alleen nodig in de detailweergave, niet in de resultatenlijst (die gebruikt imgSrc).
   // De achtergrond-load van listings.json (met imgs) vult dit binnen enkele seconden aan.
-  const _topL = [...(data.listings||[])].sort((a,b)=>(b.dealScore||0)-(a.dealScore||0)).slice(0,20000)
+  const _topL = [...(data.listings||[])].sort((a,b)=>(b.dealScore||0)-(a.dealScore||0)).slice(0,5000)
     .map(function(l){ var _c = Object.assign({}, l); delete _c.imgs; return _c; });
   const _topData = Object.assign({}, data, {listings: _topL, isSubset: true, subsetSize: 5000});
   const _topPath = path.join(process.cwd(), 'data', 'listings-top.json');
