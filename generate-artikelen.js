@@ -207,7 +207,10 @@ function main() {
     let added = 0;
     for (const u of urls) {
       const full = SITE_ORIGIN + '/' + u;
-      if (!sitemap.includes(full)) {
+      // Exacte <loc>-match: "artikelen/" is een prefix van elke artikel-URL,
+      // dus een losse substring-check zou 'm ten onrechte als aanwezig zien
+      // zodra er minstens één artikel bestaat.
+      if (!sitemap.includes('<loc>' + full + '</loc>')) {
         const prio = u === 'artikelen/' ? '0.7' : '0.6';
         const entry = '  <url><loc>' + full + '</loc><lastmod>' + today + '</lastmod><changefreq>monthly</changefreq><priority>' + prio + '</priority></url>';
         sitemap = sitemap.replace('</urlset>', entry + '\n</urlset>');

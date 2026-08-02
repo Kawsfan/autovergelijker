@@ -435,6 +435,16 @@ function main() {
     });
   });
 
+  // Merk/model-URLs verzamelen voor de sitemap (encodeURIComponent i.v.m.
+  // merknamen met een spatie, zoals "alfa romeo" of "aston martin").
+  const generatedMerkUrls = [];
+  for (const merkSlug of Object.keys(validModelDirs)) {
+    generatedMerkUrls.push('occasions/' + encodeURIComponent(merkSlug) + '/');
+    for (const modelSlug of validModelDirs[merkSlug]) {
+      generatedMerkUrls.push('occasions/' + encodeURIComponent(merkSlug) + '/' + encodeURIComponent(modelSlug) + '/');
+    }
+  }
+
   // Regiopagina's per stad
   const OUT_STAD = OUT_DIR;
   const generatedStadUrls = [];
@@ -480,21 +490,31 @@ function main() {
   if (removedCount) console.log(removedCount + ' verweesde pagina(\'s) opgeruimd');
 
   // Sitemap bijwerken
+  // Eerder ontbraken hier /occasions/ zelf, /tco/, en alle merk/model-pagina's
+  // (alleen de stad-pagina's werden toegevoegd) -- 400+ pagina's stonden
+  // daardoor niet in de sitemap.
   const sitemapPath = path.join(process.cwd(), 'sitemap.xml');
   if (fs.existsSync(sitemapPath)) {
     let sitemap = fs.readFileSync(sitemapPath, 'utf-8');
     const today = new Date().toISOString().slice(0,10);
     const base = 'https://carkijker.nl/';
-    const allUrls = [...generatedStadUrls];
+    const vasteUrls = ['occasions/', 'tco/'];
+    const allUrls = [...vasteUrls, ...generatedMerkUrls, ...generatedStadUrls];
+    let added = 0;
     for (const u of allUrls) {
       const full = base + u;
-      if (!sitemap.includes(full)) {
-        const entry = '  <url><loc>'+full+'</loc><lastmod>'+today+'</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>';
+      // Exacte <loc>-match i.p.v. sitemap.includes(full): "occasions/" zit
+      // als prefix in élke merk/model/stad-URL, dus een losse substring-check
+      // dacht ten onrechte dat die al aanwezig was.
+      if (!sitemap.includes('<loc>'+full+'</loc>')) {
+        const prio = u === 'occasions/' ? '0.8' : (u.split('/').length > 3 ? '0.5' : '0.6');
+        const entry = '  <url><loc>'+full+'</loc><lastmod>'+today+'</lastmod><changefreq>weekly</changefreq><priority>'+prio+'</priority></url>';
         sitemap = sitemap.replace('</urlset>', entry + '\n</urlset>');
+        added++;
       }
     }
     fs.writeFileSync(sitemapPath, sitemap, 'utf-8');
-    console.log('Sitemap bijgewerkt: '+allUrls.length+' URLs');
+    console.log('Sitemap bijgewerkt: '+added+' nieuwe URLs (van '+allUrls.length+' gecontroleerd)');
   }
 
   console.log('\nKlaar: '+pageCount+' pagina\'s gegenereerd in '+OUT_DIR);
