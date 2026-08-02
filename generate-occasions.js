@@ -18,6 +18,47 @@ const MIN_MERK_COUNT = 3;
 const MIN_MODEL_COUNT = 2;
 const MAX_MODELS     = 10;
 
+// Huisstijl-tokens, gelijk aan de CSS custom properties in index.html
+// (--oranje, --donker, --tekst, --bg, ...). Deze pagina's zijn losse
+// statische bestanden zonder gedeelde stylesheet, dus hardcoded overgenomen.
+// OCC_STYLE is voor de merk/model-pagina's (buildPage); buildStadPage heeft
+// een eigen stylesheet omdat de kaartlayout daar structureel anders is
+// (verticale kaart met volle-breedte foto i.p.v. horizontale rij).
+const OCC_STYLE =
+  '*{box-sizing:border-box;margin:0;padding:0}' +
+  'body{font-family:"Segoe UI",Arial,sans-serif;background:#f5f5f0;color:#333;line-height:1.5}' +
+  'nav{background:rgba(255,255,255,.96);border-bottom:1px solid rgba(0,0,0,.08);padding:0 1.1rem;height:56px;' +
+  'display:flex;align-items:center;gap:.9rem;position:sticky;top:0;z-index:200;box-shadow:0 1px 0 rgba(0,0,0,.04);' +
+  'backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);font-size:.875rem;overflow-x:auto;white-space:nowrap}' +
+  '.logo{font-size:1.15rem;font-weight:800;color:#d14413;letter-spacing:-.5px;text-decoration:none;flex-shrink:0}' +
+  '.logo span{color:#1a1a2e}' +
+  'nav a{color:#d14413;text-decoration:none}nav a+a::before{content:" \\203a ";color:#aaa;margin:0 .3rem}' +
+  '.container{max-width:960px;margin:0 auto;padding:1rem 1rem 3rem}' +
+  'h1{font-size:1.5rem;font-weight:700;margin:1.5rem 0 .3rem;color:#1a1a2e}' +
+  '.subtitle{color:#666;font-size:.9rem;margin-bottom:1.25rem}' +
+  '.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:.5rem;margin-bottom:1.25rem}' +
+  '.stat{background:#fff;border-radius:12px;padding:.7rem 1rem;border:1px solid rgba(0,0,0,.07);box-shadow:0 1px 4px rgba(0,0,0,.05)}' +
+  '.stat-lbl{display:block;font-size:.72rem;color:#888;margin-bottom:.15rem}.stat strong{font-size:.95rem;color:#1a1a2e}' +
+  '.model-nav{display:flex;flex-wrap:wrap;gap:.4rem;margin-bottom:1.25rem}' +
+  '.model-link{background:#fff;border:1px solid rgba(0,0,0,.08);border-radius:20px;padding:.3rem .85rem;font-size:.83rem;color:#d14413;text-decoration:none;transition:border-color .15s}' +
+  '.model-link:hover{border-color:#d14413}.model-link span{color:#aaa;font-size:.78rem}' +
+  '.occ-grid{display:grid;gap:.7rem}' +
+  '.occ-card{background:#fff;border-radius:14px;border:1px solid rgba(0,0,0,.07);box-shadow:0 1px 4px rgba(0,0,0,.06),0 4px 16px rgba(0,0,0,.04);overflow:hidden;display:flex}' +
+  '.occ-card img,.occ-img-placeholder{width:140px;height:100px;object-fit:cover;flex-shrink:0;background:#f0f0eb}' +
+  '.occ-info{padding:.75rem 1rem;flex:1;min-width:0}' +
+  '.occ-titel{font-size:.9rem;font-weight:600;margin-bottom:.25rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#1a1a2e}' +
+  '.occ-meta{font-size:.78rem;color:#666;margin-bottom:.25rem}.occ-prijs{font-size:1.05rem;font-weight:700;color:#d14413}' +
+  '.occ-footer{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;margin-top:.35rem}' +
+  '.occ-bron{font-size:.72rem;color:#888}.occ-link{font-size:.8rem;color:#d14413;text-decoration:none;font-weight:600}' +
+  '.back-link{display:inline-block;margin-top:2rem;color:#d14413;font-size:.875rem;text-decoration:none;font-weight:600}' +
+  '.empty{text-align:center;padding:3rem;color:#888}' +
+  '.geo-section{margin-top:2rem;padding:1.25rem;background:#fff;border-radius:14px;border:1px solid rgba(0,0,0,.07);box-shadow:0 1px 4px rgba(0,0,0,.06)}' +
+  '.geo-section h2{font-size:1rem;margin-bottom:.5rem;color:#1a1a2e}.geo-section p{font-size:.875rem;color:#444;line-height:1.6}' +
+  '.geo-section h3{color:#333}.geo-section a{color:#d14413}' +
+  '.geo-section .model-intro-blok{background:#fff3e0;border-left:4px solid #d14413;padding:.75rem 1rem;margin-bottom:.75rem;border-radius:0 8px 8px 0;font-size:.9rem;color:#7a3510}' +
+  '.kooptip{background:#fff3e0;border-left:3px solid #d14413;padding:.6rem .8rem;border-radius:0 6px 6px 0;margin-bottom:.5rem}' +
+  '@media(max-width:580px){.occ-card img,.occ-img-placeholder{width:90px;height:80px}}';
+
 const MERKEN_DISPLAY = {
   bmw: 'BMW', vw: 'Volkswagen', volkswagen: 'Volkswagen',
   audi: 'Audi', mercedes: 'Mercedes-Benz', 'mercedes-benz': 'Mercedes-Benz',
@@ -204,7 +245,7 @@ const MERK_INTRO = {
       (kooptip ? '<p class="kooptip">'+kooptip+'</p>' : '') +
       '<h3 style="font-size:.9rem;margin-top:.75rem;margin-bottom:.3rem">Actuele marktdata</h3>' +
       '<p>Op basis van <strong>'+filtered.length+' actuele advertenties</strong> is de gemiddelde vraagprijs van een tweedehands '+merkName+(modelName?' '+modelName:'')+' <strong>&euro; '+(gemPrijs?fmt(gemPrijs):'onbekend')+'</strong>. De mediaanprijs &mdash; waarbij de helft van de occasions goedkoper is &mdash; ligt op &euro; '+(medPrijs?fmt(medPrijs):'onbekend')+'. De mediaan kilometerstand is '+(medKm?fmt(medKm)+' km':'onbekend')+'. Carkijker vergelijkt dagelijks aanbod van Marktplaats, AutoScout24, Gaspedaal en ViaBOVAG.</p>' +
-      '<p style="margin-top:.5rem"><a href="/" style="color:#1a56db;font-size:.875rem">Bekijk alle '+merkName+' occasions met filters &rarr;</a></p>' +
+      '<p style="margin-top:.5rem"><a href="/" style="color:#d14413;font-size:.875rem">Bekijk alle '+merkName+' occasions met filters &rarr;</a></p>' +
       '</section>'
     : '';
 
@@ -243,9 +284,9 @@ const MERK_INTRO = {
     '  <script type="application/ld+json">'+safeJsonLd(schema)+'<\/script>\n' +
     '  <script type="application/ld+json">'+safeJsonLd(bcSchema)+'<\/script>\n' +
     (faqSchema ? '  <script type="application/ld+json">'+safeJsonLd(faqSchema)+'<\/script>\n' : '') +
-    '  <style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#f5f5f7;color:#1d1d1f;line-height:1.5}nav{background:#fff;border-bottom:1px solid #e5e5ea;padding:.75rem 1rem;font-size:.875rem}nav a{color:#1a56db;text-decoration:none}nav a+a::before{content:" > ";color:#aaa;margin:0 .3rem}.container{max-width:960px;margin:0 auto;padding:1rem 1rem 3rem}h1{font-size:1.5rem;font-weight:700;margin:1.5rem 0 .3rem}.subtitle{color:#666;font-size:.9rem;margin-bottom:1.25rem}.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:.5rem;margin-bottom:1.25rem}.stat{background:#fff;border-radius:10px;padding:.7rem 1rem;border:1px solid #e5e5ea}.stat-lbl{display:block;font-size:.72rem;color:#888;margin-bottom:.15rem}.stat strong{font-size:.95rem}.model-nav{display:flex;flex-wrap:wrap;gap:.4rem;margin-bottom:1.25rem}.model-link{background:#fff;border:1px solid #e5e5ea;border-radius:20px;padding:.3rem .85rem;font-size:.83rem;color:#1a56db;text-decoration:none}.model-link span{color:#aaa;font-size:.78rem}.occ-grid{display:grid;gap:.6rem}.occ-card{background:#fff;border-radius:10px;border:1px solid #e5e5ea;overflow:hidden;display:flex}.occ-card img,.occ-img-placeholder{width:140px;height:100px;object-fit:cover;flex-shrink:0;background:#f0f0f5}.occ-info{padding:.75rem 1rem;flex:1;min-width:0}.occ-titel{font-size:.9rem;font-weight:600;margin-bottom:.25rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.occ-meta{font-size:.78rem;color:#666;margin-bottom:.25rem}.occ-prijs{font-size:1.05rem;font-weight:700;color:#1a56db}.occ-footer{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;margin-top:.35rem}.occ-bron{font-size:.72rem;color:#888}.occ-link{font-size:.8rem;color:#1a56db;text-decoration:none;font-weight:600}.back-link{display:inline-block;margin-top:2rem;color:#1a56db;font-size:.875rem;text-decoration:none}.empty{text-align:center;padding:3rem;color:#888}.geo-section{margin-top:2rem;padding:1.25rem;background:#fff;border-radius:10px;border:1px solid #e5e5ea}.geo-section h2{font-size:1rem;margin-bottom:.5rem}.geo-section p{font-size:.875rem;color:#444;line-height:1.6}.geo-section h3{color:#333}.geo-section .model-intro-blok{background:#eff6ff;border-left:4px solid #3b82f6;padding:.75rem 1rem;margin-bottom:.75rem;border-radius:0 8px 8px 0;font-size:.9rem;color:#1e40af}.kooptip{background:#f0f4ff;border-left:3px solid #1a56db;padding:.6rem .8rem;border-radius:0 6px 6px 0;margin-bottom:.5rem}@media(max-width:580px){.occ-card img,.occ-img-placeholder{width:90px;height:80px}}<\/style>\n' +
+    '  <style>' + OCC_STYLE + '<\/style>\n' +
     '</head>\n<body>\n' +
-    '  <nav><a href="/">Carkijker</a><a href="/occasions/">Occasions</a>' +
+    '  <nav><a href="/" class="logo">Car<span>kijker</span></a><a href="/occasions/">Occasions</a>' +
     (merkSlug ? '<a href="/occasions/'+merkSlug+'/">'+merkName+'</a>' : '') +
     (modelSlug ? '<a href="/occasions/'+merkSlug+'/'+modelSlug+'/">'+modelName+'</a>' : '') +
     '</nav>\n  <div class="container">\n' +
@@ -254,7 +295,7 @@ const MERK_INTRO = {
     '  '+statsHtml+'\n' +
     (merkLinks?'  <div class="model-nav">'+merkLinks+'</div>\n':'') +
     (modelLinks?'  <div class="model-nav">'+modelLinks+'</div>\n':'') +
-    ((!merkSlug) ? '  <section style="background:#fff;border:1px solid #e5e5ea;border-radius:10px;padding:1.25rem 1.5rem;margin-bottom:1.25rem">' +'<h2 style="font-size:1rem;font-weight:700;margin-bottom:.5rem">Tweedehands auto kopen in Nederland</h2>' +'<p style="font-size:.875rem;color:#444;line-height:1.6">Carkijker toont dagelijks bijgewerkte occasions van <strong>Marktplaats, AutoScout24, Gaspedaal en ViaBOVAG</strong> op &eacute;&eacute;n overzichtelijke plek. Vergelijk '+listings.length+' tweedehands auto&rsquo;s op prijs, km-stand en merk &mdash; zonder meerdere sites te hoeven bezoeken. Klik op een merk om het volledige aanbod te zien, of ga terug naar de <a href="/" style="color:#1a56db">live zoekmachine</a> voor uitgebreide filters.</p>' +'</section>\n' : '') +'  <div class="occ-grid">'+(cards||'<p class="empty">Geen occasions gevonden voor deze combinatie. Probeer een andere merk- of modelcombinatie, of bekijk het <a href="/occasions/" style="color:#1a56db">volledige aanbod</a>.</p>')+'</div>\n' +
+    ((!merkSlug) ? '  <section style="background:#fff;border:1px solid rgba(0,0,0,.07);border-radius:14px;box-shadow:0 1px 4px rgba(0,0,0,.06);padding:1.25rem 1.5rem;margin-bottom:1.25rem">' +'<h2 style="font-size:1rem;font-weight:700;margin-bottom:.5rem;color:#1a1a2e">Tweedehands auto kopen in Nederland</h2>' +'<p style="font-size:.875rem;color:#444;line-height:1.6">Carkijker toont dagelijks bijgewerkte occasions van <strong>Marktplaats, AutoScout24, Gaspedaal en ViaBOVAG</strong> op &eacute;&eacute;n overzichtelijke plek. Vergelijk '+listings.length+' tweedehands auto&rsquo;s op prijs, km-stand en merk &mdash; zonder meerdere sites te hoeven bezoeken. Klik op een merk om het volledige aanbod te zien, of ga terug naar de <a href="/" style="color:#d14413">live zoekmachine</a> voor uitgebreide filters.</p>' +'</section>\n' : '') +'  <div class="occ-grid">'+(cards||'<p class="empty">Geen occasions gevonden voor deze combinatie. Probeer een andere merk- of modelcombinatie, of bekijk het <a href="/occasions/" style="color:#d14413">volledige aanbod</a>.</p>')+'</div>\n' +
     geoText +
     '  <a href="/" class="back-link">&larr; Terug naar live zoeken</a>\n' +
     '  </div>\n</body>\n</html>';
@@ -292,20 +333,23 @@ function buildStadPage(stadSlug, stad, filtered, listings) {
     '<title>Tweedehands auto '+stad.naam+' | Carkijker</title>'+
     '<meta name="description" content="Bekijk '+filtered.length+' tweedehands auto occasions in '+stad.naam+', '+stad.regio+'. Vergelijk prijzen en vind jouw ideale occasion.">'+
     '<link rel="canonical" href="https://carkijker.nl/occasions/'+stadSlug+'/">'+
-    '<style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:#f5f5f7;color:#1d1d1f;line-height:1.5}'+
-    'nav{background:#fff;border-bottom:1px solid #e5e5ea;padding:.75rem 1rem;font-size:.875rem}nav a{color:#1a56db;text-decoration:none}'+
-    '.container{max-width:960px;margin:0 auto;padding:1rem}h1{font-size:1.5rem;font-weight:700;margin:1.5rem 0 .3rem}'+
-    '.subtitle{color:#666;font-size:.9rem;margin-bottom:1rem}.geo-blok{background:#f0fdf4;border-left:4px solid #16a34a;padding:.75rem 1rem;margin-bottom:1rem;border-radius:0 8px 8px 0}'+
+    '<style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:"Segoe UI",Arial,sans-serif;background:#f5f5f0;color:#333;line-height:1.5}'+
+    'nav{background:rgba(255,255,255,.96);border-bottom:1px solid rgba(0,0,0,.08);padding:0 1.1rem;height:56px;display:flex;align-items:center;gap:.9rem;'+
+    'position:sticky;top:0;z-index:200;box-shadow:0 1px 0 rgba(0,0,0,.04);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);font-size:.875rem;overflow-x:auto;white-space:nowrap}'+
+    '.logo{font-size:1.15rem;font-weight:800;color:#d14413;letter-spacing:-.5px;text-decoration:none;flex-shrink:0}.logo span{color:#1a1a2e}'+
+    'nav a{color:#d14413;text-decoration:none}nav a+a::before{content:" \\203a ";color:#aaa;margin:0 .3rem}'+
+    '.container{max-width:960px;margin:0 auto;padding:1rem}h1{font-size:1.5rem;font-weight:700;margin:1.5rem 0 .3rem;color:#1a1a2e}'+
+    '.subtitle{color:#666;font-size:.9rem;margin-bottom:1rem}.geo-blok{background:#fff3e0;border-left:4px solid #d14413;padding:.75rem 1rem;margin-bottom:1rem;border-radius:0 8px 8px 0}'+
     '.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:.75rem;margin:1rem 0}'+
-    '.stat-card{background:#fff;border-radius:8px;padding:.75rem 1rem;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,.08)}'+
-    '.stat-val{font-size:1.25rem;font-weight:700;color:#1a56db}.stat-label{font-size:.75rem;color:#666;margin-top:.2rem}'+
+    '.stat-card{background:#fff;border-radius:12px;padding:.75rem 1rem;text-align:center;box-shadow:0 1px 4px rgba(0,0,0,.06);border:1px solid rgba(0,0,0,.07)}'+
+    '.stat-val{font-size:1.25rem;font-weight:700;color:#d14413}.stat-label{font-size:.75rem;color:#666;margin-top:.2rem}'+
     '.occ-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1rem;margin-top:1rem}'+
-    '.occ-card{background:#fff;border-radius:10px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.1);transition:box-shadow .2s}'+
-    '.occ-card:hover{box-shadow:0 4px 12px rgba(0,0,0,.15)}.occ-card a{text-decoration:none;color:inherit;display:block}'+
+    '.occ-card{background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.06),0 4px 16px rgba(0,0,0,.04);border:1px solid rgba(0,0,0,.07);transition:box-shadow .2s}'+
+    '.occ-card:hover{box-shadow:0 4px 16px rgba(0,0,0,.1)}.occ-card a{text-decoration:none;color:inherit;display:block}'+
     '.occ-card img{width:100%;height:160px;object-fit:cover}.occ-info{padding:.75rem}'+
-    '.occ-info h3{font-size:.9rem;font-weight:600;margin-bottom:.3rem}.occ-prijs{color:#1a56db;font-weight:700;font-size:1rem}'+
+    '.occ-info h3{font-size:.9rem;font-weight:600;margin-bottom:.3rem;color:#1a1a2e}.occ-prijs{color:#d14413;font-weight:700;font-size:1rem}'+
     '.occ-meta{color:#666;font-size:.8rem;margin-top:.2rem}</style></head><body>'+
-    '<nav><a href="/">Carkijker</a> &rsaquo; <a href="/occasions/">Occasions</a> &rsaquo; '+stad.naam+'</nav>'+
+    '<nav><a href="/" class="logo">Car<span>kijker</span></a><a href="/occasions/">Occasions</a><a href="/occasions/'+stadSlug+'/">'+stad.naam+'</a></nav>'+
     '<div class="container">'+
     '<h1>Tweedehands auto occasions '+stad.naam+'</h1>'+
     '<p class="subtitle">'+filtered.length+' occasions gevonden in en rond '+stad.naam+', '+stad.regio+'</p>'+
