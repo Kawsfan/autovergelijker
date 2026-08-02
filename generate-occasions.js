@@ -42,14 +42,6 @@ const OCC_STYLE =
   '.model-nav{display:flex;flex-wrap:wrap;gap:.4rem;margin-bottom:1.25rem}' +
   '.model-link{background:#fff;border:1px solid rgba(0,0,0,.08);border-radius:20px;padding:.3rem .85rem;font-size:.83rem;color:#d14413;text-decoration:none;transition:border-color .15s}' +
   '.model-link:hover{border-color:#d14413}.model-link span{color:#aaa;font-size:.78rem}' +
-  '.occ-grid{display:grid;gap:.7rem}' +
-  '.occ-card{background:#fff;border-radius:14px;border:1px solid rgba(0,0,0,.07);box-shadow:0 1px 4px rgba(0,0,0,.06),0 4px 16px rgba(0,0,0,.04);overflow:hidden;display:flex}' +
-  '.occ-card img,.occ-img-placeholder{width:140px;height:100px;object-fit:cover;flex-shrink:0;background:#f0f0eb}' +
-  '.occ-info{padding:.75rem 1rem;flex:1;min-width:0}' +
-  '.occ-titel{font-size:.9rem;font-weight:600;margin-bottom:.25rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#1a1a2e}' +
-  '.occ-meta{font-size:.78rem;color:#666;margin-bottom:.25rem}.occ-prijs{font-size:1.05rem;font-weight:700;color:#d14413}' +
-  '.occ-footer{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;margin-top:.35rem}' +
-  '.occ-bron{font-size:.72rem;color:#888}.occ-link{font-size:.8rem;color:#d14413;text-decoration:none;font-weight:600}' +
   '.back-link{display:inline-block;margin-top:2rem;color:#d14413;font-size:.875rem;text-decoration:none;font-weight:600}' +
   '.empty{text-align:center;padding:3rem;color:#888}' +
   '.geo-section{margin-top:2rem;padding:1.25rem;background:#fff;border-radius:14px;border:1px solid rgba(0,0,0,.07);box-shadow:0 1px 4px rgba(0,0,0,.06)}' +
@@ -57,7 +49,20 @@ const OCC_STYLE =
   '.geo-section h3{color:#333}.geo-section a{color:#d14413}' +
   '.geo-section .model-intro-blok{background:#fff3e0;border-left:4px solid #d14413;padding:.75rem 1rem;margin-bottom:.75rem;border-radius:0 8px 8px 0;font-size:.9rem;color:#7a3510}' +
   '.kooptip{background:#fff3e0;border-left:3px solid #d14413;padding:.6rem .8rem;border-radius:0 6px 6px 0;margin-bottom:.5rem}' +
-  '@media(max-width:580px){.occ-card img,.occ-img-placeholder{width:90px;height:80px}}';
+  // Dezelfde .auto-card-component als de homepage (index.html), zodat de
+  // occasion-kaarten er identiek uitzien i.p.v. een losse, eigen kaartstijl.
+  '.auto-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px}' +
+  '.auto-card{background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.06),0 4px 16px rgba(0,0,0,.04);border:1px solid rgba(0,0,0,.07);display:flex;flex-direction:column;text-decoration:none;color:inherit;transition:transform .18s ease,box-shadow .18s ease}' +
+  '.auto-card:hover{transform:translateY(-4px);box-shadow:0 8px 32px rgba(0,0,0,.11)}' +
+  '.auto-foto{position:relative;aspect-ratio:16/9;background:#f0f0eb;overflow:hidden}' +
+  '.auto-foto img{width:100%;height:100%;object-fit:cover}.auto-img-placeholder{width:100%;height:100%;background:#f0f0eb}' +
+  '.bron-label{position:absolute;top:10px;right:10px;padding:3px 8px;border-radius:4px;font-size:11px;font-weight:700;color:#fff;background:#888}' +
+  '.bron-marktplaats{background:#0063D3}.bron-gaspedaal{background:#E87722}.bron-viabovag{background:#003082}.bron-autotrack{background:#1B5FA8}.bron-autoscout24{background:#FF6600}.bron-autotrader{background:#0057B8}' +
+  '.auto-info{padding:14px 16px 12px;flex:1;display:flex;flex-direction:column;gap:6px}' +
+  '.auto-info h3{font-size:14px;font-weight:700;margin:0;color:#1a1a2e;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;line-height:1.38}' +
+  '.auto-prijs-groot{font-size:21px;font-weight:800;color:#111;letter-spacing:-.4px;margin:2px 0 0}' +
+  '.auto-specs-row{display:flex;gap:10px;flex-wrap:wrap;margin:2px 0}' +
+  '.auto-spec-chip{font-size:11.5px;color:#6b7280;display:flex;align-items:center;gap:3px}.auto-spec-chip svg{flex-shrink:0}';
 
 const MERKEN_DISPLAY = {
   bmw: 'BMW', vw: 'Volkswagen', volkswagen: 'Volkswagen',
@@ -81,6 +86,31 @@ function safeJsonLd(obj) {
 }
 function fmt(n) {
   return String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+}
+function bronClass(bron) {
+  return (bron || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+}
+// Zelfde kaart-component (markup + classes) als .auto-card op de homepage,
+// zodat een occasion-kaart er hier identiek uitziet -- i.p.v. de eigen,
+// losstaande kaartstijl die deze pagina's eerder hadden.
+function renderAutoCard(a, fallbackTitel) {
+  const titel = a.titel || fallbackTitel || '';
+  const specs = [
+    a.jaar ? '<span class="auto-spec-chip"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>' + a.jaar + '</span>' : '',
+    a.km != null ? '<span class="auto-spec-chip"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>' + fmt(a.km) + ' km</span>' : '',
+    a.brandstof ? '<span class="auto-spec-chip"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 22V8l9-6 9 6v14"/><line x1="9" y1="22" x2="9" y2="12"/><line x1="15" y1="22" x2="15" y2="12"/><rect x="9" y="12" width="6" height="10"/></svg>' + escHtml(a.brandstof) + '</span>' : '',
+    a.transmissie ? '<span class="auto-spec-chip">' + escHtml(a.transmissie) + '</span>' : '',
+  ].join('');
+  return '<a href="' + escHtml(a.url) + '" target="_blank" rel="noopener noreferrer" class="auto-card" itemscope itemtype="https://schema.org/Car">' +
+    '<div class="auto-foto">' +
+    (a.imgSrc ? '<img src="' + escHtml(a.imgSrc) + '" alt="' + escHtml(titel) + '" loading="lazy" width="280" height="158">' : '<div class="auto-img-placeholder"></div>') +
+    (a.bron ? '<span class="bron-label bron-' + bronClass(a.bron) + '">' + escHtml(a.bron) + '</span>' : '') +
+    '</div>' +
+    '<div class="auto-info">' +
+    '<h3 itemprop="name">' + escHtml(titel) + '</h3>' +
+    '<div class="auto-prijs-groot" itemprop="offers" itemscope itemtype="https://schema.org/Offer"><span itemprop="price" content="' + (a.prijs || '') + '">' + (a.prijs ? '&euro; ' + fmt(a.prijs) : 'Prijs op aanvraag') + '</span><meta itemprop="priceCurrency" content="EUR"></div>' +
+    '<div class="auto-specs-row">' + specs + '</div>' +
+    '</div></a>';
 }
 function cap(s) { return s ? s.charAt(0).toUpperCase() + s.slice(1) : ''; }
 function slugToDisplay(slug) { return MERKEN_DISPLAY[slug.toLowerCase()] || cap(slug); }
@@ -172,17 +202,7 @@ function buildPage({ merkSlug, modelSlug, filtered, listings }) {
       .map(function(e){return '<a href="/occasions/'+merkSlug+'/'+e[0]+'/" class="model-link">'+cap(e[0])+' <span>('+e[1]+')</span></a>';}).join('');
   }
 
-  const cards = filtered.slice(0,24).map(function(a){
-    return '<article class="occ-card" itemscope itemtype="https://schema.org/Car">' +
-      (a.imgSrc ? '<img src="'+escHtml(a.imgSrc)+'" alt="'+escHtml(a.titel||'')+'" loading="lazy" width="140" height="100">' : '<div class="occ-img-placeholder"></div>') +
-      '<div class="occ-info"><h2 class="occ-titel" itemprop="name">'+escHtml(a.titel||merkName)+'</h2>' +
-      '<div class="occ-meta">'+ [a.jaar, a.km?fmt(a.km)+' km':'', a.brandstof, a.transmissie].filter(Boolean).map(escHtml).join(' &middot; ') +'</div>' +
-      '<div class="occ-prijs" itemprop="offers" itemscope itemtype="https://schema.org/Offer"><span itemprop="price" content="'+(a.prijs||'')+'">'+(a.prijs?'&euro; '+fmt(a.prijs):'Prijs op aanvraag')+'</span><meta itemprop="priceCurrency" content="EUR"></div>' +
-      '<div class="occ-footer">' +
-      (a.bron?'<span class="occ-bron">'+escHtml(a.bron)+'</span>':'') +
-      (a.url?'<a href="'+escHtml(a.url)+'" target="_blank" rel="noopener noreferrer" class="occ-link">Bekijk advertentie &rarr;</a>':'') +
-      '</div></div></article>';
-  }).join('');
+  const cards = filtered.slice(0,24).map(function(a){ return renderAutoCard(a, merkName); }).join('');
 
 
   const MODEL_INTRO = {
@@ -295,7 +315,7 @@ const MERK_INTRO = {
     '  '+statsHtml+'\n' +
     (merkLinks?'  <div class="model-nav">'+merkLinks+'</div>\n':'') +
     (modelLinks?'  <div class="model-nav">'+modelLinks+'</div>\n':'') +
-    ((!merkSlug) ? '  <section style="background:#fff;border:1px solid rgba(0,0,0,.07);border-radius:14px;box-shadow:0 1px 4px rgba(0,0,0,.06);padding:1.25rem 1.5rem;margin-bottom:1.25rem">' +'<h2 style="font-size:1rem;font-weight:700;margin-bottom:.5rem;color:#1a1a2e">Tweedehands auto kopen in Nederland</h2>' +'<p style="font-size:.875rem;color:#444;line-height:1.6">Carkijker toont dagelijks bijgewerkte occasions van <strong>Marktplaats, AutoScout24, Gaspedaal en ViaBOVAG</strong> op &eacute;&eacute;n overzichtelijke plek. Vergelijk '+listings.length+' tweedehands auto&rsquo;s op prijs, km-stand en merk &mdash; zonder meerdere sites te hoeven bezoeken. Klik op een merk om het volledige aanbod te zien, of ga terug naar de <a href="/" style="color:#d14413">live zoekmachine</a> voor uitgebreide filters.</p>' +'</section>\n' : '') +'  <div class="occ-grid">'+(cards||'<p class="empty">Geen occasions gevonden voor deze combinatie. Probeer een andere merk- of modelcombinatie, of bekijk het <a href="/occasions/" style="color:#d14413">volledige aanbod</a>.</p>')+'</div>\n' +
+    ((!merkSlug) ? '  <section style="background:#fff;border:1px solid rgba(0,0,0,.07);border-radius:14px;box-shadow:0 1px 4px rgba(0,0,0,.06);padding:1.25rem 1.5rem;margin-bottom:1.25rem">' +'<h2 style="font-size:1rem;font-weight:700;margin-bottom:.5rem;color:#1a1a2e">Tweedehands auto kopen in Nederland</h2>' +'<p style="font-size:.875rem;color:#444;line-height:1.6">Carkijker toont dagelijks bijgewerkte occasions van <strong>Marktplaats, AutoScout24, Gaspedaal en ViaBOVAG</strong> op &eacute;&eacute;n overzichtelijke plek. Vergelijk '+listings.length+' tweedehands auto&rsquo;s op prijs, km-stand en merk &mdash; zonder meerdere sites te hoeven bezoeken. Klik op een merk om het volledige aanbod te zien, of ga terug naar de <a href="/" style="color:#d14413">live zoekmachine</a> voor uitgebreide filters.</p>' +'</section>\n' : '') +'  <div class="auto-grid">'+(cards||'<p class="empty">Geen occasions gevonden voor deze combinatie. Probeer een andere merk- of modelcombinatie, of bekijk het <a href="/occasions/" style="color:#d14413">volledige aanbod</a>.</p>')+'</div>\n' +
     geoText +
     '  <a href="/" class="back-link">&larr; Terug naar live zoeken</a>\n' +
     '  </div>\n</body>\n</html>';
@@ -319,14 +339,7 @@ const STEDEN = {
 function buildStadPage(stadSlug, stad, filtered, listings) {
   const gemPrijs = filtered.length ? Math.round(filtered.reduce((s,l)=>s+(l.prijs||0),0)/filtered.length) : 0;
   const medPrijs = filtered.length ? [...filtered].sort((a,b)=>(a.prijs||0)-(b.prijs||0))[Math.floor(filtered.length/2)].prijs : 0;
-  const cards = filtered.slice(0,24).map(l =>
-    '<article class="occ-card"><a href="'+escHtml(l.url)+'" target="_blank" rel="noopener noreferrer">'+
-    (l.imgSrc ? '<img src="'+escHtml(l.imgSrc)+'" alt="'+escHtml(l.titel)+'" loading="lazy" width="300" height="200">' : '')+
-    '<div class="occ-info"><h3>'+escHtml(l.titel)+'</h3>'+
-    '<p class="occ-prijs">&#8364; '+Number(l.prijs||0).toLocaleString("nl-NL")+'</p>'+
-    '<p class="occ-meta">'+(l.km?l.km.toLocaleString("nl-NL")+' km &bull; ':'')+(l.bouwjaar||'')+'</p>'+
-    '</div></a></article>'
-  ).join('');
+  const cards = filtered.slice(0,24).map(function(l){ return renderAutoCard(l, stad.naam); }).join('');
   return '<!doctype html><html lang="nl"><head>'+
     '<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'+
     GA_SNIPPET +
@@ -343,12 +356,18 @@ function buildStadPage(stadSlug, stad, filtered, listings) {
     '.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:.75rem;margin:1rem 0}'+
     '.stat-card{background:#fff;border-radius:12px;padding:.75rem 1rem;text-align:center;box-shadow:0 1px 4px rgba(0,0,0,.06);border:1px solid rgba(0,0,0,.07)}'+
     '.stat-val{font-size:1.25rem;font-weight:700;color:#d14413}.stat-label{font-size:.75rem;color:#666;margin-top:.2rem}'+
-    '.occ-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1rem;margin-top:1rem}'+
-    '.occ-card{background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.06),0 4px 16px rgba(0,0,0,.04);border:1px solid rgba(0,0,0,.07);transition:box-shadow .2s}'+
-    '.occ-card:hover{box-shadow:0 4px 16px rgba(0,0,0,.1)}.occ-card a{text-decoration:none;color:inherit;display:block}'+
-    '.occ-card img{width:100%;height:160px;object-fit:cover}.occ-info{padding:.75rem}'+
-    '.occ-info h3{font-size:.9rem;font-weight:600;margin-bottom:.3rem;color:#1a1a2e}.occ-prijs{color:#d14413;font-weight:700;font-size:1rem}'+
-    '.occ-meta{color:#666;font-size:.8rem;margin-top:.2rem}</style></head><body>'+
+    '.auto-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;margin-top:1rem}'+
+    '.auto-card{background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.06),0 4px 16px rgba(0,0,0,.04);border:1px solid rgba(0,0,0,.07);display:flex;flex-direction:column;text-decoration:none;color:inherit;transition:transform .18s ease,box-shadow .18s ease}'+
+    '.auto-card:hover{transform:translateY(-4px);box-shadow:0 8px 32px rgba(0,0,0,.11)}'+
+    '.auto-foto{position:relative;aspect-ratio:16/9;background:#f0f0eb;overflow:hidden}'+
+    '.auto-foto img{width:100%;height:100%;object-fit:cover}.auto-img-placeholder{width:100%;height:100%;background:#f0f0eb}'+
+    '.bron-label{position:absolute;top:10px;right:10px;padding:3px 8px;border-radius:4px;font-size:11px;font-weight:700;color:#fff;background:#888}'+
+    '.bron-marktplaats{background:#0063D3}.bron-gaspedaal{background:#E87722}.bron-viabovag{background:#003082}.bron-autotrack{background:#1B5FA8}.bron-autoscout24{background:#FF6600}.bron-autotrader{background:#0057B8}'+
+    '.auto-info{padding:14px 16px 12px;flex:1;display:flex;flex-direction:column;gap:6px}'+
+    '.auto-info h3{font-size:14px;font-weight:700;margin:0;color:#1a1a2e;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;line-height:1.38}'+
+    '.auto-prijs-groot{font-size:21px;font-weight:800;color:#111;letter-spacing:-.4px;margin:2px 0 0}'+
+    '.auto-specs-row{display:flex;gap:10px;flex-wrap:wrap;margin:2px 0}'+
+    '.auto-spec-chip{font-size:11.5px;color:#6b7280;display:flex;align-items:center;gap:3px}.auto-spec-chip svg{flex-shrink:0}</style></head><body>'+
     '<nav><a href="/" class="logo">Car<span>kijker</span></a><a href="/occasions/">Occasions</a><a href="/occasions/'+stadSlug+'/">'+stad.naam+'</a></nav>'+
     '<div class="container">'+
     '<h1>Tweedehands auto occasions '+stad.naam+'</h1>'+
@@ -359,7 +378,7 @@ function buildStadPage(stadSlug, stad, filtered, listings) {
     '<div class="stat-card"><div class="stat-val">&#8364; '+(Math.round(gemPrijs/100)*100).toLocaleString("nl-NL")+'</div><div class="stat-label">Gem. prijs</div></div>'+
     '<div class="stat-card"><div class="stat-val">&#8364; '+(Math.round(medPrijs/100)*100).toLocaleString("nl-NL")+'</div><div class="stat-label">Mediaan</div></div>'+
     '</div>'+
-    '<div class="occ-grid">'+cards+'</div>'+
+    '<div class="auto-grid">'+cards+'</div>'+
     (filtered.length === 0 ? '<p style="color:#666;margin-top:1rem">Geen occasions gevonden in '+stad.naam+'. Bekijk ons <a href="/">volledig aanbod</a>.</p>' : '')+
     '</div></body></html>';
 }
