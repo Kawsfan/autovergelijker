@@ -606,6 +606,8 @@
   .markt-inruil-card .val{font-size:17px;font-weight:700;color:var(--tekst)}
   .markt-inruil-card.hoofd .val{color:var(--oranje);font-size:19px}
   .markt-inruil-disclaimer{font-size:11px;color:var(--subtekst);margin-top:10px;line-height:1.4}
+  .markt-inruil-suggestie{margin-top:14px;padding-top:14px;border-top:1px dashed var(--oranje)}
+  .markt-inruil-suggestie p{font-size:13px;color:var(--tekst);line-height:1.5;margin:0}
   @media(max-width:600px){.markt-two-col{grid-template-columns:1fr}}
 
 .afstand-rij { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
@@ -2569,6 +2571,15 @@ function sluitMarkt() {
     berekenInruilwaarde();
   }
 
+  // Vaste prijsstappen van de #prijsMin/#prijsMax select-filters op de homepage --
+  // de upgrade-suggestie rondt hierop af zodat de ?prijsMin=/?prijsMax=-deep-link
+  // (via urlNaarFilters()) altijd op een bestaande <option> aanslaat.
+  var PRIJS_STAPPEN_MIN = [1000,2500,5000,7500,10000,15000,20000,25000,30000,40000,50000,75000];
+  var PRIJS_STAPPEN_MAX = [2500,5000,7500,10000,15000,20000,25000,30000,40000,50000,75000,100000];
+  function _naarPrijsstap(bedrag, stappen) {
+    return stappen.reduce(function(beste, s){ return Math.abs(s-bedrag) < Math.abs(beste-bedrag) ? s : beste; });
+  }
+
   // Schat marktwaarde + indicatieve inruilwaarde op basis van een eigen prijs/km/bouwjaar-
   // regressie over alle advertenties van dit merk+model — bewust los van de jaar/brandstof/
   // transmissie-filters hierboven, zodat de steekproef groot en stabiel blijft.
@@ -2588,6 +2599,7 @@ function sluitMarkt() {
     function toon(msg) {
       leeg.textContent = msg; leeg.style.display = '';
       uitkomst.style.display = 'none'; disclaimer.style.display = 'none';
+      var s = document.getElementById('mInruilSuggestie'); if (s) s.style.display = 'none';
     }
     if (!merk || !model) return toon('Selecteer hierboven een merk en model.');
 
@@ -2650,6 +2662,34 @@ function sluitMarkt() {
       '<div class="markt-inruil-card hoofd"><div class="lbl">Indicatieve inruilwaarde</div><div class="val">' + fmt(inruilMin) + ' – ' + fmt(inruilMax) + '</div></div>';
     disclaimer.textContent = 'Schatting op basis van ' + n + ' advertenties van ' + merk + ' ' + model + ' (vraagprijs, niet inruil), rekening houdend met km-stand en bouwjaar, los van de jaar/brandstof/transmissie-filters hierboven. Geen officiële taxatie — de werkelijke inruilwaarde hangt af van staat, onderhoudshistorie en dealer.';
     leeg.style.display = 'none'; uitkomst.style.display = ''; disclaimer.style.display = '';
+
+    // Upgrade-suggestie: op basis van de indicatieve inruilwaarde (niet de losse
+    // marktwaarde) een budget voor de volgende auto voorstellen -- vaste marge
+    // (+50% tot +150% van de inruilwaarde) i.p.v. een extra invoerveld, zodat
+    // de suggestie meteen zichtbaar is. Afgerond op de vaste prijsstappen van
+    // het hoofd-zoekfilter, zodat de link daar ook echt op aanslaat.
+    var suggestie = document.getElementById('mInruilSuggestie');
+    if (suggestie) {
+      var inruilMid = (inruilMin + inruilMax) / 2;
+      var budgetMinRaw = inruilMid * 1.5, budgetMaxRaw = inruilMid * 2.5;
+      var budgetMin = _naarPrijsstap(budgetMinRaw, PRIJS_STAPPEN_MIN);
+      // Bij hoge inruilwaardes (~vanaf €45.000) valt budgetMaxRaw buiten de hoogste
+      // beschikbare prijsstap (€100.000) -- dan een open-eind "vanaf"-suggestie i.p.v.
+      // het bereik kunstmatig plat te slaan op diezelfde vaste bovengrens.
+      var maxStap = PRIJS_STAPPEN_MAX[PRIJS_STAPPEN_MAX.length - 1];
+      var openEinde = budgetMaxRaw >= maxStap;
+      var budgetMax = openEinde ? null : _naarPrijsstap(budgetMaxRaw, PRIJS_STAPPEN_MAX);
+      if (openEinde || budgetMax > budgetMin) {
+        var budgetTekst = openEinde ? ('vanaf ' + fmt(budgetMin)) : (fmt(budgetMin) + ' – ' + fmt(budgetMax));
+        var link = '/?prijsMin=' + budgetMin + (openEinde ? '' : ('&prijsMax=' + budgetMax));
+        suggestie.innerHTML =
+          '<p>Op basis van je inruilwaarde: met een budget van <strong>' + budgetTekst + '</strong> vind je hieronder passend aanbod voor je volgende auto.</p>' +
+          '<a href="' + link + '" class="btn" style="background:var(--oranje);color:#fff;display:inline-flex;margin-top:10px">Bekijk aanbod in dit budget &rarr;</a>';
+        suggestie.style.display = '';
+      } else {
+        suggestie.style.display = 'none';
+      }
+    }
   }
 </script>
 
@@ -2794,6 +2834,7 @@ function _injectCarSchema(cars) {
       <div id="mInruilLeeg" class="markt-leeg" style="display:none;padding:14px 0 0;font-size:13px">Selecteer hierboven een merk en model.</div>
       <div id="mInruilUitkomst" class="markt-inruil-uitkomst" style="display:none"></div>
       <p id="mInruilDisclaimer" class="markt-inruil-disclaimer" style="display:none"></p>
+      <div id="mInruilSuggestie" class="markt-inruil-suggestie" style="display:none"></div>
     </div>
     <div id="mLeeg" class="markt-leeg" style="display:none">Geen advertenties gevonden voor deze selectie.</div>
     <div id="mResultaat">
@@ -3051,11 +3092,17 @@ function _buildSlider(loId,hiId,fmt){
   var opts=Array.from(loS.options).map(function(o){return o.value;}).filter(function(v){return v!=='';});
   if(!opts.length)return;
   var mx=opts.length-1;
+  // Als de select al een waarde heeft (bv. gezet via urlNaarFilters() vanuit een
+  // ?prijsMin=/?prijsMax=-deep-link), de slider daarop initialiseren -- anders
+  // reset upd() hieronder 'm meteen weer naar "geen min/max" en gaat de
+  // deep-link-waarde alsnog verloren.
+  var loIdx=loS.value&&opts.indexOf(loS.value)>=0?opts.indexOf(loS.value):0;
+  var hiIdx=hiS.value&&opts.indexOf(hiS.value)>=0?opts.indexOf(hiS.value):mx;
   var wrap=document.createElement('div');wrap.className='rs-wrap';
   var loLbl=escHtml(loS.getAttribute('aria-label')||loId),hiLbl=escHtml(hiS.getAttribute('aria-label')||hiId);
   wrap.innerHTML='<div class="rs-track"><div class="rs-fill" id="rsf-'+loId+'"></div></div>'
-    +'<input type="range" class="rs-in" id="rsi-'+loId+'" aria-label="'+loLbl+'" min="0" max="'+mx+'" value="0" step="1">'
-    +'<input type="range" class="rs-in" id="rsi-'+hiId+'" aria-label="'+hiLbl+'" min="0" max="'+mx+'" value="'+mx+'" step="1">'
+    +'<input type="range" class="rs-in" id="rsi-'+loId+'" aria-label="'+loLbl+'" min="0" max="'+mx+'" value="'+loIdx+'" step="1">'
+    +'<input type="range" class="rs-in" id="rsi-'+hiId+'" aria-label="'+hiLbl+'" min="0" max="'+mx+'" value="'+hiIdx+'" step="1">'
     +'<div class="rs-label"><span id="rsl-'+loId+'">Geen min</span><span id="rsl-'+hiId+'">Geen max</span></div>';
   loS.style.display='none';hiS.style.display='none';
   loS.parentNode.appendChild(wrap);
