@@ -482,7 +482,8 @@ function parseerViaBovag(html, gezien, label) {
       brandstof,
       locatie: item.company?.city || null,
       url: 'https://www.viabovag.nl' + item.url,
-      afbeelding: item.imageUrl || null,
+      imgSrc: item.imageUrl || '',
+      imgs: item.imageUrl ? [item.imageUrl] : [],
       bijgewerkt: new Date().toISOString().slice(0, 10),
     });
   }
