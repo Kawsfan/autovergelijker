@@ -37,7 +37,8 @@ const OCC_STYLE =
   'h1{font-size:1.5rem;font-weight:700;margin:1.5rem 0 .3rem;color:#1a1a2e}' +
   '.subtitle{color:#666;font-size:.9rem;margin-bottom:1.25rem}' +
   '.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:.5rem;margin-bottom:1.25rem}' +
-  '.stat{background:#fff;border-radius:12px;padding:.7rem 1rem;border:1px solid rgba(0,0,0,.07);box-shadow:0 1px 4px rgba(0,0,0,.05)}' +
+  '.stat{background:#fff;border-radius:12px;padding:.7rem 1rem;border:1px solid rgba(0,0,0,.07);box-shadow:0 1px 4px rgba(0,0,0,.05);display:block;text-decoration:none;color:inherit;transition:border-color .15s,box-shadow .15s}' +
+  '.stat:hover{border-color:#d14413;box-shadow:0 1px 4px rgba(0,0,0,.08)}' +
   '.stat-lbl{display:block;font-size:.72rem;color:#888;margin-bottom:.15rem}.stat strong{font-size:.95rem;color:#1a1a2e}' +
   '.model-nav{display:flex;flex-wrap:wrap;gap:.4rem;margin-bottom:1.25rem}' +
   '.model-link{background:#fff;border:1px solid rgba(0,0,0,.08);border-radius:20px;padding:.3rem .85rem;font-size:.83rem;color:#d14413;text-decoration:none;transition:border-color .15s}' +
@@ -176,12 +177,14 @@ function buildPage({ merkSlug, modelSlug, filtered, listings }) {
   if (modelSlug) bcItems.push({ '@type': 'ListItem', position: 4, name: modelName, item: SITE_ORIGIN + '/occasions/' + merkSlug + '/' + modelSlug + '/' });
   const bcSchema = { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: bcItems };
 
+  // Stat-blokken linken naar het aanbod verderop op dezelfde pagina -- "Goedkoopste"
+  // gaat direct naar die specifieke advertentie, de rest naar de kaarten-sectie.
   const statsHtml = '<div class="stats-grid">' +
-    (filtered.length ? '<div class="stat"><span class="stat-lbl">Aanbod</span><strong>' + filtered.length + ' occasions</strong></div>' : '') +
-    (gemPrijs ? '<div class="stat"><span class="stat-lbl">Gem. vraagprijs</span><strong>&euro; ' + fmt(gemPrijs) + '</strong></div>' : '') +
-    (medPrijs ? '<div class="stat"><span class="stat-lbl">Mediaanprijs</span><strong>&euro; ' + fmt(medPrijs) + '</strong></div>' : '') +
-    (medKm    ? '<div class="stat"><span class="stat-lbl">Mediaan km</span><strong>' + fmt(medKm) + ' km</strong></div>' : '') +
-    (goedkoop ? '<div class="stat"><span class="stat-lbl">Goedkoopste</span><strong>&euro; ' + fmt(goedkoop.prijs) + (goedkoop.jaar ? ' (' + goedkoop.jaar + ')' : '') + '</strong></div>' : '') +
+    (filtered.length ? '<a href="#aanbod" class="stat"><span class="stat-lbl">Aanbod</span><strong>' + filtered.length + ' occasions</strong></a>' : '') +
+    (gemPrijs ? '<a href="#aanbod" class="stat"><span class="stat-lbl">Gem. vraagprijs</span><strong>&euro; ' + fmt(gemPrijs) + '</strong></a>' : '') +
+    (medPrijs ? '<a href="#aanbod" class="stat"><span class="stat-lbl">Mediaanprijs</span><strong>&euro; ' + fmt(medPrijs) + '</strong></a>' : '') +
+    (medKm    ? '<a href="#aanbod" class="stat"><span class="stat-lbl">Mediaan km</span><strong>' + fmt(medKm) + ' km</strong></a>' : '') +
+    (goedkoop ? '<a href="' + (goedkoop.url ? escHtml(goedkoop.url) : '#aanbod') + '"' + (goedkoop.url ? ' target="_blank" rel="noopener noreferrer"' : '') + ' class="stat"><span class="stat-lbl">Goedkoopste</span><strong>&euro; ' + fmt(goedkoop.prijs) + (goedkoop.jaar ? ' (' + goedkoop.jaar + ')' : '') + '</strong></a>' : '') +
     '</div>';
 
   let merkLinks = '';
@@ -315,7 +318,7 @@ const MERK_INTRO = {
     '  '+statsHtml+'\n' +
     (merkLinks?'  <div class="model-nav">'+merkLinks+'</div>\n':'') +
     (modelLinks?'  <div class="model-nav">'+modelLinks+'</div>\n':'') +
-    ((!merkSlug) ? '  <section style="background:#fff;border:1px solid rgba(0,0,0,.07);border-radius:14px;box-shadow:0 1px 4px rgba(0,0,0,.06);padding:1.25rem 1.5rem;margin-bottom:1.25rem">' +'<h2 style="font-size:1rem;font-weight:700;margin-bottom:.5rem;color:#1a1a2e">Tweedehands auto kopen in Nederland</h2>' +'<p style="font-size:.875rem;color:#444;line-height:1.6">Carkijker toont dagelijks bijgewerkte occasions van <strong>Marktplaats, AutoScout24, Gaspedaal en ViaBOVAG</strong> op &eacute;&eacute;n overzichtelijke plek. Vergelijk '+listings.length+' tweedehands auto&rsquo;s op prijs, km-stand en merk &mdash; zonder meerdere sites te hoeven bezoeken. Klik op een merk om het volledige aanbod te zien, of ga terug naar de <a href="/" style="color:#d14413">live zoekmachine</a> voor uitgebreide filters.</p>' +'</section>\n' : '') +'  <div class="auto-grid">'+(cards||'<p class="empty">Geen occasions gevonden voor deze combinatie. Probeer een andere merk- of modelcombinatie, of bekijk het <a href="/occasions/" style="color:#d14413">volledige aanbod</a>.</p>')+'</div>\n' +
+    ((!merkSlug) ? '  <section style="background:#fff;border:1px solid rgba(0,0,0,.07);border-radius:14px;box-shadow:0 1px 4px rgba(0,0,0,.06);padding:1.25rem 1.5rem;margin-bottom:1.25rem">' +'<h2 style="font-size:1rem;font-weight:700;margin-bottom:.5rem;color:#1a1a2e">Tweedehands auto kopen in Nederland</h2>' +'<p style="font-size:.875rem;color:#444;line-height:1.6">Carkijker toont dagelijks bijgewerkte occasions van <strong>Marktplaats, AutoScout24, Gaspedaal en ViaBOVAG</strong> op &eacute;&eacute;n overzichtelijke plek. Vergelijk '+listings.length+' tweedehands auto&rsquo;s op prijs, km-stand en merk &mdash; zonder meerdere sites te hoeven bezoeken. Klik op een merk om het volledige aanbod te zien, of ga terug naar de <a href="/" style="color:#d14413">live zoekmachine</a> voor uitgebreide filters.</p>' +'</section>\n' : '') +'  <div class="auto-grid" id="aanbod">'+(cards||'<p class="empty">Geen occasions gevonden voor deze combinatie. Probeer een andere merk- of modelcombinatie, of bekijk het <a href="/occasions/" style="color:#d14413">volledige aanbod</a>.</p>')+'</div>\n' +
     geoText +
     '  <a href="/" class="back-link">&larr; Terug naar live zoeken</a>\n' +
     '  </div>\n</body>\n</html>';
@@ -354,7 +357,8 @@ function buildStadPage(stadSlug, stad, filtered, listings) {
     '.container{max-width:960px;margin:0 auto;padding:1rem}h1{font-size:1.5rem;font-weight:700;margin:1.5rem 0 .3rem;color:#1a1a2e}'+
     '.subtitle{color:#666;font-size:.9rem;margin-bottom:1rem}.geo-blok{background:#fff3e0;border-left:4px solid #d14413;padding:.75rem 1rem;margin-bottom:1rem;border-radius:0 8px 8px 0}'+
     '.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:.75rem;margin:1rem 0}'+
-    '.stat-card{background:#fff;border-radius:12px;padding:.75rem 1rem;text-align:center;box-shadow:0 1px 4px rgba(0,0,0,.06);border:1px solid rgba(0,0,0,.07)}'+
+    '.stat-card{background:#fff;border-radius:12px;padding:.75rem 1rem;text-align:center;box-shadow:0 1px 4px rgba(0,0,0,.06);border:1px solid rgba(0,0,0,.07);display:block;text-decoration:none;color:inherit;transition:border-color .15s}'+
+    '.stat-card:hover{border-color:#d14413}'+
     '.stat-val{font-size:1.25rem;font-weight:700;color:#d14413}.stat-label{font-size:.75rem;color:#666;margin-top:.2rem}'+
     '.auto-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;margin-top:1rem}'+
     '.auto-card{background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.06),0 4px 16px rgba(0,0,0,.04);border:1px solid rgba(0,0,0,.07);display:flex;flex-direction:column;text-decoration:none;color:inherit;transition:transform .18s ease,box-shadow .18s ease}'+
@@ -374,11 +378,11 @@ function buildStadPage(stadSlug, stad, filtered, listings) {
     '<p class="subtitle">'+filtered.length+' occasions gevonden in en rond '+stad.naam+', '+stad.regio+'</p>'+
     '<div class="geo-blok"><p>'+stad.tekst+'</p></div>'+
     '<div class="stats-grid">'+
-    '<div class="stat-card"><div class="stat-val">'+filtered.length+'</div><div class="stat-label">Occasions</div></div>'+
-    '<div class="stat-card"><div class="stat-val">&#8364; '+(Math.round(gemPrijs/100)*100).toLocaleString("nl-NL")+'</div><div class="stat-label">Gem. prijs</div></div>'+
-    '<div class="stat-card"><div class="stat-val">&#8364; '+(Math.round(medPrijs/100)*100).toLocaleString("nl-NL")+'</div><div class="stat-label">Mediaan</div></div>'+
+    '<a href="#aanbod" class="stat-card"><div class="stat-val">'+filtered.length+'</div><div class="stat-label">Occasions</div></a>'+
+    '<a href="#aanbod" class="stat-card"><div class="stat-val">&#8364; '+(Math.round(gemPrijs/100)*100).toLocaleString("nl-NL")+'</div><div class="stat-label">Gem. prijs</div></a>'+
+    '<a href="#aanbod" class="stat-card"><div class="stat-val">&#8364; '+(Math.round(medPrijs/100)*100).toLocaleString("nl-NL")+'</div><div class="stat-label">Mediaan</div></a>'+
     '</div>'+
-    '<div class="auto-grid">'+cards+'</div>'+
+    '<div class="auto-grid" id="aanbod">'+cards+'</div>'+
     (filtered.length === 0 ? '<p style="color:#666;margin-top:1rem">Geen occasions gevonden in '+stad.naam+'. Bekijk ons <a href="/">volledig aanbod</a>.</p>' : '')+
     '</div></body></html>';
 }
