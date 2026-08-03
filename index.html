@@ -1142,6 +1142,10 @@ async function laadListings() {
     alleResultaten = dedupAutos(data.listings || []);
     window._alleAutos = alleResultaten;
     alleResultaten.forEach(function(a){if(!a.merk||!/^[a-zA-ZÀ-ɏ]/.test(a.merk))a.merk=extraheerMerk(a.titel||"");});
+    // a.model bestaat niet in de scraped data (alleen a.merk) -- zonder deze
+    // backfill blijft de modeldropdown in Marktanalyse (en dus ook de
+    // inruilwaarde-schatter, die merk+model verplicht stelt) altijd leeg.
+    alleResultaten.forEach(function(a){if(!a.model)a.model=_getModel(a.titel||"");});
 
     if (alleResultaten.length === 0) {
       _huidigeLijst = gesorteerd;
@@ -1204,6 +1208,7 @@ async function laadListings() {
             alleResultaten = dedupAutos(full);
             window._alleAutos = alleResultaten;
             alleResultaten.forEach(function(a){if(!a.merk)a.merk=extraheerMerk(a.titel||'');});
+            alleResultaten.forEach(function(a){if(!a.model)a.model=_getModel(a.titel||'');});
             _populeerMerkFilter();
             _vulZoekSuggesties();
             // Trending/merk-stats/schema zijn bij het eerste laden berekend op de kleine
