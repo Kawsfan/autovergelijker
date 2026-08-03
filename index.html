@@ -601,7 +601,8 @@
   .markt-inruil-title{font-size:14px;font-weight:700;margin-bottom:10px}
   .markt-inruil-row-input{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
   .markt-inruil-row-input label{font-size:12px;color:var(--subtekst);white-space:nowrap}
-  .markt-inruil-row-input input{flex:1;min-width:120px;padding:8px 10px;border-radius:8px;border:1px solid var(--rand);background:var(--kaart);color:var(--tekst);font-size:13px}
+  .markt-inruil-row-input input,.markt-inruil-row-input select{flex:1;min-width:120px;padding:8px 10px;border-radius:8px;border:1px solid var(--rand);background:var(--kaart);color:var(--tekst);font-size:13px}
+  .detail-inruil{margin:16px 0}
   .markt-inruil-uitkomst{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
   .markt-inruil-card{flex:1;min-width:150px;background:var(--kaart);border-radius:10px;padding:10px 12px}
   .markt-inruil-card .lbl{font-size:11px;color:var(--subtekst)}
@@ -610,6 +611,8 @@
   .markt-inruil-disclaimer{font-size:11px;color:var(--subtekst);margin-top:10px;line-height:1.4}
   .markt-inruil-suggestie{margin-top:14px;padding-top:14px;border-top:1px dashed var(--oranje)}
   .markt-inruil-suggestie p{font-size:13px;color:var(--tekst);line-height:1.5;margin:0}
+  .markt-inruil-marge-lbl{display:block;font-size:11px;color:var(--subtekst);margin-bottom:4px}
+  .markt-inruil-suggestie select{width:100%;padding:7px 9px;border-radius:8px;border:1px solid var(--rand);background:var(--kaart);color:var(--tekst);font-size:13px;margin-bottom:10px}
   @media(max-width:600px){.markt-two-col{grid-template-columns:1fr}}
 
 .afstand-rij { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
@@ -1639,12 +1642,29 @@ function openDetail(id) {
         out+='<div style="display:flex;justify-content:space-between;font-size:11px;color:var(--subtekst);margin-top:4px"><span>'+all[0].datum+': €'+Number(startP).toLocaleString("nl-NL")+'</span><span>Nu: €'+Number(curP).toLocaleString("nl-NL")+'</span></div>';
         out+='</div>';return out;
       })()}
+      <div class="markt-inruil detail-inruil">
+        <div class="markt-inruil-title">&#128176; Wat kost deze auto jou na inruil?</div>
+        <div class="markt-inruil-row-input">
+          <select id="dInruilMerk" onchange="updateDetailModellen(this.value)" aria-label="Merk van jouw huidige auto"><option value="">Merk van jouw auto</option></select>
+          <select id="dInruilModel" onchange="berekenDetailInruil()" aria-label="Model van jouw huidige auto"><option value="">Model</option></select>
+        </div>
+        <div class="markt-inruil-row-input" style="margin-top:8px">
+          <label for="dInruilKm">Jouw km-stand</label>
+          <input type="number" id="dInruilKm" placeholder="bv. 85000" min="0" step="1000" oninput="berekenDetailInruil()" disabled>
+          <label for="dInruilJaar">Bouwjaar</label>
+          <input type="number" id="dInruilJaar" placeholder="bv. 2019" min="1980" step="1" oninput="berekenDetailInruil()" disabled>
+        </div>
+        <div id="dInruilLeeg" class="markt-leeg" style="display:none;padding:10px 0 0;font-size:13px">Vul hierboven merk en model van jouw huidige auto in.</div>
+        <div id="dInruilUitkomst" style="display:none;font-size:13px;line-height:1.55;margin-top:10px"></div>
+      </div>
       <a href="${escHtml(a.url)}" target="_blank" rel="noopener noreferrer" style="display:block;background:#e84c15;color:white;text-align:center;padding:14px 20px;border-radius:10px;font-size:15px;font-weight:700;text-decoration:none;margin:16px 0">${(window.lang||'nl')==='en'?"View listing on":"Bekijk advertentie op"} ${a.bron||'bron'} &rarr;</a>
       <p style="font-size:12px;color:var(--subtekst);margin-top:8px;text-align:center">
         Foto's en volledige omschrijving staan op de originele advertentie.
       </p>
     </div>`;
 
+  _populeerMerkSelect(document.getElementById('dInruilMerk'), false);
+  berekenDetailInruil();
   galRender();
   galRender();
   document.getElementById('overlay').classList.add('open');
@@ -2404,17 +2424,33 @@ function filterOpTrend(key){
 }
 
 
+  // Vult een <select> met alle bekende merken (behalve "overig"). Herbruikt door
+  // de Marktanalyse-modal (#mMerk) en de inruil-widget op de detailpagina
+  // (#dInruilMerk). skipIfGevuld=true laat 'm met rust als er al opties in staan
+  // (nodig voor #mMerk, die als DOM-element blijft bestaan tussen modal-opens).
+  function _populeerMerkSelect(selEl, skipIfGevuld) {
+    if (!selEl || (skipIfGevuld && selEl.options.length > 1)) return;
+    var seen = {};
+    (window._alleAutos||[]).forEach(function(a){ var m=a.merk; if(m&&m!=='overig'&&!seen[m]){seen[m]=1;} });
+    Object.keys(seen).sort().forEach(function(m){ var o=document.createElement('option'); o.value=m; o.textContent=m; selEl.appendChild(o); });
+  }
+  function _populeerModelSelect(selEl, merk, placeholder) {
+    if (!selEl) return;
+    selEl.innerHTML = '<option value="">' + placeholder + '</option>';
+    if (!merk) return;
+    var seen = {};
+    (window._alleAutos||[]).forEach(function(a){
+      if (a.merk===merk && a.model && !seen[a.model]) { seen[a.model]=1; }
+    });
+    Object.keys(seen).sort().forEach(function(m){ var o=document.createElement('option'); o.value=m; o.textContent=m; selEl.appendChild(o); });
+  }
+
   // ===== MARKTANALYSE =====
   function openMarkt() {
     var ol = document.getElementById('marktOverlay');
     ol.style.display = 'block';
     document.body.style.overflow = 'hidden';
-    var mSel = document.getElementById('mMerk');
-    if (mSel.options.length <= 1) {
-      var seen = {};
-      (window._alleAutos||[]).forEach(function(a){ var m=a.merk; if(m&&m!=='overig'&&!seen[m]){seen[m]=1;} });
-      Object.keys(seen).sort().forEach(function(m){ var o=document.createElement('option'); o.value=m; o.textContent=m; mSel.appendChild(o); });
-    }
+    _populeerMerkSelect(document.getElementById('mMerk'), true);
     berekenMarkt();
   }
 
@@ -2450,15 +2486,52 @@ function sluitMarkt() {
   }
 
   function updateMarktModellen(merk) {
-    var sel = document.getElementById('mModel');
-    sel.innerHTML = '<option value="">Alle modellen</option>';
-    if (!merk) return;
-    var seen = {};
-    (window._alleAutos||[]).forEach(function(a){
-      if (a.merk===merk && a.model && !seen[a.model]) { seen[a.model]=1; }
-    });
-    Object.keys(seen).sort().forEach(function(m){ var o=document.createElement('option'); o.value=m; o.textContent=m; sel.appendChild(o); });
+    _populeerModelSelect(document.getElementById('mModel'), merk, 'Alle modellen');
     berekenInruilwaarde();
+  }
+
+  // ===== INRUIL-WIDGET OP DE AUTO-DETAILPAGINA =====
+  // Zelfde regressie als Marktanalyse (_schatInruilwaarde), maar vergeleken met
+  // de vraagprijs van de advertentie die je op dat moment bekijkt i.p.v. een los
+  // budget-bereik -- direct relevant voor de auto die je aan het bekijken bent.
+  function updateDetailModellen(merk) {
+    _populeerModelSelect(document.getElementById('dInruilModel'), merk, 'Model');
+    berekenDetailInruil();
+  }
+  function berekenDetailInruil() {
+    var leeg = document.getElementById('dInruilLeeg');
+    var uitkomst = document.getElementById('dInruilUitkomst');
+    var kmInput = document.getElementById('dInruilKm');
+    var jaarInput = document.getElementById('dInruilJaar');
+    if (!leeg || !uitkomst) return;
+    var merk = document.getElementById('dInruilMerk').value;
+    var model = document.getElementById('dInruilModel').value;
+    if (kmInput) kmInput.disabled = !(merk && model);
+    if (jaarInput) jaarInput.disabled = !(merk && model);
+
+    function toon(msg) { leeg.textContent = msg; leeg.style.display = ''; uitkomst.style.display = 'none'; }
+
+    var km = parseInt(kmInput.value) || 0;
+    var jaar = parseInt(jaarInput.value) || 0;
+    var r = _schatInruilwaarde(merk, model, km, jaar);
+    if (r.fout) return toon(r.fout);
+
+    var auto = (alleResultaten||[]).find(function(x){ return x.id === huidigDetailId; });
+    var prijs = auto ? auto.prijs : null;
+    if (typeof prijs !== 'number') return toon('Vraagprijs van deze advertentie onbekend.');
+
+    var bijMin = prijs - r.inruilMax, bijMax = prijs - r.inruilMin;
+    var inruilTekst = fmtEuro(r.inruilMin) + ' – ' + fmtEuro(r.inruilMax);
+    var html;
+    if (bijMax <= 0) {
+      html = '<p>Je indicatieve inruilwaarde (<strong>' + inruilTekst + '</strong>) dekt de vraagprijs van ' + fmtEuro(prijs) + ' ruimschoots — mogelijk houd je zelfs geld over.</p>';
+    } else if (bijMin <= 0) {
+      html = '<p>Met een inruilwaarde van <strong>' + inruilTekst + '</strong> leg je hooguit ongeveer <strong>' + fmtEuro(bijMax) + '</strong> bij voor deze auto (' + fmtEuro(prijs) + ') — mogelijk zelfs niets.</p>';
+    } else {
+      html = '<p>Met een inruilwaarde van <strong>' + inruilTekst + '</strong> leg je ongeveer <strong>' + fmtEuro(bijMin) + ' – ' + fmtEuro(bijMax) + '</strong> bij voor deze auto (' + fmtEuro(prijs) + ').</p>';
+    }
+    uitkomst.innerHTML = html;
+    leeg.style.display = 'none'; uitkomst.style.display = '';
   }
 
   function berekenMarkt() {
@@ -2589,42 +2662,37 @@ function sluitMarkt() {
     return stappen.reduce(function(beste, s){ return Math.abs(s-bedrag) < Math.abs(beste-bedrag) ? s : beste; });
   }
 
+  var fmtEuro = function(p){ return '€' + Math.round(p).toLocaleString('nl-NL'); };
+
+  // Marge-presets voor de upgrade-budgetsuggestie: hoeveel iemand naar
+  // verwachting bovenop de eigen inruilwaarde wil/kan besteden aan de
+  // volgende auto. Instelbaar i.p.v. één vaste marge, met "Gemiddeld" als
+  // ongewijzigd standaardgedrag (was: altijd x1,5–x2,5).
+  var INRUIL_MARGES = {
+    krap:      { lo: 1.25, hi: 1.75, lbl: 'Krap' },
+    gemiddeld: { lo: 1.5,  hi: 2.5,  lbl: 'Gemiddeld' },
+    ruim:      { lo: 2.0,  hi: 3.0,  lbl: 'Ruim' },
+    zeerruim:  { lo: 2.5,  hi: 4.0,  lbl: 'Zeer ruim' }
+  };
+
   // Schat marktwaarde + indicatieve inruilwaarde op basis van een eigen prijs/km/bouwjaar-
   // regressie over alle advertenties van dit merk+model — bewust los van de jaar/brandstof/
-  // transmissie-filters hierboven, zodat de steekproef groot en stabiel blijft.
-  function berekenInruilwaarde() {
-    var leeg = document.getElementById('mInruilLeeg');
-    var uitkomst = document.getElementById('mInruilUitkomst');
-    var disclaimer = document.getElementById('mInruilDisclaimer');
-    var kmInput = document.getElementById('mInruilKm');
-    var jaarInput = document.getElementById('mInruilJaar');
-    if (!leeg || !uitkomst) return;
-    var merk = document.getElementById('mMerk').value;
-    var model = document.getElementById('mModel').value;
-
-    if (kmInput) kmInput.disabled = !(merk && model);
-    if (jaarInput) jaarInput.disabled = !(merk && model);
-
-    function toon(msg) {
-      leeg.textContent = msg; leeg.style.display = '';
-      uitkomst.style.display = 'none'; disclaimer.style.display = 'none';
-      var s = document.getElementById('mInruilSuggestie'); if (s) s.style.display = 'none';
-    }
-    if (!merk || !model) return toon('Selecteer hierboven een merk en model.');
-
-    var km = parseInt(kmInput.value) || 0;
+  // transmissie-filters van de aanroeper, zodat de steekproef groot en stabiel blijft.
+  // Retourneert {fout} of {marktwaarde, inruilMin, inruilMax, n}. Gedeeld door de
+  // Marktanalyse-modal en de mini-widget op de auto-detailpagina.
+  function _schatInruilwaarde(merk, model, km, jaar) {
+    if (!merk || !model) return { fout: 'Selecteer hierboven een merk en model.' };
     var huidigJaar = new Date().getFullYear();
-    var jaar = parseInt(jaarInput.value) || 0;
-    if (!km || km <= 0) return toon('Vul je kilometerstand in voor een schatting.');
-    if (!jaar || jaar < 1980 || jaar > huidigJaar + 1) return toon('Vul het bouwjaar van je auto in voor een schatting.');
+    if (!km || km <= 0) return { fout: 'Vul je kilometerstand in voor een schatting.' };
+    if (!jaar || jaar < 1980 || jaar > huidigJaar + 1) return { fout: 'Vul het bouwjaar van je auto in voor een schatting.' };
 
     var subset = (window._alleAutos||[]).filter(function(a){
       return a.merk===merk && a.model===model && a.prijs>=500;
     });
-    if (subset.length < 5) return toon('Onvoldoende advertenties van dit merk en model voor een betrouwbare schatting.');
+    if (subset.length < 5) return { fout: 'Onvoldoende advertenties van dit merk en model voor een betrouwbare schatting.' };
 
     var metKm = subset.filter(function(a){ return a.km>1000 && a.km<300000; });
-    if (metKm.length < 5) return toon('Onvoldoende advertenties met bekende kilometerstand voor een betrouwbare schatting.');
+    if (metKm.length < 5) return { fout: 'Onvoldoende advertenties met bekende kilometerstand voor een betrouwbare schatting.' };
 
     // Multiple regressie prijs ~ b0 + b1*km + b2*jaar, met bouwjaar als tweede voorspeller
     // (een jonge auto met veel km is meer waard dan een oude auto met evenveel km).
@@ -2664,40 +2732,74 @@ function sluitMarkt() {
 
     var inruilMin = Math.round(marktwaarde * 0.70 / 50) * 50;
     var inruilMax = Math.round(marktwaarde * 0.85 / 50) * 50;
-    var fmt = function(p){ return '€' + Math.round(p).toLocaleString('nl-NL'); };
+    return { marktwaarde: marktwaarde, inruilMin: inruilMin, inruilMax: inruilMax, n: n };
+  }
+
+  function berekenInruilwaarde() {
+    var leeg = document.getElementById('mInruilLeeg');
+    var uitkomst = document.getElementById('mInruilUitkomst');
+    var disclaimer = document.getElementById('mInruilDisclaimer');
+    var kmInput = document.getElementById('mInruilKm');
+    var jaarInput = document.getElementById('mInruilJaar');
+    if (!leeg || !uitkomst) return;
+    var merk = document.getElementById('mMerk').value;
+    var model = document.getElementById('mModel').value;
+
+    if (kmInput) kmInput.disabled = !(merk && model);
+    if (jaarInput) jaarInput.disabled = !(merk && model);
+
+    function toon(msg) {
+      leeg.textContent = msg; leeg.style.display = '';
+      uitkomst.style.display = 'none'; disclaimer.style.display = 'none';
+      var s = document.getElementById('mInruilSuggestie'); if (s) s.style.display = 'none';
+    }
+
+    var km = parseInt(kmInput.value) || 0;
+    var jaar = parseInt(jaarInput.value) || 0;
+    var r = _schatInruilwaarde(merk, model, km, jaar);
+    if (r.fout) return toon(r.fout);
+    var marktwaarde = r.marktwaarde, inruilMin = r.inruilMin, inruilMax = r.inruilMax, n = r.n;
 
     uitkomst.innerHTML =
-      '<div class="markt-inruil-card"><div class="lbl">Geschatte marktwaarde</div><div class="val">' + fmt(marktwaarde) + '</div></div>' +
-      '<div class="markt-inruil-card hoofd"><div class="lbl">Indicatieve inruilwaarde</div><div class="val">' + fmt(inruilMin) + ' – ' + fmt(inruilMax) + '</div></div>';
+      '<div class="markt-inruil-card"><div class="lbl">Geschatte marktwaarde</div><div class="val">' + fmtEuro(marktwaarde) + '</div></div>' +
+      '<div class="markt-inruil-card hoofd"><div class="lbl">Indicatieve inruilwaarde</div><div class="val">' + fmtEuro(inruilMin) + ' – ' + fmtEuro(inruilMax) + '</div></div>';
     disclaimer.textContent = 'Schatting op basis van ' + n + ' advertenties van ' + merk + ' ' + model + ' (vraagprijs, niet inruil), rekening houdend met km-stand en bouwjaar, los van de jaar/brandstof/transmissie-filters hierboven. Geen officiële taxatie — de werkelijke inruilwaarde hangt af van staat, onderhoudshistorie en dealer.';
     leeg.style.display = 'none'; uitkomst.style.display = ''; disclaimer.style.display = '';
 
-    // Upgrade-suggestie: op basis van de indicatieve inruilwaarde (niet de losse
-    // marktwaarde) een budget voor de volgende auto voorstellen -- vaste marge
-    // (+50% tot +150% van de inruilwaarde) i.p.v. een extra invoerveld, zodat
-    // de suggestie meteen zichtbaar is. Afgerond op de vaste prijsstappen van
-    // het hoofd-zoekfilter, zodat de link daar ook echt op aanslaat.
-    var suggestie = document.getElementById('mInruilSuggestie');
-    if (suggestie) {
-      var inruilMid = (inruilMin + inruilMax) / 2;
-      var budgetMinRaw = inruilMid * 1.5, budgetMaxRaw = inruilMid * 2.5;
-      var budgetMin = _naarPrijsstap(budgetMinRaw, PRIJS_STAPPEN_MIN);
-      // Bij hoge inruilwaardes (~vanaf €45.000) valt budgetMaxRaw buiten de hoogste
-      // beschikbare prijsstap (€100.000) -- dan een open-eind "vanaf"-suggestie i.p.v.
-      // het bereik kunstmatig plat te slaan op diezelfde vaste bovengrens.
-      var maxStap = PRIJS_STAPPEN_MAX[PRIJS_STAPPEN_MAX.length - 1];
-      var openEinde = budgetMaxRaw >= maxStap;
-      var budgetMax = openEinde ? null : _naarPrijsstap(budgetMaxRaw, PRIJS_STAPPEN_MAX);
-      if (openEinde || budgetMax > budgetMin) {
-        var budgetTekst = openEinde ? ('vanaf ' + fmt(budgetMin)) : (fmt(budgetMin) + ' – ' + fmt(budgetMax));
-        var link = '/?prijsMin=' + budgetMin + (openEinde ? '' : ('&prijsMax=' + budgetMax));
-        suggestie.innerHTML =
-          '<p>Op basis van je inruilwaarde: met een budget van <strong>' + budgetTekst + '</strong> vind je hieronder passend aanbod voor je volgende auto.</p>' +
-          '<a href="' + link + '" class="btn" style="background:var(--oranje);color:#fff;display:inline-flex;margin-top:10px">Bekijk aanbod in dit budget &rarr;</a>';
-        suggestie.style.display = '';
-      } else {
-        suggestie.style.display = 'none';
-      }
+    window._laatsteInruil = { inruilMin: inruilMin, inruilMax: inruilMax };
+    _toonUpgradeSuggestie('mInruilSuggestie', 'mInruilMarge', inruilMin, inruilMax);
+  }
+
+  // Upgrade-suggestie: op basis van de indicatieve inruilwaarde (niet de losse
+  // marktwaarde) een budget voor de volgende auto voorstellen. Marge instelbaar
+  // via het bijbehorende <select id="margeSelId">; standaard "Gemiddeld"
+  // (+50% tot +150%) i.p.v. een extra invoerveld, zodat de suggestie meteen
+  // zichtbaar is. Afgerond op de vaste prijsstappen van het hoofd-zoekfilter,
+  // zodat de link daar ook echt op aanslaat.
+  function _toonUpgradeSuggestie(suggestieId, margeSelId, inruilMin, inruilMax) {
+    var suggestie = document.getElementById(suggestieId);
+    var content = document.getElementById(suggestieId + 'Content');
+    if (!suggestie || !content) return;
+    var margeSel = document.getElementById(margeSelId);
+    var marge = INRUIL_MARGES[(margeSel && margeSel.value) || 'gemiddeld'] || INRUIL_MARGES.gemiddeld;
+    var inruilMid = (inruilMin + inruilMax) / 2;
+    var budgetMinRaw = inruilMid * marge.lo, budgetMaxRaw = inruilMid * marge.hi;
+    var budgetMin = _naarPrijsstap(budgetMinRaw, PRIJS_STAPPEN_MIN);
+    // Bij hoge inruilwaardes/marges valt budgetMaxRaw buiten de hoogste beschikbare
+    // prijsstap (€100.000) -- dan een open-eind "vanaf"-suggestie i.p.v. het bereik
+    // kunstmatig plat te slaan op diezelfde vaste bovengrens.
+    var maxStap = PRIJS_STAPPEN_MAX[PRIJS_STAPPEN_MAX.length - 1];
+    var openEinde = budgetMaxRaw >= maxStap;
+    var budgetMax = openEinde ? null : _naarPrijsstap(budgetMaxRaw, PRIJS_STAPPEN_MAX);
+    if (openEinde || budgetMax > budgetMin) {
+      var budgetTekst = openEinde ? ('vanaf ' + fmtEuro(budgetMin)) : (fmtEuro(budgetMin) + ' – ' + fmtEuro(budgetMax));
+      var link = '/?prijsMin=' + budgetMin + (openEinde ? '' : ('&prijsMax=' + budgetMax));
+      content.innerHTML =
+        '<p>Op basis van je inruilwaarde: met een budget van <strong>' + budgetTekst + '</strong> vind je hieronder passend aanbod voor je volgende auto.</p>' +
+        '<a href="' + link + '" class="btn" style="background:var(--oranje);color:#fff;display:inline-flex;margin-top:10px">Bekijk aanbod in dit budget &rarr;</a>';
+      suggestie.style.display = '';
+    } else {
+      suggestie.style.display = 'none';
     }
   }
 </script>
@@ -2843,7 +2945,16 @@ function _injectCarSchema(cars) {
       <div id="mInruilLeeg" class="markt-leeg" style="display:none;padding:14px 0 0;font-size:13px">Selecteer hierboven een merk en model.</div>
       <div id="mInruilUitkomst" class="markt-inruil-uitkomst" style="display:none"></div>
       <p id="mInruilDisclaimer" class="markt-inruil-disclaimer" style="display:none"></p>
-      <div id="mInruilSuggestie" class="markt-inruil-suggestie" style="display:none"></div>
+      <div id="mInruilSuggestie" class="markt-inruil-suggestie" style="display:none">
+        <label for="mInruilMarge" class="markt-inruil-marge-lbl">Budget-marge bovenop inruilwaarde</label>
+        <select id="mInruilMarge" onchange="_toonUpgradeSuggestie('mInruilSuggestie','mInruilMarge',window._laatsteInruil.inruilMin,window._laatsteInruil.inruilMax)">
+          <option value="krap">Krap (+25% – 75%)</option>
+          <option value="gemiddeld" selected>Gemiddeld (+50% – 150%)</option>
+          <option value="ruim">Ruim (+100% – 200%)</option>
+          <option value="zeerruim">Zeer ruim (+150% – 300%)</option>
+        </select>
+        <div id="mInruilSuggestieContent"></div>
+      </div>
     </div>
     <div id="mLeeg" class="markt-leeg" style="display:none">Geen advertenties gevonden voor deze selectie.</div>
     <div id="mResultaat">
