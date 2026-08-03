@@ -178,12 +178,16 @@ function buildPage({ merkSlug, modelSlug, filtered, listings }) {
   const bcSchema = { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: bcItems };
 
   // Stat-blokken linken naar het aanbod verderop op dezelfde pagina -- "Goedkoopste"
-  // gaat direct naar die specifieke advertentie, de rest naar de kaarten-sectie.
+  // gaat direct naar die specifieke advertentie. De prijs/km-gemiddeldes linken
+  // naar de Marktanalyse-modal op de homepage (voorgeselecteerd op dit merk via
+  // ?markt=, zie urlNaarMarkt() in index.html), want die geeft meer context dan
+  // simpelweg naar de al zichtbare kaarten scrollen.
+  const marktHref = '/?markt=' + (merkSlug ? encodeURIComponent(merkSlug) : '');
   const statsHtml = '<div class="stats-grid">' +
     (filtered.length ? '<a href="#aanbod" class="stat"><span class="stat-lbl">Aanbod</span><strong>' + filtered.length + ' occasions</strong></a>' : '') +
-    (gemPrijs ? '<a href="#aanbod" class="stat"><span class="stat-lbl">Gem. vraagprijs</span><strong>&euro; ' + fmt(gemPrijs) + '</strong></a>' : '') +
-    (medPrijs ? '<a href="#aanbod" class="stat"><span class="stat-lbl">Mediaanprijs</span><strong>&euro; ' + fmt(medPrijs) + '</strong></a>' : '') +
-    (medKm    ? '<a href="#aanbod" class="stat"><span class="stat-lbl">Mediaan km</span><strong>' + fmt(medKm) + ' km</strong></a>' : '') +
+    (gemPrijs ? '<a href="' + marktHref + '" class="stat"><span class="stat-lbl">Gem. vraagprijs</span><strong>&euro; ' + fmt(gemPrijs) + '</strong></a>' : '') +
+    (medPrijs ? '<a href="' + marktHref + '" class="stat"><span class="stat-lbl">Mediaanprijs</span><strong>&euro; ' + fmt(medPrijs) + '</strong></a>' : '') +
+    (medKm    ? '<a href="' + marktHref + '" class="stat"><span class="stat-lbl">Mediaan km</span><strong>' + fmt(medKm) + ' km</strong></a>' : '') +
     (goedkoop ? '<a href="' + (goedkoop.url ? escHtml(goedkoop.url) : '#aanbod') + '"' + (goedkoop.url ? ' target="_blank" rel="noopener noreferrer"' : '') + ' class="stat"><span class="stat-lbl">Goedkoopste</span><strong>&euro; ' + fmt(goedkoop.prijs) + (goedkoop.jaar ? ' (' + goedkoop.jaar + ')' : '') + '</strong></a>' : '') +
     '</div>';
 
@@ -379,8 +383,8 @@ function buildStadPage(stadSlug, stad, filtered, listings) {
     '<div class="geo-blok"><p>'+stad.tekst+'</p></div>'+
     '<div class="stats-grid">'+
     '<a href="#aanbod" class="stat-card"><div class="stat-val">'+filtered.length+'</div><div class="stat-label">Occasions</div></a>'+
-    '<a href="#aanbod" class="stat-card"><div class="stat-val">&#8364; '+(Math.round(gemPrijs/100)*100).toLocaleString("nl-NL")+'</div><div class="stat-label">Gem. prijs</div></a>'+
-    '<a href="#aanbod" class="stat-card"><div class="stat-val">&#8364; '+(Math.round(medPrijs/100)*100).toLocaleString("nl-NL")+'</div><div class="stat-label">Mediaan</div></a>'+
+    '<a href="/?markt=" class="stat-card"><div class="stat-val">&#8364; '+(Math.round(gemPrijs/100)*100).toLocaleString("nl-NL")+'</div><div class="stat-label">Gem. prijs</div></a>'+
+    '<a href="/?markt=" class="stat-card"><div class="stat-val">&#8364; '+(Math.round(medPrijs/100)*100).toLocaleString("nl-NL")+'</div><div class="stat-label">Mediaan</div></a>'+
     '</div>'+
     '<div class="auto-grid" id="aanbod">'+cards+'</div>'+
     (filtered.length === 0 ? '<p style="color:#666;margin-top:1rem">Geen occasions gevonden in '+stad.naam+'. Bekijk ons <a href="/">volledig aanbod</a>.</p>' : '')+

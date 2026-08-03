@@ -1180,6 +1180,7 @@ async function laadListings() {
     _populeerMerkFilter();
     _vulZoekSuggesties();
     zoekNu();
+    if (typeof urlNaarMarkt === 'function') urlNaarMarkt();
     // Trending/merk-stats/schema pas ná de eerste render van de resultatengrid
     // (niet-kritiek voor wat de gebruiker als eerste ziet) — verbetert LCP.
     setTimeout(function(){
@@ -2406,6 +2407,30 @@ function _getModel(t){if(!t)return '';var m=_getMerk(t);var r=t.slice(m.length).
 function sluitMarkt() {
     document.getElementById('marktOverlay').style.display = 'none';
     document.body.style.overflow = '';
+  }
+
+  // Diepe link vanaf de statische /occasions/*-pagina's: ?markt=<merk> opent de
+  // Marktanalyse-modal direct met dat merk voorgeselecteerd (?markt= zonder
+  // waarde opent 'm gewoon op "Alle merken"). Direct bij scriptstart vastleggen
+  // (niet pas in urlNaarMarkt() zelf): zoekNu() herschrijft de URL via _toURL()
+  // en zou een ?markt= die geen erkend filter is er anders al uit gesloopt
+  // hebben tegen de tijd dat urlNaarMarkt() draait.
+  var _marktDeeplink = new URLSearchParams(location.search).has('markt')
+    ? (new URLSearchParams(location.search).get('markt') || '')
+    : undefined;
+  function urlNaarMarkt() {
+    if (_marktDeeplink === undefined) return;
+    openMarkt();
+    var merkParam = _marktDeeplink;
+    if (!merkParam) return;
+    var mSel = document.getElementById('mMerk');
+    if (!mSel) return;
+    var target = Array.from(mSel.options).find(function(o){ return o.value.toLowerCase() === merkParam.toLowerCase(); });
+    if (target) {
+      mSel.value = target.value;
+      updateMarktModellen(target.value);
+      berekenMarkt();
+    }
   }
 
   function updateMarktModellen(merk) {
