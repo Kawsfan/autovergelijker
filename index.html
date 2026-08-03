@@ -2671,12 +2671,20 @@ function sluitMarkt() {
     var suggestie = document.getElementById('mInruilSuggestie');
     if (suggestie) {
       var inruilMid = (inruilMin + inruilMax) / 2;
-      var budgetMin = _naarPrijsstap(inruilMid * 1.5, PRIJS_STAPPEN_MIN);
-      var budgetMax = _naarPrijsstap(inruilMid * 2.5, PRIJS_STAPPEN_MAX);
-      if (budgetMax > budgetMin) {
+      var budgetMinRaw = inruilMid * 1.5, budgetMaxRaw = inruilMid * 2.5;
+      var budgetMin = _naarPrijsstap(budgetMinRaw, PRIJS_STAPPEN_MIN);
+      // Bij hoge inruilwaardes (~vanaf €45.000) valt budgetMaxRaw buiten de hoogste
+      // beschikbare prijsstap (€100.000) -- dan een open-eind "vanaf"-suggestie i.p.v.
+      // het bereik kunstmatig plat te slaan op diezelfde vaste bovengrens.
+      var maxStap = PRIJS_STAPPEN_MAX[PRIJS_STAPPEN_MAX.length - 1];
+      var openEinde = budgetMaxRaw >= maxStap;
+      var budgetMax = openEinde ? null : _naarPrijsstap(budgetMaxRaw, PRIJS_STAPPEN_MAX);
+      if (openEinde || budgetMax > budgetMin) {
+        var budgetTekst = openEinde ? ('vanaf ' + fmt(budgetMin)) : (fmt(budgetMin) + ' – ' + fmt(budgetMax));
+        var link = '/?prijsMin=' + budgetMin + (openEinde ? '' : ('&prijsMax=' + budgetMax));
         suggestie.innerHTML =
-          '<p>Op basis van je inruilwaarde: met een budget van <strong>' + fmt(budgetMin) + ' – ' + fmt(budgetMax) + '</strong> vind je hieronder passend aanbod voor je volgende auto.</p>' +
-          '<a href="/?prijsMin=' + budgetMin + '&prijsMax=' + budgetMax + '" class="btn" style="background:var(--oranje);color:#fff;display:inline-flex;margin-top:10px">Bekijk aanbod in dit budget &rarr;</a>';
+          '<p>Op basis van je inruilwaarde: met een budget van <strong>' + budgetTekst + '</strong> vind je hieronder passend aanbod voor je volgende auto.</p>' +
+          '<a href="' + link + '" class="btn" style="background:var(--oranje);color:#fff;display:inline-flex;margin-top:10px">Bekijk aanbod in dit budget &rarr;</a>';
         suggestie.style.display = '';
       } else {
         suggestie.style.display = 'none';
