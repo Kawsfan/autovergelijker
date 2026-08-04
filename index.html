@@ -2551,6 +2551,12 @@ function sluitMarkt() {
       return true;
     });
 
+    // Los van de data-check hieronder aanroepen: de inruilcalculator gebruikt
+    // bewust alléén merk+model (niet de jaar/brandstof/transmissie-filters), dus
+    // moet ook verversen als de bredere marktfilter-combinatie 0 resultaten
+    // oplevert -- anders blijft het inruil-vakje hangen op een oude melding.
+    berekenInruilwaarde();
+
     var leeg = document.getElementById('mLeeg');
     var res = document.getElementById('mResultaat');
     if (!data.length) { leeg.style.display=''; res.style.display='none'; return; }
@@ -2650,7 +2656,6 @@ function sluitMarkt() {
       document.getElementById('mJaarLabels').innerHTML=
         '<span>'+jaren[0]+'</span>'+(jaren.length>2?'<span>'+jaren[Math.floor(jaren.length/2)]+'</span>':'')+'<span>'+jaren[jaren.length-1]+'</span>';
     }
-    berekenInruilwaarde();
   }
 
   // Vaste prijsstappen van de #prijsMin/#prijsMax select-filters op de homepage --
