@@ -26,7 +26,7 @@
     window.SUPABASE_URL = 'https://xbuznnkrkfdsjyjkarjo.supabase.co';
     window.SUPABASE_ANON_KEY = 'sb_publishable_e4kljbGegfh2jVD92MsDKA_XSGQf-sP';
   </script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <meta name="description" content="42.000+ auto's van 6 platforms, dagelijks bijgewerkt. Filter op merk, prijs en km-stand — en zie direct of je een goede deal hebt. Gratis, geen account.">
   <meta name="keywords" content="tweedehands auto, auto kopen, auto vergelijken, marktplaats auto, nederland, occasions">
@@ -4120,7 +4120,16 @@ function setMerkFilter(merk) {
     return typeof window.SUPABASE_URL === 'string' && window.SUPABASE_URL.indexOf('VUL_HIER') !== 0
       && typeof window.supabase !== 'undefined';
   }
-  if (!_sbGeconfigureerd()) return;
+  if (!_sbGeconfigureerd()) {
+    // URL/key zijn wel ingevuld maar de SDK is niet geladen (CDN-request
+    // mislukt, geblokkeerd, of nog bezig) -- dat mag niet stilzwijgend de
+    // login-knop verbergen zonder enig spoor, anders lijkt de accounts-laag
+    // gewoon niet te bestaan i.p.v. kapot.
+    if (typeof window.SUPABASE_URL === 'string' && window.SUPABASE_URL.indexOf('VUL_HIER') !== 0 && typeof window.supabase === 'undefined') {
+      console.warn('Carkijker-accounts: SUPABASE_URL is ingesteld maar de Supabase-SDK (cdn.jsdelivr.net) is niet geladen -- login blijft verborgen. Check of het script-tag in <head> laadt (netwerktabblad/adblocker).');
+    }
+    return;
+  }
 
   var _sb = window.supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
   var _gebruiker = null;
