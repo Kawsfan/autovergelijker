@@ -7,9 +7,39 @@ const fs   = require('fs');
 const path = require('path');
 
 // Config
-const LISTINGS_PATH  = path.join(__dirname, 'data', 'listings.json');
-const OUT_DIR        = path.join(__dirname, 'occasions');
-const SITE_ORIGIN    = 'https://carkijker.nl';
+const LISTINGS_PATH   = path.join(__dirname, 'data', 'listings.json');
+const MARKT_HIST_PATH = path.join(__dirname, 'data', 'markt-history.json');
+const OUT_DIR         = path.join(__dirname, 'occasions');
+const SITE_ORIGIN     = 'https://carkijker.nl';
+
+// Marktgeschiedenis (dagelijkse mediaan per merk+model, zie scrape.js) --
+// dezelfde bron als de prijstrend in de Marktanalyse-modal op de homepage,
+// hier gebruikt om ook de statische SEO-pagina's een actuele trendzin te
+// geven i.p.v. alleen een momentopname. Zelfde sleutel-afleiding als
+// scrape.js's _key, zodat beide altijd matchen.
+let MARKT_HISTORIE = [];
+try { MARKT_HISTORIE = JSON.parse(fs.readFileSync(MARKT_HIST_PATH, 'utf8')); } catch (e) { MARKT_HISTORIE = []; }
+function marktSegmentKey(merk, model) {
+  return (merk + (model ? '_' + model : '')).toLowerCase().replace(/\s+/g, '_');
+}
+// Gebruikt de échte merk/model-veldwaarden van de advertenties zelf (niet de
+// url-slug) voor de sleutel -- gegarandeerd identiek aan hoe scrape.js de
+// segmenten opbouwt, i.p.v. de slug proberen terug te vertalen.
+function berekenTrendVoorPagina(filtered) {
+  if (!filtered.length || !MARKT_HISTORIE.length) return null;
+  const merk = filtered[0].merk, model = filtered[0].model;
+  if (!merk || !model) return null;
+  const key = marktSegmentKey(merk, model);
+  const reeks = MARKT_HISTORIE
+    .map(d => ({ datum: d.datum, seg: d.segmenten && d.segmenten[key] }))
+    .filter(x => x.seg && x.seg.n >= 3)
+    .sort((a, b) => a.datum < b.datum ? -1 : (a.datum > b.datum ? 1 : 0));
+  if (reeks.length < 2) return null;
+  const eerste = reeks[0].seg.med, laatste = reeks[reeks.length - 1].seg.med;
+  const delta = laatste - eerste;
+  const pct = eerste ? Math.round(delta / eerste * 1000) / 10 : 0;
+  return { nDagen: reeks.length, delta, pct, vanaf: reeks[0].datum, huidig: laatste };
+}
 const GA_SNIPPET =
   '<script async src="https://www.googletagmanager.com/gtag/js?id=G-TD2KWCXTV3"><\/script>' +
   '<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}' +
@@ -182,7 +212,15 @@ function buildPage({ merkSlug, modelSlug, filtered, listings }) {
   // naar de Marktanalyse-modal op de homepage (voorgeselecteerd op dit merk via
   // ?markt=, zie urlNaarMarkt() in index.html), want die geeft meer context dan
   // simpelweg naar de al zichtbare kaarten scrollen.
-  const marktHref = '/?markt=' + (merkSlug ? encodeURIComponent(merkSlug) : '');
+  // Model apart toevoegen o.b.v. het échte modelveld (niet de url-slug) --
+  // urlNaarMarkt() in index.html matcht ?model= case-insensitief tegen de
+  // werkelijke optiewaarden van de #mModel-select (gevuld uit a.model), dus
+  // moet exact overeenkomen met wat er in de data staat, niet met de
+  // (soms afwijkend geslugificeerde) url-vorm.
+  const modelVeld = modelSlug && filtered.length ? filtered[0].model : null;
+  const marktHref = '/?markt=' + (merkSlug ? encodeURIComponent(merkSlug) : '') +
+    (modelVeld ? '&model=' + encodeURIComponent(modelVeld) : '');
+  const trend = modelSlug ? berekenTrendVoorPagina(filtered) : null;
   const statsHtml = '<div class="stats-grid">' +
     (filtered.length ? '<a href="#aanbod" class="stat"><span class="stat-lbl">Aanbod</span><strong>' + filtered.length + ' occasions</strong></a>' : '') +
     (gemPrijs ? '<a href="' + marktHref + '" class="stat"><span class="stat-lbl">Gem. vraagprijs</span><strong>&euro; ' + fmt(gemPrijs) + '</strong></a>' : '') +
@@ -271,8 +309,11 @@ const MERK_INTRO = {
       ((modelIntro||merkIntro) ? '<div class="model-intro-blok"><p>'+(modelIntro||merkIntro)+'</p></div>' : '') +
       (kooptip ? '<p class="kooptip">'+kooptip+'</p>' : '') +
       '<h3 style="font-size:.9rem;margin-top:.75rem;margin-bottom:.3rem">Actuele marktdata</h3>' +
-      '<p>Op basis van <strong>'+filtered.length+' actuele advertenties</strong> is de gemiddelde vraagprijs van een tweedehands '+merkName+(modelName?' '+modelName:'')+' <strong>&euro; '+(gemPrijs?fmt(gemPrijs):'onbekend')+'</strong>. De mediaanprijs &mdash; waarbij de helft van de occasions goedkoper is &mdash; ligt op &euro; '+(medPrijs?fmt(medPrijs):'onbekend')+'. De mediaan kilometerstand is '+(medKm?fmt(medKm)+' km':'onbekend')+'. Carkijker vergelijkt dagelijks aanbod van Marktplaats, AutoScout24, Gaspedaal en ViaBOVAG.</p>' +
-      '<p style="margin-top:.5rem"><a href="/" style="color:#d14413;font-size:.875rem">Bekijk alle '+merkName+' occasions met filters &rarr;</a></p>' +
+      '<p>Op basis van <strong>'+filtered.length+' actuele advertenties</strong> is de gemiddelde vraagprijs van een tweedehands '+merkName+(modelName?' '+modelName:'')+' <strong>&euro; '+(gemPrijs?fmt(gemPrijs):'onbekend')+'</strong>. De mediaanprijs &mdash; waarbij de helft van de occasions goedkoper is &mdash; ligt op &euro; '+(medPrijs?fmt(medPrijs):'onbekend')+'. De mediaan kilometerstand is '+(medKm?fmt(medKm)+' km':'onbekend')+'. Carkijker vergelijkt dagelijks aanbod van Marktplaats, AutoScout24, Gaspedaal en ViaBOVAG.' +
+      (trend ? ' De mediaanprijs is de afgelopen ' + trend.nDagen + ' dagen ' + (trend.delta < 0 ? 'met ' + Math.abs(trend.pct) + '% gedaald' : trend.delta > 0 ? 'met ' + trend.pct + '% gestegen' : 'stabiel gebleven') + ' (van &euro; ' + fmt(Math.round(trend.huidig - trend.delta)) + ' naar &euro; ' + fmt(trend.huidig) + ').' : '') +
+      '</p>' +
+      '<p style="margin-top:.5rem"><a href="/" style="color:#d14413;font-size:.875rem">Bekijk alle '+merkName+' occasions met filters &rarr;</a>' +
+      ' &nbsp;&middot;&nbsp; <a href="'+marktHref+'" style="color:#d14413;font-size:.875rem">Volledige marktanalyse'+(trend?' (prijstrend, regiovergelijking en meer)':'')+' &rarr;</a></p>' +
       '</section>'
     : '';
 
@@ -296,6 +337,11 @@ const MERK_INTRO = {
       '@type': 'Question',
       'name': 'Waar kan ik een tweedehands ' + merkName + (modelName ? ' ' + modelName : '') + ' kopen?',
       'acceptedAnswer': { '@type': 'Answer', 'text': 'Carkijker toont ' + filtered.length + ' tweedehands ' + merkName + (modelName ? ' ' + modelName : '') + ' occasions van Marktplaats, AutoScout24, Gaspedaal en ViaBOVAG op één plek. Het aanbod wordt dagelijks bijgewerkt.' }
+    });
+    if (trend) faqItems.push({
+      '@type': 'Question',
+      'name': 'Wordt een tweedehands ' + merkName + (modelName ? ' ' + modelName : '') + ' duurder of goedkoper?',
+      'acceptedAnswer': { '@type': 'Answer', 'text': 'De mediaanprijs van een tweedehands ' + merkName + (modelName ? ' ' + modelName : '') + ' op Carkijker is de afgelopen ' + trend.nDagen + ' dagen ' + (trend.delta < 0 ? Math.abs(trend.pct) + '% gedaald' : trend.delta > 0 ? trend.pct + '% gestegen' : 'nagenoeg stabiel gebleven') + ', naar EUR ' + fmt(trend.huidig) + ' nu.' }
     });
     faqSchema = { '@context': 'https://schema.org', '@type': 'FAQPage', 'mainEntity': faqItems };
   }
