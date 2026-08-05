@@ -12,6 +12,22 @@
     gtag('config', 'G-TD2KWCXTV3');
   </script>
 
+  <!-- Accounts (favorieten + zoekagenten synchroniseren tussen apparaten) --
+       draait op Supabase (auth + database), los van de rest van de site die
+       gewoon statisch blijft. SUPABASE_URL/ANON_KEY hieronder invullen met de
+       waarden uit het Supabase-project (Project Settings -> API); zolang dat
+       niet is gebeurd blijft de accounts-laag stil (geen login-knop, geen
+       fouten) en werkt de site exact zoals voorheen, alleen lokaal. De
+       anon-key is een PUBLIEKE sleutel (net als een Google Maps API-key) --
+       veilig om in frontend-code te zetten. De echte beveiliging zit in de
+       Row Level Security-policies in supabase/schema.sql, niet in het
+       geheimhouden van deze key. -->
+  <script>
+    window.SUPABASE_URL = 'https://xbuznnkrkfdsjyjkarjo.supabase.co';
+    window.SUPABASE_ANON_KEY = 'sb_publishable_e4kljbGegfh2jVD92MsDKA_XSGQf-sP';
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+
   <meta name="description" content="42.000+ auto's van 6 platforms, dagelijks bijgewerkt. Filter op merk, prijs en km-stand — en zie direct of je een goede deal hebt. Gratis, geen account.">
   <meta name="keywords" content="tweedehands auto, auto kopen, auto vergelijken, marktplaats auto, nederland, occasions">
   <meta name="robots" content="index, follow">
@@ -833,6 +849,7 @@
     <button class="lang-btn" data-lang="en" onclick="setLang('en')">EN</button>
   </div>
   
+  <button class="info-btn" id="accountNavBtn" onclick="document.getElementById('accountModal').style.display='flex'" style="display:none">&#128100;<span class="nav-txt" id="accountNavTxt"> Inloggen</span></button>
   <button class="info-btn" id="agentNavBtn" onclick="openAgent()">&#128276;<span class="nav-txt"> Zoekagent</span></button>
   <button class="info-btn" onclick="openMarkt()">&#128202;<span class="nav-txt"> Markt</span></button>
   <a href="/tco/" class="info-btn" style="text-decoration:none;">⛽<span class="nav-txt"> Kosten</span></a>
@@ -3258,6 +3275,26 @@ function sluitMarkt() {
 <!-- Marktanalyse Modal -->
 
 </div>
+
+<!-- Account-modal (favorieten + zoekagenten synchroniseren) -->
+<div id="accountModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:3000;align-items:center;justify-content:center">
+<div style="background:var(--kaart);border-radius:14px;padding:28px;max-width:420px;width:90%;position:relative;box-shadow:0 8px 40px rgba(0,0,0,.3)">
+<button onclick="document.getElementById('accountModal').style.display='none'" style="position:absolute;top:12px;right:16px;background:none;border:none;font-size:22px;cursor:pointer;color:var(--tekst)">&#x2715;</button>
+<h2 style="margin:0 0 6px;font-size:1.3rem">&#128100; Account</h2>
+<div id="accountUitgelogd">
+  <p style="margin:0 0 16px;color:var(--subtekst);font-size:.9rem">Log in met je e-mailadres om je favorieten en zoekagenten op elk apparaat te bewaren. Geen wachtwoord nodig -- je krijgt een inloglink per e-mail.</p>
+  <input id="accountEmail" type="email" placeholder="jij@voorbeeld.nl" autocomplete="email" style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid var(--rand);background:var(--achtergrond);color:var(--tekst);font-size:14px;margin-bottom:10px">
+  <button class="btn" onclick="accountStuurLink()" style="width:100%;background:var(--oranje);color:#fff">&#128231; Stuur inloglink</button>
+</div>
+<div id="accountIngelogd" style="display:none">
+  <p style="margin:0 0 6px;font-size:.9rem">Ingelogd als <strong id="accountEmailWeergave"></strong></p>
+  <p style="margin:0 0 16px;color:var(--subtekst);font-size:.85rem">Je favorieten en zoekagenten worden gesynchroniseerd.</p>
+  <button class="btn" onclick="accountUitloggen()" style="width:100%">Uitloggen</button>
+</div>
+<p id="accountMsg" style="margin:12px 0 0;font-size:.85rem;color:var(--accent)"></p>
+</div>
+</div>
+
 <div id="vglModal" onclick="if(event.target===this){this.style.display='none';document.body.style.overflow='';}"></div>
 
 <div id="vglBar" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:9999;background:#1a73e8;color:#fff;padding:14px 24px;align-items:center;justify-content:space-between;gap:12px;box-shadow:0 -2px 10px rgba(0,0,0,.25);"><span style="font-size:1rem;font-weight:500;"><b id="vglCount">0</b> <span id="vglSelTxt">auto's geselecteerd</span></span><div style="display:flex;gap:8px;"><button onclick="openVergelijk()" style="background:#fff;color:#1a73e8;border:none;padding:8px 20px;border-radius:6px;cursor:pointer;font-weight:700;">⚖️ Vergelijk</button><button onclick="_vgl=[];updateVglBar();document.querySelectorAll('.vgl-btn').forEach(function(b){b.classList.remove('vgl-actief');})" style="background:transparent;color:#fff;border:1.5px solid rgba(255,255,255,.7);padding:8px 14px;border-radius:6px;cursor:pointer;">✕ Wis</button></div></div>
@@ -4067,5 +4104,178 @@ function setMerkFilter(merk) {
   var _m = document.getElementById('merkFilter');
   if (_m) { _m.value = merk; if (typeof updateModelDropdown === 'function') updateModelDropdown(); zoekNu(); window.scrollTo({top: document.getElementById('resultatenHeader')?.offsetTop || 400, behavior: 'smooth'}); }
 }
+</script>
+<script>
+// ===== ACCOUNTS: favorieten + zoekagenten synchroniseren (Supabase) =====
+// Volledig additief: zolang SUPABASE_URL/ANON_KEY niet zijn ingevuld (zie
+// <head>) doet dit blok he­lemaal niets -- geen login-knop, geen requests,
+// de site werkt precies zoals voorheen met lokale (per-browser) opslag.
+// Eenmaal ingelogd blijft localStorage de directe, razendsnelle bron voor de
+// UI (favorieten/zoekagenten lezen/schrijven zoals altijd), en synct deze
+// laag er in de achtergrond mee met Supabase -- nooit blokkerend, nooit
+// destructief (nieuwe cloud-data wordt toegevoegd, nooit stilzwijgend
+// verwijderd).
+(function(){
+  function _sbGeconfigureerd(){
+    return typeof window.SUPABASE_URL === 'string' && window.SUPABASE_URL.indexOf('VUL_HIER') !== 0
+      && typeof window.supabase !== 'undefined';
+  }
+  if (!_sbGeconfigureerd()) return;
+
+  var _sb = window.supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
+  var _gebruiker = null;
+
+  function _accountMsg(tekst){ var el = document.getElementById('accountMsg'); if (el) el.textContent = tekst || ''; }
+
+  function _updAccountUI(){
+    var navBtn = document.getElementById('accountNavBtn');
+    var navTxt = document.getElementById('accountNavTxt');
+    var uitEl = document.getElementById('accountUitgelogd');
+    var inEl = document.getElementById('accountIngelogd');
+    if (navBtn) navBtn.style.display = '';
+    if (_gebruiker) {
+      if (navTxt) navTxt.textContent = ' ' + _gebruiker.email.split('@')[0];
+      if (uitEl) uitEl.style.display = 'none';
+      if (inEl) inEl.style.display = '';
+      var emailEl = document.getElementById('accountEmailWeergave');
+      if (emailEl) emailEl.textContent = _gebruiker.email;
+    } else {
+      if (navTxt) navTxt.textContent = ' Inloggen';
+      if (uitEl) uitEl.style.display = '';
+      if (inEl) inEl.style.display = 'none';
+    }
+  }
+
+  // ── Favorieten synchroniseren ──
+  // Upload eerst wat lokaal staat maar nog niet in de cloud, haal daarna de
+  // (nu complete) lijst op en maak dat de lokale waarheid -- zo gaat er nooit
+  // een favoriet verloren, ook niet bij inloggen op een tweede apparaat.
+  function _syncFavorieten(){
+    var lokaal = (window._favs instanceof Set) ? Array.from(window._favs) : [];
+    var upload = lokaal.length
+      ? _sb.from('favorites').upsert(lokaal.map(function(id){ return { user_id: _gebruiker.id, listing_id: id }; }), { onConflict: 'user_id,listing_id' })
+      : Promise.resolve();
+    return Promise.resolve(upload).then(function(){
+      return _sb.from('favorites').select('listing_id').eq('user_id', _gebruiker.id);
+    }).then(function(res){
+      if (!res || !res.data) return;
+      window._favs = new Set(res.data.map(function(r){ return r.listing_id; }));
+      localStorage.setItem('_av_favs', JSON.stringify(Array.from(window._favs)));
+      if (typeof _updFavBtn === 'function') _updFavBtn();
+      var c = document.getElementById('navFavCount');
+      if (c) { c.textContent = window._favs.size || ''; c.style.display = window._favs.size ? 'inline' : 'none'; }
+    }).catch(function(e){ console.warn('Favorieten synchroniseren mislukt:', e.message); });
+  }
+
+  // ── Zoekagenten synchroniseren ──
+  // Elk lokaal agent-object krijgt een _cloudId zodra het een keer met
+  // Supabase is gesynct, zodat een latere verwijdering ook de juiste rij in
+  // de database raakt.
+  function _syncZoekagenten(){
+    var lokaal = _agenten();
+    var nieuwe = lokaal.filter(function(a){ return !a._cloudId; });
+    var inserts = nieuwe.map(function(a){
+      return _sb.from('zoekagenten').insert({
+        user_id: _gebruiker.id, label: a.label, merk: a.merk || null, q: a.q || null,
+        min_prijs: a.minPrijs, max_prijs: a.maxPrijs, opgeslagen_op: a.opgeslagenOp || null
+      }).select().then(function(res){
+        if (res && res.data && res.data[0]) a._cloudId = res.data[0].id;
+      });
+    });
+    return Promise.all(inserts).then(function(){
+      return _sb.from('zoekagenten').select('*').eq('user_id', _gebruiker.id).order('created_at');
+    }).then(function(res){
+      if (!res || !res.data) return;
+      var lijst = res.data.map(function(r){
+        return { label: r.label, merk: r.merk, q: r.q, minPrijs: r.min_prijs, maxPrijs: r.max_prijs,
+          opgeslagenOp: r.opgeslagen_op, gezieneIds: r.gezien_ids || [], _cloudId: r.id };
+      });
+      localStorage.setItem('zoekagenten', JSON.stringify(lijst));
+      if (typeof renderAgentList === 'function') renderAgentList();
+    }).catch(function(e){ console.warn('Zoekagenten synchroniseren mislukt:', e.message); });
+  }
+
+  function _syncAlles(){
+    if (!_gebruiker) return;
+    _syncFavorieten();
+    _syncZoekagenten();
+  }
+
+  // ── Login/logout ──
+  window.accountStuurLink = function(){
+    var input = document.getElementById('accountEmail');
+    var email = input && input.value.trim();
+    if (!email) { _accountMsg('Vul een e-mailadres in.'); return; }
+    _accountMsg('Bezig met versturen...');
+    _sb.auth.signInWithOtp({ email: email, options: { emailRedirectTo: location.origin + location.pathname } })
+      .then(function(res){
+        if (res.error) { _accountMsg('Kon geen inloglink versturen: ' + res.error.message); return; }
+        _accountMsg('Check je e-mail (' + email + ') voor de inloglink!');
+      })
+      .catch(function(e){ _accountMsg('Kon geen inloglink versturen: ' + e.message); });
+  };
+  window.accountUitloggen = function(){
+    _sb.auth.signOut().then(function(){
+      document.getElementById('accountModal').style.display = 'none';
+    });
+  };
+
+  _sb.auth.onAuthStateChange(function(event, session){
+    _gebruiker = session ? session.user : null;
+    _updAccountUI();
+    if (event === 'SIGNED_IN') { _accountMsg('Ingelogd!'); _syncAlles(); }
+  });
+  _sb.auth.getSession().then(function(res){
+    _gebruiker = res.data && res.data.session ? res.data.session.user : null;
+    _updAccountUI();
+    if (_gebruiker) _syncAlles();
+  });
+
+  // ── Bestaande favorieten/zoekagenten-functies aanhaken zodra Supabase
+  // klaar is, zodat elke wijziging ook meteen (niet-blokkerend) naar de
+  // cloud gaat. Volgt hetzelfde monkey-patch-patroon als de rest van de
+  // site (zie de favorieten-/prijsdaling-IIFE's hierboven). ──
+  var _origToggleFav = window.toggleFav;
+  window.toggleFav = function(event, id){
+    var r = _origToggleFav.apply(this, arguments);
+    if (_gebruiker) {
+      var actief = window._favs instanceof Set && window._favs.has(id);
+      var q = actief
+        ? _sb.from('favorites').upsert({ user_id: _gebruiker.id, listing_id: id }, { onConflict: 'user_id,listing_id' })
+        : _sb.from('favorites').delete().eq('user_id', _gebruiker.id).eq('listing_id', id);
+      Promise.resolve(q).catch(function(e){ console.warn('Favoriet synchroniseren mislukt:', e.message); });
+    }
+    return r;
+  };
+
+  var _origSlaZoekagentOp = window.slaZoekagentOp;
+  window.slaZoekagentOp = function(){
+    var r = _origSlaZoekagentOp.apply(this, arguments);
+    if (_gebruiker) {
+      var lijst = _agenten();
+      var laatste = lijst[lijst.length - 1];
+      if (laatste && !laatste._cloudId) {
+        _sb.from('zoekagenten').insert({
+          user_id: _gebruiker.id, label: laatste.label, merk: laatste.merk || null, q: laatste.q || null,
+          min_prijs: laatste.minPrijs, max_prijs: laatste.maxPrijs, opgeslagen_op: laatste.opgeslagenOp || null
+        }).select().then(function(res){
+          if (res && res.data && res.data[0]) { laatste._cloudId = res.data[0].id; localStorage.setItem('zoekagenten', JSON.stringify(lijst)); }
+        }).catch(function(e){ console.warn('Zoekagent synchroniseren mislukt:', e.message); });
+      }
+    }
+    return r;
+  };
+
+  var _origVerwijderAgent = window.verwijderAgent;
+  window.verwijderAgent = function(i){
+    var lijst = _agenten();
+    var target = lijst[i];
+    var r = _origVerwijderAgent.apply(this, arguments);
+    if (_gebruiker && target && target._cloudId) {
+      _sb.from('zoekagenten').delete().eq('id', target._cloudId).catch(function(e){ console.warn('Zoekagent verwijderen mislukt in cloud:', e.message); });
+    }
+    return r;
+  };
+})();
 </script></body>
 </html>
