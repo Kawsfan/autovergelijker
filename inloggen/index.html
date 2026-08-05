@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Inloggen | Carkijker</title>
+<meta name="description" content="Log in bij Carkijker om je favorieten en zoekagenten te bewaren op elk apparaat. Geen wachtwoord nodig -- je krijgt een inloglink per e-mail.">
+<link rel="canonical" href="https://www.carkijker.nl/inloggen/">
+<meta property="og:title" content="Inloggen | Carkijker">
+<meta property="og:description" content="Log in met je e-mailadres om je favorieten en zoekagenten te synchroniseren.">
+<meta property="og:url" content="https://www.carkijker.nl/inloggen/">
+<meta name="robots" content="index, follow">
+<style>
+  :root {
+    --oranje: #d14413;
+    --oranje-dark: #c43d10;
+    --bg: #f5f5f0;
+    --card: #ffffff;
+    --border: #e2e2da;
+    --text: #1a1a18;
+    --muted: #6b6b60;
+    --green: #16a34a;
+    --radius: 14px;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+  nav {
+    background: #fff;
+    border-bottom: 1px solid var(--border);
+    padding: 0 24px;
+    height: 58px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .logo { font-size: 1.3rem; font-weight: 800; text-decoration: none; color: var(--oranje); letter-spacing: -.5px; }
+  .logo span { color: var(--text); }
+  .nav-back { font-size: 13px; color: var(--muted); text-decoration: none; display: flex; align-items: center; gap: 5px; }
+  .nav-back:hover { color: var(--oranje); }
+
+  .hero {
+    background: linear-gradient(135deg, #1a1a18 0%, #2d2d2a 100%);
+    color: white;
+    padding: 40px 24px 36px;
+    text-align: center;
+  }
+  .hero h1 { font-size: clamp(1.5rem, 4vw, 2rem); font-weight: 800; letter-spacing: -.5px; margin-bottom: 8px; }
+  .hero p { color: rgba(255,255,255,.65); font-size: 15px; max-width: 480px; margin: 0 auto; }
+
+  .page { max-width: 440px; margin: 0 auto; padding: 32px 16px 60px; }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 26px 24px;
+  }
+  .card p.uitleg { font-size: 14px; color: var(--muted); line-height: 1.6; margin-bottom: 18px; }
+  label { display: block; font-size: 12.5px; font-weight: 600; color: var(--muted); margin-bottom: 6px; }
+  input[type=email] {
+    width: 100%; padding: 12px 14px; border-radius: 10px; border: 1.5px solid var(--border);
+    background: var(--bg); color: var(--text); font-size: 15px; margin-bottom: 14px; font-family: inherit;
+  }
+  input[type=email]:focus { outline: none; border-color: var(--oranje); }
+  button.primair {
+    width: 100%; padding: 13px; border-radius: 10px; border: none; background: var(--oranje); color: #fff;
+    font-size: 15px; font-weight: 700; cursor: pointer; font-family: inherit; transition: background .15s;
+  }
+  button.primair:hover { background: var(--oranje-dark); }
+  button.primair:disabled { opacity: .6; cursor: default; }
+  button.secundair {
+    width: 100%; padding: 12px; border-radius: 10px; border: 1.5px solid var(--border); background: #fff; color: var(--text);
+    font-size: 14px; font-weight: 600; cursor: pointer; font-family: inherit; margin-top: 10px;
+  }
+  p.msg { font-size: 13.5px; margin-top: 14px; line-height: 1.5; }
+  p.msg.ok { color: var(--green); }
+  p.msg.fout { color: var(--oranje-dark); }
+  .ingelogd-icoon { font-size: 40px; margin-bottom: 10px; text-align: center; }
+  .kleinprint { font-size: 12px; color: var(--muted); text-align: center; margin-top: 18px; line-height: 1.5; }
+  .kleinprint a { color: var(--oranje); text-decoration: none; }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="logo">Car<span>kijker</span></a>
+  <a href="/" class="nav-back">← Terug naar zoeken</a>
+</nav>
+
+<div class="hero">
+  <h1>Inloggen</h1>
+  <p>Bewaar je favorieten en zoekagenten op elk apparaat -- geen wachtwoord nodig.</p>
+</div>
+
+<div class="page">
+  <div class="card">
+    <div id="stapEmail">
+      <p class="uitleg">Vul je e-mailadres in. We sturen je een inloglink -- klik daarop en je bent ingelogd, op dit en elk ander apparaat.</p>
+      <label for="loginEmail">E-mailadres</label>
+      <input type="email" id="loginEmail" placeholder="jij@voorbeeld.nl" autocomplete="email">
+      <button class="primair" id="loginBtn" onclick="stuurLink()">Stuur inloglink</button>
+      <p class="msg" id="loginMsg"></p>
+    </div>
+    <div id="stapIngelogd" style="display:none">
+      <div class="ingelogd-icoon">✅</div>
+      <p class="uitleg" style="text-align:center">Je bent ingelogd als <strong id="ingelogdEmail"></strong>. Je favorieten en zoekagenten worden gesynchroniseerd.</p>
+      <a href="/" style="text-decoration:none"><button class="primair">Ga naar de zoekpagina</button></a>
+      <button class="secundair" onclick="uitloggen()">Uitloggen</button>
+    </div>
+  </div>
+  <p class="kleinprint">Geen account nodig om te zoeken -- inloggen is optioneel en alleen om favorieten/zoekagenten te bewaren. <a href="/">Gewoon verder zoeken →</a></p>
+</div>
+
+<script>
+  window.SUPABASE_URL = 'https://xbuznnkrkfdsjyjkarjo.supabase.co';
+  window.SUPABASE_ANON_KEY = 'sb_publishable_e4kljbGegfh2jVD92MsDKA_XSGQf-sP';
+</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  // Losse, minimale inlogpagina -- deelt bewust geen code met de hoofdpagina
+  // (die staat als IIFE onderaan index.html en is daar strak gekoppeld aan de
+  // favorieten/zoekagenten-UI). Deze pagina doet alleen: e-mail verzamelen,
+  // magic-link versturen, en de sessiestatus tonen. De daadwerkelijke
+  // synchronisatie van favorieten/zoekagenten gebeurt op de hoofdpagina zelf,
+  // zodra je daar met een actieve sessie aankomt (emailRedirectTo hieronder
+  // stuurt je na het klikken op de link terug naar "/").
+  if (typeof window.supabase === 'undefined') {
+    document.getElementById('loginMsg').textContent = 'Kon de inlogdienst niet laden. Probeer het later opnieuw.';
+    document.getElementById('loginMsg').className = 'msg fout';
+    document.getElementById('loginBtn').disabled = true;
+  } else {
+    var _sb = window.supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
+
+    function _toon(msg, soort) {
+      var el = document.getElementById('loginMsg');
+      el.textContent = msg || '';
+      el.className = 'msg' + (soort ? ' ' + soort : '');
+    }
+
+    function _updUI(gebruiker) {
+      document.getElementById('stapEmail').style.display = gebruiker ? 'none' : '';
+      document.getElementById('stapIngelogd').style.display = gebruiker ? '' : 'none';
+      if (gebruiker) document.getElementById('ingelogdEmail').textContent = gebruiker.email;
+    }
+
+    window.stuurLink = function () {
+      var email = document.getElementById('loginEmail').value.trim();
+      if (!email) { _toon('Vul een e-mailadres in.', 'fout'); return; }
+      var btn = document.getElementById('loginBtn');
+      btn.disabled = true;
+      _toon('Bezig met versturen...');
+      _sb.auth.signInWithOtp({ email: email, options: { emailRedirectTo: location.origin + '/' } })
+        .then(function (res) {
+          btn.disabled = false;
+          if (res.error) { _toon('Kon geen inloglink versturen: ' + res.error.message, 'fout'); return; }
+          _toon('Check je e-mail (' + email + ') voor de inloglink!', 'ok');
+        })
+        .catch(function (e) { btn.disabled = false; _toon('Kon geen inloglink versturen: ' + e.message, 'fout'); });
+    };
+
+    window.uitloggen = function () {
+      _sb.auth.signOut().then(function () { _updUI(null); });
+    };
+
+    _sb.auth.onAuthStateChange(function (event, session) { _updUI(session ? session.user : null); });
+    _sb.auth.getSession().then(function (res) { _updUI(res.data && res.data.session ? res.data.session.user : null); });
+  }
+</script>
+</body>
+</html>
