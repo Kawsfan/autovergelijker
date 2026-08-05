@@ -605,6 +605,20 @@
   .markt-schaarste-ruim{background:#dcfce7;color:#15803d}
   .markt-schaarste-normaal{background:#fef9c3;color:#854d0e}
   .markt-schaarste-beperkt{background:#fee2e2;color:#b91c1c}
+  .markt-regio-invoer input{width:100%;padding:8px 10px;border-radius:8px;border:1px solid var(--rand);background:var(--kaart);color:var(--tekst);font-size:13px}
+  .markt-regio-vergelijk{display:flex;gap:10px;flex-wrap:wrap}
+  .markt-regio-vergelijk .markt-inruil-card{flex:1;min-width:130px}
+  .markt-vgl{margin:0 24px;padding:14px 18px;background:var(--kaart);border:1.5px solid var(--rand);border-radius:12px}
+  .markt-vgl-toggle{background:none;border:none;padding:0;font-size:13px;font-weight:600;color:var(--tekst);cursor:pointer;display:flex;align-items:center;gap:6px}
+  .markt-vgl-row-input select{flex:1;min-width:120px;padding:8px 10px;border-radius:8px;border:1px solid var(--rand);background:var(--achtergrond);color:var(--tekst);font-size:13px}
+  .markt-vgl-tabel{width:100%;border-collapse:collapse;font-size:13px}
+  .markt-vgl-tabel th{font-size:11px;font-weight:600;color:var(--subtekst);text-align:right;padding:6px 8px;border-bottom:1px solid var(--rand)}
+  .markt-vgl-tabel th:first-child{text-align:left}
+  .markt-vgl-tabel td{padding:8px;border-bottom:1px solid var(--rand);text-align:right}
+  .markt-vgl-tabel td:first-child{text-align:left;color:var(--subtekst);font-size:12px}
+  .markt-vgl-tabel td.markt-vgl-beter{color:#16a34a;font-weight:700}
+  .markt-vgl-cta{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+  .markt-vgl-cta a{flex:1;min-width:140px;text-align:center;padding:9px 12px;border-radius:8px;font-size:12.5px;font-weight:600;text-decoration:none;background:var(--achtergrond);color:var(--tekst);border:1px solid var(--rand)}
   .markt-inruil{margin:14px 24px 4px;padding:16px 18px;background:linear-gradient(135deg,#fff7f2,var(--achtergrond));border:1.5px solid var(--oranje);border-radius:12px}
   .markt-inruil-title{font-size:14px;font-weight:700;margin-bottom:10px}
   .markt-inruil-row-input{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
@@ -2569,7 +2583,11 @@ function sluitMarkt() {
     // op een oude melding (zoals eerder al gebeurde met de inruilcalculator).
     berekenInruilwaarde();
     _renderPrijstrend(merk, model);
+    _renderRegionaal(merk, model);
     _renderMerkenRanglijst(merk);
+    var vglSectie = document.getElementById('mVglSectie');
+    if (vglSectie) vglSectie.style.display = (merk && model) ? '' : 'none';
+    _renderModelVergelijk();
 
     var leeg = document.getElementById('mLeeg');
     var res = document.getElementById('mResultaat');
@@ -2816,6 +2834,149 @@ function sluitMarkt() {
     mSel.value = merk;
     updateMarktModellen(merk);
     berekenMarkt();
+  }
+
+  // ===== REGIONALE PRIJSVERGELIJKING =====
+  // Hergebruikt de bestaande NL_CITIES-lijst en window._locCoord (dezelfde
+  // locatie-state als het afstandsfilter op de zoekpagina) i.p.v. een eigen
+  // stad->provincie-mapping op te tuigen -- die zou voor het merendeel van de
+  // (vaak kleinere) plaatsnamen in de advertenties toch geen dekking hebben.
+  function _vindStadCoord(locatie) {
+    if (!locatie) return null;
+    var lk = locatie.toLowerCase().trim();
+    if (NL_CITIES[lk]) return NL_CITIES[lk];
+    for (var ck in NL_CITIES) { if (lk.includes(ck)) return NL_CITIES[ck]; }
+    return null;
+  }
+  function _haversineKm(a, b) {
+    var dlat=(b[0]-a[0])*Math.PI/180, dlon=(b[1]-a[1])*Math.PI/180;
+    var h = Math.sin(dlat/2)*Math.sin(dlat/2) + Math.cos(a[0]*Math.PI/180)*Math.cos(b[0]*Math.PI/180)*Math.sin(dlon/2)*Math.sin(dlon/2);
+    return 6371*2*Math.atan2(Math.sqrt(h), Math.sqrt(1-h));
+  }
+  function _wijzigMarktRegio() {
+    window._locCoord = null;
+    var merk = document.getElementById('mMerk').value, model = document.getElementById('mModel').value;
+    _renderRegionaal(merk, model);
+    var inp = document.getElementById('mRegioPlaats');
+    if (inp) inp.focus();
+  }
+  function _inputMarktRegio(v) {
+    _geoLoc(v);
+    // _geoLoc() is soms async (Nominatim-fallback voor plaatsen buiten
+    // NL_CITIES, met een debounce van 600ms) -- meteen én na die debounce
+    // opnieuw renderen zodat beide gevallen (bekende stad / onbekende plaats)
+    // de regio-vergelijking bijwerken.
+    var merk = document.getElementById('mMerk').value, model = document.getElementById('mModel').value;
+    _renderRegionaal(merk, model);
+    clearTimeout(window._marktRegioTimer);
+    window._marktRegioTimer = setTimeout(function(){ _renderRegionaal(merk, model); }, 700);
+  }
+  function _renderRegionaal(merk, model) {
+    var sectie = document.getElementById('mRegioSectie');
+    var inhoud = document.getElementById('mRegioInhoud');
+    if (!sectie || !inhoud) return;
+    if (!merk || !model) { sectie.style.display = 'none'; return; }
+    sectie.style.display = '';
+    var fmt = function(p){ return '€'+Math.round(p).toLocaleString('nl-NL'); };
+    var mediaanVan = function(pp){ pp = pp.slice().sort(function(a,b){return a-b;}); var n=pp.length; return n%2===0 ? Math.round((pp[n/2-1]+pp[n/2])/2) : pp[Math.floor(n/2)]; };
+
+    var lc = window._locCoord;
+    if (!lc) {
+      var huidigeInvoer = (document.getElementById('locInput')||{}).value || '';
+      inhoud.innerHTML =
+        '<div class="markt-regio-invoer"><input type="text" id="mRegioPlaats" value="'+escHtml(huidigeInvoer)+'" placeholder="Plaatsnaam, bv. Utrecht" oninput="_inputMarktRegio(this.value)" aria-label="Plaatsnaam voor regionale prijsvergelijking">' +
+        '<p style="font-size:12px;color:var(--subtekst);margin:8px 0 0">Vul een plaats in om de prijs in jouw regio te vergelijken met de rest van Nederland.</p></div>';
+      return;
+    }
+    var wijzigLink = '<p style="margin:8px 0 0"><a href="#" onclick="_wijzigMarktRegio();return false" style="font-size:12px;color:var(--oranje)">Andere plaats? &rarr;</a></p>';
+    var subset = (window._alleAutos||[]).filter(function(a){ return a.merk===merk && a.model===model && a.prijs>=500; });
+    if (subset.length < 5) { inhoud.innerHTML = '<p style="font-size:13px;color:var(--subtekst);margin:0">Onvoldoende advertenties van dit merk en model voor een regionale vergelijking.</p>'+wijzigLink; return; }
+    var radiusSel = document.getElementById('radiusSelect');
+    var radius = (radiusSel && parseInt(radiusSel.value)) || 75;
+    var regionaal = subset.filter(function(a){
+      var ac = _vindStadCoord(a.locatie);
+      return ac && _haversineKm(lc, ac) <= radius;
+    });
+    if (regionaal.length < 3) {
+      inhoud.innerHTML = '<p style="font-size:13px;color:var(--subtekst);margin:0">Nog geen '+radius+' km met voldoende '+escHtml(merk)+' '+escHtml(model)+'-advertenties om regionaal te vergelijken (nu '+regionaal.length+').</p>'+wijzigLink;
+      return;
+    }
+    var medLandelijk = mediaanVan(subset.map(function(a){return a.prijs;}));
+    var medRegio = mediaanVan(regionaal.map(function(a){return a.prijs;}));
+    var verschilPct = medLandelijk ? Math.round((medRegio-medLandelijk)/medLandelijk*100) : 0;
+    var vCol = verschilPct<-3 ? '#16a34a' : verschilPct>3 ? '#dc2626' : 'var(--subtekst)';
+    var vTekst = verschilPct<-3 ? (Math.abs(verschilPct)+'% goedkoper dan landelijk') : verschilPct>3 ? (verschilPct+'% duurder dan landelijk') : 'vergelijkbaar met landelijk';
+    inhoud.innerHTML =
+      '<div class="markt-regio-vergelijk"><div class="markt-inruil-card"><div class="lbl">Binnen '+radius+' km ('+regionaal.length+' adv.)</div><div class="val">'+fmt(medRegio)+'</div></div>' +
+      '<div class="markt-inruil-card hoofd"><div class="lbl">Landelijk ('+subset.length+' adv.)</div><div class="val">'+fmt(medLandelijk)+'</div></div></div>' +
+      '<p style="font-size:13px;margin:10px 0 0;color:'+vCol+';font-weight:600">'+vTekst+'</p>' + wijzigLink;
+  }
+
+  // ===== MODEL-VERGELIJKING (marktniveau) =====
+  // Bewust géén kopie van de bestaande advertentie-vergelijker (die zet 2-3
+  // concrete auto's met exacte specs naast elkaar). Dit vergelijkt twee hele
+  // modellen statistisch -- prijsspreiding, afschrijving per km, aanbodgrootte
+  // -- om te helpen kiezen ẂELK model je gaat zoeken, vóórdat je specifieke
+  // advertenties hebt om in de bestaande vergelijker te zetten. Linkt aan het
+  // eind door naar het normale zoekresultaat i.p.v. dat te dupliceren.
+  function _regressieSlope(items) {
+    var metKm = items.filter(function(a){ return a.km>1000 && a.km<300000; });
+    if (metKm.length < 5) return null;
+    var n=metKm.length, sX=0,sY=0,sXY=0,sX2=0;
+    metKm.forEach(function(a){ sX+=a.km; sY+=a.prijs; sXY+=a.km*a.prijs; sX2+=a.km*a.km; });
+    var denom = n*sX2-sX*sX;
+    return denom ? (n*sXY-sX*sY)/denom : 0;
+  }
+  function _toggleModelVergelijk() {
+    var body = document.getElementById('mVglBody');
+    if (!body) return;
+    var open = body.style.display !== 'none';
+    body.style.display = open ? 'none' : '';
+    if (!open) _populeerMerkSelect(document.getElementById('mVglMerk'), true);
+  }
+  function _updateVglModellen(merk) {
+    _populeerModelSelect(document.getElementById('mVglModel'), merk, 'Model');
+    _renderModelVergelijk();
+  }
+  function _modelStats(merk, model) {
+    var subset = (window._alleAutos||[]).filter(function(a){ return a.merk===merk && a.model===model && a.prijs>=500; });
+    if (subset.length < 5) return null;
+    var pp = subset.map(function(a){return a.prijs;}).sort(function(a,b){return a-b;});
+    var n = pp.length;
+    var mediaan = n%2===0 ? Math.round((pp[n/2-1]+pp[n/2])/2) : pp[Math.floor(n/2)];
+    var slope = _regressieSlope(subset);
+    return {
+      merk: merk, model: model, n: n, mediaan: mediaan,
+      p25: pp[Math.floor(n*0.25)], p75: pp[Math.min(n-1, Math.floor(n*0.75))],
+      afschrKm: slope==null ? null : slope*1000
+    };
+  }
+  function _renderModelVergelijk() {
+    var wrap = document.getElementById('mVglInhoud');
+    if (!wrap) return;
+    var merk1 = document.getElementById('mMerk').value, model1 = document.getElementById('mModel').value;
+    var merk2 = document.getElementById('mVglMerk').value, model2 = document.getElementById('mVglModel').value;
+    if (!merk1 || !model1) { wrap.innerHTML = '<p style="font-size:13px;color:var(--subtekst);margin:0">Selecteer eerst hierboven een merk en model.</p>'; return; }
+    if (!merk2 || !model2) { wrap.innerHTML = ''; return; }
+    var s1 = _modelStats(merk1, model1), s2 = _modelStats(merk2, model2);
+    if (!s1 || !s2) { wrap.innerHTML = '<p style="font-size:13px;color:var(--subtekst);margin:0">Onvoldoende advertenties van één van beide modellen voor een betrouwbare vergelijking.</p>'; return; }
+    var fmt = function(p){ return '€'+Math.round(p).toLocaleString('nl-NL'); };
+    var naam1 = merk1+' '+model1, naam2 = merk2+' '+model2;
+    var rij = function(label, v1, v2, beter1, beter2) {
+      return '<tr><td>'+label+'</td><td'+(beter1?' class="markt-vgl-beter"':'')+'>'+v1+'</td><td'+(beter2?' class="markt-vgl-beter"':'')+'>'+v2+'</td></tr>';
+    };
+    var rijen = '';
+    rijen += rij('Mediaan prijs', fmt(s1.mediaan), fmt(s2.mediaan), s1.mediaan<s2.mediaan, s2.mediaan<s1.mediaan);
+    rijen += rij('Prijsspreiding (p25–p75)', fmt(s1.p25)+' – '+fmt(s1.p75), fmt(s2.p25)+' – '+fmt(s2.p75), false, false);
+    rijen += rij('Aanbod', s1.n+' adv.', s2.n+' adv.', s1.n>s2.n, s2.n>s1.n);
+    if (s1.afschrKm!=null && s2.afschrKm!=null) {
+      var a1 = Math.abs(s1.afschrKm), a2 = Math.abs(s2.afschrKm);
+      rijen += rij('Afschrijving per 1.000 km', '−'+fmt(a1), '−'+fmt(a2), a1<a2, a2<a1);
+    }
+    wrap.innerHTML =
+      '<table class="markt-vgl-tabel"><thead><tr><th></th><th>'+escHtml(naam1)+'</th><th>'+escHtml(naam2)+'</th></tr></thead><tbody>'+rijen+'</tbody></table>' +
+      '<div class="markt-vgl-cta"><a href="/?merk='+encodeURIComponent(merk1)+'&model='+encodeURIComponent(model1)+'">Bekijk '+escHtml(naam1)+'-aanbod &rarr;</a>' +
+      '<a href="/?merk='+encodeURIComponent(merk2)+'&model='+encodeURIComponent(model2)+'">Bekijk '+escHtml(naam2)+'-aanbod &rarr;</a></div>';
   }
 
   // Vaste prijsstappen van de #prijsMin/#prijsMax select-filters op de homepage --
@@ -3099,6 +3260,16 @@ function _injectCarSchema(cars) {
         <option value="Handgeschakeld">Handgeschakeld</option>
       </select>
     </div>
+    <div id="mVglSectie" class="markt-vgl" style="display:none">
+      <button id="mVglToggle" class="markt-vgl-toggle" onclick="_toggleModelVergelijk()">&#9878;&#65039; Vergelijk met een ander model</button>
+      <div id="mVglBody" style="display:none">
+        <div class="markt-inruil-row-input" style="margin-top:10px">
+          <select id="mVglMerk" onchange="_updateVglModellen(this.value)" aria-label="Merk om mee te vergelijken"><option value="">Merk om mee te vergelijken</option></select>
+          <select id="mVglModel" onchange="_renderModelVergelijk()" aria-label="Model om mee te vergelijken"><option value="">Model</option></select>
+        </div>
+        <div id="mVglInhoud" style="margin-top:10px"></div>
+      </div>
+    </div>
     <div class="markt-inruil">
       <div class="markt-inruil-title">&#128176; Wat is mijn auto waard?</div>
       <div class="markt-inruil-row-input">
@@ -3148,6 +3319,10 @@ function _injectCarSchema(cars) {
       <div id="mTrendSectie" class="markt-section" style="display:none">
         <div class="markt-section-title">&#128200; Prijstrend</div>
         <div class="markt-svg-wrap" id="mTrendInhoud"></div>
+      </div>
+      <div id="mRegioSectie" class="markt-section" style="display:none">
+        <div class="markt-section-title">&#128205; Prijs in jouw regio</div>
+        <div class="markt-svg-wrap" id="mRegioInhoud"></div>
       </div>
       <div class="markt-section">
         <div class="markt-section-title">Prijs vs. kilometerstand &nbsp;<small style="font-weight:400;color:var(--subtekst)">&#9679; goedkoop &nbsp;&#9679; gemiddeld &nbsp;&#9679; duur</small></div>
