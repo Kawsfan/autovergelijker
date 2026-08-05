@@ -4,10 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Inloggen | Carkijker</title>
-<meta name="description" content="Log in bij Carkijker om je favorieten en zoekagenten te bewaren op elk apparaat. Geen wachtwoord nodig -- je krijgt een inloglink per e-mail.">
+<meta name="description" content="Log in bij Carkijker met je e-mailadres en wachtwoord om je favorieten en zoekagenten te bewaren op elk apparaat.">
 <link rel="canonical" href="https://www.carkijker.nl/inloggen/">
 <meta property="og:title" content="Inloggen | Carkijker">
-<meta property="og:description" content="Log in met je e-mailadres om je favorieten en zoekagenten te synchroniseren.">
+<meta property="og:description" content="Log in om je favorieten en zoekagenten te synchroniseren.">
 <meta property="og:url" content="https://www.carkijker.nl/inloggen/">
 <meta name="robots" content="index, follow">
 <style>
@@ -65,11 +65,11 @@
   }
   .card p.uitleg { font-size: 14px; color: var(--muted); line-height: 1.6; margin-bottom: 18px; }
   label { display: block; font-size: 12.5px; font-weight: 600; color: var(--muted); margin-bottom: 6px; }
-  input[type=email] {
+  input[type=email], input[type=password] {
     width: 100%; padding: 12px 14px; border-radius: 10px; border: 1.5px solid var(--border);
     background: var(--bg); color: var(--text); font-size: 15px; margin-bottom: 14px; font-family: inherit;
   }
-  input[type=email]:focus { outline: none; border-color: var(--oranje); }
+  input[type=email]:focus, input[type=password]:focus { outline: none; border-color: var(--oranje); }
   button.primair {
     width: 100%; padding: 13px; border-radius: 10px; border: none; background: var(--oranje); color: #fff;
     font-size: 15px; font-weight: 700; cursor: pointer; font-family: inherit; transition: background .15s;
@@ -80,6 +80,10 @@
     width: 100%; padding: 12px; border-radius: 10px; border: 1.5px solid var(--border); background: #fff; color: var(--text);
     font-size: 14px; font-weight: 600; cursor: pointer; font-family: inherit; margin-top: 10px;
   }
+  .wissel-rij { display: flex; justify-content: space-between; margin-top: 12px; font-size: 13px; }
+  .wissel-rij a { color: var(--muted); text-decoration: none; }
+  .wissel-rij a.nadruk { color: var(--oranje); font-weight: 600; }
+  .terug-link { display: block; margin-top: 12px; font-size: 13px; color: var(--muted); text-decoration: none; }
   p.msg { font-size: 13.5px; margin-top: 14px; line-height: 1.5; }
   p.msg.ok { color: var(--green); }
   p.msg.fout { color: var(--oranje-dark); }
@@ -97,24 +101,61 @@
 
 <div class="hero">
   <h1>Inloggen</h1>
-  <p>Bewaar je favorieten en zoekagenten op elk apparaat -- geen wachtwoord nodig.</p>
+  <p>Bewaar je favorieten en zoekagenten op elk apparaat.</p>
 </div>
 
 <div class="page">
   <div class="card">
-    <div id="stapEmail">
-      <p class="uitleg">Vul je e-mailadres in. We sturen je een inloglink -- klik daarop en je bent ingelogd, op dit en elk ander apparaat.</p>
+
+    <div id="stapLogin">
+      <p class="uitleg">Log in om je favorieten en zoekagenten te bewaren.</p>
       <label for="loginEmail">E-mailadres</label>
       <input type="email" id="loginEmail" placeholder="jij@voorbeeld.nl" autocomplete="email">
-      <button class="primair" id="loginBtn" onclick="stuurLink()">Stuur inloglink</button>
+      <label for="loginWw">Wachtwoord</label>
+      <input type="password" id="loginWw" placeholder="Wachtwoord" autocomplete="current-password">
+      <button class="primair" id="loginBtn" onclick="inloggen()">Inloggen</button>
+      <div class="wissel-rij">
+        <a href="#" onclick="toonStap('wachtwoordVergeten');return false">Wachtwoord vergeten?</a>
+        <a href="#" onclick="toonStap('registreren');return false" class="nadruk">Account aanmaken</a>
+      </div>
       <p class="msg" id="loginMsg"></p>
     </div>
+
+    <div id="stapRegistreren" style="display:none">
+      <p class="uitleg">Maak een gratis account om je favorieten en zoekagenten te bewaren.</p>
+      <label for="regEmail">E-mailadres</label>
+      <input type="email" id="regEmail" placeholder="jij@voorbeeld.nl" autocomplete="email">
+      <label for="regWw">Wachtwoord</label>
+      <input type="password" id="regWw" placeholder="Minstens 6 tekens" autocomplete="new-password" minlength="6">
+      <button class="primair" onclick="registreren()">Account aanmaken</button>
+      <a href="#" onclick="toonStap('login');return false" class="terug-link">Al een account? Inloggen</a>
+      <p class="msg" id="regMsg"></p>
+    </div>
+
+    <div id="stapWachtwoordVergeten" style="display:none">
+      <p class="uitleg">Vul je e-mailadres in, dan sturen we een link om een nieuw wachtwoord in te stellen.</p>
+      <label for="resetEmail">E-mailadres</label>
+      <input type="email" id="resetEmail" placeholder="jij@voorbeeld.nl" autocomplete="email">
+      <button class="primair" onclick="resetVersturen()">Stuur resetlink</button>
+      <a href="#" onclick="toonStap('login');return false" class="terug-link">← Terug naar inloggen</a>
+      <p class="msg" id="resetMsg"></p>
+    </div>
+
+    <div id="stapNieuwWachtwoord" style="display:none">
+      <p class="uitleg">Stel een nieuw wachtwoord in voor je account.</p>
+      <label for="nieuwWw">Nieuw wachtwoord</label>
+      <input type="password" id="nieuwWw" placeholder="Minstens 6 tekens" autocomplete="new-password" minlength="6">
+      <button class="primair" onclick="nieuwWachtwoordVersturen()">Wachtwoord instellen</button>
+      <p class="msg" id="nieuwWwMsg"></p>
+    </div>
+
     <div id="stapIngelogd" style="display:none">
       <div class="ingelogd-icoon">✅</div>
       <p class="uitleg" style="text-align:center">Je bent ingelogd als <strong id="ingelogdEmail"></strong>. Je favorieten en zoekagenten worden gesynchroniseerd.</p>
       <a href="/" style="text-decoration:none"><button class="primair">Ga naar de zoekpagina</button></a>
       <button class="secundair" onclick="uitloggen()">Uitloggen</button>
     </div>
+
   </div>
   <p class="kleinprint">Geen account nodig om te zoeken -- inloggen is optioneel en alleen om favorieten/zoekagenten te bewaren. <a href="/">Gewoon verder zoeken →</a></p>
 </div>
@@ -127,50 +168,97 @@
 <script>
   // Losse, minimale inlogpagina -- deelt bewust geen code met de hoofdpagina
   // (die staat als IIFE onderaan index.html en is daar strak gekoppeld aan de
-  // favorieten/zoekagenten-UI). Deze pagina doet alleen: e-mail verzamelen,
-  // magic-link versturen, en de sessiestatus tonen. De daadwerkelijke
-  // synchronisatie van favorieten/zoekagenten gebeurt op de hoofdpagina zelf,
-  // zodra je daar met een actieve sessie aankomt (emailRedirectTo hieronder
-  // stuurt je na het klikken op de link terug naar "/").
+  // favorieten/zoekagenten-UI). Deze pagina doet alleen: inloggen/
+  // registreren/wachtwoord-resetten en de sessiestatus tonen. De
+  // daadwerkelijke synchronisatie van favorieten/zoekagenten gebeurt op de
+  // hoofdpagina zelf, zodra je daar met een actieve sessie aankomt
+  // (emailRedirectTo hieronder stuurt na e-mailacties terug naar "/").
   if (typeof window.supabase === 'undefined') {
-    document.getElementById('loginMsg').textContent = 'Kon de inlogdienst niet laden. Probeer het later opnieuw.';
-    document.getElementById('loginMsg').className = 'msg fout';
+    var stapEl = document.getElementById('loginMsg');
+    stapEl.textContent = 'Kon de inlogdienst niet laden. Probeer het later opnieuw.';
+    stapEl.className = 'msg fout';
     document.getElementById('loginBtn').disabled = true;
   } else {
     var _sb = window.supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
+    var STAPPEN = ['login', 'registreren', 'wachtwoordVergeten', 'nieuwWachtwoord', 'ingelogd'];
 
-    function _toon(msg, soort) {
-      var el = document.getElementById('loginMsg');
-      el.textContent = msg || '';
+    window.toonStap = function (stap) {
+      STAPPEN.forEach(function (s) {
+        var el = document.getElementById('stap' + s.charAt(0).toUpperCase() + s.slice(1));
+        if (el) el.style.display = 'none';
+      });
+      var target = document.getElementById('stap' + stap.charAt(0).toUpperCase() + stap.slice(1));
+      if (target) target.style.display = '';
+    };
+
+    function _msg(id, tekst, soort) {
+      var el = document.getElementById(id);
+      if (!el) return;
+      el.textContent = tekst || '';
       el.className = 'msg' + (soort ? ' ' + soort : '');
     }
 
     function _updUI(gebruiker) {
-      document.getElementById('stapEmail').style.display = gebruiker ? 'none' : '';
-      document.getElementById('stapIngelogd').style.display = gebruiker ? '' : 'none';
-      if (gebruiker) document.getElementById('ingelogdEmail').textContent = gebruiker.email;
+      if (gebruiker) {
+        document.getElementById('ingelogdEmail').textContent = gebruiker.email;
+        window.toonStap('ingelogd');
+      } else {
+        window.toonStap('login');
+      }
     }
 
-    window.stuurLink = function () {
+    window.inloggen = function () {
       var email = document.getElementById('loginEmail').value.trim();
-      if (!email) { _toon('Vul een e-mailadres in.', 'fout'); return; }
-      var btn = document.getElementById('loginBtn');
-      btn.disabled = true;
-      _toon('Bezig met versturen...');
-      _sb.auth.signInWithOtp({ email: email, options: { emailRedirectTo: location.origin + '/' } })
-        .then(function (res) {
-          btn.disabled = false;
-          if (res.error) { _toon('Kon geen inloglink versturen: ' + res.error.message, 'fout'); return; }
-          _toon('Check je e-mail (' + email + ') voor de inloglink!', 'ok');
-        })
-        .catch(function (e) { btn.disabled = false; _toon('Kon geen inloglink versturen: ' + e.message, 'fout'); });
+      var ww = document.getElementById('loginWw').value;
+      if (!email || !ww) { _msg('loginMsg', 'Vul e-mailadres en wachtwoord in.', 'fout'); return; }
+      _msg('loginMsg', 'Bezig met inloggen...');
+      _sb.auth.signInWithPassword({ email: email, password: ww }).then(function (res) {
+        if (res.error) { _msg('loginMsg', 'Inloggen mislukt: ' + res.error.message, 'fout'); return; }
+      }).catch(function (e) { _msg('loginMsg', 'Inloggen mislukt: ' + e.message, 'fout'); });
+    };
+
+    window.registreren = function () {
+      var email = document.getElementById('regEmail').value.trim();
+      var ww = document.getElementById('regWw').value;
+      if (!email || !ww) { _msg('regMsg', 'Vul e-mailadres en wachtwoord in.', 'fout'); return; }
+      if (ww.length < 6) { _msg('regMsg', 'Wachtwoord moet minstens 6 tekens zijn.', 'fout'); return; }
+      _msg('regMsg', 'Account aanmaken...');
+      _sb.auth.signUp({ email: email, password: ww, options: { emailRedirectTo: location.origin + '/' } }).then(function (res) {
+        if (res.error) { _msg('regMsg', 'Aanmaken mislukt: ' + res.error.message, 'fout'); return; }
+        if (!(res.data && res.data.session)) {
+          _msg('regMsg', 'Check je e-mail (' + email + ') om je account te bevestigen.', 'ok');
+        }
+      }).catch(function (e) { _msg('regMsg', 'Aanmaken mislukt: ' + e.message, 'fout'); });
+    };
+
+    window.resetVersturen = function () {
+      var email = document.getElementById('resetEmail').value.trim();
+      if (!email) { _msg('resetMsg', 'Vul een e-mailadres in.', 'fout'); return; }
+      _msg('resetMsg', 'Bezig met versturen...');
+      _sb.auth.resetPasswordForEmail(email, { redirectTo: location.origin + '/inloggen/' }).then(function (res) {
+        if (res.error) { _msg('resetMsg', 'Kon geen resetlink versturen: ' + res.error.message, 'fout'); return; }
+        _msg('resetMsg', 'Check je e-mail (' + email + ') voor de resetlink!', 'ok');
+      }).catch(function (e) { _msg('resetMsg', 'Kon geen resetlink versturen: ' + e.message, 'fout'); });
+    };
+
+    window.nieuwWachtwoordVersturen = function () {
+      var ww = document.getElementById('nieuwWw').value;
+      if (!ww || ww.length < 6) { _msg('nieuwWwMsg', 'Wachtwoord moet minstens 6 tekens zijn.', 'fout'); return; }
+      _msg('nieuwWwMsg', 'Bezig met opslaan...');
+      _sb.auth.updateUser({ password: ww }).then(function (res) {
+        if (res.error) { _msg('nieuwWwMsg', 'Opslaan mislukt: ' + res.error.message, 'fout'); return; }
+        window.toonStap('ingelogd');
+      }).catch(function (e) { _msg('nieuwWwMsg', 'Opslaan mislukt: ' + e.message, 'fout'); });
     };
 
     window.uitloggen = function () {
       _sb.auth.signOut().then(function () { _updUI(null); });
     };
 
-    _sb.auth.onAuthStateChange(function (event, session) { _updUI(session ? session.user : null); });
+    _sb.auth.onAuthStateChange(function (event, session) {
+      if (event === 'PASSWORD_RECOVERY') { window.toonStap('nieuwWachtwoord'); return; }
+      _updUI(session ? session.user : null);
+    });
     _sb.auth.getSession().then(function (res) { _updUI(res.data && res.data.session ? res.data.session.user : null); });
   }
 </script>
