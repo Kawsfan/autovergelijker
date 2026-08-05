@@ -608,6 +608,12 @@
   .markt-regio-invoer input{width:100%;padding:8px 10px;border-radius:8px;border:1px solid var(--rand);background:var(--kaart);color:var(--tekst);font-size:13px}
   .markt-regio-vergelijk{display:flex;gap:10px;flex-wrap:wrap}
   .markt-regio-vergelijk .markt-inruil-card{flex:1;min-width:130px}
+  .markt-toolbar{display:flex;gap:8px;flex-wrap:wrap;margin:0 24px 14px}
+  .markt-toolbar-btn{background:var(--kaart);border:1px solid var(--rand);border-radius:8px;padding:8px 12px;font-size:12.5px;font-weight:600;color:var(--tekst);cursor:pointer}
+  .markt-toolbar-btn:hover{border-color:var(--oranje);color:var(--oranje)}
+  .markt-toolbar-btn:disabled{opacity:.7;cursor:default}
+  .markt-info-ic{display:inline-block;font-size:11px;color:var(--subtekst);cursor:help;border:1px solid var(--subtekst);border-radius:50%;width:14px;height:14px;text-align:center;line-height:13px;margin-left:4px;font-style:normal}
+  .markt-betrouwbaarheid{font-size:11px;color:var(--subtekst);margin-top:4px}
   .markt-vgl{margin:0 24px;padding:14px 18px;background:var(--kaart);border:1.5px solid var(--rand);border-radius:12px}
   .markt-vgl-toggle{background:none;border:none;padding:0;font-size:13px;font-weight:600;color:var(--tekst);cursor:pointer;display:flex;align-items:center;gap:6px}
   .markt-vgl-row-input select{flex:1;min-width:120px;padding:8px 10px;border-radius:8px;border:1px solid var(--rand);background:var(--achtergrond);color:var(--tekst);font-size:13px}
@@ -2507,6 +2513,19 @@ function sluitMarkt() {
       mSel.value = target.value;
       updateMarktModellen(target.value);
       berekenMarkt();
+      // ?model= hergebruikt hetzelfde param als de normale zoekfilters (die
+      // vullen ondertussen ook gewoon modelInput) -- hiermee kan een gedeelde
+      // "kopieer link naar deze analyse" ook het model voorselecteren, niet
+      // alleen het merk.
+      var modelParam = new URLSearchParams(location.search).get('model');
+      if (modelParam) {
+        var modelSel = document.getElementById('mModel');
+        var modelTarget = modelSel && Array.from(modelSel.options).find(function(o){ return o.value.toLowerCase() === modelParam.toLowerCase(); });
+        if (modelTarget) {
+          modelSel.value = modelTarget.value;
+          berekenMarkt();
+        }
+      }
     }
   }
 
@@ -2588,6 +2607,7 @@ function sluitMarkt() {
     var vglSectie = document.getElementById('mVglSectie');
     if (vglSectie) vglSectie.style.display = (merk && model) ? '' : 'none';
     _renderModelVergelijk();
+    _renderMarktToolbar(merk, model);
 
     var leeg = document.getElementById('mLeeg');
     var res = document.getElementById('mResultaat');
@@ -2795,6 +2815,37 @@ function sluitMarkt() {
       '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><div style="font-size:12px;color:var(--subtekst)">Mediaan-vraagprijs, laatste '+nPt+' dagen</div><div style="font-size:12px;font-weight:700;color:'+dCol+'">'+dStr+'</div></div>' +
       '<svg width="100%" height="44" viewBox="0 0 200 50" preserveAspectRatio="none" style="display:block"><polyline points="'+pts+'" fill="none" stroke="var(--oranje)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>'+dots+'</svg>' +
       '<div style="display:flex;justify-content:space-between;font-size:11px;color:var(--subtekst);margin-top:4px"><span>'+reeks[0].datum+': '+fmtEuro(eerste)+'</span><span>Nu: '+fmtEuro(laatste)+'</span></div>';
+
+    // Prognose: lineaire regressie op dagindex->mediaanprijs doortrekken. Pas
+    // tonen vanaf 14 dagen historie (te weinig punten = extrapolatie die
+    // statistisch niet te verantwoorden is), en de horizon nooit verder
+    // vooruit kijken dan de lengte van de al geobserveerde periode -- een
+    // gangbare vuistregel om wilde extrapolatie te vermijden.
+    var progWrap = document.getElementById('mTrendPrognose');
+    if (progWrap) {
+      if (nPt >= 14) {
+        var sX=0,sY=0,sXY=0,sX2=0;
+        prices.forEach(function(p,i){ sX+=i; sY+=p; sXY+=i*p; sX2+=i*i; });
+        var denom = nPt*sX2-sX*sX;
+        var slope = denom ? (nPt*sXY-sX*sY)/denom : 0;
+        var intercept = (sY-slope*sX)/nPt;
+        var horizon = Math.min(90, nPt);
+        var prognosePrijs = Math.max(500, Math.round(intercept + slope*(nPt-1+horizon)));
+        var progDelta = prognosePrijs - laatste;
+        var progPct = laatste ? (progDelta/laatste*100) : 0;
+        progWrap.innerHTML = '<p style="font-size:12px;color:var(--subtekst);margin:8px 0 0;padding-top:8px;border-top:1px dashed var(--rand)">' +
+          'Bij ongewijzigde trend: over ' + horizon + ' dagen naar verwachting <strong style="color:var(--tekst)">' + fmtEuro(prognosePrijs) + '</strong> (' + (progPct>=0?'+':'') + progPct.toFixed(1) + '%). ' +
+          '<span class="markt-info-ic" title="Simpele lineaire doortrekking van de laatste ' + nPt + ' dagen -- geen garantie, alleen een indicatie bij een gelijkblijvende trend.">i</span></p>';
+      } else {
+        progWrap.innerHTML = '<p style="font-size:11px;color:var(--subtekst);margin:8px 0 0">Prognose verschijnt zodra er minstens 14 dagen prijshistorie is (nu ' + nPt + ').</p>';
+      }
+    }
+    var betrouwbNote = document.getElementById('mTrendBetrouwbaarheid');
+    if (betrouwbNote) {
+      var laatsteN = reeks[nPt-1].seg.n;
+      var bTekst = _betrouwbaarheidsTekst(laatsteN);
+      betrouwbNote.textContent = bTekst || '';
+    }
   }
 
   // ===== "ALLE MERKEN"-RANGLIJST =====
@@ -2834,6 +2885,53 @@ function sluitMarkt() {
     mSel.value = merk;
     updateMarktModellen(merk);
     berekenMarkt();
+  }
+
+  // Kleine steekproeven leiden tot ruizige mediaan/trend/afschrijvingscijfers --
+  // die onzekerheid expliciet benoemen i.p.v. een precies ogend getal zonder
+  // context te tonen (bv. "€13.125 mediaan" terwijl dat op 4 advertenties rust).
+  function _betrouwbaarheidsTekst(n) {
+    if (n >= 100) return null;
+    if (n >= 30) return 'Gebaseerd op ' + n + ' advertenties — redelijk betrouwbaar.';
+    return 'Gebaseerd op slechts ' + n + ' advertenties — kleine steekproef, interpreteer met voorzichtigheid.';
+  }
+
+  // ===== TOOLBAR: volgen + delen =====
+  function _renderMarktToolbar(merk, model) {
+    var bar = document.getElementById('mToolbar');
+    if (!bar) return;
+    if (!merk || !model) { bar.style.display = 'none'; return; }
+    bar.style.display = '';
+    var btn = document.getElementById('mVolgBtn');
+    if (btn) {
+      var lijst = _agenten();
+      var gevolgd = lijst.some(function(a){ return a.merk===merk && a.q===model; });
+      btn.textContent = gevolgd ? '✓ Wordt gevolgd' : '🔔 Volg dit model';
+      btn.disabled = gevolgd;
+    }
+    var deelBtn = document.getElementById('mDeelBtn');
+    if (deelBtn) deelBtn.textContent = '🔗 Kopieer link naar deze analyse';
+  }
+  function _volgModelVanuitMarkt() {
+    var merk = document.getElementById('mMerk').value, model = document.getElementById('mModel').value;
+    if (!merk || !model) return;
+    var lijst = _agenten();
+    if (lijst.some(function(a){ return a.merk===merk && a.q===model; })) return;
+    lijst.push({ label: merk+' '+model, merk: merk, q: model, minPrijs: null, maxPrijs: null, opgeslagenOp: new Date().toISOString().slice(0,10), gezieneIds: [] });
+    localStorage.setItem('zoekagenten', JSON.stringify(lijst));
+    _renderMarktToolbar(merk, model);
+  }
+  function _deelMarktLink() {
+    var merk = document.getElementById('mMerk').value, model = document.getElementById('mModel').value;
+    if (!merk || !model) return;
+    var url = location.origin + '/?markt=' + encodeURIComponent(merk) + '&model=' + encodeURIComponent(model);
+    var btn = document.getElementById('mDeelBtn');
+    var toon = function(msg){ if (btn) { var origineel = '🔗 Kopieer link naar deze analyse'; btn.textContent = msg; setTimeout(function(){ btn.textContent = origineel; }, 2000); } };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(url).then(function(){ toon('✓ Link gekopieerd!'); }).catch(function(){ toon(url); });
+    } else {
+      toon(url);
+    }
   }
 
   // ===== REGIONALE PRIJSVERGELIJKING =====
@@ -2906,10 +3004,12 @@ function sluitMarkt() {
     var verschilPct = medLandelijk ? Math.round((medRegio-medLandelijk)/medLandelijk*100) : 0;
     var vCol = verschilPct<-3 ? '#16a34a' : verschilPct>3 ? '#dc2626' : 'var(--subtekst)';
     var vTekst = verschilPct<-3 ? (Math.abs(verschilPct)+'% goedkoper dan landelijk') : verschilPct>3 ? (verschilPct+'% duurder dan landelijk') : 'vergelijkbaar met landelijk';
+    var bTekstRegio = _betrouwbaarheidsTekst(regionaal.length);
     inhoud.innerHTML =
       '<div class="markt-regio-vergelijk"><div class="markt-inruil-card"><div class="lbl">Binnen '+radius+' km ('+regionaal.length+' adv.)</div><div class="val">'+fmt(medRegio)+'</div></div>' +
       '<div class="markt-inruil-card hoofd"><div class="lbl">Landelijk ('+subset.length+' adv.)</div><div class="val">'+fmt(medLandelijk)+'</div></div></div>' +
-      '<p style="font-size:13px;margin:10px 0 0;color:'+vCol+';font-weight:600">'+vTekst+'</p>' + wijzigLink;
+      '<p style="font-size:13px;margin:10px 0 0;color:'+vCol+';font-weight:600">'+vTekst+'</p>' +
+      (bTekstRegio ? '<p class="markt-betrouwbaarheid">'+bTekstRegio+'</p>' : '') + wijzigLink;
   }
 
   // ===== MODEL-VERGELIJKING (marktniveau) =====
@@ -2973,8 +3073,11 @@ function sluitMarkt() {
       var a1 = Math.abs(s1.afschrKm), a2 = Math.abs(s2.afschrKm);
       rijen += rij('Afschrijving per 1.000 km', '−'+fmt(a1), '−'+fmt(a2), a1<a2, a2<a1);
     }
+    var kleinsteN = Math.min(s1.n, s2.n);
+    var bTekst = _betrouwbaarheidsTekst(kleinsteN);
     wrap.innerHTML =
       '<table class="markt-vgl-tabel"><thead><tr><th></th><th>'+escHtml(naam1)+'</th><th>'+escHtml(naam2)+'</th></tr></thead><tbody>'+rijen+'</tbody></table>' +
+      (bTekst ? '<p class="markt-betrouwbaarheid">'+bTekst+'</p>' : '') +
       '<div class="markt-vgl-cta"><a href="/?merk='+encodeURIComponent(merk1)+'&model='+encodeURIComponent(model1)+'">Bekijk '+escHtml(naam1)+'-aanbod &rarr;</a>' +
       '<a href="/?merk='+encodeURIComponent(merk2)+'&model='+encodeURIComponent(model2)+'">Bekijk '+escHtml(naam2)+'-aanbod &rarr;</a></div>';
   }
@@ -3260,6 +3363,10 @@ function _injectCarSchema(cars) {
         <option value="Handgeschakeld">Handgeschakeld</option>
       </select>
     </div>
+    <div id="mToolbar" class="markt-toolbar" style="display:none">
+      <button id="mVolgBtn" class="markt-toolbar-btn" onclick="_volgModelVanuitMarkt()">&#128276; Volg dit model</button>
+      <button id="mDeelBtn" class="markt-toolbar-btn" onclick="_deelMarktLink()">&#128279; Kopieer link naar deze analyse</button>
+    </div>
     <div id="mVglSectie" class="markt-vgl" style="display:none">
       <button id="mVglToggle" class="markt-vgl-toggle" onclick="_toggleModelVergelijk()">&#9878;&#65039; Vergelijk met een ander model</button>
       <div id="mVglBody" style="display:none">
@@ -3309,7 +3416,7 @@ function _injectCarSchema(cars) {
     <div id="mResultaat">
       <div class="markt-stats" id="mStats"></div>
       <div class="markt-section">
-        <div class="markt-section-title">Prijsverdeling</div>
+        <div class="markt-section-title">Prijsverdeling<span class="markt-info-ic" title="Bereik berekend met de IQR-methode (Q1-1,5×IQR tot Q3+1,5×IQR) om extreme uitschieters niet de hele schaalverdeling te laten bepalen -- dezelfde aanpak als bij een boxplot.">i</span></div>
         <div class="markt-svg-wrap">
           <svg id="mHistSvg" width="100%" height="80" style="display:block"></svg>
           <div class="markt-hist-labels" id="mHistLabels"></div>
@@ -3317,20 +3424,22 @@ function _injectCarSchema(cars) {
         <p id="mHistOutlierNote" class="markt-outlier-note" style="display:none"></p>
       </div>
       <div id="mTrendSectie" class="markt-section" style="display:none">
-        <div class="markt-section-title">&#128200; Prijstrend</div>
+        <div class="markt-section-title">&#128200; Prijstrend<span class="markt-info-ic" title="Dagelijkse mediaan-vraagprijs van dit merk+model, sinds het begin van de bijgehouden historie.">i</span></div>
         <div class="markt-svg-wrap" id="mTrendInhoud"></div>
+        <div id="mTrendPrognose"></div>
+        <p id="mTrendBetrouwbaarheid" class="markt-betrouwbaarheid"></p>
       </div>
       <div id="mRegioSectie" class="markt-section" style="display:none">
-        <div class="markt-section-title">&#128205; Prijs in jouw regio</div>
+        <div class="markt-section-title">&#128205; Prijs in jouw regio<span class="markt-info-ic" title="Vergelijkt de mediaanprijs binnen de gekozen straal van je locatie met de landelijke mediaan, voor hetzelfde merk+model.">i</span></div>
         <div class="markt-svg-wrap" id="mRegioInhoud"></div>
       </div>
       <div class="markt-section">
-        <div class="markt-section-title">Prijs vs. kilometerstand &nbsp;<small style="font-weight:400;color:var(--subtekst)">&#9679; goedkoop &nbsp;&#9679; gemiddeld &nbsp;&#9679; duur</small></div>
+        <div class="markt-section-title">Prijs vs. kilometerstand &nbsp;<small style="font-weight:400;color:var(--subtekst)">&#9679; goedkoop &nbsp;&#9679; gemiddeld &nbsp;&#9679; duur</small><span class="markt-info-ic" title="Stippellijn = lineaire regressie (verwachte prijs bij die kilometerstand). Groen = goedkoper dan verwacht, rood = duurder. Uitschieters buiten de IQR-hekken van de prijsverdeling worden niet meegenomen in de schaal.">i</span></div>
         <div class="markt-svg-wrap"><svg id="mScatterSvg" width="100%" height="130" style="display:block"></svg></div>
       </div>
       <div class="markt-two-col">
         <div>
-          <div class="markt-section-title" style="margin-bottom:8px">Top deals <small style="font-weight:400;text-transform:none">vs. mediaan</small></div>
+          <div class="markt-section-title" style="margin-bottom:8px">Top deals <small style="font-weight:400;text-transform:none">vs. mediaan</small><span class="markt-info-ic" title="Score o.b.v. prijs t.o.v. mediaan, kilometerstand-ratio voor de leeftijd, en bouwjaar -- geen garantie, alleen een indicatie.">i</span></div>
           <div class="markt-svg-wrap" style="padding:0">
             <table class="markt-deals-table">
               <thead><tr><th>Auto</th><th>Prijs</th><th>vs. markt</th></tr></thead>
