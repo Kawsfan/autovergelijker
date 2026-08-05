@@ -597,6 +597,14 @@
   .markt-deal-hot{background:#fee2e2;color:#b91c1c}
   .markt-deal-ok{background:#fef3c7;color:#92400e}
   .markt-leeg{text-align:center;padding:40px;color:var(--subtekst);font-size:15px}
+  .markt-ranglijst-cols{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .markt-ranglijst-kop{font-size:12px;font-weight:600;color:var(--tekst);margin-bottom:6px}
+  .markt-ranglijst-kop small{color:var(--subtekst);text-transform:none;letter-spacing:0}
+  .markt-outlier-note{font-size:11px;color:var(--subtekst);margin:6px 2px 0}
+  .markt-schaarste-badge{display:inline-block;font-size:9.5px;padding:1px 6px;border-radius:8px;font-weight:700;margin-top:4px;letter-spacing:.02em}
+  .markt-schaarste-ruim{background:#dcfce7;color:#15803d}
+  .markt-schaarste-normaal{background:#fef9c3;color:#854d0e}
+  .markt-schaarste-beperkt{background:#fee2e2;color:#b91c1c}
   .markt-inruil{margin:14px 24px 4px;padding:16px 18px;background:linear-gradient(135deg,#fff7f2,var(--achtergrond));border:1.5px solid var(--oranje);border-radius:12px}
   .markt-inruil-title{font-size:14px;font-weight:700;margin-bottom:10px}
   .markt-inruil-row-input{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
@@ -613,7 +621,7 @@
   .markt-inruil-suggestie p{font-size:13px;color:var(--tekst);line-height:1.5;margin:0}
   .markt-inruil-marge-lbl{display:block;font-size:11px;color:var(--subtekst);margin-bottom:4px}
   .markt-inruil-suggestie select{width:100%;padding:7px 9px;border-radius:8px;border:1px solid var(--rand);background:var(--kaart);color:var(--tekst);font-size:13px;margin-bottom:10px}
-  @media(max-width:600px){.markt-two-col{grid-template-columns:1fr}}
+  @media(max-width:600px){.markt-two-col{grid-template-columns:1fr}.markt-ranglijst-cols{grid-template-columns:1fr}}
 
 .afstand-rij { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
 .afstand-rij #locInput { flex:1; min-width:140px; height:38px; border:1.5px solid #ddd; border-radius:8px; padding:0 12px; font-size:.9rem; background:#fff; }
@@ -2452,6 +2460,9 @@ function filterOpTrend(key){
     document.body.style.overflow = 'hidden';
     _populeerMerkSelect(document.getElementById('mMerk'), true);
     berekenMarkt();
+    // Markthistorie laadt async (los JSON-bestand) -- na het eerste, snellere
+    // berekenMarkt()-render (zonder trend) opnieuw verversen zodra 'm binnen is.
+    _laadMarktHistorie().then(function(){ berekenMarkt(); });
   }
 
   function _getMerk(t){if(!t)return '';var lo=t.toLowerCase();var tw=['land rover','alfa romeo','aston martin','rolls royce','ds automobiles','great wall'];var tc=['Land Rover','Alfa Romeo','Aston Martin','Rolls-Royce','DS Automobiles','Great Wall'];for(var i=0;i<tw.length;i++){if(lo.startsWith(tw[i]))return tc[i];}var ix=t.indexOf(' ');var w=ix>0?t.slice(0,ix):t;while(w.length>0&&'.,!?'.indexOf(w[w.length-1])>=0)w=w.slice(0,-1);if(w.length<2)return '';var c=w.charCodeAt(0);if(!((c>=65&&c<=90)||(c>=97&&c<=122)||c>191))return '';var bl=['auto','automaat','occasion','gebruikt','verkoop','inruil','opties'];if(bl.indexOf(w.toLowerCase())>=0)return '';var up=w.toUpperCase();return(up===w&&w.length<=5)?w:w.charAt(0).toUpperCase()+w.slice(1).toLowerCase();}
@@ -2551,14 +2562,22 @@ function sluitMarkt() {
       return true;
     });
 
-    // Los van de data-check hieronder aanroepen: de inruilcalculator gebruikt
-    // bewust alléén merk+model (niet de jaar/brandstof/transmissie-filters), dus
-    // moet ook verversen als de bredere marktfilter-combinatie 0 resultaten
-    // oplevert -- anders blijft het inruil-vakje hangen op een oude melding.
+    // Los van de data-check hieronder aanroepen: de inruilcalculator, prijstrend
+    // en merken-ranglijst gebruiken bewust geen van alle de jaar/brandstof/
+    // transmissie-filters, dus moeten ook verversen als de bredere
+    // marktfilter-combinatie 0 resultaten oplevert -- anders blijven ze hangen
+    // op een oude melding (zoals eerder al gebeurde met de inruilcalculator).
     berekenInruilwaarde();
+    _renderPrijstrend(merk, model);
+    _renderMerkenRanglijst(merk);
 
     var leeg = document.getElementById('mLeeg');
     var res = document.getElementById('mResultaat');
+    // Zonder merk-selectie zijn de statistieken/histogram/topdeals hieronder
+    // zelf misleidend (ze mengen compleet verschillende prijsklassen -- een
+    // Sandero "dealscore" t.o.v. de mediaan van de HELE markt zegt niets zinnigs).
+    // Dan alleen de ranglijst tonen i.p.v. deze sectie.
+    if (!merk) { leeg.style.display='none'; res.style.display='none'; return; }
     if (!data.length) { leeg.style.display=''; res.style.display='none'; return; }
     leeg.style.display='none'; res.style.display='';
 
@@ -2573,33 +2592,81 @@ function sluitMarkt() {
     var prijsPerKm = metPrijsKm.length ? Math.round(metPrijsKm.reduce(function(s,a){return s+a.prijs/a.km*100;},0)/metPrijsKm.length)/100 : null;
 
     var fmt = function(p){ return '€'+Math.round(p).toLocaleString('nl-NL'); };
-    var cards = [['Gemiddeld',fmt(avg)],['Mediaan',fmt(mediaan)],['Laagste',fmt(minP)],['Hoogste',fmt(maxP)],['Advertenties',n]];
+
+    // Aanbod-schaarste: bewust op de segment-grootte van merk(+model) alléén, los
+    // van de jaar/brandstof/transmissie-filters -- geeft aan hoeveel algemene keuze
+    // (en dus onderhandelingsruimte) er is, ongeacht de smallere subfilter-combinatie.
+    var segSize = (window._alleAutos||[]).filter(function(a){
+      return (!merk || a.merk===merk) && (!model || a.model===model) && a.prijs>=500;
+    }).length;
+    var schaarsteHtml = '';
+    if (merk) {
+      var schaarsteCls = segSize>=150 ? 'markt-schaarste-ruim' : segSize>=40 ? 'markt-schaarste-normaal' : 'markt-schaarste-beperkt';
+      var schaarsteLbl = segSize>=150 ? 'Ruim aanbod' : segSize>=40 ? 'Normaal aanbod' : 'Beperkt aanbod';
+      schaarsteHtml = '<div class="markt-schaarste-badge '+schaarsteCls+'">'+schaarsteLbl+'</div>';
+    }
+
+    var cards = [['Gemiddeld',fmt(avg)],['Mediaan',fmt(mediaan)],['Laagste',fmt(minP)],['Hoogste',fmt(maxP)],['Advertenties',n+schaarsteHtml]];
     if (avgKm) cards.push(['Gem. km', Math.round(avgKm/1000)+'k km']);
     if (prijsPerKm) cards.push(['€/km', '€'+prijsPerKm.toFixed(2)]);
     document.getElementById('mStats').innerHTML = cards.map(function(c){
       return '<div class="markt-stat"><div class="markt-stat-val">'+c[1]+'</div><div class="markt-stat-lbl">'+c[0]+'</div></div>';
     }).join('');
 
-    var buckets=12, range=maxP-minP||1, step=range/buckets;
+    // Histogram-bereik robuust tegen uitschieters maken: één extreme advertentie
+    // (bv. een exoot voor €400k tussen occasions van €20k) trok anders bijna de
+    // hele balkenreeks samen in de eerste 1-2 balken. IQR-hekken (Q1-1,5×IQR /
+    // Q3+1,5×IQR, dezelfde methode als een boxplot) i.p.v. vaste percentielen --
+    // die laatste kunnen bij kleine n een enkele uitschieter niet uitsluiten
+    // (1 op de 26 is al bijna "de bovenste 2%"), IQR-hekken werken ongeacht n.
+    var histMin = minP, histMax = maxP, buitenBereik = 0;
+    var q1 = prijzen[Math.floor(n*0.25)];
+    var q3 = prijzen[Math.min(n-1, Math.floor(n*0.75))];
+    var iqr = q3 - q1;
+    if (iqr > 0) {
+      histMin = Math.max(minP, q1 - 1.5*iqr);
+      histMax = Math.min(maxP, q3 + 1.5*iqr);
+      if (histMax <= histMin) { histMin = minP; histMax = maxP; }
+    }
+    var buckets=12, range=histMax-histMin||1, step=range/buckets;
     var counts=new Array(buckets).fill(0);
-    prijzen.forEach(function(p){var i=Math.min(Math.floor((p-minP)/step),buckets-1);counts[i]++;});
+    prijzen.forEach(function(p){
+      if (p < histMin || p > histMax) buitenBereik++;
+      var clamped = Math.min(Math.max(p, histMin), histMax);
+      var i=Math.min(Math.floor((clamped-histMin)/step),buckets-1);
+      counts[i]++;
+    });
     var maxCount=Math.max.apply(null,counts);
     var svg=document.getElementById('mHistSvg');
     var W=svg.parentElement.clientWidth-24; if(W<10)W=600;
     var bw=Math.floor((W-(buckets-1)*2)/buckets);
     svg.setAttribute('viewBox','0 0 '+W+' 80');
-    var mi=Math.min(Math.floor((mediaan-minP)/step),buckets-1);
+    var mi=Math.min(Math.floor((mediaan-histMin)/step),buckets-1);
     svg.innerHTML=counts.map(function(c,i){
       var h=maxCount?Math.max(4,Math.round(c/maxCount*66)):4;
       return '<rect x="'+(i*(bw+2))+'" y="'+(74-h)+'" width="'+bw+'" height="'+h+'" rx="2" fill="'+(i===mi?'#e8632a':'#f59d72')+'" opacity="0.85"/>';
     }).join('');
     document.getElementById('mHistLabels').innerHTML=
-      '<span>'+fmt(minP)+'</span><span>'+fmt(minP+range*0.33)+'</span><span>Mediaan: '+fmt(mediaan)+'</span><span>'+fmt(minP+range*0.67)+'</span><span>'+fmt(maxP)+'</span>';
+      '<span>'+fmt(histMin)+'</span><span>'+fmt(histMin+range*0.33)+'</span><span>Mediaan: '+fmt(mediaan)+'</span><span>'+fmt(histMin+range*0.67)+'</span><span>'+fmt(histMax)+'</span>';
+    var outlierNote = document.getElementById('mHistOutlierNote');
+    if (outlierNote) {
+      if (buitenBereik > 0) {
+        outlierNote.textContent = buitenBereik + ' uitschieter' + (buitenBereik===1?'':'s') + ' buiten dit bereik meegeteld in de buitenste balk (niet los weergegeven).';
+        outlierNote.style.display = '';
+      } else {
+        outlierNote.style.display = 'none';
+      }
+    }
 
     var scEl=document.getElementById('mScatterSvg');
     var sW=scEl.parentElement.clientWidth-24; if(sW<10)sW=600;
     var sH=130; scEl.setAttribute('viewBox','0 0 '+sW+' '+sH);
-    var scData=metPrijsKm.length>300?metPrijsKm.filter(function(_,i){return i%Math.ceil(metPrijsKm.length/300)===0;}):metPrijsKm;
+    // Zelfde IQR-uitschieters ook hier buiten de as-schaal houden -- anders trekt
+    // diezelfde exoot de y-as (en daarmee alle "normale" punten) plat naar de
+    // onderkant van de grafiek.
+    var metPrijsKmRobust = metPrijsKm.filter(function(a){ return a.prijs>=histMin && a.prijs<=histMax; });
+    if (metPrijsKmRobust.length < 2) metPrijsKmRobust = metPrijsKm;
+    var scData=metPrijsKmRobust.length>300?metPrijsKmRobust.filter(function(_,i){return i%Math.ceil(metPrijsKmRobust.length/300)===0;}):metPrijsKmRobust;
     if(scData.length>1){
       var kms=scData.map(function(a){return a.km;}),prs=scData.map(function(a){return a.prijs;});
       var minKm=Math.min.apply(null,kms),maxKm=Math.max.apply(null,kms),minPr=Math.min.apply(null,prs),maxPr=Math.max.apply(null,prs);
@@ -2656,6 +2723,99 @@ function sluitMarkt() {
       document.getElementById('mJaarLabels').innerHTML=
         '<span>'+jaren[0]+'</span>'+(jaren.length>2?'<span>'+jaren[Math.floor(jaren.length/2)]+'</span>':'')+'<span>'+jaren[jaren.length-1]+'</span>';
     }
+  }
+
+  // ===== PRIJSTREND (data/markt-history.json) =====
+  // De scraper legt sinds kort dagelijks per merk(+model) een marktsnapshot vast
+  // (n/avg/mediaan/p25/p75). Hier lazy geladen zodra Marktanalyse opengaat, en
+  // hergebruikt voor een trendlijn -- groeit vanzelf waardevoller naarmate er
+  // meer dagen bijkomen.
+  function _marktSegmentKey(merk, model) {
+    return (merk + (model ? '_' + model : '')).toLowerCase().replace(/\s+/g, '_');
+  }
+  function _laadMarktHistorie() {
+    if (window._marktHistorie) return Promise.resolve(window._marktHistorie);
+    if (window._marktHistoriePromise) return window._marktHistoriePromise;
+    window._marktHistoriePromise = fetch('data/markt-history.json')
+      .then(function(r){ return r.ok ? r.json() : []; })
+      .catch(function(){ return []; })
+      .then(function(d){ window._marktHistorie = Array.isArray(d) ? d : []; return window._marktHistorie; });
+    return window._marktHistoriePromise;
+  }
+  // Trend vereist zowel merk als model: voor merk-alleen bevat de historie geen
+  // betrouwbaar merk-breed segment (elke dag wordt per merk+model bijgehouden,
+  // niet als apart merk-totaal), dus dan bewust niets tonen i.p.v. een misleidend
+  // gewogen gemiddelde over ongelijksoortige modellen.
+  function _renderPrijstrend(merk, model) {
+    var sectie = document.getElementById('mTrendSectie');
+    var inhoud = document.getElementById('mTrendInhoud');
+    if (!sectie || !inhoud) return;
+    if (!merk || !model || !window._marktHistorie) { sectie.style.display = 'none'; return; }
+    var key = _marktSegmentKey(merk, model);
+    var reeks = window._marktHistorie
+      .map(function(d){ return { datum: d.datum, seg: d.segmenten && d.segmenten[key] }; })
+      .filter(function(x){ return x.seg && x.seg.n >= 3; })
+      .sort(function(a,b){ return a.datum < b.datum ? -1 : (a.datum > b.datum ? 1 : 0); });
+    if (reeks.length < 2) { sectie.style.display = 'none'; return; }
+    sectie.style.display = '';
+
+    var prices = reeks.map(function(x){ return x.seg.med; });
+    var minP = Math.min.apply(null, prices), maxP = Math.max.apply(null, prices), range = (maxP-minP)||1;
+    var nPt = prices.length;
+    var pts = prices.map(function(p,i){ return ((i/(nPt-1))*198+1).toFixed(1)+","+(47-((p-minP)/range)*44).toFixed(1); }).join(' ');
+    var dots = prices.map(function(p,i){
+      var x=((i/(nPt-1))*198+1).toFixed(1), y=(47-((p-minP)/range)*44).toFixed(1);
+      return '<circle cx="'+x+'" cy="'+y+'" r="2.5" fill="var(--oranje)"/>';
+    }).join('');
+    var eerste = prices[0], laatste = prices[nPt-1];
+    var delta = laatste - eerste;
+    var deltaPct = eerste ? (delta/eerste*100) : 0;
+    var dCol = delta<0 ? '#16a34a' : delta>0 ? '#dc2626' : 'var(--subtekst)';
+    var dSym = delta<0 ? '▼' : delta>0 ? '▲' : '—';
+    var dStr = delta!==0 ? dSym+' '+fmtEuro(Math.abs(delta))+' ('+(deltaPct>=0?'+':'')+deltaPct.toFixed(1)+'%)' : 'Stabiel';
+    inhoud.innerHTML =
+      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><div style="font-size:12px;color:var(--subtekst)">Mediaan-vraagprijs, laatste '+nPt+' dagen</div><div style="font-size:12px;font-weight:700;color:'+dCol+'">'+dStr+'</div></div>' +
+      '<svg width="100%" height="44" viewBox="0 0 200 50" preserveAspectRatio="none" style="display:block"><polyline points="'+pts+'" fill="none" stroke="var(--oranje)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>'+dots+'</svg>' +
+      '<div style="display:flex;justify-content:space-between;font-size:11px;color:var(--subtekst);margin-top:4px"><span>'+reeks[0].datum+': '+fmtEuro(eerste)+'</span><span>Nu: '+fmtEuro(laatste)+'</span></div>';
+  }
+
+  // ===== "ALLE MERKEN"-RANGLIJST =====
+  // Bij geen merk-selectie was hier voorheen alleen één grote, weinig zeggende
+  // samengevoegde statistiek te zien (Golf naast Ferrari). In plaats daarvan een
+  // ranglijst tonen: welke merken het meest aangeboden worden en welke het
+  // goedkoopst zijn -- direct bruikbaar zonder eerst zelf te hoeven filteren.
+  function _renderMerkenRanglijst(merk) {
+    var wrap = document.getElementById('mMerkenRanglijst');
+    if (!wrap) return;
+    if (merk) { wrap.style.display = 'none'; return; }
+    var fmt = function(p){ return '€'+Math.round(p).toLocaleString('nl-NL'); };
+    var groepen = {};
+    (window._alleAutos||[]).forEach(function(a){
+      if (!a.merk || a.merk==='overig' || !a.prijs || a.prijs<500) return;
+      if (!groepen[a.merk]) groepen[a.merk] = [];
+      groepen[a.merk].push(a.prijs);
+    });
+    var merken = Object.keys(groepen).map(function(m){
+      var pp = groepen[m].sort(function(a,b){return a-b;});
+      var n = pp.length;
+      return { merk: m, n: n, mediaan: n%2===0 ? Math.round((pp[n/2-1]+pp[n/2])/2) : pp[Math.floor(n/2)] };
+    });
+    var topVolume = merken.slice().sort(function(a,b){ return b.n-a.n; }).slice(0,8);
+    var topGoedkoop = merken.filter(function(m){ return m.n>=20; }).sort(function(a,b){ return a.mediaan-b.mediaan; }).slice(0,8);
+    var rijVolume = function(m){ return '<tr onclick="_kiesMerkUitRanglijst(\''+escHtml(m.merk).replace(/'/g,"\\'")+'\')" style="cursor:pointer"><td>'+escHtml(m.merk)+'</td><td style="text-align:right;color:var(--subtekst)">'+m.n+' adv.</td></tr>'; };
+    var rijGoedkoop = function(m){ return '<tr onclick="_kiesMerkUitRanglijst(\''+escHtml(m.merk).replace(/'/g,"\\'")+'\')" style="cursor:pointer"><td>'+escHtml(m.merk)+'</td><td style="text-align:right;color:var(--subtekst)">'+fmt(m.mediaan)+'</td></tr>'; };
+    document.getElementById('mRanglijstVolume').innerHTML = topVolume.map(rijVolume).join('') || '<tr><td colspan="2" style="color:var(--subtekst)">Geen data</td></tr>';
+    document.getElementById('mRanglijstGoedkoop').innerHTML = topGoedkoop.map(rijGoedkoop).join('') || '<tr><td colspan="2" style="color:var(--subtekst)">Geen data</td></tr>';
+    wrap.style.display = '';
+  }
+  function _kiesMerkUitRanglijst(merk) {
+    var mSel = document.getElementById('mMerk');
+    if (!mSel) return;
+    var target = Array.from(mSel.options).find(function(o){ return o.value === merk; });
+    if (!target) return;
+    mSel.value = merk;
+    updateMarktModellen(merk);
+    berekenMarkt();
   }
 
   // Vaste prijsstappen van de #prijsMin/#prijsMax select-filters op de homepage --
@@ -2962,6 +3122,19 @@ function _injectCarSchema(cars) {
       </div>
     </div>
     <div id="mLeeg" class="markt-leeg" style="display:none">Geen advertenties gevonden voor deze selectie.</div>
+    <div id="mMerkenRanglijst" class="markt-section" style="display:none">
+      <div class="markt-section-title">Merken op een rij <small style="font-weight:400;text-transform:none">selecteer hierboven een merk voor gedetailleerde cijfers</small></div>
+      <div class="markt-ranglijst-cols">
+        <div>
+          <div class="markt-ranglijst-kop">Meest aangeboden</div>
+          <table class="markt-deals-table"><tbody id="mRanglijstVolume"></tbody></table>
+        </div>
+        <div>
+          <div class="markt-ranglijst-kop">Goedkoopste merken <small style="font-weight:400">mediaan, min. 20 adv.</small></div>
+          <table class="markt-deals-table"><tbody id="mRanglijstGoedkoop"></tbody></table>
+        </div>
+      </div>
+    </div>
     <div id="mResultaat">
       <div class="markt-stats" id="mStats"></div>
       <div class="markt-section">
@@ -2970,6 +3143,11 @@ function _injectCarSchema(cars) {
           <svg id="mHistSvg" width="100%" height="80" style="display:block"></svg>
           <div class="markt-hist-labels" id="mHistLabels"></div>
         </div>
+        <p id="mHistOutlierNote" class="markt-outlier-note" style="display:none"></p>
+      </div>
+      <div id="mTrendSectie" class="markt-section" style="display:none">
+        <div class="markt-section-title">&#128200; Prijstrend</div>
+        <div class="markt-svg-wrap" id="mTrendInhoud"></div>
       </div>
       <div class="markt-section">
         <div class="markt-section-title">Prijs vs. kilometerstand &nbsp;<small style="font-weight:400;color:var(--subtekst)">&#9679; goedkoop &nbsp;&#9679; gemiddeld &nbsp;&#9679; duur</small></div>
