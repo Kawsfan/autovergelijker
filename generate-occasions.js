@@ -44,6 +44,14 @@ const GA_SNIPPET =
   '<script async src="https://www.googletagmanager.com/gtag/js?id=G-TD2KWCXTV3"><\/script>' +
   '<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}' +
   "gtag('js',new Date());gtag('config','G-TD2KWCXTV3');<\/script>";
+// Fallback voor een advertentie-foto die wél een imgSrc had maar niet laadt
+// (404, hotlink-blokkade) -- zonder dit toont de browser hier het kale
+// kapot-plaatje-icoon, dezelfde bugklasse als eerder al gefixt voor de
+// dynamische kaarten op de homepage (index.html/_fotoLeegHtml). De
+// no-imgSrc-placeholder (FOTO_LEEG_HTML) gebruikt bewust dezelfde markup,
+// zodat beide gevallen er identiek uitzien.
+const FOTO_LEEG_HTML = '<div class="auto-foto-leeg"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 13l1.6-4.8A2 2 0 0 1 6.5 7h11a2 2 0 0 1 1.9 1.2L21 13"/><path d="M3 13h18v3.5a1 1 0 0 1-1 1h-1.5a1 1 0 0 1-1-1V16H6.5v.5a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V13Z"/><circle cx="7" cy="16" r="1.2"/><circle cx="17" cy="16" r="1.2"/></svg><span>Geen foto beschikbaar</span></div>';
+const FOTO_FOUT_SCRIPT = '<script>function _fotoFout(img){img.insertAdjacentHTML("afterend",' + JSON.stringify(FOTO_LEEG_HTML) + ');img.remove();}<\/script>';
 const MIN_MERK_COUNT = 3;
 const MIN_MODEL_COUNT = 2;
 const MAX_MODELS     = 10;
@@ -86,7 +94,8 @@ const OCC_STYLE =
   '.auto-card{background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.06),0 4px 16px rgba(0,0,0,.04);border:1px solid rgba(0,0,0,.07);display:flex;flex-direction:column;text-decoration:none;color:inherit;transition:transform .18s ease,box-shadow .18s ease}' +
   '.auto-card:hover{transform:translateY(-4px);box-shadow:0 8px 32px rgba(0,0,0,.11)}' +
   '.auto-foto{position:relative;aspect-ratio:16/9;background:#f0f0eb;overflow:hidden}' +
-  '.auto-foto img{width:100%;height:100%;object-fit:cover}.auto-img-placeholder{width:100%;height:100%;background:#f0f0eb}' +
+  '.auto-foto img{width:100%;height:100%;object-fit:cover}' +
+  '.auto-foto-leeg{width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;color:#888;background:#f0f0eb}.auto-foto-leeg span{font-size:11.5px}' +
   '.bron-label{position:absolute;top:10px;right:10px;padding:3px 8px;border-radius:4px;font-size:11px;font-weight:700;color:#fff;background:#888}' +
   '.bron-marktplaats{background:#0063D3}.bron-gaspedaal{background:#E87722}.bron-viabovag{background:#003082}.bron-autotrack{background:#1B5FA8}.bron-autoscout24{background:#FF6600}.bron-autotrader{background:#0057B8}' +
   '.auto-info{padding:14px 16px 12px;flex:1;display:flex;flex-direction:column;gap:6px}' +
@@ -134,7 +143,7 @@ function renderAutoCard(a, fallbackTitel) {
   ].join('');
   return '<a href="' + escHtml(a.url) + '" target="_blank" rel="noopener noreferrer" class="auto-card" itemscope itemtype="https://schema.org/Car">' +
     '<div class="auto-foto">' +
-    (a.imgSrc ? '<img src="' + escHtml(a.imgSrc) + '" alt="' + escHtml(titel) + '" loading="lazy" width="280" height="158">' : '<div class="auto-img-placeholder"></div>') +
+    (a.imgSrc ? '<img src="' + escHtml(a.imgSrc) + '" alt="' + escHtml(titel) + '" loading="lazy" width="280" height="158" onerror="_fotoFout(this)">' : FOTO_LEEG_HTML) +
     (a.bron ? '<span class="bron-label bron-' + bronClass(a.bron) + '">' + escHtml(a.bron) + '</span>' : '') +
     '</div>' +
     '<div class="auto-info">' +
@@ -351,6 +360,7 @@ const MERK_INTRO = {
     '  <meta charset="UTF-8">\n' +
     '  <meta name="viewport" content="width=device-width,initial-scale=1">\n' +
     '  ' + GA_SNIPPET + '\n' +
+    '  ' + FOTO_FOUT_SCRIPT + '\n' +
     '  <title>'+pageTitle+'</title>\n' +
     '  <meta name="description" content="'+metaDesc+'">\n' +
     '  <link rel="canonical" href="'+SITE_ORIGIN+canonicalPath+'">\n' +
@@ -396,6 +406,7 @@ function buildStadPage(stadSlug, stad, filtered, listings) {
   return '<!doctype html><html lang="nl"><head>'+
     '<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'+
     GA_SNIPPET +
+    FOTO_FOUT_SCRIPT +
     '<title>Tweedehands auto '+stad.naam+' | Carkijker</title>'+
     '<meta name="description" content="Bekijk '+filtered.length+' tweedehands auto occasions in '+stad.naam+', '+stad.regio+'. Vergelijk prijzen en vind jouw ideale occasion.">'+
     '<link rel="canonical" href="https://carkijker.nl/occasions/'+stadSlug+'/">'+
@@ -414,7 +425,8 @@ function buildStadPage(stadSlug, stad, filtered, listings) {
     '.auto-card{background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.06),0 4px 16px rgba(0,0,0,.04);border:1px solid rgba(0,0,0,.07);display:flex;flex-direction:column;text-decoration:none;color:inherit;transition:transform .18s ease,box-shadow .18s ease}'+
     '.auto-card:hover{transform:translateY(-4px);box-shadow:0 8px 32px rgba(0,0,0,.11)}'+
     '.auto-foto{position:relative;aspect-ratio:16/9;background:#f0f0eb;overflow:hidden}'+
-    '.auto-foto img{width:100%;height:100%;object-fit:cover}.auto-img-placeholder{width:100%;height:100%;background:#f0f0eb}'+
+    '.auto-foto img{width:100%;height:100%;object-fit:cover}'+
+    '.auto-foto-leeg{width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;color:#888;background:#f0f0eb}.auto-foto-leeg span{font-size:11.5px}'+
     '.bron-label{position:absolute;top:10px;right:10px;padding:3px 8px;border-radius:4px;font-size:11px;font-weight:700;color:#fff;background:#888}'+
     '.bron-marktplaats{background:#0063D3}.bron-gaspedaal{background:#E87722}.bron-viabovag{background:#003082}.bron-autotrack{background:#1B5FA8}.bron-autoscout24{background:#FF6600}.bron-autotrader{background:#0057B8}'+
     '.auto-info{padding:14px 16px 12px;flex:1;display:flex;flex-direction:column;gap:6px}'+
