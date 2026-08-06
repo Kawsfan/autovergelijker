@@ -1364,7 +1364,19 @@ function zoekNu() {
     // Trigger volledig laden bij actieve zoekopdracht
     if (window._laadVolledig && (document.getElementById('zoekInput').value.trim() || document.getElementById('merkFilter').value)) { window._laadVolledig(); }
 
-  if (alleResultaten.length === 0) return;
+  // Data (listings-top.json) kan nog onderweg zijn -- vroeger stopte zoekNu()
+  // hier stilzwijgend, waardoor een bezoeker die meteen na het laden van de
+  // pagina al ging filteren (bv. op een trage verbinding) niets te zien kreeg:
+  // geen foutmelding, gewoon een bevroren skeleton. laadListings() roept
+  // zoekNu() zelf ook aan zodra de data binnen is, dus dit herstelt zichzelf --
+  // maar tot die tijd verdient de gebruiker wél feedback i.p.v. stilte.
+  if (alleResultaten.length === 0) {
+    var _lg = document.getElementById('autoGrid');
+    if (_lg && !document.getElementById('skLoader')) {
+      _lg.innerHTML = '<div class="geen-resultaten"><span class="icon">⏳</span><h3>Advertenties laden...</h3><p>Een moment geduld, je filter wordt toegepast zodra de data binnen is.</p></div>';
+    }
+    return;
+  }
 
   const zoek     = document.getElementById('zoekInput').value.trim().toLowerCase();
   const merk     = document.getElementById('merkFilter').value.toLowerCase();
