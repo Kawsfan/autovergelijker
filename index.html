@@ -749,13 +749,16 @@
 #stickyZoekInput::placeholder{color:#aaa;}
 #stickyZoekInput::-webkit-search-cancel-button{-webkit-appearance:none;}
 /* === Senior UX: Infinite scroll + Range sliders + Fav toggle === */
-.rs-wrap{position:relative;padding:8px 6px 4px;}
-.rs-track{height:6px;background:#c8c6be;border-radius:3px;position:relative;}
-.rs-fill{position:absolute;height:6px;background:var(--oranje);top:0;border-radius:3px;}
-.rs-in{position:absolute;top:-5px;left:0;width:100%;-webkit-appearance:none;appearance:none;background:transparent;pointer-events:none;height:20px;padding:0;margin:0;}
-.rs-in::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:var(--oranje);border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.2);cursor:pointer;pointer-events:all;}
-.rs-in::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:var(--oranje);border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.2);cursor:pointer;pointer-events:all;}
-.rs-label{display:flex;justify-content:space-between;font-size:12px;color:var(--tekst);margin-top:4px;}
+.rs-wrap{position:relative;width:100%;padding:14px 2px 2px;}
+.rs-track{height:4px;background:#e2e0d8;border-radius:2px;position:relative;}
+.rs-fill{position:absolute;height:4px;background:var(--oranje);top:0;border-radius:2px;}
+.rs-in{position:absolute;top:-8px;left:0;width:100%;-webkit-appearance:none;appearance:none;background:transparent;pointer-events:none;height:20px;padding:0;margin:0;}
+.rs-in::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:#fff;border:2px solid var(--oranje);box-shadow:0 1px 3px rgba(0,0,0,.25);cursor:pointer;pointer-events:all;transition:transform .12s ease,box-shadow .12s ease;}
+.rs-in::-webkit-slider-thumb:hover{transform:scale(1.15);}
+.rs-in:focus-visible::-webkit-slider-thumb{box-shadow:0 0 0 4px rgba(209,68,19,.18);}
+.rs-in::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:#fff;border:2px solid var(--oranje);box-shadow:0 1px 3px rgba(0,0,0,.25);cursor:pointer;pointer-events:all;}
+.rs-label{display:flex;justify-content:space-between;margin-top:10px;}
+.rs-label span{font-size:12.5px;font-weight:700;color:var(--tekst);background:var(--bg);border:1px solid var(--grijs2);border-radius:20px;padding:3px 9px;line-height:1.3;}
 #is-sentinel{height:2px;}
 .paginering{display:none!important;}
 #prijsdalingBtn{display:flex;align-items:center;align-self:flex-end;flex-shrink:0;gap:5px;padding:6px 14px;background:transparent;border:1.5px solid #d0cfc9;border-radius:14px;font-size:13px;font-weight:500;color:var(--tekst);cursor:pointer;font-family:inherit;margin:0 0 2px;transition:all .15s;}
