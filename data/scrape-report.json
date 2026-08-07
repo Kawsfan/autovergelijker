@@ -1,11 +1,11 @@
 {
-  "timestamp": "2026-08-07T12:53:24.468Z",
-  "totaalNieuw": 7433,
+  "timestamp": "2026-08-07T18:55:13.664Z",
+  "totaalNieuw": 7441,
   "bronnen": {
-    "Marktplaats": 4388,
-    "Gaspedaal": 1739,
-    "AutoTrack": 433,
+    "Marktplaats": 4384,
+    "Gaspedaal": 1743,
+    "AutoTrack": 440,
     "AutoScout24": 743,
-    "AutoTrader": 130
+    "AutoTrader": 131
   }
 }
