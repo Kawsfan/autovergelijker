@@ -8,6 +8,7 @@ Carkijker vergelijkt het volledige auto-aanbod van Nederland — zowel tweedehan
 
 - [Zoekmachine](https://carkijker.nl/): live doorzoekbaar aanbod met filters op merk, model, prijs, km-stand, bouwjaar, brandstof, transmissie en carrosserie
 - [Sitemap](https://carkijker.nl/sitemap.xml): volledige lijst van geïndexeerde pagina's
+- [Over Carkijker](https://carkijker.nl/over-ons/): missie, hoe de site werkt (favorieten, vergelijken, marktanalyse, dealscore, TCO-tool) en contactgegevens (info@carkijker.nl)
 
 ## Occasions per merk
 
