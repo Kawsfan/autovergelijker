@@ -612,7 +612,7 @@ function main() {
     let sitemap = fs.readFileSync(sitemapPath, 'utf-8');
     const today = new Date().toISOString().slice(0,10);
     const base = 'https://carkijker.nl/';
-    const vasteUrls = ['occasions/', 'tco/'];
+    const vasteUrls = ['occasions/', 'tco/', 'over-ons/'];
     const allUrls = [...vasteUrls, ...generatedMerkUrls, ...generatedStadUrls];
     let added = 0;
     for (const u of allUrls) {
