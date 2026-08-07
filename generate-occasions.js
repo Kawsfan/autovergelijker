@@ -230,6 +230,11 @@ function buildPage({ merkSlug, modelSlug, filtered, listings }) {
   const marktHref = '/?markt=' + (merkSlug ? encodeURIComponent(merkSlug) : '') +
     (modelVeld ? '&model=' + encodeURIComponent(modelVeld) : '');
   const trend = modelSlug ? berekenTrendVoorPagina(filtered) : null;
+  // Afschrijvingscurve: dealScore v2 in scrape.js zet afschrijvingJaar/afschrijvingKm
+  // al op elke advertentie die met de bouwjaar+km-regressie is gescoord (zelfde
+  // regressie per merk+model, dus elke advertentie in deze groep heeft identieke
+  // waarden -- de eerste met beide velden volstaat).
+  const afschrijving = modelSlug ? (filtered.find(a => a.afschrijvingJaar && a.afschrijvingKm) || null) : null;
   const statsHtml = '<div class="stats-grid">' +
     (filtered.length ? '<a href="#aanbod" class="stat"><span class="stat-lbl">Aanbod</span><strong>' + filtered.length + ' occasions</strong></a>' : '') +
     (gemPrijs ? '<a href="' + marktHref + '" class="stat"><span class="stat-lbl">Gem. vraagprijs</span><strong>&euro; ' + fmt(gemPrijs) + '</strong></a>' : '') +
@@ -320,6 +325,7 @@ const MERK_INTRO = {
       '<h3 style="font-size:.9rem;margin-top:.75rem;margin-bottom:.3rem">Actuele marktdata</h3>' +
       '<p>Op basis van <strong>'+filtered.length+' actuele advertenties</strong> is de gemiddelde vraagprijs van een tweedehands '+merkName+(modelName?' '+modelName:'')+' <strong>&euro; '+(gemPrijs?fmt(gemPrijs):'onbekend')+'</strong>. De mediaanprijs &mdash; waarbij de helft van de occasions goedkoper is &mdash; ligt op &euro; '+(medPrijs?fmt(medPrijs):'onbekend')+'. De mediaan kilometerstand is '+(medKm?fmt(medKm)+' km':'onbekend')+'. Carkijker vergelijkt dagelijks aanbod van Marktplaats, AutoScout24, Gaspedaal en ViaBOVAG.' +
       (trend ? ' De mediaanprijs is de afgelopen ' + trend.nDagen + ' dagen ' + (trend.delta < 0 ? 'met ' + Math.abs(trend.pct) + '% gedaald' : trend.delta > 0 ? 'met ' + trend.pct + '% gestegen' : 'stabiel gebleven') + ' (van &euro; ' + fmt(Math.round(trend.huidig - trend.delta)) + ' naar &euro; ' + fmt(trend.huidig) + ').' : '') +
+      (afschrijving ? ' Op basis van vergelijkbare advertenties (gecorrigeerd voor bouwjaar en kilometerstand) verliest een ' + merkName + (modelName?' '+modelName:'') + ' gemiddeld ongeveer &euro; ' + fmt(afschrijving.afschrijvingJaar) + ' per jaar en &euro; ' + fmt(afschrijving.afschrijvingKm) + ' bij een verdubbeling van de kilometerstand.' : '') +
       '</p>' +
       '<p style="margin-top:.5rem"><a href="/" style="color:#d14413;font-size:.875rem">Bekijk alle '+merkName+' occasions met filters &rarr;</a>' +
       ' &nbsp;&middot;&nbsp; <a href="'+marktHref+'" style="color:#d14413;font-size:.875rem">Volledige marktanalyse'+(trend?' (prijstrend, regiovergelijking en meer)':'')+' &rarr;</a></p>' +

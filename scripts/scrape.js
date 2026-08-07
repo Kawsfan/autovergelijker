@@ -1415,6 +1415,17 @@ async function main() {
         l.dealScore = Math.round(Math.max(0, Math.min(100, ((-z + 3) / 6) * 100)));
         l.dealBasis = 'regressie';
         regressie++;
+        // Afschrijvingscurve: dezelfde regressiecoëfficiënten die net de verwachte
+        // prijs opleverden, hergebruikt om uit te drukken hoeveel een auto van dit
+        // merk+model gemiddeld verliest per jaar (b1: prijseffect van +1 bouwjaar,
+        // dus +1 jaar jonger) en per verdubbeling van de km-stand (b2 is het prijs-
+        // effect van +1 log(km); een verdubbeling is +ln(2) op de log-schaal).
+        // Alleen tonen als het teken klopt (jonger/minder km -> duurder) -- een
+        // omgekeerd teken duidt op een te ruizige/afwijkende groep (bv. youngtimers
+        // die juist in waarde stijgen) waar deze simpele uitleg niet op past.
+        if (m.b1 > 0) l.afschrijvingJaar = Math.round(m.b1);
+        const kmVerlies = -m.b2 * Math.LN2;
+        if (kmVerlies > 0) l.afschrijvingKm = Math.round(kmVerlies);
         continue;
       }
       const s = gFlat[key];
