@@ -1772,6 +1772,11 @@ function openDetail(id) {
         out+='<div style="display:flex;justify-content:space-between;font-size:11px;color:var(--subtekst);margin-top:4px"><span>'+all[0].datum+': €'+Number(startP).toLocaleString("nl-NL")+'</span><span>Nu: €'+Number(curP).toLocaleString("nl-NL")+'</span></div>';
         out+='</div>';return out;
       })()}
+      ${(a.afschrijvingJaar || a.afschrijvingKm) ? '<div style="margin:12px 0;padding:12px;background:var(--achtergrond);border-radius:10px;font-size:13px;color:var(--tekst);line-height:1.6">'
+        +'<div style="font-size:12px;color:var(--subtekst);margin-bottom:4px">📉 Afschrijving (obv vergelijkbare advertenties)</div>'
+        +(a.afschrijvingJaar?'<div>Circa <b>€'+a.afschrijvingJaar.toLocaleString('nl-NL')+'</b> per jaar</div>':'')
+        +(a.afschrijvingKm?'<div>Circa <b>€'+a.afschrijvingKm.toLocaleString('nl-NL')+'</b> bij een verdubbeling van de km-stand</div>':'')
+        +'</div>' : ''}
       <div class="markt-inruil detail-inruil">
         <div class="markt-inruil-title">&#128176; Wat kost deze auto jou na inruil?</div>
         <div class="markt-inruil-row-input">
