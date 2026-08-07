@@ -1215,6 +1215,7 @@ async function laadListings() {
     alleResultaten.forEach(function(a){if(!a.model)a.model=_getModel(a.titel||"");});
 
     if (alleResultaten.length === 0) {
+      window._laadStatus = 'leeg';
       _huidigeLijst = gesorteerd;
   if(window._pagina>1&&!window._manualPage)window._pagina=1;
   window._manualPage=false;
@@ -1318,6 +1319,7 @@ async function laadListings() {
       }).catch(function(kaartErr){ console.error('Kaart laden mislukt:', kaartErr); });
     }
   } catch (err) {
+    window._laadStatus = 'mislukt';
     document.getElementById('autoGrid').innerHTML = `
       <div class="geen-resultaten">
         <span class="icon">⚠️</span>
@@ -1374,9 +1376,18 @@ function zoekNu() {
   // zoekNu() zelf ook aan zodra de data binnen is, dus dit herstelt zichzelf --
   // maar tot die tijd verdient de gebruiker wél feedback i.p.v. stilte.
   if (alleResultaten.length === 0) {
-    var _lg = document.getElementById('autoGrid');
-    if (_lg && !document.getElementById('skLoader')) {
-      _lg.innerHTML = '<div class="geen-resultaten"><span class="icon">⏳</span><h3>Advertenties laden...</h3><p>Een moment geduld, je filter wordt toegepast zodra de data binnen is.</p></div>';
+    // window._laadStatus wordt in laadListings() op 'mislukt'/'leeg' gezet zodra
+    // het laden een terminale staat bereikt (fetch mislukt, of 0 advertenties) --
+    // in dat geval staat er al een correcte "Laden mislukt"/"Nog geen advertenties"-
+    // melding in #autoGrid (die #skLoader ook verwijdert). Zonder deze check zou een
+    // latere filterwijziging die juiste melding overschrijven met een "bezig met
+    // laden"-tekst die nooit meer verdwijnt (er is geen retry). Alleen tonen als
+    // het laden nog écht bezig is (geen terminale status bereikt).
+    if (!window._laadStatus) {
+      var _lg = document.getElementById('autoGrid');
+      if (_lg && !document.getElementById('skLoader')) {
+        _lg.innerHTML = '<div class="geen-resultaten"><span class="icon">⏳</span><h3>Advertenties laden...</h3><p>Een moment geduld, je filter wordt toegepast zodra de data binnen is.</p></div>';
+      }
     }
     return;
   }
@@ -1529,15 +1540,28 @@ function toonResultaten(lijst) {
           return '<span class="prijs-daling">↘ was €'+Number(oud).toLocaleString('nl-NL')+'</span>';
         }return '';})()}
         ${!a.imgSrc ? _fotoLeegHtml() : '<img referrerpolicy="no-referrer" loading="'+(_i<6?'eager':'lazy')+'" onload="if(!this.naturalWidth){this.closest(\'.auto-foto\').insertAdjacentHTML(\'beforeend\',_fotoLeegHtml());this.remove();}" src="'+((()=>{if(a.imgSrc.startsWith('/data/'))return a.imgSrc;let s=a.imgSrc.startsWith('//')?'https:'+a.imgSrc:a.imgSrc;
-                  // Marktplaats levert zelf al grote varianten via een size-preset-suffix
-                  // (bv. "$_82.jpg") -- dezelfde $_86-truc die de detailgalerij al gebruikt,
-                  // rechtstreeks van hun eigen CDN, geen externe resize-proxy nodig.
-                  if(s.includes('marktplaats.com'))return s.replace(/\$_\d+\.jpg/gi,'$_86.jpg');
+                  // Host expliciet parsen i.p.v. een kale substring-check op de hele URL --
+                  // een Gaspedaal-URL bevat zelf al een geneste "source="-parameter naar een
+                  // ander domein, dus een substring-match op "marktplaats.com" zou daar in
+                  // theorie ten onrechte op kunnen matchen. Gaspedaal ook bewust eerst checken.
+                  var _host='';try{_host=new URL(s).hostname;}catch(_e){}
                   // Gaspedaal's CDN blokkeert verzoeken zonder de juiste Referer-header (hotlink-
                   // bescherming) -- carkijker-img-proxy (eigen Cloudflare Worker) zet die header
                   // server-side goed, en geeft de bron-afbeelding ongewijzigd door (die staat al
                   // in "/images/large/", dus geen extra downscale/compressie nodig).
-                  if(s.includes('gaspedaal'))return 'https://carkijker-img-proxy.fergusknies.workers.dev/?url='+encodeURIComponent(s);
+                  if(_host.includes('gaspedaal'))return 'https://carkijker-img-proxy.fergusknies.workers.dev/?url='+encodeURIComponent(s);
+                  // Marktplaats levert zelf al grote varianten via een size-preset-suffix
+                  // (bv. "$_82.jpg") -- dezelfde $_86-truc die de detailgalerij al gebruikt,
+                  // rechtstreeks van hun eigen CDN, geen externe resize-proxy nodig. Admarkt/
+                  // dealer-advertenties gebruiken een ander patroon (geen "$_"-prefix, bv.
+                  // "eps_82.JPG") waarvoor geen bevestigde grotere preset bekend is -- die
+                  // vallen terug op de bestaande weserv.nl-resize-proxy i.p.v. de ongewijzigde
+                  // (mogelijk zeer grote) bron-afbeelding rechtstreeks te laden.
+                  if(_host.includes('marktplaats.com')){
+                    var _mp=s.replace(/\$_\d+\.jpg/gi,'$_86.jpg');
+                    if(_mp!==s)return _mp;
+                    return 'https://images.weserv.nl/'+String.fromCharCode(63)+'url='+s.replace(/^https:[/][/]/,'')+'&w=800&q=82';
+                  }
                   return s.replace(/\/\d+x\d+\.webp$/,'/800x600.webp');})())+'" alt="'+escHtml(a.titel)+'" onerror="this.onerror=null;this.closest(\'.auto-foto\').insertAdjacentHTML(\'beforeend\',_fotoLeegHtml());this.remove();" />'}
         ${a.bijgewerkt === VANDAAG ? '<span class="nieuw-badge">NIEUW</span>' : ''}
        ${(()=>{if(!a.eersteGezien)return '';const _d=Math.round((Date.now()-new Date(a.eersteGezien+'T12:00:00').getTime())/86400000);if(_d<1)return '';if(_d<14)return '<span class="verk-badge verk-recent">'+_d+((window.lang||'nl')==='en'?' listed':' online')+'</span>';return '<span class="verk-badge verk-lang">2+ '+((window.lang||'nl')==='en'?'weeks':'weken')+'</span>';})()}
