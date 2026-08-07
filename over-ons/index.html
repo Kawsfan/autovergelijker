@@ -3,14 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Over Carkijker — missie, werking en contact</title>
+<title>Over Carkijker: missie, werking en contact</title>
 <meta name="description" content="Carkijker vergelijkt het complete Nederlandse auto-aanbod van 6 platforms op één plek, zonder financieel belang. Lees onze missie, hoe de site werkt en hoe je ons bereikt.">
 <meta name="keywords" content="over carkijker, auto vergelijker nederland, contact carkijker, autovergelijker missie">
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="https://carkijker.nl/over-ons/">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://carkijker.nl/over-ons/">
-<meta property="og:title" content="Over Carkijker — missie, werking en contact">
+<meta property="og:title" content="Over Carkijker: missie, werking en contact">
 <meta property="og:description" content="Carkijker vergelijkt het complete Nederlandse auto-aanbod van 6 platforms op één plek, zonder financieel belang. Lees onze missie, hoe de site werkt en hoe je ons bereikt.">
 <meta property="og:image" content="https://carkijker.nl/og-image.jpg">
 <link rel="icon" type="image/png" href="/favicon.png">
@@ -48,6 +48,14 @@
       "areaServed": "NL",
       "availableLanguage": ["Dutch"]
     }]
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": "Carkijker", "item": "https://carkijker.nl/" },
+      { "@type": "ListItem", "position": 2, "name": "Over ons", "item": "https://carkijker.nl/over-ons/" }
+    ]
   }
 ]
 </script>
@@ -72,15 +80,18 @@
 
   nav {
     background: rgba(255,255,255,0.96); border-bottom: 1px solid rgba(0,0,0,0.08);
-    padding: 0 28px; display: flex; align-items: center; justify-content: space-between;
+    padding: 0 28px; display: flex; align-items: center; gap: .6rem;
     height: 62px; position: sticky; top: 0; z-index: 200;
     box-shadow: 0 1px 0 rgba(0,0,0,0.04);
     backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
   }
   .logo { font-size: 22px; font-weight: 800; color: var(--oranje); letter-spacing: -0.5px; text-decoration: none; }
   .logo span { color: var(--donker); }
-  .nav-back { font-size: 13px; color: var(--subtekst); text-decoration: none; display: flex; align-items: center; gap: 5px; }
-  .nav-back:hover { color: var(--oranje); }
+  /* Kruimelpad: zelfde patroon als /occasions/ en /artikelen/ -- opeenvolgende
+     nav-links met een ›-scheidingsteken ertussen, laatste link = huidige pagina. */
+  nav a:not(.logo) { font-size: 13.5px; color: var(--subtekst); text-decoration: none; }
+  nav a:not(.logo):hover { color: var(--oranje); }
+  nav a+a::before { content: " › "; color: #aaa; margin: 0 .3rem; }
 
   .hero {
     background: linear-gradient(135deg, var(--donker) 0%, #16213e 60%, #0f3460 100%);
@@ -92,7 +103,7 @@
 
   .page { max-width: 720px; margin: 0 auto; padding: 40px 20px 64px; }
 
-  .page h2 { font-size: 21px; font-weight: 800; color: var(--donker); margin: 40px 0 14px; letter-spacing: -0.3px; }
+  .page h2 { font-size: 21px; font-weight: 800; color: var(--donker); margin: 44px 0 18px; letter-spacing: -0.3px; }
   .page h2:first-child { margin-top: 0; }
   .page p { font-size: 15.5px; color: var(--tekst); margin-bottom: 14px; }
   .page p:last-child { margin-bottom: 0; }
@@ -101,23 +112,23 @@
   @media (max-width: 640px) { .uniek-grid { grid-template-columns: 1fr; } }
   .uniek-card {
     background: var(--kaart); border: 1px solid var(--grijs2); border-radius: 14px;
-    padding: 20px 18px; box-shadow: 0 1px 4px rgba(0,0,0,.05);
+    padding: 24px 20px; box-shadow: 0 1px 4px rgba(0,0,0,.05);
   }
-  .uniek-card .icoon { font-size: 22px; margin-bottom: 10px; display: block; }
-  .uniek-card h3 { font-size: 15px; font-weight: 700; color: var(--donker); margin-bottom: 6px; }
+  .uniek-card .icoon { font-size: 22px; margin-bottom: 14px; display: block; }
+  .uniek-card h3 { font-size: 15px; font-weight: 700; color: var(--donker); margin-bottom: 10px; }
   .uniek-card p { font-size: 13.5px; color: var(--subtekst); margin: 0; line-height: 1.55; }
 
-  .werkt-lijst { list-style: none; margin-top: 16px; display: grid; gap: 16px; }
+  .werkt-lijst { list-style: none; margin-top: 20px; display: grid; gap: 16px; }
   .werkt-lijst li {
     background: var(--kaart); border: 1px solid var(--grijs2); border-radius: 12px;
-    padding: 16px 18px; display: flex; gap: 14px; align-items: flex-start;
+    padding: 18px 20px; display: flex; gap: 14px; align-items: flex-start;
   }
   .werkt-ic {
     flex-shrink: 0; width: 34px; height: 34px; border-radius: 9px; background: #fff3ee;
     display: flex; align-items: center; justify-content: center; font-size: 16px;
   }
-  .werkt-lijst strong { color: var(--donker); }
-  .werkt-lijst p { font-size: 14.5px; color: var(--tekst); margin: 4px 0 0; }
+  .werkt-lijst strong { color: var(--donker); display: block; margin-bottom: 8px; }
+  .werkt-lijst p { font-size: 14.5px; color: var(--tekst); margin: 0; }
 
   .contact-kaart {
     margin-top: 18px; background: var(--donker); border-radius: 16px; padding: 28px 26px;
@@ -145,13 +156,13 @@
 
 <nav>
   <a href="/" class="logo">Car<span>kijker</span></a>
-  <a href="/" class="nav-back">← Terug naar zoeken</a>
+  <a href="/over-ons/">Over ons</a>
 </nav>
 
 <div class="hero">
   <div class="hero-inner">
     <h1>Over Carkijker</h1>
-    <p>De onafhankelijke manier om het complete Nederlandse auto-aanbod te vergelijken — zonder ruis, zonder verborgen belang.</p>
+    <p>De onafhankelijke manier om het complete Nederlandse auto-aanbod te vergelijken, zonder ruis en zonder verborgen belang.</p>
   </div>
 </div>
 
@@ -169,17 +180,17 @@
       <div class="uniek-card">
         <span class="icoon">📊</span>
         <h3>Data-driven</h3>
-        <p>Dagelijks bijgewerkte advertenties van 6 grote platforms, samengebracht in één dealscore per auto — zo vergelijk je in seconden in plaats van in tien open tabbladen.</p>
+        <p>Dagelijks bijgewerkte advertenties van 6 grote platforms, samengebracht in één dealscore per auto. Zo vergelijk je in seconden, in plaats van tien open tabbladen.</p>
       </div>
       <div class="uniek-card">
         <span class="icoon">⚖️</span>
         <h3>Geen financieel belang</h3>
-        <p>Carkijker is geen autodealer en verkoopt zelf niets. We linken je rechtstreeks door naar de originele advertentie — de aankoop doe je altijd bij de verkoper zelf.</p>
+        <p>Carkijker is geen autodealer en verkoopt zelf niets. We linken je rechtstreeks door naar de originele advertentie. De aankoop doe je altijd bij de verkoper zelf.</p>
       </div>
       <div class="uniek-card">
         <span class="icoon">🔍</span>
         <h3>Transparant</h3>
-        <p>Je ziet direct waar en voor hoeveel een auto te koop staat, en hoe de vraagprijs zich verhoudt tot vergelijkbare occasions in de markt — geen verborgen rekenwerk.</p>
+        <p>Je ziet direct waar en voor hoeveel een auto te koop staat, en hoe de vraagprijs zich verhoudt tot vergelijkbare occasions in de markt. Geen verborgen rekenwerk.</p>
       </div>
     </div>
   </section>
@@ -238,7 +249,7 @@
 </div>
 
 <footer>
-  <strong>Carkijker</strong> — Dagelijks bijgewerkt vanuit Marktplaats, AutoScout24, Gaspedaal en ViaBOVAG.<br>
+  <strong>Carkijker</strong>: dagelijks bijgewerkt vanuit Marktplaats, AutoScout24, Gaspedaal en ViaBOVAG.<br>
   <a href="/">Terug naar zoeken</a> &nbsp;&middot;&nbsp; <a href="/occasions/">Occasions per merk</a> &nbsp;&middot;&nbsp; <a href="/tco/">Autokosten berekenen</a>
 </footer>
 
