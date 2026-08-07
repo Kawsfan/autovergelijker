@@ -776,10 +776,22 @@
 .rs-label span{font-size:12.5px;font-weight:700;color:var(--tekst);background:var(--bg);border:1px solid var(--grijs2);border-radius:20px;padding:3px 9px;line-height:1.3;}
 #is-sentinel{height:2px;}
 .paginering{display:none!important;}
-#prijsdalingBtn{display:flex;align-items:center;align-self:flex-end;flex-shrink:0;gap:5px;padding:6px 14px;background:transparent;border:1.5px solid #d0cfc9;border-radius:14px;font-size:13px;font-weight:500;color:var(--tekst);cursor:pointer;font-family:inherit;margin:0 0 2px;transition:all .15s;}
+/* Prijsdaling/Top Deals stonden voorheen los als align-self:flex-end knoppen
+   direct in .filter-rij -- zonder eigen label/vak zweefden ze onderin de rij
+   met veel lege ruimte erboven, uit de pas met de dropdowns/slider ernaast.
+   Nu in een .filter-quick-vak met eigen label, zelfde hoogte/stijl (35px,
+   7px radius, var(--grijs2)-rand) als de dropdowns, voor visuele consistentie. */
+/* min-width 240px = ruim genoeg voor beide knoppen op hun natuurlijke
+   (content-based) breedte (gemeten: 112px + 107px + 8px gap = 227px) --
+   zonder die marge duwde de standaard flex-min-content-regel (een flex-item
+   krimpt normaal niet onder zijn eigen tekstbreedte) Top Deals letterlijk
+   over de rand van dit vak heen, de Transmissie-toggle ernaast in. */
+.filter-quick{flex:1.2;min-width:240px;}
+.filter-quick label{display:block;font-size:11px;font-weight:600;color:var(--subtekst);text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px;}
+.quick-btns{display:flex;gap:8px;min-width:0;}
+#prijsdalingBtn,#topDealsBtn{display:flex;align-items:center;justify-content:center;flex:1;gap:5px;height:35px;padding:0 12px;background:white;border:1.5px solid var(--grijs2);border-radius:7px;font-size:13px;font-weight:600;color:var(--tekst);cursor:pointer;font-family:inherit;transition:all .15s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 #prijsdalingBtn.aktief{background:#fff0ec;border-color:var(--oranje);color:var(--oranje);}
 #prijsdalingBtn:hover:not(.aktief){border-color:#aaa;}
-#topDealsBtn{display:flex;align-items:center;align-self:flex-end;flex-shrink:0;gap:5px;padding:6px 14px;background:transparent;border:1.5px solid #d0cfc9;border-radius:14px;font-size:13px;font-weight:500;color:var(--tekst);cursor:pointer;font-family:inherit;margin:0 0 2px;transition:all .15s;}
 #topDealsBtn.aktief{background:#fff8ec;border-color:#e8905a;color:#e8905a;}
 #topDealsBtn:hover:not(.aktief){border-color:#aaa;}
 @media(max-width:600px){
@@ -3924,6 +3936,18 @@ window.zoekNu=function(){
     }
     return _origTRpd.apply(this,[lijst]);
   };
+  function _quickFilterWrap(){
+    var wrap=document.getElementById("quickFilterWrap");
+    if(wrap)return wrap;
+    wrap=document.createElement("div");
+    wrap.id="quickFilterWrap";
+    wrap.className="filter-item filter-quick";
+    wrap.innerHTML='<label>Snelfilters</label><div class="quick-btns"></div>';
+    var kmItem=document.getElementById("kmMin")&&document.getElementById("kmMin").closest(".filter-range,.filter-item");
+    if(kmItem&&kmItem.parentNode){kmItem.parentNode.insertBefore(wrap,kmItem.nextSibling);}
+    else{var fbtn=document.getElementById("favToggleBtn");if(fbtn&&fbtn.parentNode)fbtn.parentNode.insertBefore(wrap,fbtn.nextSibling);}
+    return wrap;
+  }
   function _addPrijsdalingBtn(){
     var existing=document.getElementById("prijsdalingBtn");
     if(existing)return;
@@ -3935,9 +3959,7 @@ window.zoekNu=function(){
       btn.classList.toggle("aktief",window._toonPrijsDaling);
       window._pagina=1;window.zoekNu();
     });
-    var kmItem=document.getElementById("kmMin")&&document.getElementById("kmMin").closest(".filter-range,.filter-item");
-    if(kmItem&&kmItem.parentNode){kmItem.parentNode.insertBefore(btn,kmItem.nextSibling);}
-    else{var fbtn=document.getElementById("favToggleBtn");if(fbtn&&fbtn.parentNode)fbtn.parentNode.insertBefore(btn,fbtn.nextSibling);}
+    _quickFilterWrap().querySelector(".quick-btns").appendChild(btn);
   }
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",_addPrijsdalingBtn);
   else setTimeout(_addPrijsdalingBtn,300);
@@ -3961,6 +3983,11 @@ window.zoekNu=function(){
     var btn=document.createElement('button');
     btn.id='topDealsBtn';btn.innerHTML='🏆 Top Deals';
     btn.addEventListener('click',function(){window._toonTopDeals=!window._toonTopDeals;btn.classList.toggle('aktief',window._toonTopDeals);window._pagina=1;window.zoekNu();});
+    // Zelfde .quick-btns-vak als Prijsdaling (zie _quickFilterWrap hierboven) --
+    // val terug op de oude losse-knop-plaatsing als die functie om wat voor
+    // reden dan ook nog niet gedraaid heeft.
+    var qb=document.querySelector('#quickFilterWrap .quick-btns');
+    if(qb){qb.appendChild(btn);return;}
     var pd=document.getElementById('prijsdalingBtn');
     if(pd&&pd.parentNode){pd.parentNode.insertBefore(btn,pd.nextSibling);}
     else{var _k=document.getElementById('kmMin'),_ki=_k&&_k.closest('.filter-range,.filter-item');if(_ki&&_ki.parentNode)_ki.parentNode.insertBefore(btn,_ki.nextSibling);}
