@@ -405,9 +405,41 @@ const STEDEN = {
   "haarlem":  { naam: "Haarlem",  regio: "Noord-Holland", tekst: "In Haarlem en omgeving is de vraag naar compacte occasions en elektrische auto's hoog, mede door de nabijheid van Amsterdam. Het aanbod is iets kleiner dan in de grote steden, maar de kwaliteit is doorgaans hoog. Milieuzones in en rondom Haarlem gelden ook — check Euro-norm vóór aankoop." }
 };
 
-function buildStadPage(stadSlug, stad, filtered, listings) {
+function buildStadPage(stadSlug, stad, filtered, listings, landelijkeStats) {
   const gemPrijs = filtered.length ? Math.round(filtered.reduce((s,l)=>s+(l.prijs||0),0)/filtered.length) : 0;
   const medPrijs = filtered.length ? [...filtered].sort((a,b)=>(a.prijs||0)-(b.prijs||0))[Math.floor(filtered.length/2)].prijs : 0;
+  // Regionale prijsvergelijking (statisch, voor crawlers/LLM's) -- de bestaande
+  // interactieve regio-tool in de Marktanalyse-modal doet dit al per merk+model
+  // op straal-basis, maar dat vergt een klik en is dus onzichtbaar voor niet-JS-
+  // uitvoerende bots. Dit is de cross-sectionele tegenhanger: alle occasions in
+  // de stad vs. het landelijk gemiddelde.
+  //
+  // BELANGRIJK: locatie is het vestigingsadres van de verkoper/dealer, niet een
+  // gelijkmatige steekproef van lokale kopers -- één grote (vaak EV/premium-merk)
+  // dealer kan een hele stad-statistiek vertekenen. Concreet gevonden in de data:
+  // 49 advertenties van één Lexus-dealer onder "Groningen" trokken die stad 40%
+  // boven het landelijk gemiddelde, terwijl Groningen juist bekendstaat als een
+  // betaalbare studentenstad. Daarom eerst een concentratie-check: als één merk
+  // lokaal >10% van de advertenties uitmaakt EN dat >3x het landelijke aandeel
+  // van datzelfde merk is, is de lokale prijs vermoedelijk niet representatief
+  // en tonen we liever geen (misleidende) claim dan een verkeerde.
+  let regioTekst = '';
+  if (filtered.length >= 8 && landelijkeStats && landelijkeStats.gem > 0 && gemPrijs > 0) {
+    const merkTellingen = {};
+    filtered.forEach(function(l){ var m=l.merk||'onbekend'; merkTellingen[m]=(merkTellingen[m]||0)+1; });
+    let gedomineerd = false;
+    for (const m in merkTellingen) {
+      if (merkTellingen[m] < 5) continue;
+      const lokaalAandeel = merkTellingen[m] / filtered.length;
+      const landAandeel = landelijkeStats.merkAandeel[m] || 0.001;
+      if (lokaalAandeel > 0.10 && (lokaalAandeel / landAandeel) > 3) { gedomineerd = true; break; }
+    }
+    if (!gedomineerd) {
+      const verschilPct = Math.round((gemPrijs - landelijkeStats.gem) / landelijkeStats.gem * 100);
+      const duiding = verschilPct < -3 ? Math.abs(verschilPct) + '% goedkoper dan' : verschilPct > 3 ? verschilPct + '% duurder dan' : 'vergelijkbaar met';
+      regioTekst = 'Gemiddeld betaal je in ' + stad.naam + ' &euro; ' + gemPrijs.toLocaleString('nl-NL') + ' voor een tweedehands auto -- dat is ' + duiding + ' het landelijk gemiddelde van &euro; ' + landelijkeStats.gem.toLocaleString('nl-NL') + '.';
+    }
+  }
   const cards = filtered.slice(0,24).map(function(l){ return renderAutoCard(l, stad.naam); }).join('');
   return '<!doctype html><html lang="nl"><head>'+
     '<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'+
@@ -444,7 +476,7 @@ function buildStadPage(stadSlug, stad, filtered, listings) {
     '<div class="container">'+
     '<h1>Tweedehands auto occasions '+stad.naam+'</h1>'+
     '<p class="subtitle">'+filtered.length+' occasions gevonden in en rond '+stad.naam+', '+stad.regio+'</p>'+
-    '<div class="geo-blok"><p>'+stad.tekst+'</p></div>'+
+    '<div class="geo-blok"><p>'+stad.tekst+(regioTekst?' '+regioTekst:'')+'</p></div>'+
     '<div class="stats-grid">'+
     '<a href="#aanbod" class="stat-card"><div class="stat-val">'+filtered.length+'</div><div class="stat-label">Occasions</div></a>'+
     '<a href="/?markt=" class="stat-card"><div class="stat-val">&#8364; '+(Math.round(gemPrijs/100)*100).toLocaleString("nl-NL")+'</div><div class="stat-label">Gem. prijs</div></a>'+
@@ -463,6 +495,16 @@ function main() {
   listings.forEach(function(a){ if(!a.merk) a.merk = extraheerMerk(a.titel||''); });
   fs.mkdirSync(OUT_DIR, { recursive: true });
   let pageCount = 0;
+
+  // Landelijke referentie voor de regionale prijsvergelijking op de stad-pagina's
+  // (zie buildStadPage) -- één keer berekend i.p.v. per stad opnieuw.
+  const landelijkeAutos = listings.filter(function(l){ return l.prijs != null && l.prijs >= 300 && l.prijs <= 500000; });
+  const landGem = landelijkeAutos.length ? Math.round(landelijkeAutos.reduce(function(s,l){return s+l.prijs;},0)/landelijkeAutos.length) : 0;
+  const landMerkTellingen = {};
+  landelijkeAutos.forEach(function(l){ var m=l.merk||'onbekend'; landMerkTellingen[m]=(landMerkTellingen[m]||0)+1; });
+  const landMerkAandeel = {};
+  for (var _m in landMerkTellingen) landMerkAandeel[_m] = landMerkTellingen[_m] / landelijkeAutos.length;
+  const landelijkeStats = { gem: landGem, merkAandeel: landMerkAandeel };
 
   fs.writeFileSync(path.join(OUT_DIR, 'index.html'), buildPage({ merkSlug: null, modelSlug: null, filtered: listings, listings: listings }), 'utf-8');
   pageCount++; console.log('  [OK] /occasions/');
@@ -528,7 +570,7 @@ function main() {
     if (filtered.length < 3) continue;
     const stadDir = path.join(OUT_STAD, stadSlug);
     fs.mkdirSync(stadDir, {recursive: true});
-    fs.writeFileSync(path.join(stadDir, 'index.html'), buildStadPage(stadSlug, stad, filtered, listings), 'utf-8');
+    fs.writeFileSync(path.join(stadDir, 'index.html'), buildStadPage(stadSlug, stad, filtered, listings, landelijkeStats), 'utf-8');
     generatedStadUrls.push('occasions/'+stadSlug+'/');
     pageCount++;
     console.log('  [OK] /occasions/'+stadSlug+'/ ('+filtered.length+')');
