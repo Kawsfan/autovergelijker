@@ -1088,7 +1088,7 @@
       <div class="filter-groep" style="width:100%">
         <label data-i18n="lbl_afstand">📍 Afstand</label>
         <div class="afstand-rij">
-          <input id="locInput" type="text" placeholder="Stad of postcode..." aria-label="Stad of postcode" oninput="_geoLoc(this.value)" />
+          <input id="locInput" type="text" placeholder="Stad of postcode..." aria-label="Stad of postcode" oninput="_geoLoc(this.value,_herhaalZoekMetAfstand)" />
           <button class="loc-btn" onclick="geolocate()" title="Gebruik mijn locatie">📌 Mijn locatie</button>
           <select id="radiusSelect" onchange="zoekNu()" aria-label="Afstand">
             <option value="">Alle afstanden</option>
@@ -1239,16 +1239,16 @@ async function laadListings() {
     alleResultaten.forEach(function(a){if(!a.model)a.model=_getModel(a.titel||"");});
 
     if (alleResultaten.length === 0) {
+      // Was hier voorheen: filtering (favorieten/"nieuw"/afstand) toegepast op een
+      // nooit-gedeclareerde variabele "gesorteerd" -- dat gooide in deze (zeldzame
+      // "scraper leverde 0 advertenties op")-tak altijd een ReferenceError, i.p.v.
+      // gewoon de onderstaande "nog geen advertenties"-melding te tonen. Zinloos
+      // sowieso: er valt niets te filteren als alleResultaten al leeg is.
       window._laadStatus = 'leeg';
-      _huidigeLijst = gesorteerd;
-  if(window._pagina>1&&!window._manualPage)window._pagina=1;
-  window._manualPage=false;
-  if(window._toonFavs) gesorteerd = gesorteerd.filter(function(a){ return _favs.has(a.id); });
-  if(window._toonNieuw){ var _vd=new Date().toISOString().slice(0,10); gesorteerd=gesorteerd.filter(function(a){return a.bijgewerkt===_vd;}); }
-  var _rad=parseInt(document.getElementById('radiusSelect')&&document.getElementById('radiusSelect').value)||0;
-  if(_rad>0){ var _lc=window._locCoord; if(!_lc){ var _li=document.getElementById('locInput'); if(_li&&_li.value.trim()){ var _lk=_li.value.trim().toLowerCase(); _lc=NL_CITIES[_lk]||null; if(!_lc){ for(var _ck in NL_CITIES){if(_ck.includes(_lk)||_lk.includes(_ck.split(' ')[0])){_lc=NL_CITIES[_ck];break;}}} window._locCoord=_lc; }} if(_lc){ gesorteerd=gesorteerd.filter(function(a){ if(!a.locatie)return false; var _ac=NL_CITIES[a.locatie.toLowerCase().trim()]; if(!_ac){for(var _c in NL_CITIES){if(a.locatie.toLowerCase().includes(_c)){_ac=NL_CITIES[_c];break;}}} if(!_ac)return false; var _dlat=(_lc[0]-_ac[0])*Math.PI/180,_dlon=(_lc[1]-_ac[1])*Math.PI/180; var _hav=Math.sin(_dlat/2)*Math.sin(_dlat/2)+Math.cos(_lc[0]*Math.PI/180)*Math.cos(_ac[0]*Math.PI/180)*Math.sin(_dlon/2)*Math.sin(_dlon/2); return 6371*2*Math.atan2(Math.sqrt(_hav),Math.sqrt(1-_hav))<=_rad; }); }}
-  if(typeof filtersNaarURL==='function')filtersNaarURL();
-  document.getElementById('autoGrid').innerHTML = `
+      if(window._pagina>1&&!window._manualPage)window._pagina=1;
+      window._manualPage=false;
+      if(typeof filtersNaarURL==='function')filtersNaarURL();
+      document.getElementById('autoGrid').innerHTML = `
         <div class="geen-resultaten">
           <span class="icon">🔄</span>
           <h2>Nog geen advertenties</h2>
@@ -1427,6 +1427,18 @@ function zoekNu() {
   var _kMxV=document.getElementById('kmMax').value;const kmMax=_kMxV==='custom'?(parseInt(document.getElementById('kmMaxCustom').value)||Infinity):(parseInt(_kMxV)||Infinity);
   const carroVal = document.getElementById('carrosserieFilter').value.toLowerCase();
   const bsVal    = document.getElementById('brandstofFilter').value.toLowerCase();
+  // Afstandsfilter: hergebruikt _vindStadCoord()/_haversineKm() (elders in dit
+  // bestand, voor de Marktanalyse-regiotool) i.p.v. de NL_CITIES-opzoeklogica
+  // een derde keer te dupliceren. window._locCoord wordt gezet door _geoLoc()
+  // (locatieveld) of geolocate() (Mijn locatie-knop) -- als dat door timing nog
+  // niet gebeurd is maar het locatieveld wél een bekende plaatsnaam bevat, hier
+  // nog een directe (synchrone) poging als vangnet.
+  const radiusKm = parseInt(document.getElementById('radiusSelect').value) || 0;
+  if (radiusKm > 0 && !window._locCoord) {
+    const _liWaarde = document.getElementById('locInput').value.trim();
+    if (_liWaarde) window._locCoord = _vindStadCoord(_liWaarde);
+  }
+  const _locCoordNu = window._locCoord;
 
   let gefilterd = alleResultaten.filter(a => {
     const titel = (a.titel || '').toLowerCase();
@@ -1446,6 +1458,10 @@ function zoekNu() {
       if (bsVal === 'hybride') { if (!bf.includes('hybride')) return false; }
       else if (bsVal === 'elektrisch') { if (!bf.includes('elektr')) return false; }
       else if (!bf.includes(bsVal)) return false;
+    }
+    if (radiusKm > 0 && _locCoordNu) {
+      const _ac = _vindStadCoord(a.locatie);
+      if (!_ac || _haversineKm(_locCoordNu, _ac) > radiusKm) return false;
     }
     if (transmissieActief) {
       const tr = (a.transmissie || '').toLowerCase();
@@ -2498,20 +2514,40 @@ if("serviceWorker" in navigator){
 }
 
 // Zoekagent
-function _geoLoc(v){
+// _cb (optioneel) vuurt zodra window._locCoord daadwerkelijk bekend is -- zowel
+// bij een directe NL_CITIES-treffer (synchroon) als na de Nominatim-fallback
+// (asynchroon, na de debounce + netwerklatentie). Zonder dit bleef een postcode
+// als "2101 XC" (geen bekende stad, dus altijd de async route) domweg genegeerd
+// door het afstandsfilter: de radius-select's onchange=zoekNu() vuurt vaak al
+// vóórdat de geocode terug is, en er was daarna niets dat de zoekopdracht
+// opnieuw liet draaien zodra de coördinaat alsnog binnenkwam -- het filter-blok
+// zag dan permanent _locCoord=null en toonde stilzwijgend gewoon alle resultaten
+// (zichtbaar als "Zoeken (43.230)", de ongefilterde totaaltelling). Zelfde
+// bugpatroon was al eerder gevonden en gefixt voor de Marktanalyse-regiotool
+// (_inputMarktRegio hieronder), maar nooit toegepast op dit, meest zichtbare,
+// afstandsfilter.
+function _geoLoc(v,_cb){
   window._locCoord=null;
   if(!v||!v.trim()) return;
   var lk=v.trim().toLowerCase();
   var c=NL_CITIES[lk];
   if(!c){for(var k in NL_CITIES){if(lk.includes(k)||k.includes(lk)){c=NL_CITIES[k];break;}}}
-  if(c){window._locCoord=c;return;}
+  if(c){window._locCoord=c;if(_cb)_cb();return;}
   clearTimeout(window._geoTimer);
   window._geoTimer=setTimeout(function(){
     fetch('https://nominatim.openstreetmap.org/search?q='+encodeURIComponent(v.trim())+'&countrycodes=nl&format=json&limit=1')
       .then(function(r){return r.json();})
-      .then(function(d){if(d&&d[0])window._locCoord=[+d[0].lat,+d[0].lon];})
+      .then(function(d){if(d&&d[0]){window._locCoord=[+d[0].lat,+d[0].lon];if(_cb)_cb();}})
       .catch(function(){});
   },600);
+}
+// Herhaalt de zoekopdracht zodra een postcode/plaatsnaam alsnog een coördinaat
+// opleverde -- maar alleen als de gebruiker al een afstand had gekozen (anders
+// zou elke intoetsing in het locatieveld onnodig de resultatenlijst laten
+// springen, ook als er nog geen radius geselecteerd is).
+function _herhaalZoekMetAfstand(){
+  var _rs=document.getElementById('radiusSelect');
+  if(_rs&&_rs.value&&typeof zoekNu==='function')zoekNu();
 }
 function openAgent(){renderAgentList();document.getElementById("agentModal").style.display="flex";}
 function _agenten(){try{return JSON.parse(localStorage.getItem("zoekagenten")||"[]");}catch(e){return[];}}
