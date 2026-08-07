@@ -749,17 +749,20 @@
 #stickyZoekInput::placeholder{color:#aaa;}
 #stickyZoekInput::-webkit-search-cancel-button{-webkit-appearance:none;}
 /* === Senior UX: Infinite scroll + Range sliders + Fav toggle === */
-/* rs-track en rs-in delen bewust dezelfde 20px-hoge "sliderzone" (rs-wrap se
-   padding-top) en zijn beide position:absolute t.o.v. hetzelfde padding-box-
-   nulpunt -- daarmee liggen track en thumb gegarandeerd op elkaar uitgelijnd,
-   in plaats van dat de een (rs-track) in de flow zit terwijl de ander (rs-in)
-   los daarvan met een handmatig top-offset gepositioneerd staat (dat gaf eerder
-   een structurele mismatch: de thumb zweefde los boven de track).
-   */
-.rs-wrap{position:relative;width:100%;padding-top:20px;}
-.rs-track{position:absolute;top:8px;left:0;right:0;height:4px;background:#e2e0d8;border-radius:2px;}
+/* rs-box heeft bewust dezelfde hoogte (35px) en rand/radius-stijl als de
+   naastgelegen dropdowns (.filter-item select) -- daarvoor stond de slider
+   als een dun kaal lijntje los boven de rij, zonder eigen "bak", wat de rij
+   naast de dropdowns onbalans/scheef liet ogen ondanks dat track en thumb
+   onderling al perfect uitgelijnd waren. rs-track en rs-in zijn beide
+   position:absolute en verticaal gecentreerd t.o.v. diezelfde rs-box (via
+   top:50%+negatieve margin), met identieke horizontale inset (12px) zodat
+   de klikbare/sleepbare breedte van de thumb exact de zichtbare track dekt. */
+.rs-wrap{position:relative;width:100%;}
+.rs-box{position:relative;height:35px;border:1.5px solid var(--grijs2);border-radius:7px;background:white;transition:border-color .15s;}
+.rs-box:focus-within{border-color:var(--oranje);}
+.rs-track{position:absolute;top:50%;left:12px;right:12px;height:4px;margin-top:-2px;background:#e2e0d8;border-radius:2px;}
 .rs-fill{position:absolute;height:4px;background:var(--oranje);top:0;border-radius:2px;}
-.range-inputs .rs-in{position:absolute;top:0;left:0;width:100%;height:20px;flex:none;-webkit-appearance:none;-moz-appearance:none;appearance:none;background:transparent;border:none;border-radius:0;outline:none;box-shadow:none;pointer-events:none;padding:0;margin:0;min-width:0;}
+.range-inputs .rs-in{position:absolute;top:50%;left:12px;right:12px;width:auto;margin-top:-10px;height:20px;flex:none;-webkit-appearance:none;-moz-appearance:none;appearance:none;background:transparent;border:none;border-radius:0;outline:none;box-shadow:none;pointer-events:none;padding:0;min-width:0;}
 .rs-in::-webkit-slider-runnable-track{background:transparent;border:none;box-shadow:none;height:20px;}
 .rs-in::-moz-range-track{background:transparent;border:none;box-shadow:none;height:20px;}
 .rs-in::-moz-focus-outer{border:0;}
@@ -769,7 +772,7 @@
 .rs-in:focus-visible::-webkit-slider-thumb{box-shadow:0 0 0 4px rgba(209,68,19,.18);}
 .rs-in::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:#fff;border:2px solid var(--oranje);box-shadow:0 1px 4px rgba(0,0,0,.28);cursor:pointer;pointer-events:all;transition:transform .12s ease,box-shadow .12s ease;}
 .rs-in:hover::-moz-range-thumb{transform:scale(1.18);}
-.rs-label{display:flex;justify-content:space-between;margin-top:12px;}
+.rs-label{display:flex;justify-content:space-between;margin-top:8px;}
 .rs-label span{font-size:12.5px;font-weight:700;color:var(--tekst);background:var(--bg);border:1px solid var(--grijs2);border-radius:20px;padding:3px 9px;line-height:1.3;}
 #is-sentinel{height:2px;}
 .paginering{display:none!important;}
@@ -3822,9 +3825,9 @@ function _buildSlider(loId,hiId,fmt){
   var hiIdx=hiS.value&&opts.indexOf(hiS.value)>=0?opts.indexOf(hiS.value):mx;
   var wrap=document.createElement('div');wrap.className='rs-wrap';
   var loLbl=escHtml(loS.getAttribute('aria-label')||loId),hiLbl=escHtml(hiS.getAttribute('aria-label')||hiId);
-  wrap.innerHTML='<div class="rs-track"><div class="rs-fill" id="rsf-'+loId+'"></div></div>'
+  wrap.innerHTML='<div class="rs-box"><div class="rs-track"><div class="rs-fill" id="rsf-'+loId+'"></div></div>'
     +'<input type="range" class="rs-in" id="rsi-'+loId+'" aria-label="'+loLbl+'" min="0" max="'+mx+'" value="'+loIdx+'" step="1">'
-    +'<input type="range" class="rs-in" id="rsi-'+hiId+'" aria-label="'+hiLbl+'" min="0" max="'+mx+'" value="'+hiIdx+'" step="1">'
+    +'<input type="range" class="rs-in" id="rsi-'+hiId+'" aria-label="'+hiLbl+'" min="0" max="'+mx+'" value="'+hiIdx+'" step="1"></div>'
     +'<div class="rs-label"><span id="rsl-'+loId+'">Geen min</span><span id="rsl-'+hiId+'">Geen max</span></div>';
   loS.style.display='none';hiS.style.display='none';
   loS.parentNode.appendChild(wrap);
