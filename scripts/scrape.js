@@ -1246,7 +1246,7 @@ async function main() {
   });
   // Model-extractie: vul l.model voor listings met een herkend merk
   // (nodig voor een betrouwbare dedup-sleutel en schone modelpagina's)
-  const _MODELLEN = {"Volkswagen":["Golf","Polo","Passat","Tiguan","T-Roc","ID.4","ID.3","ID.5","T-Cross","Caddy","Transporter","Up"],"BMW":["1-serie","2-serie","3-serie","4-serie","5-serie","7-serie","X1","X3","X5","iX3","i4"],"Toyota":["Corolla","Yaris","RAV4","Prius","Aygo","C-HR","bZ4X"],"Ford":["Focus","Fiesta","Puma","Kuga","Mustang Mach-E","Explorer","Mondeo","Ranger","Transit"],"Audi":["A1","A3","A4","A5","A6","Q3","Q5","Q7","e-tron","Q4 e-tron"],"Peugeot":["208","308","3008","2008","508","e-208","e-2008"],"Renault":["Clio","Megane","Captur","Zoe","Scenic","Twingo","Arkana"],"Hyundai":["i10","i20","i30","Tucson","Kona","IONIQ 5","IONIQ 6","Santa Fe"],"Kia":["Picanto","Stonic","Ceed","Sportage","Niro","EV6","Sorento","EV9"],"Tesla":["Model 3","Model S","Model Y","Model X"],"Volvo":["V40","V60","V90","XC40","XC60","XC90","S60","C40"],"Skoda":["Fabia","Octavia","Superb","Kodiaq","Karoq","Scala","Enyaq"],"Mercedes-Benz":["A-Klasse","B-Klasse","C-Klasse","E-Klasse","GLA","GLB","GLC","GLE","EQA","EQC"],"Seat":["Ibiza","Leon","Arona","Ateca","Tarraco"],"Opel":["Corsa","Astra","Mokka","Grandland","Insignia","Corsa-e"],"Fiat":["500","500e","Panda","Tipo","500X"],"Honda":["Civic","Jazz","HR-V","CR-V"],"Mazda":["2","3","6","CX-3","CX-5","CX-30","MX-30"],"Nissan":["Micra","Qashqai","Juke","Leaf","Ariya","X-Trail"],"Citroën":["C1","C3","C3 Aircross","C4","C5 Aircross","e-C4"],"Dacia":["Sandero","Duster","Logan","Spring","Jogger"],"Mini":["Cooper","Clubman","Countryman","Electric"],"Land Rover":["Discovery","Discovery Sport","Range Rover","Defender"],"Porsche":["Cayenne","Macan","Panamera","911","Taycan","Boxster"],"Jeep":["Renegade","Compass","Cherokee","Grand Cherokee","Wrangler","Avenger"],"Alfa Romeo":["Giulia","Stelvio","Tonale","Giulietta","Mito"],"Suzuki":["Swift","Vitara","S-Cross","Jimny","Ignis"],"Mitsubishi":["ASX","Outlander","Eclipse Cross","Space Star"],"Cupra":["Born","Formentor","Ateca","Leon"],"MG":["ZS","HS","MG4","MG5","MG3"],"Polestar":["Polestar 2","Polestar 3","Polestar 4"],"Jaguar":["E-Pace","F-Pace","I-Pace","XE","XF"],"Subaru":["Forester","Outback","XV","Impreza"],"Lexus":["UX","NX","RX","IS","ES","CT"],"BYD":["Atto 3","Han","Tang","Seal","Dolphin"],"Smart":["#1","#3","fortwo"],"DS":["DS3","DS4","DS7","DS9"],"Zeekr":["001","007","X","X2"],"Xpeng":["P7","G3","G9","P5","G6"],"NIO":["ES6","ES8","ET7","EL6","ET5"],"Leapmotor":["C10","T03"],"Ora":["Funky Cat","Good Cat"],"Aiways":["U5","U6"]};
+  const _MODELLEN = {"Volkswagen":["Golf","Polo","Passat","Tiguan","T-Roc","ID.4","ID.3","ID.5","T-Cross","Caddy","Transporter","Up"],"BMW":["1-serie","2-serie","3-serie","4-serie","5-serie","7-serie","X1","X3","X5","iX3","i4","i3","iX1","Z3","Z4"],"Toyota":["Corolla","Yaris","RAV4","Prius","Aygo","C-HR","bZ4X"],"Ford":["Focus","Fiesta","Puma","Kuga","Mustang Mach-E","Explorer","Mondeo","Ranger","Transit"],"Audi":["A1","A3","A4","A5","A6","Q3","Q5","Q7","e-tron","Q4 e-tron"],"Peugeot":["208","308","3008","2008","508","e-208","e-2008","107","108","5008","Expert","Boxer","207","206","RCZ","Partner"],"Renault":["Clio","Megane","Captur","Zoe","Scenic","Twingo","Arkana","Trafic","Master","Kadjar"],"Hyundai":["i10","i20","i30","Tucson","Kona","IONIQ 5","IONIQ 6","Santa Fe"],"Kia":["Picanto","Stonic","Ceed","Sportage","Niro","EV6","Sorento","EV9"],"Tesla":["Model 3","Model S","Model Y","Model X"],"Volvo":["V40","V60","V90","XC40","XC60","XC90","S60","C40"],"Skoda":["Fabia","Octavia","Superb","Kodiaq","Karoq","Scala","Enyaq"],"Mercedes-Benz":["A-Klasse","B-Klasse","C-Klasse","E-Klasse","GLA","GLB","GLC","GLE","EQA","EQC","S-Klasse","V-Klasse","CLA-Klasse","Sprinter","Vito","Citan","GLS","G-Klasse","CLS"],"Seat":["Ibiza","Leon","Arona","Ateca","Tarraco"],"Opel":["Corsa","Astra","Mokka","Grandland","Insignia","Corsa-e","Crossland X","Karl","Vivaro","Combo","Meriva","Frontera","Agila","Zafira","Adam"],"Fiat":["500","500e","Panda","Tipo","500X","Punto","500C","Scudo","Talento","600","Doblo","Sedici"],"Honda":["Civic","Jazz","HR-V","CR-V"],"Mazda":["2","3","6","CX-3","CX-5","CX-30","MX-30"],"Nissan":["Micra","Qashqai","Juke","Leaf","Ariya","X-Trail"],"Citroën":["C1","C3","C3 Aircross","C4","C5 Aircross","e-C4","DS3","DS4","DS5","Berlingo","Jumpy","Jumper"],"Dacia":["Sandero","Duster","Logan","Spring","Jogger"],"Mini":["Cooper","Clubman","Countryman","Electric"],"Land Rover":["Discovery","Discovery Sport","Range Rover","Defender"],"Porsche":["Cayenne","Macan","Panamera","911","Taycan","Boxster"],"Jeep":["Renegade","Compass","Cherokee","Grand Cherokee","Wrangler","Avenger"],"Alfa Romeo":["Giulia","Stelvio","Tonale","Giulietta","Mito","Spider","147","Junior","159","GT","Brera"],"Suzuki":["Swift","Vitara","S-Cross","Jimny","Ignis","Alto","Celerio","Wagon R+","SX4","Splash","Baleno","Swace","Across","SX4 S-Cross"],"Mitsubishi":["ASX","Outlander","Eclipse Cross","Space Star","Colt","Grandis","Lancer","Pajero"],"Cupra":["Born","Formentor","Ateca","Leon"],"MG":["ZS","HS","MG4","MG5","MG3","EHS","TF","MGF","MGS5","MGS6","Marvel R","TD","MGB"],"Polestar":["Polestar 2","Polestar 3","Polestar 4"],"Jaguar":["E-Pace","F-Pace","I-Pace","XE","XF","F-Type","S-Type","E-Type","X-Type","XJ","XK","XKR","XK8"],"Subaru":["Forester","Outback","XV","Impreza"],"Lexus":["UX","NX","RX","IS","ES","CT"],"BYD":["Atto 3","Han","Tang","Seal","Dolphin"],"Smart":["#1","#3","fortwo","ForFour","#5","Roadster"],"DS":["DS3","DS4","DS7","DS9","DS5","DS8"],"Zeekr":["001","007","X","X2"],"Xpeng":["P7","G3","G9","P5","G6"],"NIO":["ES6","ES8","ET7","EL6","ET5"],"Leapmotor":["C10","T03"],"Ora":["Funky Cat","Good Cat"],"Aiways":["U5","U6"]};
   // Merkaliassen die _MERKEN los herkent maar dezelfde modellenlijst delen
   _MODELLEN["VW"] = _MODELLEN["Volkswagen"];
   _MODELLEN["Mercedes"] = _MODELLEN["Mercedes-Benz"];
@@ -1259,19 +1259,69 @@ async function main() {
   }
 
   function _escapeRegex(s) { return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+  // Accenten weghalen (e.g. é/ë/ò -> e/e/o) -- titels schrijven "Mégane"/"Scénic"
+  // vaak mét accent, de modellijst bewust zonder (en vice versa); zonder
+  // normalisatie matcht dat nooit. NFD ontleedt het accentteken los van de
+  // letter, zodat de combining-mark er daarna uitgefilterd kan worden.
+  function _normDiacritics(s) { return s.normalize('NFD').replace(/[\u0300-\u036f]/g, ''); }
+  // Bouwt een regex-patroon dat spaties, streepjes én "kale" overgangen tussen
+  // een letter en een cijfer als onderling verwisselbaar behandelt -- titels
+  // schrijven hetzelfde model door elkaar als "MG3", "MG 3" of "MG-3", en
+  // "3-serie" (modellijst) moet ook matchen op "3 serie" of "3serie" in de
+  // titel. Zonder dit faalde bv. vrijwel elke "DS 3"-titel (spatie) tegen de
+  // modelwaarde "DS3" (geen spatie) -- goed voor bijna alle DS-advertenties.
+  function _flexModelPattern(mLower) {
+    var s = mLower
+      .replace(/([a-z])(\d)/g, '$1 $2')
+      .replace(/(\d)([a-z])/g, '$1 $2')
+      .replace(/[\s-]+/g, ' ')
+      .trim();
+    return _escapeRegex(s).replace(/ /g, '[\\s-]?');
+  }
+  // Sommige modelnamen zijn bij een merk zo generiek dat ze bijna elk model van
+  // dat merk als trimprefix vóóraan in de titel dragen (bv. "MINI Cooper
+  // Clubman", "MINI Cooper Countryman" -- "Cooper" staat er bijna altijd,
+  // eerder dan het eigenlijke, specifiekere model). Bij gelijke-positie-wint-
+  // langste-string is dat geen probleem, maar "Cooper" staat hier juist wél
+  // eerder in de titel dan "Clubman"/"Countryman" -- dus zonder uitzondering
+  // zou "Cooper" onterecht winnen. Zulke namen worden pas als laatste redmiddel
+  // geprobeerd, alleen als niets specifieks matcht.
+  const _MODEL_FALLBACK = { "Mini": "Cooper", "MINI": "Cooper" };
+  function _vindModelMatch(_titelLower, _m) {
+    const _mLower = _normDiacritics(_m.toLowerCase());
+    // Puur numerieke modelnamen (Mazda "2"/"3"/"6") mogen niet grenzen aan een
+    // punt, anders matcht "2" op de "2.0" in een motorinhoud-aanduiding.
+    const _boundary = /^\d+$/.test(_mLower) ? '[^a-z0-9.]' : '[^a-z0-9]';
+    const _re = new RegExp('(^|' + _boundary + ')(' + _flexModelPattern(_mLower) + ')(' + _boundary + '|$)');
+    const _match = _titelLower.match(_re);
+    return _match ? { idx: _match.index + _match[1].length, len: _mLower.length } : null;
+  }
   listings.forEach(function(l) {
     if (!l.merk || l.merk === 'overig') return;
     const _models = _MODELLEN[l.merk];
     if (!_models) return;
-    const _titelLower = (l.titel || '').toLowerCase();
+    const _titelLower = _normDiacritics((l.titel || '').toLowerCase());
+    const _fallback = _MODEL_FALLBACK[l.merk];
+    // Niet zomaar de eerste treffer in (lengte-gesorteerde) lijstvolgorde nemen,
+    // maar over alle modellen heen degene kiezen die het vroegst in de titel
+    // voorkomt (dus dichtst bij de merknaam, waar het model normaliter staat) --
+    // bij gelijke positie wint de langere/specifiekere match. Dat voorkomt dat
+    // een uitvoeringsnaam die toevallig ook een modelnaam is (bv. "Junior" als
+    // trim van de Alfa Romeo MiTo) het echte, eerder genoemde model ("MiTo")
+    // verdringt puur omdat "Junior" een langere string is.
+    let _beste = null, _besteIdx = Infinity, _besteLen = -1;
     for (const _m of _models) {
-      const _mLower = _m.toLowerCase();
-      // Puur numerieke modelnamen (Mazda "2"/"3"/"6") mogen niet grenzen aan een
-      // punt, anders matcht "2" op de "2.0" in een motorinhoud-aanduiding.
-      const _boundary = /^\d+$/.test(_mLower) ? '[^a-z0-9.]' : '[^a-z0-9]';
-      const _re = new RegExp('(^|' + _boundary + ')' + _escapeRegex(_mLower) + '(' + _boundary + '|$)');
-      if (_re.test(_titelLower)) { l.model = _m; break; }
+      if (_m === _fallback) continue;
+      const _hit = _vindModelMatch(_titelLower, _m);
+      if (!_hit) continue;
+      if (_hit.idx < _besteIdx || (_hit.idx === _besteIdx && _hit.len > _besteLen)) {
+        _beste = _m; _besteIdx = _hit.idx; _besteLen = _hit.len;
+      }
     }
+    if (!_beste && _fallback && _vindModelMatch(_titelLower, _fallback)) {
+      _beste = _fallback;
+    }
+    if (_beste) l.model = _beste;
   });
   // Deduplicatie: verwijder zelfde auto van meerdere platforms
   const _dedupMap = {};
