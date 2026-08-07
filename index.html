@@ -1590,7 +1590,7 @@ function toonResultaten(lijst) {
         </div>
         <div class="auto-card-footer">
           <span class="auto-bron-tag" style="color:${({'Marktplaats':'#0063D3','Gaspedaal':'#E87722','ViaBovag':'#003082','AutoScout24':'#FF6600','AutoTrack':'#1B5FA8'})[a.bron]||'#9ca3af'}">${a.bron||'—'}</span>
-          ${(a.dealScore!=null&&a.dealScore>0)?'<span class="auto-deal-pill" data-tip="Dealscore: vergelijkt prijs met soortgelijke occasions. Groen (60+) = goede deal, rood (<35) = duur." style="background:'+(a.dealScore>60?'#dcfce7':a.dealScore<35?'#fee2e2':'#fef9c3')+';color:'+(a.dealScore>60?'#15803d':a.dealScore<35?'#b91c1c':'#854d0e')+'">'+Math.round(a.dealScore)+' score</span>':''}
+          ${(a.dealScore!=null&&a.dealScore>0)?'<span class="auto-deal-pill" data-tip="Dealscore: vergelijkt prijs met soortgelijke occasions'+(a.dealBasis==='regressie'?', gecorrigeerd voor bouwjaar en km-stand':'')+'. Groen (60+) = goede deal, rood (<35) = duur." style="background:'+(a.dealScore>60?'#dcfce7':a.dealScore<35?'#fee2e2':'#fef9c3')+';color:'+(a.dealScore>60?'#15803d':a.dealScore<35?'#b91c1c':'#854d0e')+'">'+Math.round(a.dealScore)+' score</span>':''}
         </div></div>
     </div>`).join('') + (_paginaControls ? _paginaControls(gesorteerd.length, _pg, _pp) : '');
 }
@@ -4150,7 +4150,7 @@ window.zoekNu=function(){
       {l:'Brandstof',r:function(a){return a.brandstof||'—';}},
       {l:'Transmissie',r:function(a){return a.transmissie||'—';}},
       {l:'Bron',r:function(a){var m={'Marktplaats':'#0063D3','Gaspedaal':'#E87722','AutoScout24':'#FF6600','ViaBovag':'#003082'};var c=m[a.bron]||'#9ca3af';return '<span style="font-weight:700;color:'+c+'">'+(a.bron||'—')+'</span>';}},
-      {l:'Dealscore',r:function(a){var s=a.dealScore;if(s==null)return '—';var col=s>60?'#15803d':s<35?'#b91c1c':'#854d0e';var bg=s>60?'#dcfce7':s<35?'#fee2e2':'#fef9c3';return '<span style="background:'+bg+';color:'+col+';padding:3px 10px;border-radius:20px;font-size:12px;font-weight:700">'+Math.round(s)+' score</span>';}},
+      {l:'Dealscore',r:function(a){var s=a.dealScore;if(s==null)return '—';var col=s>60?'#15803d':s<35?'#b91c1c':'#854d0e';var bg=s>60?'#dcfce7':s<35?'#fee2e2':'#fef9c3';var basis=a.dealBasis==='regressie'?' <span style="font-weight:400;color:#9ca3af;font-size:11px">(obv bouwjaar+km)</span>':'';return '<span style="background:'+bg+';color:'+col+';padding:3px 10px;border-radius:20px;font-size:12px;font-weight:700">'+Math.round(s)+' score</span>'+basis;}},
     ];
     tabel.innerHTML='<table style="width:100%;border-collapse:collapse;font-size:14px">'
       +'<thead><tr><th style="width:28%;padding:10px 8px;text-align:left;border-bottom:2px solid #e8e8e3;font-size:11px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.4px">Kenmerk</th>'

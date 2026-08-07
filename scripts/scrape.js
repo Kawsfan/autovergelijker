@@ -1322,7 +1322,15 @@ async function main() {
   if (listings.length < voorFilter)
     console.log(`Ã°ÂÂÂ ${voorFilter - listings.length} outliers gefilterd (prijs/km buiten bereik)`);
 
-  // Ã¢ÂÂÃ¢ÂÂ LUCAS: DEAL SCORE (z-score per merk+model) Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
+  // ── LUCAS: DEAL SCORE v2 (regressie op bouwjaar+km binnen merk+model) ──
+  // v1 vergeleek de prijs alleen met het platte gemiddelde van de merk+model-groep,
+  // ongeacht bouwjaar/km-stand -- een auto die goedkoop is OMDAT hij oud en hoog-
+  // kilometer is kreeg daardoor dezelfde (hoge) score als een auto die echt goedkoop
+  // is voor zijn leeftijd/km-stand. Concreet fout voorbeeld uit de data: een Mitsubishi
+  // Grandis uit 2004 met 182.579 km kreeg dealScore 100 (beste deal van de site).
+  // v2 rekent per groep een verwachte prijs uit die corrigeert voor bouwjaar en
+  // km-stand (lineaire regressie, km als log() ivm afnemende meerwaarde per km),
+  // en vergelijkt de vraagprijs met díie verwachting i.p.v. met het platte gemiddelde.
   {
     const _extMerk = t => {
       const merken = ['Tesla','BMW','Mercedes','Audi','Volkswagen','VW','Ford','Toyota','Renault','Peugeot','Opel','Kia','Hyundai','Volvo','Seat','Skoda','Nissan','Honda','Mazda','Dacia','Porsche','Fiat'];
@@ -1331,30 +1339,92 @@ async function main() {
       return s.split(' ')[0];
     };
     const _extModel = t => ((t||'').split(' ').slice(1,3).join(' ')).toLowerCase();
+    // Groepeer bij voorkeur op de schone merk/model-velden (merk ~100%, model ~72%
+    // van de listings gevuld) i.p.v. uitsluitend een ruwe regex over de titel -- dat
+    // gaf voorheen te grove/inconsistente groepen omdat verschillende schrijfwijzes
+    // van dezelfde trim in aparte groepen belandden. Titel-parsing blijft fallback
+    // voor listings zonder model-veld.
+    const _groepKey = l => (l.merk || _extMerk(l.titel) || 'onbekend').toLowerCase() + '|' +
+      (l.model ? l.model.toLowerCase() : _extModel(l.titel));
+
+    // Gauss-Jordan-eliminatie (partial pivoting) voor het 3x3-stelsel van de OLS-
+    // regressie prijs = b0 + b1*bouwjaar + b2*log(km+1). Retourneert null bij een
+    // (bijna) singuliere matrix (bv. alle auto's in de groep exact hetzelfde bouwjaar).
+    function _solve3(A, b) {
+      const M = A.map((rij, i) => rij.concat([b[i]]));
+      for (let col = 0; col < 3; col++) {
+        let piv = col;
+        for (let r = col + 1; r < 3; r++) if (Math.abs(M[r][col]) > Math.abs(M[piv][col])) piv = r;
+        if (Math.abs(M[piv][col]) < 1e-9) return null;
+        const tmp = M[col]; M[col] = M[piv]; M[piv] = tmp;
+        for (let r = 0; r < 3; r++) {
+          if (r === col) continue;
+          const f = M[r][col] / M[col][col];
+          for (let c = col; c < 4; c++) M[r][c] -= f * M[col][c];
+        }
+      }
+      return [M[0][3] / M[0][0], M[1][3] / M[1][1], M[2][3] / M[2][2]];
+    }
+
     const groepen = {};
     for (const l of listings) {
       if (l.prijs == null) continue;
-      const key = _extMerk(l.titel) + '|' + _extModel(l.titel);
-      (groepen[key] = groepen[key] || []).push(l.prijs);
+      (groepen[_groepKey(l)] = groepen[_groepKey(l)] || []).push(l);
     }
-    const gStats = {};
-    for (const [key, prijzen] of Object.entries(groepen)) {
-      if (prijzen.length < 3) continue;
-      const gem = prijzen.reduce((a,b)=>a+b,0) / prijzen.length;
-      const std = Math.sqrt(prijzen.map(p=>(p-gem)**2).reduce((a,b)=>a+b,0) / prijzen.length);
-      gStats[key] = { gem, std };
+
+    const gModel = {};  // regressiecoëfficiënten + residu-std per groep (bouwjaar+km-gecorrigeerd)
+    const gFlat = {};   // plat prijs-gemiddelde/std per groep -- fallback voor kleine groepen
+                         // en listings zonder bouwjaar/km
+    for (const [key, items] of Object.entries(groepen)) {
+      const prijzen = items.map(l => l.prijs);
+      if (prijzen.length >= 3) {
+        const gem = prijzen.reduce((a,b)=>a+b,0) / prijzen.length;
+        const std = Math.sqrt(prijzen.map(p=>(p-gem)**2).reduce((a,b)=>a+b,0) / prijzen.length);
+        gFlat[key] = { gem, std };
+      }
+      // Regressie heeft genoeg vrijheidsgraden nodig om betrouwbaar te zijn (3
+      // parameters) -- onder de 8 complete datapunten vertrouwen we 'm niet en
+      // valt de groep terug op het platte gemiddelde hierboven.
+      const compleet = items.filter(l => l.jaar != null && l.km != null);
+      if (compleet.length < 8) continue;
+      let n=0,sJaar=0,sLogKm=0,sJaar2=0,sLogKm2=0,sJaarLogKm=0,sPrijs=0,sJaarPrijs=0,sLogKmPrijs=0;
+      for (const l of compleet) {
+        const j = l.jaar, lk = Math.log(l.km + 1), p = l.prijs;
+        n++; sJaar+=j; sLogKm+=lk; sJaar2+=j*j; sLogKm2+=lk*lk; sJaarLogKm+=j*lk;
+        sPrijs+=p; sJaarPrijs+=j*p; sLogKmPrijs+=lk*p;
+      }
+      const coef = _solve3(
+        [[n, sJaar, sLogKm], [sJaar, sJaar2, sJaarLogKm], [sLogKm, sJaarLogKm, sLogKm2]],
+        [sPrijs, sJaarPrijs, sLogKmPrijs]
+      );
+      if (!coef) continue;
+      const [b0, b1, b2] = coef;
+      const residuen = compleet.map(l => l.prijs - (b0 + b1*l.jaar + b2*Math.log(l.km + 1)));
+      const rStd = Math.sqrt(residuen.reduce((a,r)=>a+r*r,0) / n);
+      if (rStd >= 200) gModel[key] = { b0, b1, b2, std: rStd };
     }
-    let scored = 0;
+
+    let regressie = 0, groepScore = 0, onbekend = 0;
     for (const l of listings) {
-      if (l.prijs == null) { l.dealScore = 50; continue; }
-      const key = _extMerk(l.titel) + '|' + _extModel(l.titel);
-      const s = gStats[key];
-      if (!s || s.std < 200) { l.dealScore = 50; continue; }
+      if (l.prijs == null) { l.dealScore = 50; l.dealBasis = 'onbekend'; onbekend++; continue; }
+      const key = _groepKey(l);
+      const m = gModel[key];
+      if (m && l.jaar != null && l.km != null) {
+        const verwacht = m.b0 + m.b1*l.jaar + m.b2*Math.log(l.km + 1);
+        const z = (l.prijs - verwacht) / m.std;
+        l.dealScore = Math.round(Math.max(0, Math.min(100, ((-z + 3) / 6) * 100)));
+        l.dealBasis = 'regressie';
+        regressie++;
+        continue;
+      }
+      const s = gFlat[key];
+      if (!s || s.std < 200) { l.dealScore = 50; l.dealBasis = 'onbekend'; onbekend++; continue; }
       const z = (l.prijs - s.gem) / s.std;
       l.dealScore = Math.round(Math.max(0, Math.min(100, ((-z + 3) / 6) * 100)));
-      scored++;
+      l.dealBasis = 'groep';
+      groepScore++;
     }
-    console.log(`Ã°ÂÂÂ¯ DealScore (z-score) berekend voor ${scored} listings`);
+    console.log(`🎯 DealScore v2: ${regressie} obv bouwjaar/km-regressie, ${groepScore} obv groepsgemiddelde, ${onbekend} onbekend`);
   }
 
   // Ã¢ÂÂÃ¢ÂÂ LUCAS: PRIJS TREND Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
