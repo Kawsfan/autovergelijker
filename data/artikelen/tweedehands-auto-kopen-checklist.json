@@ -36,7 +36,7 @@
     },
     {
       "kop": "6. Vergelijk de vraagprijs met de markt",
-      "html": "<p>Een prijs die duidelijk onder vergelijkbare occasions ligt, is zelden toeval. Vergelijk merk, model, bouwjaar en km-stand met soortgelijke advertenties &mdash; bijvoorbeeld via de <a href=\"/\">marktanalyse op Carkijker</a> &mdash; om te zien of de vraagprijs realistisch is.</p>"
+      "html": "<p>Een prijs die duidelijk onder vergelijkbare occasions ligt, is zelden toeval. Vergelijk merk, model, bouwjaar en km-stand met soortgelijke advertenties &mdash; bijvoorbeeld via de <a href=\"/\">marktanalyse op Carkijker</a> of het <a href=\"/occasions/\">volledige occasion-aanbod per merk</a> &mdash; om te zien of de vraagprijs realistisch is.</p>"
     },
     {
       "kop": "7. Check of het een particuliere of zakelijke verkoop is",
@@ -52,5 +52,5 @@
     { "vraag": "Is een auto zonder onderhoudsboekje een probleem?", "antwoord": "Niet per definitie, maar het is een risico. Vraag naar facturen van onderhoudsbeurten als bewijs, en reken de kosten van een inhaalbeurt mee in je onderhandeling over de prijs." },
     { "vraag": "Hoe lang duurt een goede proefrit?", "antwoord": "Minimaal 15 tot 20 minuten, over verschillende soorten wegen. Een rondje van 5 minuten om de hoek is te kort om motor, versnellingsbak en onderstel goed te beoordelen." }
   ],
-  "gerelateerd": { "label": "Bekijk actuele occasions", "url": "/" }
+  "gerelateerd": { "label": "Bekijk occasions per merk", "url": "/occasions/" }
 }

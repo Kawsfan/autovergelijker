@@ -1,6 +1,21 @@
 #!/usr/bin/env node
 // generate-artikelen.js
 // Genereert statische HTML-pagina's voor /artikelen/* vanuit data/artikelen/*.json
+//
+// INTERNE LINKING (belangrijk bij het schrijven van een nieuw artikel!):
+// elk artikel dat een specifiek merk/model noemt, moet daarnaar linken op
+// /occasions/[merk]/ of /occasions/[merk]/[model]/ (zie occasions/ voor de
+// bestaande slugs -- let op afwijkende schrijfwijzen zoals "e-5008" i.p.v.
+// "5008"). Twee plekken om dat te doen:
+//   1. Inline in `secties[].html`, op de eerste natuurlijke vermelding van
+//      het merk/model (net als de bestaande RDW/NAP-links in de checklist).
+//   2. In `gerelateerd` -- mag een los {label,url}-object zijn, of een array
+//      van meerdere, voor artikelen die naar meerdere modellen/merken
+//      kunnen linken. Wijs bij voorkeur naar de specifieke occasion-pagina
+//      i.p.v. de homepage ("/"): dat is de indexeerbare landingspagina en
+//      geeft de meeste SEO-waarde door.
+// Zonder deze links wordt het artikel een SEO-doodlopend eind: geen
+// linkwaarde naar de 450+ occasions-pagina's, wat groei onnodig afremt.
 
 const fs   = require('fs');
 const path = require('path');
@@ -57,7 +72,7 @@ summary::marker{color:#d14413}
 details p{margin-top:.5rem;font-size:.88rem;color:#444}
 .gerelateerd-cta{margin-top:2rem;text-align:center;background:#d14413;border-radius:12px;padding:1.6rem}
 .gerelateerd-cta p{color:#fff;font-size:.95rem;margin-bottom:.8rem;font-weight:600}
-.gerelateerd-cta a{display:inline-block;background:#fff;color:#d14413;font-weight:700;font-size:.9rem;padding:.6rem 1.4rem;border-radius:8px;text-decoration:none}
+.gerelateerd-cta a{display:inline-block;background:#fff;color:#d14413;font-weight:700;font-size:.9rem;padding:.6rem 1.4rem;border-radius:8px;text-decoration:none;margin:.2rem .3rem}
 .back-link{display:inline-block;margin-top:2.5rem;color:#d14413;font-size:.875rem;text-decoration:none;font-weight:600}`;
 
 function buildArtikelPage(art) {
@@ -134,7 +149,10 @@ function buildArtikelPage(art) {
     '    ' + tocHtml + '\n' +
     '    <article>\n' + secties + '\n    </article>\n' +
     '    ' + faqHtml + '\n' +
-    (art.gerelateerd ? '    <div class="gerelateerd-cta"><p>Op zoek naar je volgende auto?</p><a href="' + art.gerelateerd.url + '">' + art.gerelateerd.label + ' &rarr;</a></div>\n' : '') +
+    (art.gerelateerd ? '    <div class="gerelateerd-cta"><p>Op zoek naar je volgende auto?</p>' +
+      (Array.isArray(art.gerelateerd) ? art.gerelateerd : [art.gerelateerd])
+        .map(function(g){ return '<a href="' + g.url + '">' + g.label + ' &rarr;</a>'; }).join('') +
+      '</div>\n' : '') +
     '    <p style="margin-top:1.5rem;font-size:.78rem;color:#999">' + geoText + '</p>\n' +
     '    <a href="/artikelen/" class="back-link">&larr; Alle artikelen</a>\n' +
     '  </div>\n</body>\n</html>';

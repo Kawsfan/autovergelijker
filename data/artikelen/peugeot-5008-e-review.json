@@ -12,11 +12,11 @@
   "secties": [
     {
       "kop": "Van huurauto-verrassing tot elektrische roadtrip",
-      "html": "<p>Als je in de binnenstad woont en werkt, is de kans groot dat een auto voor het dagelijks gebruik overbodig is &mdash; totdat de zomervakantie eraan komt en je er eentje huurt. De geboekte auto bleek echter niet beschikbaar, en in plaats daarvan kregen we een veel duurder model mee: de Peugeot 5008 e, een volledig elektrische auto. Het bleek een openbaring.</p>"
+      "html": "<p>Als je in de binnenstad woont en werkt, is de kans groot dat een auto voor het dagelijks gebruik overbodig is &mdash; totdat de zomervakantie eraan komt en je er eentje huurt. De geboekte auto bleek echter niet beschikbaar, en in plaats daarvan kregen we een veel duurder model mee: de <a href=\"/occasions/peugeot/e-5008/\">Peugeot 5008 e</a>, een volledig elektrische auto. Het bleek een openbaring.</p>"
     },
     {
       "kop": "Laden onderweg: minder gedoe dan verwacht",
-      "html": "<p>Vanwege de hoge brandstofprijzen hadden we al bewust gekozen voor een elektrische auto (de Peugeot 2008 e) &mdash; geen absurde prijzen voor een liter benzine, maar zo'n 80 cent voor een kilowattuur. De vraag was alleen: is het prijsverschil het ongemak van onderweg laden waard? Het antwoord is ja, niet omdat een volle accu zoveel goedkoper is &mdash; dat is het namelijk niet &mdash; maar omdat het ongemak niet bestaat.</p><p>Dat wil zeggen: het bestaat niet zodra je van tevoren tokens en laadpassen regelt. Onderweg laden bleek nergens een probleem: we reden van Amsterdam naar Florence en terug, en op die route struikel je bijna over de (snel)laadpalen. Vaak hoor je het argument dat laden tijd kost &mdash; 'je bent zo een half uur verder' &mdash; en dat klopt. Maar: nou en? Na drie uur rijden wil ik ook wel even de auto uit. Zo interessant of uitdagend is autorijden nu ook weer niet.</p>"
+      "html": "<p>Vanwege de hoge brandstofprijzen hadden we al bewust gekozen voor een elektrische auto (de <a href=\"/occasions/peugeot/e-2008/\">Peugeot 2008 e</a>) &mdash; geen absurde prijzen voor een liter benzine, maar zo'n 80 cent voor een kilowattuur. De vraag was alleen: is het prijsverschil het ongemak van onderweg laden waard? Het antwoord is ja, niet omdat een volle accu zoveel goedkoper is &mdash; dat is het namelijk niet &mdash; maar omdat het ongemak niet bestaat.</p><p>Dat wil zeggen: het bestaat niet zodra je van tevoren tokens en laadpassen regelt. Onderweg laden bleek nergens een probleem: we reden van Amsterdam naar Florence en terug, en op die route struikel je bijna over de (snel)laadpalen. Vaak hoor je het argument dat laden tijd kost &mdash; 'je bent zo een half uur verder' &mdash; en dat klopt. Maar: nou en? Na drie uur rijden wil ik ook wel even de auto uit. Zo interessant of uitdagend is autorijden nu ook weer niet.</p>"
     },
     {
       "kop": "Prijs en standaarduitrusting",
@@ -44,5 +44,8 @@
     { "vraag": "Hoeveel personen passen er in de Peugeot 5008 e?", "antwoord": "Tot 7 personen dankzij twee uitklapbare stoelen in de kofferbak. Met alle stoelen in gebruik blijft nog 259 liter kofferruimte over, tegenover 740 liter met de achterste stoelen ingeklapt." },
     { "vraag": "Wat is de actieradius van de Peugeot 5008 e?", "antwoord": "Afhankelijk van de uitvoering ligt de actieradius tussen de 500 en 660 &agrave; 668 kilometer op een volle accu." }
   ],
-  "gerelateerd": { "label": "Bekijk actuele occasions", "url": "/" }
+  "gerelateerd": [
+    { "label": "Bekijk Peugeot 5008 e occasions", "url": "/occasions/peugeot/e-5008/" },
+    { "label": "Bekijk Peugeot 2008 e occasions", "url": "/occasions/peugeot/e-2008/" }
+  ]
 }
