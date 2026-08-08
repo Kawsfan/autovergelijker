@@ -104,7 +104,11 @@
   .page { max-width: 720px; margin: 0 auto; padding: 40px 20px 64px; }
 
   .page h2 { font-size: 21px; font-weight: 800; color: var(--donker); line-height: 1.25; margin: 44px 0 18px; letter-spacing: -0.3px; }
-  .page h2:first-child { margin-top: 0; }
+  /* :first-child staat hier bewust NIET op ".page h2" zelf -- elke h2 is de
+     first-child van zijn eigen <section>, dus die selector zou alle vier de
+     h2's raken (elke sectie-kop verliest dan zijn margin-top) in plaats van
+     alleen de allereerste kop op de pagina. Vandaar de scope op de sectie. */
+  .page > section:first-child h2 { margin-top: 0; }
   .page p { font-size: 15.5px; color: var(--tekst); margin-bottom: 14px; }
   .page p:last-child { margin-bottom: 0; }
 
