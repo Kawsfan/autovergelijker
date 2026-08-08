@@ -1544,13 +1544,14 @@ async function main() {
   }
   console.log(' merken/: ' + _merkCount + ' merk-bestanden geschreven');
   // Ã¢ÂÂÃ¢ÂÂ Sitemap genereren Ã¢ÂÂÃ¢ÂÂ
-  const _merken = [...new Set((data.listings||[]).map(l => l.merk).filter(Boolean))].sort();
+  // Let op: hier bewust GEEN /?merk=xxx-URL per merk meer. Die canonicaliseren
+  // toch allemaal terug naar de homepage (zie <link rel="canonical"> in
+  // index.html), dus Google ziet ze als duplicate content -- puur
+  // crawlbudget-verspilling. De echte, indexeerbare merk-landingspagina's zijn
+  // /occasions/[merk]/, die generate-occasions.js hierna aan deze sitemap
+  // toevoegt.
   const _today = new Date().toISOString().slice(0,10);
   const _BASE = 'https://carkijker.nl/';
-  const _urlTags = _merken.map(m =>
-    '  <url>\n    <loc>' + _BASE + '?merk=' + encodeURIComponent(m.toLowerCase()) +
-    '</loc>\n    <changefreq>daily</changefreq>\n    <priority>0.7</priority>\n    <lastmod>' + _today + '</lastmod>\n  </url>'
-  ).join('\n');
   const _sitemap = [
     '<?xml version="1.0" encoding="UTF-8"?>',
     '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
@@ -1560,12 +1561,11 @@ async function main() {
     '    <priority>1.0</priority>',
     '    <lastmod>' + _today + '</lastmod>',
     '  </url>',
-    _urlTags,
     '</urlset>'
   ].join('\n');
   const _sitemapPad = path.join(process.cwd(), 'sitemap.xml');
   fs.writeFileSync(_sitemapPad, _sitemap);
-  console.log('\u{1F5FA}\uFE0F  Sitemap: ' + _merken.length + ' merken Ã¢ÂÂ ' + _sitemapPad);
+  console.log('\u{1F5FA}\uFE0F  Sitemap: basis geschreven (merk-queryvarianten verwijderd) Ã¢ÂÂ ' + _sitemapPad);
 
   // Ã¢ÂÂÃ¢ÂÂ Marktstatistieken bijwerken Ã¢ÂÂÃ¢ÂÂ
   try {
