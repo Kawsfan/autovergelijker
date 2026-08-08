@@ -103,7 +103,7 @@
 
   .page { max-width: 720px; margin: 0 auto; padding: 40px 20px 64px; }
 
-  .page h2 { font-size: 21px; font-weight: 800; color: var(--donker); margin: 44px 0 18px; letter-spacing: -0.3px; }
+  .page h2 { font-size: 21px; font-weight: 800; color: var(--donker); line-height: 1.25; margin: 44px 0 18px; letter-spacing: -0.3px; }
   .page h2:first-child { margin-top: 0; }
   .page p { font-size: 15.5px; color: var(--tekst); margin-bottom: 14px; }
   .page p:last-child { margin-bottom: 0; }
@@ -115,7 +115,7 @@
     padding: 24px 20px; box-shadow: 0 1px 4px rgba(0,0,0,.05);
   }
   .uniek-card .icoon { font-size: 22px; margin-bottom: 14px; display: block; }
-  .uniek-card h3 { font-size: 15px; font-weight: 700; color: var(--donker); margin-bottom: 10px; }
+  .uniek-card h3 { font-size: 15px; font-weight: 700; color: var(--donker); line-height: 1.25; margin-bottom: 10px; }
   .uniek-card p { font-size: 13.5px; color: var(--subtekst); margin: 0; line-height: 1.55; }
 
   .werkt-lijst { list-style: none; margin-top: 20px; display: grid; gap: 16px; }
@@ -127,7 +127,7 @@
     flex-shrink: 0; width: 34px; height: 34px; border-radius: 9px; background: #fff3ee;
     display: flex; align-items: center; justify-content: center; font-size: 16px;
   }
-  .werkt-lijst strong { color: var(--donker); display: block; margin-bottom: 8px; }
+  .werkt-lijst strong { color: var(--donker); display: block; line-height: 1.3; margin-bottom: 8px; }
   .werkt-lijst p { font-size: 14.5px; color: var(--tekst); margin: 0; }
 
   .contact-kaart {
@@ -171,7 +171,7 @@
   <section aria-labelledby="missie-titel">
     <h2 id="missie-titel">Onze missie</h2>
     <p>Carkijker is halverwege 2026 gelanceerd met één doel: iedereen die op zoek is naar een nieuwe of tweedehands auto in Nederland helpen de beste deal te vinden. Dat doen we door actuele marktdata overzichtelijk en transparant te presenteren, zodat je in één oogopslag ziet wat een eerlijke prijs is.</p>
-    <p>Een auto kopen kost normaal veel tijd: het aanbod is enorm verspreid over losse platforms, prijzen lopen sterk uiteen voor vergelijkbare auto's, en specificaties staan niet altijd even duidelijk vermeld. Carkijker brengt dat aanbod samen op één plek, zodat je door de bomen weer het bos ziet.</p>
+    <p>Een auto kopen kost normaal veel tijd: het aanbod is enorm verspreid over losse platforms, prijzen lopen sterk uiteen voor vergelijkbare auto's, en specificaties staan niet altijd even duidelijk vermeld. Carkijker brengt <a href="/occasions/">dat aanbod samen op één plek</a>, zodat je door de bomen weer het bos ziet.</p>
   </section>
 
   <section aria-labelledby="uniek-titel">
@@ -234,6 +234,13 @@
           <p>Met onze <a href="/tco/">total cost of ownership-calculator</a> zie je in een paar klikken ongeveer hoeveel je per maand kwijt bent aan brandstof, wegenbelasting en verzekering voor je huidige of toekomstige auto.</p>
         </div>
       </li>
+      <li>
+        <span class="werkt-ic">📰</span>
+        <div>
+          <strong>Koopgidsen en autotests.</strong>
+          <p>In onze <a href="/artikelen/">artikelen</a> lees je praktische checklists en onafhankelijke rijtesten, gebaseerd op dezelfde actuele marktdata die je ook op Carkijker zelf terugziet.</p>
+        </div>
+      </li>
     </ul>
   </section>
 
@@ -250,7 +257,7 @@
 
 <footer>
   <strong>Carkijker</strong>: dagelijks bijgewerkt vanuit Marktplaats, AutoScout24, Gaspedaal en ViaBOVAG.<br>
-  <a href="/">Terug naar zoeken</a> &nbsp;&middot;&nbsp; <a href="/occasions/">Occasions per merk</a> &nbsp;&middot;&nbsp; <a href="/tco/">Autokosten berekenen</a>
+  <a href="/">Terug naar zoeken</a> &nbsp;&middot;&nbsp; <a href="/occasions/">Occasions per merk</a> &nbsp;&middot;&nbsp; <a href="/tco/">Autokosten berekenen</a> &nbsp;&middot;&nbsp; <a href="/artikelen/">Artikelen</a>
 </footer>
 
 </body>
