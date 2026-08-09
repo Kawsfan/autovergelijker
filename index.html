@@ -472,6 +472,18 @@
     .detail-prijs-sub { font-size: 12px; color: var(--subtekst); text-align: right; }
     .detail-versie { font-size: 14px; color: var(--subtekst); margin-bottom: 16px; }
 
+    /* Badge-rij onder de titel: dealscore/dagen-online/dealer zijn al elders
+       berekend (grid-kaart) maar ontbraken tot nu toe in het detailpaneel zelf --
+       zelfde kleurtaal als de bestaande kaart-badges, maar inline i.p.v.
+       position:absolute (die zijn gemaakt om over een fotothumbnail te zweven). */
+    .detail-badges-row { display: flex; gap: 6px; flex-wrap: wrap; margin: 10px 0 2px; }
+    .detail-chip { font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 20px; display: inline-flex; align-items: center; gap: 4px; }
+    .detail-chip.tijd { background: var(--grijs); color: var(--subtekst); }
+    .detail-chip.tijd.recent { background: #fef3c7; color: #92400e; }
+    .detail-chip.tijd.lang { background: #fee2e2; color: #b91c1c; }
+    .detail-chip.eigenaar.dealer { background: #dbeafe; color: #1a56db; }
+    .detail-chip.eigenaar.particulier { background: #dcfce7; color: #16a34a; }
+
     .specs-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-bottom: 24px; }
     .spec-item { background: var(--grijs); border-radius: 8px; padding: 12px; text-align: center; }
     .spec-item .spec-icon { font-size: 20px; margin-bottom: 4px; }
@@ -1717,6 +1729,11 @@ function isDealer(a){
   if(b==='gaspedaal'||b==='viabovag'||b==='autoscout24')return true;
   var t=(a.titel||'').toLowerCase();
   if(['dealer','garage','occasions','autobedrijf','autohandel'].some(function(w){return t.includes(w);}))return true;
+  // Marktplaats is de enige bron hier met echte particuliere aanbieders --
+  // zonder dealer-signaalwoorden in de titel is dit vrijwel zeker een
+  // particuliere advertentie. Bij andere/onbekende bronnen blijft het "onbekend"
+  // (null) i.p.v. een gok op particulier.
+  if(b==='marktplaats')return false;
   return null;
 }
 function sorteer(lijst, sort) {
@@ -1739,46 +1756,19 @@ function sorteer(lijst, sort) {
 function herSorteer() { zoekNu(); }
 
 // ── DETAIL PANEL ──────────────────────────────────────────────────────────────
+// Geeft alleen nog het inhoudelijke oordeel terug (leeftijd/km-verhouding), niet
+// langer de losse specs (jaar/km/brandstof/carrosserie/locatie) -- die staan al
+// als chips in de specs-grid erboven, dus dat was een letterlijke herhaling.
 function genereerSamenvatting(a) {
-  const delen = [];
   const nu = 2026;
   const leeftijd = a.jaar ? (nu - a.jaar) : null;
-  if (a.jaar && a.km != null && leeftijd > 0) {
-    const kmPerJaar = Math.round(a.km / leeftijd);
-    let slijtage;
-    if (kmPerJaar < 8000) slijtage = 'een opvallend laag jaarkilometrage';
-    else if (kmPerJaar < 13000) slijtage = 'een laag jaarkilometrage';
-    else if (kmPerJaar < 18000) slijtage = 'een normaal jaarkilometrage';
-    else if (kmPerJaar < 25000) slijtage = 'een bovengemiddeld jaarkilometrage';
-    else slijtage = 'een hoog jaarkilometrage';
-    delen.push('Deze ' + a.titel + ' uit ' + a.jaar + ' heeft ' + a.km.toLocaleString('nl-NL') + ' km gereden — dat is ' + slijtage + ' van gemiddeld ' + kmPerJaar.toLocaleString('nl-NL') + ' km per jaar.');
-  } else if (a.jaar && a.km != null) {
-    delen.push('De kilometerstand is ' + a.km.toLocaleString('nl-NL') + ' km (bouwjaar ' + a.jaar + ').');
-  } else if (a.jaar) {
-    delen.push('Dit voertuig is uit ' + a.jaar + '.');
-  } else if (a.km != null) {
-    delen.push('De kilometerstand bedraagt ' + a.km.toLocaleString('nl-NL') + ' km.');
-  }
-  if (a.brandstof) {
-    const bMap = { 'Elektrisch': 'volledig elektrisch aangedreven', 'Benzine': 'voorzien van een benzinemotor', 'Diesel': 'voorzien van een dieselmotor', 'Hybride': 'hybride aangedreven', 'LPG': 'rijdend op LPG' };
-    const bTekst = bMap[a.brandstof] || ('rijdend op ' + a.brandstof.toLowerCase());
-    const tTekst = a.transmissie ? (' met ' + a.transmissie.toLowerCase() + ' versnellingsbak') : '';
-    delen.push('De auto is ' + bTekst + tTekst + '.');
-  }
-  if (a.carrosserie) {
-    const cMap = { 'SUV': 'een SUV', 'Sedan': 'een sedan', 'Hatchback': 'een hatchback', 'Stationwagen': 'een stationwagen', 'MPV': 'een MPV', 'Terreinwagen': 'een terreinwagen' };
-    delen.push('Het betreft ' + (cMap[a.carrosserie] || 'een ' + a.carrosserie.toLowerCase()) + '.');
-  }
-  if (a.locatie && a.locatie !== 'Nederland') {
-    delen.push('De auto staat te koop in ' + a.locatie + '.');
-  }
-  if (a.km != null && leeftijd != null) {
-    const kmPJ = leeftijd > 0 ? Math.round(a.km / leeftijd) : 99999;
-    if (leeftijd <= 3 && a.km < 30000) delen.push('Gezien het lage aantal kilometers en de jonge leeftijd betreft dit een uitstekend onderhouden occasion.');
-    else if (kmPJ < 10000 && leeftijd > 5) delen.push('Het lage jaarkilometrage wijst op een spaarzaam gebruik — een pluspunt voor de staat van het voertuig.');
-    else if (a.km > 200000) delen.push('Let op de hoge kilometerstand; een goede APK en onderhoudshistorie zijn aan te raden.');
-  }
-  return delen.length ? delen.join(' ') : '';
+  if (a.km == null || !leeftijd || leeftijd <= 0) return '';
+  const kmPJ = Math.round(a.km / leeftijd);
+  if (leeftijd <= 3 && a.km < 30000) return 'Gezien het lage aantal kilometers en de jonge leeftijd betreft dit een uitstekend onderhouden occasion.';
+  if (kmPJ < 10000 && leeftijd > 5) return 'Het lage jaarkilometrage wijst op een spaarzaam gebruik — een pluspunt voor de staat van het voertuig.';
+  if (a.km > 200000) return 'Let op de hoge kilometerstand; een goede APK en onderhoudshistorie zijn aan te raden.';
+  if (kmPJ >= 25000) return 'Het jaarkilometrage ligt met ' + kmPJ.toLocaleString('nl-NL') + ' km/jaar boven gemiddeld voor deze leeftijd — vraag naar onderhoudshistorie en bandenslijtage.';
+  return '';
 }
 
 function openDetail(id) {
@@ -1807,6 +1797,26 @@ function openDetail(id) {
           <div class="detail-prijs-sub">${a.bron || 'Gaspedaal'}</div>
         </div>
       </div>
+      ${(()=>{
+        // Dealscore/dagen-online/dealer staan al op de grid-kaart, maar
+        // verdwenen tot nu toe zodra je een advertentie opende -- juist hier,
+        // vlak voor de klik naar de bron, wil je die signalen kunnen zien.
+        var chips = '';
+        if (a.dealScore != null && a.dealScore > 0) {
+          var dsBg = a.dealScore>60?'#dcfce7':a.dealScore<35?'#fee2e2':'#fef9c3';
+          var dsCol = a.dealScore>60?'#15803d':a.dealScore<35?'#b91c1c':'#854d0e';
+          chips += '<span class="auto-deal-pill" data-tip="Dealscore: vergelijkt prijs met soortgelijke occasions'+(a.dealBasis==='regressie'?', gecorrigeerd voor bouwjaar en km-stand':'')+'. Groen (60+) = goede deal, rood (<35) = duur." style="background:'+dsBg+';color:'+dsCol+'">'+Math.round(a.dealScore)+' score</span>';
+        }
+        if (a.eersteGezien) {
+          var _d = Math.round((Date.now()-new Date(a.eersteGezien+'T12:00:00').getTime())/86400000);
+          if (_d >= 1 && _d < 14) chips += '<span class="detail-chip tijd recent">🕒 '+_d+' dagen online</span>';
+          else if (_d >= 14) chips += '<span class="detail-chip tijd lang">🕒 2+ weken online</span>';
+        }
+        var dl = isDealer(a);
+        if (dl === true) chips += '<span class="detail-chip eigenaar dealer">🏢 Dealer</span>';
+        else if (dl === false) chips += '<span class="detail-chip eigenaar particulier">🙋 Particulier</span>';
+        return chips ? '<div class="detail-badges-row">'+chips+'</div>' : '';
+      })()}
       <div class="detail-versie">${[a.brandstof, transLabel(a.transmissie), a.carrosserie].filter(Boolean).join(' · ')}</div>
       <div class="specs-grid">
         ${a.jaar ? `<div class="spec-item"><div class="spec-icon">📅</div><div class="spec-val">${a.jaar}</div><div class="spec-lbl">Bouwjaar</div></div>` : ''}
@@ -1815,32 +1825,38 @@ function openDetail(id) {
         ${a.transmissie ? `<div class="spec-item"><div class="spec-icon">⚙️</div><div class="spec-val">${transLabel(a.transmissie)}</div><div class="spec-lbl">${(window.lang||'nl')==='en'?"Transmission":"Transmissie"}</div></div>` : ''}
         <div class="spec-item"><div class="spec-icon">📍</div><div class="spec-val" style="font-size:12px">${escHtml(a.locatie || 'Nederland')}</div><div class="spec-lbl">${(window.lang||'nl')==='en'?"Location":"Locatie"}</div></div>
         ${a.carrosserie ? `<div class="spec-item"><div class="spec-icon">🚗</div><div class="spec-val">${a.carrosserie}</div><div class="spec-lbl">${(window.lang||'nl')==='en'?"Body type":"Carrosserie"}</div></div>` : ''}
+        ${(()=>{ var soh=/elektr|hybr/i.test(a.brandstof||'')?_parseSoh(a):null; return soh ? `<div class="spec-item"><div class="spec-icon">🔋</div><div class="spec-val">${soh.toLocaleString('nl-NL')}%</div><div class="spec-lbl">Accuconditie</div></div>` : ''; })()}
       </div>
-      ${genereerSamenvatting(a) ? `<div class="ai-samenvatting"><div class="ai-label">✦ Samenvatting</div><p>${escHtml(genereerSamenvatting(a))}</p></div>` : ''}
-
-      
+      ${genereerSamenvatting(a) ? `<div class="ai-samenvatting"><div class="ai-label">✦ Wat opvalt</div><p>${escHtml(genereerSamenvatting(a))}</p></div>` : ''}
       ${(()=>{
-        if(!a.prijsHistorie||a.prijsHistorie.length<1)return"";
-        var all=[].concat(a.prijsHistorie).concat([{datum:"Nu",prijs:a.prijs}]);
-        var prices=all.map(function(p){return+(p.prijs)||0;});
-        var minP=Math.min.apply(null,prices);
-        var maxP=Math.max.apply(null,prices);
-        var range=maxP-minP||1;
-        var n=prices.length;
-        var pts=prices.map(function(p,i){return((i/(n-1))*198+1).toFixed(1)+","+(47-((p-minP)/range)*44).toFixed(1);}).join(" ");
+        // Prijsontwikkeling en afschrijving gaan allebei over waardeontwikkeling
+        // -- voorheen twee losse blokken met dezelfde (niet-bestaande)
+        // var(--achtergrond), waardoor ze in elkaar overliepen. Nu één kaart
+        // met een eigen accentkleur, en alleen wat er daadwerkelijk is.
+        var chartHtml = '';
+        if (a.prijsHistorie && a.prijsHistorie.length >= 1) {
+          var all=[].concat(a.prijsHistorie).concat([{datum:"Nu",prijs:a.prijs}]);
+          var prices=all.map(function(p){return+(p.prijs)||0;});
+          var minP=Math.min.apply(null,prices);
+          var maxP=Math.max.apply(null,prices);
+          var range=maxP-minP||1;
+          var n=prices.length;
+          var pts=prices.map(function(p,i){return((i/(n-1))*198+1).toFixed(1)+","+(47-((p-minP)/range)*44).toFixed(1);}).join(" ");
           var startP=prices[0];var curP=+(a.prijs)||0;var delta=curP-startP;var deltaPct=(startP?(delta/startP*100):0).toFixed(1);var dCol=delta<0?'#16a34a':delta>0?'#dc2626':'var(--subtekst)';var dSym=delta<0?'▼':delta>0?'▲':'—';var dStr=delta!==0?dSym+' €'+Math.abs(delta).toLocaleString('nl-NL')+' ('+deltaPct+'%)':'Stabiel';
-        var dots=prices.map(function(p,i){var x=((i/(n-1))*198+1).toFixed(1);var y=(47-((p-minP)/range)*44).toFixed(1);return'<circle cx="'+x+'" cy="'+y+'" r="2.5" fill="var(--oranje)"/>';}).join('');
-        var out='<div style="margin:12px 0;padding:12px;background:var(--achtergrond);border-radius:10px;">';
-        out+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><div style="font-size:12px;color:var(--subtekst)">📈 Prijsontwikkeling</div><div style="font-size:12px;font-weight:700;color:'+dCol+'">'+dStr+'</div></div>';
-        out+='<svg width="100%" height="44" viewBox="0 0 200 50" preserveAspectRatio="none" style="display:block"><polyline points="'+pts+'" fill="none" stroke="var(--oranje)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>'+dots+'</svg>';
-        out+='<div style="display:flex;justify-content:space-between;font-size:11px;color:var(--subtekst);margin-top:4px"><span>'+all[0].datum+': €'+Number(startP).toLocaleString("nl-NL")+'</span><span>Nu: €'+Number(curP).toLocaleString("nl-NL")+'</span></div>';
-        out+='</div>';return out;
+          var dots=prices.map(function(p,i){var x=((i/(n-1))*198+1).toFixed(1);var y=(47-((p-minP)/range)*44).toFixed(1);return'<circle cx="'+x+'" cy="'+y+'" r="2.5" fill="var(--oranje)"/>';}).join('');
+          chartHtml = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><div style="font-size:12px;color:var(--subtekst)">Prijsverloop</div><div style="font-size:12px;font-weight:700;color:'+dCol+'">'+dStr+'</div></div>'
+            + '<svg width="100%" height="44" viewBox="0 0 200 50" preserveAspectRatio="none" style="display:block"><polyline points="'+pts+'" fill="none" stroke="var(--oranje)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>'+dots+'</svg>'
+            + '<div style="display:flex;justify-content:space-between;font-size:11px;color:var(--subtekst);margin-top:4px"><span>'+all[0].datum+': €'+Number(startP).toLocaleString("nl-NL")+'</span><span>Nu: €'+Number(curP).toLocaleString("nl-NL")+'</span></div>';
+        }
+        var afschrHtml = (a.afschrijvingJaar?'<div>Circa <b>€'+a.afschrijvingJaar.toLocaleString('nl-NL')+'</b> per jaar</div>':'')
+          + (a.afschrijvingKm?'<div>Circa <b>€'+a.afschrijvingKm.toLocaleString('nl-NL')+'</b> bij een verdubbeling van de km-stand</div>':'');
+        if (!chartHtml && !afschrHtml) return '';
+        return '<div style="margin:12px 0;padding:12px 14px;background:var(--grijs);border-left:3px solid #2563eb;border-radius:10px;font-size:13px;color:var(--tekst);line-height:1.6">'
+          + '<div style="font-size:11px;font-weight:700;color:#2563eb;letter-spacing:.04em;text-transform:uppercase;margin-bottom:8px">📉 Waardeontwikkeling</div>'
+          + chartHtml
+          + (chartHtml && afschrHtml ? '<div style="margin-top:8px;padding-top:8px;border-top:1px dashed var(--grijs2)">'+afschrHtml+'</div>' : afschrHtml)
+          + '</div>';
       })()}
-      ${(a.afschrijvingJaar || a.afschrijvingKm) ? '<div style="margin:12px 0;padding:12px;background:var(--achtergrond);border-radius:10px;font-size:13px;color:var(--tekst);line-height:1.6">'
-        +'<div style="font-size:12px;color:var(--subtekst);margin-bottom:4px">📉 Afschrijving (obv vergelijkbare advertenties)</div>'
-        +(a.afschrijvingJaar?'<div>Circa <b>€'+a.afschrijvingJaar.toLocaleString('nl-NL')+'</b> per jaar</div>':'')
-        +(a.afschrijvingKm?'<div>Circa <b>€'+a.afschrijvingKm.toLocaleString('nl-NL')+'</b> bij een verdubbeling van de km-stand</div>':'')
-        +'</div>' : ''}
       <div class="markt-inruil detail-inruil">
         <div class="markt-inruil-title">&#128176; Wat kost deze auto jou na inruil?</div>
         <div class="markt-inruil-row-input">
