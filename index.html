@@ -1756,19 +1756,29 @@ function sorteer(lijst, sort) {
 function herSorteer() { zoekNu(); }
 
 // ── DETAIL PANEL ──────────────────────────────────────────────────────────────
-// Geeft alleen nog het inhoudelijke oordeel terug (leeftijd/km-verhouding), niet
-// langer de losse specs (jaar/km/brandstof/carrosserie/locatie) -- die staan al
-// als chips in de specs-grid erboven, dus dat was een letterlijke herhaling.
+// Geeft alleen nog een inhoudelijk oordeel terug -- prijs t.o.v. vergelijkbare
+// occasions (dealScore) én leeftijd/km-verhouding -- niet langer de losse specs
+// (jaar/km/brandstof/carrosserie/locatie), die staan al als chips in de
+// specs-grid erboven en dat was een letterlijke herhaling. dealScore is de enige
+// van de twee die vrijwel altijd een uitspraak oplevert (35-60 = "gemiddeld"
+// blijft bewust stil, dat is niet iets wat "opvalt"); de km-verhouding vult dat
+// aan zodra dié wél opvallend is.
 function genereerSamenvatting(a) {
+  const delen = [];
+  if (a.dealScore != null && a.dealScore > 0) {
+    if (a.dealScore > 60) delen.push('Met een dealscore van ' + Math.round(a.dealScore) + ' staat deze auto gunstig geprijsd ten opzichte van vergelijkbare occasions.');
+    else if (a.dealScore < 35) delen.push('Met een dealscore van ' + Math.round(a.dealScore) + ' is deze auto relatief duur vergeleken met soortgelijke advertenties.');
+  }
   const nu = 2026;
   const leeftijd = a.jaar ? (nu - a.jaar) : null;
-  if (a.km == null || !leeftijd || leeftijd <= 0) return '';
-  const kmPJ = Math.round(a.km / leeftijd);
-  if (leeftijd <= 3 && a.km < 30000) return 'Gezien het lage aantal kilometers en de jonge leeftijd betreft dit een uitstekend onderhouden occasion.';
-  if (kmPJ < 10000 && leeftijd > 5) return 'Het lage jaarkilometrage wijst op een spaarzaam gebruik — een pluspunt voor de staat van het voertuig.';
-  if (a.km > 200000) return 'Let op de hoge kilometerstand; een goede APK en onderhoudshistorie zijn aan te raden.';
-  if (kmPJ >= 25000) return 'Het jaarkilometrage ligt met ' + kmPJ.toLocaleString('nl-NL') + ' km/jaar boven gemiddeld voor deze leeftijd — vraag naar onderhoudshistorie en bandenslijtage.';
-  return '';
+  if (a.km != null && leeftijd && leeftijd > 0) {
+    const kmPJ = Math.round(a.km / leeftijd);
+    if (leeftijd <= 3 && a.km < 30000) delen.push('Gezien het lage aantal kilometers en de jonge leeftijd betreft dit een uitstekend onderhouden occasion.');
+    else if (kmPJ < 10000 && leeftijd > 5) delen.push('Het lage jaarkilometrage wijst op een spaarzaam gebruik — een pluspunt voor de staat van het voertuig.');
+    else if (a.km > 200000) delen.push('Let op de hoge kilometerstand; een goede APK en onderhoudshistorie zijn aan te raden.');
+    else if (kmPJ >= 25000) delen.push('Het jaarkilometrage ligt met ' + kmPJ.toLocaleString('nl-NL') + ' km/jaar boven gemiddeld voor deze leeftijd — vraag naar onderhoudshistorie en bandenslijtage.');
+  }
+  return delen.join(' ');
 }
 
 function openDetail(id) {
