@@ -113,7 +113,11 @@ const MERKEN_DISPLAY = {
   volvo: 'Volvo', tesla: 'Tesla', mini: 'MINI', fiat: 'Fiat',
   porsche: 'Porsche', dacia: 'Dacia', citroen: 'Citroen', polestar: 'Polestar',
   suzuki: 'Suzuki', mitsubishi: 'Mitsubishi', alfa: 'Alfa Romeo',
-  'alfa-romeo': 'Alfa Romeo', jeep: 'Jeep',
+  'alfa-romeo': 'Alfa Romeo', 'alfa romeo': 'Alfa Romeo', jeep: 'Jeep',
+  // cap() title-cast alleen de allereerste letter van de hele string, dus
+  // zonder expliciete entry hier werden deze meerwoordige merken op de
+  // homepage/occasions-pagina's als "Land rover", "Lynk & co" etc. getoond.
+  'land rover': 'Land Rover', 'aston martin': 'Aston Martin', 'lynk & co': 'Lynk & Co',
 };
 
 function escHtml(s) {
@@ -154,6 +158,35 @@ function renderAutoCard(a, fallbackTitel) {
 }
 function cap(s) { return s ? s.charAt(0).toUpperCase() + s.slice(1) : ''; }
 function slugToDisplay(slug) { return MERKEN_DISPLAY[slug.toLowerCase()] || cap(slug); }
+
+// ── Statische "Occasions per merk"-links op de homepage ──
+// index.html vult #merken-links-grid ook zelf, client-side (_renderMerkenLinks),
+// maar pas nadat listings.json via JS is opgehaald. Crawlers die geen
+// JavaScript uitvoeren -- waaronder GPTBot, ClaudeBot, PerplexityBot en CCBot,
+// allemaal expliciet toegestaan in robots.txt -- zien dan alleen een lege div
+// en dus geen enkele link naar de 450+ occasions-pagina's. Deze functie zet er
+// daarom ook een statische set links in (zelfde opmaak/aantal als de
+// client-side versie), die bij een live bezoek gewoon door de JS-render wordt
+// overschreven zodra de actuele listings binnen zijn.
+function updateHomepageMerkenLinks(merkCounts) {
+  const indexPath = path.join(process.cwd(), 'index.html');
+  if (!fs.existsSync(indexPath)) return;
+  let html = fs.readFileSync(indexPath, 'utf-8');
+  const top = Object.entries(merkCounts)
+    .filter(function(e) { return e[1] >= MIN_MERK_COUNT; })
+    .sort(function(a, b) { return b[1] - a[1]; })
+    .slice(0, 16);
+  if (!top.length) return;
+  const links = top.map(function(e) {
+    return '<a href="/occasions/' + e[0] + '/" style="display:inline-flex;align-items:center;gap:.3rem;background:#fff;border:1px solid #e5e5ea;border-radius:20px;padding:.3rem .9rem;font-size:.83rem;color:#1a56db;text-decoration:none">' +
+      slugToDisplay(e[0]) + ' <span style="color:#aaa;font-size:.75rem">(' + e[1] + ')</span></a>';
+  }).join('');
+  const re = /<div id="merken-links-grid"[^>]*>[\s\S]*?<\/div>/;
+  if (!re.test(html)) { console.warn('  index.html: #merken-links-grid niet gevonden, overgeslagen'); return; }
+  html = html.replace(re, '<div id="merken-links-grid" style="display:flex;flex-wrap:wrap;gap:.4rem">' + links + '</div>');
+  fs.writeFileSync(indexPath, html, 'utf-8');
+  console.log('  index.html: statische merken-links bijgewerkt (' + top.length + ' merken)');
+}
 
 function extraheerMerk(titel) {
   if (!titel) return '';
@@ -548,6 +581,8 @@ function main() {
       validModelDirs[merkSlug].add(modelSlug);
     });
   });
+
+  updateHomepageMerkenLinks(merkCounts);
 
   // Merk/model-URLs verzamelen voor de sitemap (encodeURIComponent i.v.m.
   // merknamen met een spatie, zoals "alfa romeo" of "aston martin").
