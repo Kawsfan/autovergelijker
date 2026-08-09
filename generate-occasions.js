@@ -566,10 +566,36 @@ function main() {
     validModelDirs[merkSlug] = new Set();
 
     const mc = {};
+    // Sla de volledige merknaam over, ook als die uit meerdere woorden bestaat
+    // (bv. "alfa romeo", "land rover", "aston martin", "lynk & co") -- anders wordt
+    // het tweede woord van de merknaam zélf (bv. "romeo", "rover", "martin") ten
+    // onrechte als modelnaam gezien. Elk woord van de merkslug wordt tegen de
+    // titel gematcht, waarbij een los "&"-teken in de titel wordt overgeslagen
+    // (sommige advertenties spellen "Lynk & Co" zonder het teken). Begint de titel
+    // niet met de merknaam (de verzamelcategorie "overig" bv. is geen woord uit de
+    // advertentietitel zelf), dan valt dit terug op de oude aanname van precies
+    // één woord vóór het model, zodat dat gedrag daar ongewijzigd blijft.
     // # en ? zijn ongeldig in gedeployde bestandsnamen (Netlify) en werken sowieso
     // niet als padsegment in een URL (# is een fragment-scheidingsteken) — verwijderen
     // vóórdat dit als mapnaam/modelSlug gebruikt wordt (bv. modelnamen als "Smart #1").
-    filtered.forEach(function(a){ const w=(a.titel||'').toLowerCase().split(' '); if(w.length>1){const m=(w[1]||'').replace(/[#?]/g,'');if(m&&m.length>1&&!/^\d+$/.test(m))mc[m]=(mc[m]||0)+1;} });
+    const merkWoorden = merkSlug.split(' ').filter(function(x){ return x && x !== '&'; });
+    filtered.forEach(function(a){
+      const w = (a.titel||'').toLowerCase().split(' ');
+      let idx = 0;
+      if (w[0] === merkWoorden[0]) {
+        merkWoorden.forEach(function(mw){ while (w[idx] === '&') idx++; if (w[idx] === mw) idx++; });
+        while (w[idx] === '&') idx++;
+      } else {
+        idx = 1;
+      }
+      if (w.length > idx) {
+        // Trailing komma (bv. bij chassisaanduidingen als "109," of "88,") eraf
+        // strippen vóór de puur-numerieke check, anders glipt zo'n aanduiding
+        // er als "model" doorheen terwijl het gewoon een getal is.
+        const m = (w[idx]||'').replace(/[#?]/g,'').replace(/,+$/,'');
+        if (m && m.length>1 && !/^\d+$/.test(m)) mc[m]=(mc[m]||0)+1;
+      }
+    });
     Object.entries(mc).filter(function(e){return e[1]>=MIN_MODEL_COUNT;}).sort(function(a,b){return b[1]-a[1];}).slice(0,MAX_MODELS).forEach(function(me){
       const modelSlug=me[0];
       const mf=filtered.filter(function(a){return (a.titel||'').toLowerCase().includes(modelSlug);});
