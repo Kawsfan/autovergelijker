@@ -44,6 +44,31 @@ const GA_SNIPPET =
   '<script async src="https://www.googletagmanager.com/gtag/js?id=G-TD2KWCXTV3"><\/script>' +
   '<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}' +
   "gtag('js',new Date());gtag('config','G-TD2KWCXTV3');<\/script>";
+// Zelfde delegated click-listener als index.html (zie outUrl() aldaar): elke
+// advertentiekaart hier is al één grote <a data-out ...>, dus één listener op
+// document volstaat i.p.v. per kaart een handler. Geen server-kant nodig --
+// puur client-side, net als op de homepage.
+const OUT_TRACK_SNIPPET =
+  '<script>document.addEventListener(\'click\',function(e){' +
+  'var el=e.target.closest&&e.target.closest(\'[data-out]\');' +
+  'if(!el||typeof gtag!==\'function\')return;' +
+  "gtag('event','click_uitgaande_listing',{" +
+  "bron:el.getAttribute('data-bron')||''," +
+  "merk:el.getAttribute('data-merk')||''," +
+  "prijs:Number(el.getAttribute('data-prijs'))||undefined});" +
+  '});<\/script>';
+// Voegt UTM's toe aan een uitgaande listing-URL, zodat de bron-site ziet dat
+// het verkeer van Carkijker komt (nodig zodra er affiliate-deals zijn).
+function outUrl(url, bron) {
+  if (!url) return url;
+  try {
+    const u = new URL(url);
+    u.searchParams.set('utm_source', 'carkijker');
+    u.searchParams.set('utm_medium', 'referral');
+    u.searchParams.set('utm_campaign', (bron || 'occasions').toLowerCase().replace(/[^a-z0-9]+/g, '-'));
+    return u.toString();
+  } catch (e) { return url; }
+}
 // Fallback voor een advertentie-foto die wél een imgSrc had maar niet laadt
 // (404, hotlink-blokkade) -- zonder dit toont de browser hier het kale
 // kapot-plaatje-icoon, dezelfde bugklasse als eerder al gefixt voor de
@@ -145,7 +170,8 @@ function renderAutoCard(a, fallbackTitel) {
     a.brandstof ? '<span class="auto-spec-chip"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 22V8l9-6 9 6v14"/><line x1="9" y1="22" x2="9" y2="12"/><line x1="15" y1="22" x2="15" y2="12"/><rect x="9" y="12" width="6" height="10"/></svg>' + escHtml(a.brandstof) + '</span>' : '',
     a.transmissie ? '<span class="auto-spec-chip">' + escHtml(a.transmissie) + '</span>' : '',
   ].join('');
-  return '<a href="' + escHtml(a.url) + '" target="_blank" rel="noopener noreferrer" class="auto-card" itemscope itemtype="https://schema.org/Car">' +
+  return '<a href="' + escHtml(outUrl(a.url, a.bron)) + '" target="_blank" rel="noopener noreferrer" class="auto-card" itemscope itemtype="https://schema.org/Car"' +
+    ' data-out data-bron="' + escHtml(a.bron || '') + '" data-merk="' + escHtml(a.merk || '') + '" data-prijs="' + (a.prijs || '') + '">' +
     '<div class="auto-foto">' +
     (a.imgSrc ? '<img src="' + escHtml(a.imgSrc) + '" alt="' + escHtml(titel) + '" loading="lazy" width="280" height="158" onerror="_fotoFout(this)">' : FOTO_LEEG_HTML) +
     (a.bron ? '<span class="bron-label bron-' + bronClass(a.bron) + '">' + escHtml(a.bron) + '</span>' : '') +
@@ -273,7 +299,7 @@ function buildPage({ merkSlug, modelSlug, filtered, listings }) {
     (gemPrijs ? '<a href="' + marktHref + '" class="stat"><span class="stat-lbl">Gem. vraagprijs</span><strong>&euro; ' + fmt(gemPrijs) + '</strong></a>' : '') +
     (medPrijs ? '<a href="' + marktHref + '" class="stat"><span class="stat-lbl">Mediaanprijs</span><strong>&euro; ' + fmt(medPrijs) + '</strong></a>' : '') +
     (medKm    ? '<a href="' + marktHref + '" class="stat"><span class="stat-lbl">Mediaan km</span><strong>' + fmt(medKm) + ' km</strong></a>' : '') +
-    (goedkoop ? '<a href="' + (goedkoop.url ? escHtml(goedkoop.url) : '#aanbod') + '"' + (goedkoop.url ? ' target="_blank" rel="noopener noreferrer"' : '') + ' class="stat"><span class="stat-lbl">Goedkoopste</span><strong>&euro; ' + fmt(goedkoop.prijs) + (goedkoop.jaar ? ' (' + goedkoop.jaar + ')' : '') + '</strong></a>' : '') +
+    (goedkoop ? '<a href="' + (goedkoop.url ? escHtml(outUrl(goedkoop.url, goedkoop.bron)) : '#aanbod') + '"' + (goedkoop.url ? ' target="_blank" rel="noopener noreferrer" data-out data-bron="' + escHtml(goedkoop.bron || '') + '" data-merk="' + escHtml(goedkoop.merk || '') + '" data-prijs="' + (goedkoop.prijs || '') + '"' : '') + ' class="stat"><span class="stat-lbl">Goedkoopste</span><strong>&euro; ' + fmt(goedkoop.prijs) + (goedkoop.jaar ? ' (' + goedkoop.jaar + ')' : '') + '</strong></a>' : '') +
     '</div>';
 
   let merkLinks = '';
@@ -399,6 +425,7 @@ const MERK_INTRO = {
     '  <meta charset="UTF-8">\n' +
     '  <meta name="viewport" content="width=device-width,initial-scale=1">\n' +
     '  ' + GA_SNIPPET + '\n' +
+    '  ' + OUT_TRACK_SNIPPET + '\n' +
     '  ' + FOTO_FOUT_SCRIPT + '\n' +
     '  <title>'+pageTitle+'</title>\n' +
     '  <meta name="description" content="'+metaDesc+'">\n' +
@@ -477,6 +504,7 @@ function buildStadPage(stadSlug, stad, filtered, listings, landelijkeStats) {
   return '<!doctype html><html lang="nl"><head>'+
     '<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'+
     GA_SNIPPET +
+    OUT_TRACK_SNIPPET +
     FOTO_FOUT_SCRIPT +
     '<title>Tweedehands auto '+stad.naam+' | Carkijker</title>'+
     '<meta name="description" content="Bekijk '+filtered.length+' tweedehands auto occasions in '+stad.naam+', '+stad.regio+'. Vergelijk prijzen en vind jouw ideale occasion.">'+

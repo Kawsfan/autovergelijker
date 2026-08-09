@@ -310,6 +310,12 @@
     /* AUTO GRID */
     .auto-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 18px; }
 
+    /* Tier 2: gereserveerde, nog niet actieve advertentieplek tussen de
+       resultaten (zie ADS_ENABLED in de script -- staat uit tot er genoeg
+       verkeer is). Spant de volle rijbreedte, met een vaste min-height zodat
+       er straks geen layout shift ontstaat zodra ie wél gevuld wordt. */
+    .ad-slot { grid-column: 1 / -1; min-height: 250px; display: flex; align-items: center; justify-content: center; background: var(--grijs1, #f5f5f3); border-radius: 12px; color: var(--subtekst); font-size: 12px; }
+
     .auto-card {
       background: #fff; border-radius: 14px; overflow: hidden;
       box-shadow: 0 1px 4px rgba(0,0,0,.06), 0 4px 16px rgba(0,0,0,.04);
@@ -1218,10 +1224,40 @@ function dedupAutos(arr){var seen={};return arr.filter(function(a){if(!a.prijs||
 // zulke tekst MOET hierdoorheen vóór 'ie in innerHTML/attributen terechtkomt, anders is
 // het een opgeslagen XSS-vector.
 function escHtml(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
+// Uitgaande listing-links krijgen UTM's mee (zodat de bron-site ziet dat het
+// verkeer van Carkijker komt) én een eigen GA4-event bij klik (zodat wíj kunnen
+// aantonen hoeveel leads een advertentiebron/affiliate-partner oplevert, i.p.v.
+// te moeten vertrouwen op wat de bron zelf terugrapporteert). Geen server-kant
+// nodig: puur client-side, dus geen nieuwe infra op een tot nu toe volledig
+// statische site.
+function outUrl(url, bron) {
+  if (!url) return url;
+  try {
+    var u = new URL(url);
+    u.searchParams.set('utm_source', 'carkijker');
+    u.searchParams.set('utm_medium', 'referral');
+    u.searchParams.set('utm_campaign', (bron||'occasions').toLowerCase().replace(/[^a-z0-9]+/g,'-'));
+    return u.toString();
+  } catch (e) { return url; }
+}
+document.addEventListener('click', function(e){
+  var el = e.target.closest && e.target.closest('[data-out]');
+  if (!el || typeof gtag !== 'function') return;
+  gtag('event', 'click_uitgaande_listing', {
+    bron: el.getAttribute('data-bron') || '',
+    merk: el.getAttribute('data-merk') || '',
+    prijs: Number(el.getAttribute('data-prijs')) || undefined
+  });
+});
 let alleResultaten = [];
 let huidigDetailId = null;
 let transmissieActief = '';
 const VANDAAG = new Date().toISOString().split('T')[0];
+// Tier 2 groei-prioriteit: plek voor één advertentie tussen de resultaten is
+// gereserveerd (zie .ad-slot / renderAutoResultaten), maar nog niet actief --
+// bij te weinig verkeer levert een advertentienetwerk nog niets op. Zet dit
+// op true (en koppel een netwerkscript) zodra dat de moeite waard is.
+window.ADS_ENABLED = false;
 
 // ── LADEN ─────────────────────────────────────────────────────────────────────
 async function laadListings() {
@@ -1572,7 +1608,7 @@ function toonResultaten(lijst) {
 
   var _pp=24, _pg=window._pagina||1;
     var _slice=gesorteerd.slice((_pg-1)*_pp, _pg*_pp);
-    document.getElementById('autoGrid').innerHTML = _slice.map((a, _i) => `
+    var _cardsHtml = _slice.map((a, _i) => `
     <div class="auto-card" onclick="openDetail('${a.id}')">
       <div class="auto-foto">
         <button class="fav-btn${_favs.has(a.id)?' fav-actief':''}" data-fav="${a.id}" onclick="toggleFav(event,'${a.id}')" title="Fav">${_favs.has(a.id)?'♥':'♡'}</button>
@@ -1623,7 +1659,16 @@ function toonResultaten(lijst) {
           <span class="auto-bron-tag" style="color:${({'Marktplaats':'#0063D3','Gaspedaal':'#E87722','ViaBovag':'#003082','AutoScout24':'#FF6600','AutoTrack':'#1B5FA8'})[a.bron]||'#9ca3af'}">${a.bron||'—'}</span>
           ${(a.dealScore!=null&&a.dealScore>0)?'<span class="auto-deal-pill" data-tip="Dealscore: vergelijkt prijs met soortgelijke occasions'+(a.dealBasis==='regressie'?', gecorrigeerd voor bouwjaar en km-stand':'')+'. Groen (60+) = goede deal, rood (<35) = duur." style="background:'+(a.dealScore>60?'#dcfce7':a.dealScore<35?'#fee2e2':'#fef9c3')+';color:'+(a.dealScore>60?'#15803d':a.dealScore<35?'#b91c1c':'#854d0e')+'">'+Math.round(a.dealScore)+' score</span>':''}
         </div></div>
-    </div>`).join('') + (_paginaControls ? _paginaControls(gesorteerd.length, _pg, _pp) : '');
+    </div>`);
+    // Tier 2: één rustige, gereserveerde advertentieplek na de 8e kaart op
+    // pagina 1 -- ADS_ENABLED staat uit tot er genoeg verkeer is, dus dit
+    // voegt momenteel niets toe aan de output. De .ad-slot-CSS (vaste
+    // min-height) staat al klaar zodat activeren later geen layout shift geeft.
+    var _adSlot = (window.ADS_ENABLED && _pg===1 && _cardsHtml.length>8)
+      ? '<div class="ad-slot" data-ad-slot="grid-1" aria-hidden="true"></div>' : '';
+    document.getElementById('autoGrid').innerHTML =
+      (_adSlot ? _cardsHtml.slice(0,8).join('')+_adSlot+_cardsHtml.slice(8).join('') : _cardsHtml.join(''))
+      + (_paginaControls ? _paginaControls(gesorteerd.length, _pg, _pp) : '');
 }
 
 function extraheerMerk(titel){
@@ -1811,7 +1856,7 @@ function openDetail(id) {
         <div id="dInruilLeeg" class="markt-leeg" style="display:none;padding:10px 0 0;font-size:13px">Vul hierboven merk en model van jouw huidige auto in.</div>
         <div id="dInruilUitkomst" style="display:none;font-size:13px;line-height:1.55;margin-top:10px"></div>
       </div>
-      <a href="${escHtml(a.url)}" target="_blank" rel="noopener noreferrer" style="display:block;background:#e84c15;color:white;text-align:center;padding:14px 20px;border-radius:10px;font-size:15px;font-weight:700;text-decoration:none;margin:16px 0">${(window.lang||'nl')==='en'?"View listing on":"Bekijk advertentie op"} ${a.bron||'bron'} &rarr;</a>
+      <a href="${escHtml(outUrl(a.url,a.bron))}" target="_blank" rel="noopener noreferrer" data-out data-bron="${escHtml(a.bron||'')}" data-merk="${escHtml(a.merk||'')}" data-prijs="${a.prijs||''}" style="display:block;background:#e84c15;color:white;text-align:center;padding:14px 20px;border-radius:10px;font-size:15px;font-weight:700;text-decoration:none;margin:16px 0">${(window.lang||'nl')==='en'?"View listing on":"Bekijk advertentie op"} ${a.bron||'bron'} &rarr;</a>
       <p style="font-size:12px;color:var(--subtekst);margin-top:8px;text-align:center">
         Foto's en volledige omschrijving staan op de originele advertentie.
       </p>
@@ -1870,7 +1915,7 @@ function galRender() {
     var auto = (window._alleAutos || []).find(function(a) { return a.id === window.huidigDetailId; });
     if (auto && auto.url) {
       mf.style.display = '';
-      mf.innerHTML = '📷 Meer foto’s zien? <a href="'+auto.url+'" target="_blank" rel="noopener" style="color:#e84c15;font-weight:600;text-decoration:none">Bekijk de advertentie →</a>';
+      mf.innerHTML = '📷 Meer foto’s zien? <a href="'+escHtml(outUrl(auto.url,auto.bron))+'" target="_blank" rel="noopener" data-out data-bron="'+escHtml(auto.bron||'')+'" data-merk="'+escHtml(auto.merk||'')+'" data-prijs="'+(auto.prijs||'')+'" style="color:#e84c15;font-weight:600;text-decoration:none">Bekijk de advertentie →</a>';
     } else {
       mf.style.display = 'none';
     }
@@ -2283,7 +2328,7 @@ function openVergelijk() {
       : '<div class="vgl-car-no-img">=€</div>';
     var nm = escHtml(a.titel || ((_getMerk(a.titel)||'')+' '+(_getModel(a.titel)||'')).trim() || 'Onbekend');
     var prijs = a.prijs ? '€'+a.prijs.toLocaleString('nl-NL') : 'Prijs onbekend';
-    var link = a.url ? '<a href="'+escHtml(a.url)+'" target="_blank" class="vgl-lb-link">Bekijk advertentie →</a>' : '';
+    var link = a.url ? '<a href="'+escHtml(outUrl(a.url,a.bron))+'" target="_blank" class="vgl-lb-link" data-out data-bron="'+escHtml(a.bron||'')+'" data-merk="'+escHtml(a.merk||'')+'" data-prijs="'+(a.prijs||'')+'">Bekijk advertentie →</a>' : '';
     return '<div class="vgl-car-col">'+img+'<div class="vgl-car-name">'+nm+'</div><div class="vgl-car-prijs">'+prijs+'</div>'+link+'</div>';
   }).join('');
   var specRows = specs.map(function(sp) {
@@ -2453,7 +2498,7 @@ function openVergelijk(){
     return '<th class="vgl-car-th">'+imgH
       +'<div class="vgl-car-ttl">'+escHtml(a.titel||'')+'</div>'
       +'<div class="vgl-car-prc">'+prijs+'</div>'
-      +(a.url?'<a href="'+escHtml(a.url)+'" target="_blank" class="vgl-car-btn">Bekijk →</a>':'')
+      +(a.url?'<a href="'+escHtml(outUrl(a.url,a.bron))+'" target="_blank" class="vgl-car-btn" data-out data-bron="'+escHtml(a.bron||'')+'" data-merk="'+escHtml(a.merk||'')+'" data-prijs="'+(a.prijs||'')+'">Bekijk →</a>':'')
       +'</th>';
   }).join('');
   var rows=specs.map(function(sp){
@@ -2887,7 +2932,7 @@ function sluitMarkt() {
     document.getElementById('mDealsBody').innerHTML=dealsData.length?dealsData.map(function(d){
       var cls=d.pct<-20?'markt-deal-hot':'markt-deal-ok';
       var naam=escHtml((d.a.titel||'').slice(0,32)+(d.a.titel&&d.a.titel.length>32?'…':''));
-      var link=d.a.url?'<a href="'+escHtml(d.a.url)+'" target="_blank" style="color:inherit;text-decoration:none">'+naam+'</a>':naam;
+      var link=d.a.url?'<a href="'+escHtml(outUrl(d.a.url,d.a.bron))+'" target="_blank" style="color:inherit;text-decoration:none" data-out data-bron="'+escHtml(d.a.bron||'')+'" data-merk="'+escHtml(d.a.merk||'')+'" data-prijs="'+(d.a.prijs||'')+'">'+naam+'</a>':naam;
       return '<tr><td style="color:var(--subtekst);font-size:12px">'+link+'</td><td>'+fmt(d.a.prijs)+'</td><td><span class="markt-deal-badge '+cls+'">'+d.pct+'%</span></td></tr>';
     }).join(''):'<tr><td colspan="3" style="color:var(--subtekst);padding:10px 8px">Geen opvallende deals</td></tr>';
 
@@ -4235,7 +4280,7 @@ window.zoekNu=function(){
       }).join('')
       +'</tbody></table>'
       +'<div style="display:flex;gap:10px;margin-top:20px;flex-wrap:wrap">'
-      +sel.map(function(a){return '<a href="'+escHtml(a.url||'#')+'" target="_blank" style="flex:1;min-width:140px;padding:12px 16px;background:#e84c15;color:white;border-radius:8px;text-align:center;text-decoration:none;font-weight:700;font-size:14px">Bekijk op '+(a.bron||'bron')+' →</a>';}).join('')
+      +sel.map(function(a){return '<a href="'+escHtml(a.url?outUrl(a.url,a.bron):'#')+'" target="_blank" data-out data-bron="'+escHtml(a.bron||'')+'" data-merk="'+escHtml(a.merk||'')+'" data-prijs="'+(a.prijs||'')+'" style="flex:1;min-width:140px;padding:12px 16px;background:#e84c15;color:white;border-radius:8px;text-align:center;text-decoration:none;font-weight:700;font-size:14px">Bekijk op '+(a.bron||'bron')+' →</a>';}).join('')
       +'</div>';
     document.getElementById('vglModal2').style.display='block';
     document.body.style.overflow='hidden';
