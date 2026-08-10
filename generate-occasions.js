@@ -541,6 +541,32 @@ function buildStadPage(stadSlug, stad, filtered, listings, landelijkeStats) {
     }
   }
   const cards = filtered.slice(0,24).map(function(l){ return renderAutoCard(l, stad.naam); }).join('');
+
+  // Structured data -- ontbrak hier volledig (in tegenstelling tot buildPage(),
+  // dat wel ItemList/BreadcrumbList/FAQPage schema meegeeft aan merk/model-
+  // pagina's). Zelfde ItemList+BreadcrumbList-patroon, zodat GPTBot/ClaudeBot/
+  // PerplexityBot/CCBot (die geen JS uitvoeren) ook op de 12 stad-pagina's
+  // machineleesbare aanbodinfo krijgen i.p.v. alleen de platte HTML-kaarten.
+  const stadSchemaItems = filtered.slice(0, 12).map(function(l, i) {
+    const item = {
+      '@type': 'Car', 'name': l.titel || stad.naam,
+      'brand': { '@type': 'Brand', 'name': l.merk || 'Onbekend' },
+      'offers': { '@type': 'Offer', 'price': l.prijs, 'priceCurrency': 'EUR', 'availability': 'https://schema.org/InStock' },
+    };
+    if (l.url)         item.offers.url = l.url;
+    if (l.jaar)        item.vehicleModelDate = String(l.jaar);
+    if (l.km)          item.mileageFromOdometer = { '@type': 'QuantitativeValue', value: l.km, unitCode: 'KMT' };
+    if (l.brandstof)   item.fuelType = l.brandstof;
+    if (l.transmissie) item.vehicleTransmission = l.transmissie;
+    return { '@type': 'ListItem', position: i + 1, item: item };
+  });
+  const stadSchema = { '@context': 'https://schema.org', '@type': 'ItemList', 'name': 'Tweedehands auto occasions '+stad.naam, 'numberOfItems': filtered.length, 'itemListElement': stadSchemaItems };
+  const stadBcSchema = { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Carkijker', item: SITE_ORIGIN + '/' },
+    { '@type': 'ListItem', position: 2, name: 'Occasions', item: SITE_ORIGIN + '/occasions/' },
+    { '@type': 'ListItem', position: 3, name: stad.naam,   item: SITE_ORIGIN + '/occasions/' + stadSlug + '/' },
+  ] };
+
   return '<!doctype html><html lang="nl"><head>'+
     '<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'+
     GA_SNIPPET +
@@ -549,6 +575,8 @@ function buildStadPage(stadSlug, stad, filtered, listings, landelijkeStats) {
     '<title>Tweedehands auto '+stad.naam+' | Carkijker</title>'+
     '<meta name="description" content="Bekijk '+filtered.length+' tweedehands auto occasions in '+stad.naam+', '+stad.regio+'. Vergelijk prijzen en vind jouw ideale occasion.">'+
     '<link rel="canonical" href="https://carkijker.nl/occasions/'+stadSlug+'/">'+
+    '<script type="application/ld+json">'+safeJsonLd(stadSchema)+'<\/script>'+
+    '<script type="application/ld+json">'+safeJsonLd(stadBcSchema)+'<\/script>'+
     '<style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:"Segoe UI",Arial,sans-serif;background:#f5f5f0;color:#333;line-height:1.5}'+
     'nav{background:rgba(255,255,255,.96);border-bottom:1px solid rgba(0,0,0,.08);padding:0 1.1rem;height:56px;display:flex;align-items:center;gap:.9rem;'+
     'position:sticky;top:0;z-index:200;box-shadow:0 1px 0 rgba(0,0,0,.04);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);font-size:.875rem;overflow-x:auto;white-space:nowrap}'+
