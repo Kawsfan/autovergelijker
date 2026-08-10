@@ -133,6 +133,13 @@
     .logo { font-size: 22px; font-weight: 800; color: var(--oranje); letter-spacing: -0.5px; cursor: pointer; user-select: none; }
     .logo span { color: var(--donker); }
 
+    .skip-link {
+      position: absolute; left: -9999px; top: 0; z-index: 9999;
+      background: var(--oranje); color: #fff; padding: 12px 20px;
+      border-radius: 0 0 8px 0; font-weight: 600; font-size: 14px; text-decoration: none;
+    }
+    .skip-link:focus { left: 0; }
+
     /* HERO (alleen titel) */
     .hero {
       background: linear-gradient(135deg, var(--donker) 0%, #16213e 60%, #0f3460 100%);
@@ -891,6 +898,7 @@
 </head>
 <body>
 
+<a href="#hoofdinhoud" class="skip-link">Ga naar hoofdinhoud</a>
 <nav>
   <div class="logo" onclick="resetFilters()">Car<span>kijker</span></div>
   <span class="nav-live nav-live-pill" style="font-size:13px;color:var(--subtekst)">🟢 Live data</span>
@@ -907,7 +915,7 @@
   <a href="/over-ons/" class="info-btn" style="text-decoration:none;">ℹ️<span class="nav-txt"> Over ons</span></a>
 </nav>
 
-<main>
+<main id="hoofdinhoud">
 <div class="hero">
   <div class="hero-inner">
     <h1>Alle occasions.<br>Één zoekopdracht.</h1>
