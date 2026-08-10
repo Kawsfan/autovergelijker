@@ -198,10 +198,15 @@ function updateHomepageMerkenLinks(merkCounts) {
   const indexPath = path.join(process.cwd(), 'index.html');
   if (!fs.existsSync(indexPath)) return;
   let html = fs.readFileSync(indexPath, 'utf-8');
+  // Geen slice meer -- voorheen bleven hier hardcoded maar 16 van de 63
+  // merk-pagina's over, waardoor de rest (en alles wat daaronder aan
+  // modelpagina's hangt) alleen via sitemap.xml bereikbaar was, niet via een
+  // klikbare link. Dit is zowel het statische blok voor niet-JS-crawlers
+  // (GPTBot/ClaudeBot/PerplexityBot/CCBot) als de basis die de client-side
+  // render (zie index.html _renderMerkenLinks) bij een live bezoek overschrijft.
   const top = Object.entries(merkCounts)
     .filter(function(e) { return e[1] >= MIN_MERK_COUNT; })
-    .sort(function(a, b) { return b[1] - a[1]; })
-    .slice(0, 16);
+    .sort(function(a, b) { return b[1] - a[1]; });
   if (!top.length) return;
   const links = top.map(function(e) {
     return '<a href="/occasions/' + e[0] + '/" style="display:inline-flex;align-items:center;gap:.3rem;background:#fff;border:1px solid #e5e5ea;border-radius:20px;padding:.3rem .9rem;font-size:.83rem;color:#1a56db;text-decoration:none">' +
@@ -212,6 +217,28 @@ function updateHomepageMerkenLinks(merkCounts) {
   html = html.replace(re, '<div id="merken-links-grid" style="display:flex;flex-wrap:wrap;gap:.4rem">' + links + '</div>');
   fs.writeFileSync(indexPath, html, 'utf-8');
   console.log('  index.html: statische merken-links bijgewerkt (' + top.length + ' merken)');
+}
+
+// ── Statische "Occasions per stad"-links op de homepage ──
+// Zelfde reden als updateHomepageMerkenLinks hierboven (niet-JS-crawlers
+// moeten ook de steden-pagina's kunnen vinden), maar STEDEN is een vaste,
+// hardcoded lijst i.p.v. data-afgeleid -- dus geen aparte client-side
+// her-render nodig zoals bij de merken (die wél per scrape kunnen wisselen).
+function updateHomepageStedenLinks(steden) {
+  const indexPath = path.join(process.cwd(), 'index.html');
+  if (!fs.existsSync(indexPath)) return;
+  let html = fs.readFileSync(indexPath, 'utf-8');
+  const entries = Object.entries(steden);
+  if (!entries.length) return;
+  const links = entries.map(function(e) {
+    return '<a href="/occasions/' + e[0] + '/" style="display:inline-flex;align-items:center;gap:.3rem;background:#fff;border:1px solid #e5e5ea;border-radius:20px;padding:.3rem .9rem;font-size:.83rem;color:#1a56db;text-decoration:none">' +
+      e[1].naam + '</a>';
+  }).join('');
+  const re = /<div id="steden-links-grid"[^>]*>[\s\S]*?<\/div>/;
+  if (!re.test(html)) { console.warn('  index.html: #steden-links-grid niet gevonden, overgeslagen'); return; }
+  html = html.replace(re, '<div id="steden-links-grid" style="display:flex;flex-wrap:wrap;gap:.4rem">' + links + '</div>');
+  fs.writeFileSync(indexPath, html, 'utf-8');
+  console.log('  index.html: statische steden-links bijgewerkt (' + entries.length + ' steden)');
 }
 
 function extraheerMerk(titel) {
@@ -303,11 +330,23 @@ function buildPage({ merkSlug, modelSlug, filtered, listings }) {
     '</div>';
 
   let merkLinks = '';
+  let stedenLinks = '';
   if (!merkSlug) {
     const mc = {};
     listings.forEach(function(a) { const m = (a.merk||'').toLowerCase().trim(); if (m) mc[m] = (mc[m]||0)+1; });
-    merkLinks = Object.entries(mc).filter(function(e){return e[1]>=MIN_MERK_COUNT;}).sort(function(a,b){return b[1]-a[1];}).slice(0,16)
+    // Geen slice(0,16) meer -- dit is de /occasions/-hub, de belangrijkste
+    // interne-linkbron naar de merk-pagina's. Zie updateHomepageMerkenLinks()
+    // hierboven voor dezelfde overweging op de homepage.
+    merkLinks = Object.entries(mc).filter(function(e){return e[1]>=MIN_MERK_COUNT;}).sort(function(a,b){return b[1]-a[1];})
       .map(function(e){return '<a href="/occasions/'+e[0]+'/" class="model-link">'+slugToDisplay(e[0])+' <span>('+e[1]+')</span></a>';}).join('');
+    // Steden-pagina's (STEDEN, verderop in dit bestand) hadden tot nu toe
+    // helemaal geen interne link vanaf welke hub dan ook -- alleen bereikbaar
+    // via sitemap.xml. STEDEN is op module-niveau gedefinieerd en al
+    // geïnitialiseerd tegen de tijd dat buildPage() daadwerkelijk aangeroepen
+    // wordt (zie main-generatielus verderop), dus veilig om hier te gebruiken
+    // ondanks dat de const-declaratie verderop in het bestand staat.
+    stedenLinks = Object.entries(STEDEN)
+      .map(function(e){return '<a href="/occasions/'+e[0]+'/" class="model-link">'+e[1].naam+'</a>';}).join('');
   }
   let modelLinks = '';
   if (merkSlug && !modelSlug) {
@@ -442,7 +481,8 @@ const MERK_INTRO = {
     '  <h1>'+(modelName?merkName+' '+modelName+' occasions':merkSlug?merkName+' occasions kopen':'Tweedehands occasions')+'</h1>\n' +
     '  <p class="subtitle">'+filtered.length+' tweedehands '+merkName+(modelName?' '+modelName:'')+' occasions &mdash; dagelijks bijgewerkt van Marktplaats, AutoScout24, Gaspedaal en ViaBOVAG</p>\n' +
     '  '+statsHtml+'\n' +
-    (merkLinks?'  <div class="model-nav">'+merkLinks+'</div>\n':'') +
+    (merkLinks?'  <h2 style="font-size:.95rem;font-weight:700;color:#1a1a2e;margin-bottom:.5rem">Occasions per merk</h2>\n  <div class="model-nav">'+merkLinks+'</div>\n':'') +
+    (stedenLinks?'  <h2 style="font-size:.95rem;font-weight:700;color:#1a1a2e;margin-bottom:.5rem">Occasions per stad</h2>\n  <div class="model-nav">'+stedenLinks+'</div>\n':'') +
     (modelLinks?'  <div class="model-nav">'+modelLinks+'</div>\n':'') +
     ((!merkSlug) ? '  <section style="background:#fff;border:1px solid rgba(0,0,0,.07);border-radius:14px;box-shadow:0 1px 4px rgba(0,0,0,.06);padding:1.25rem 1.5rem;margin-bottom:1.25rem">' +'<h2 style="font-size:1rem;font-weight:700;margin-bottom:.5rem;color:#1a1a2e">Tweedehands auto kopen in Nederland</h2>' +'<p style="font-size:.875rem;color:#444;line-height:1.6">Carkijker toont dagelijks bijgewerkte occasions van <strong>Marktplaats, AutoScout24, Gaspedaal en ViaBOVAG</strong> op &eacute;&eacute;n overzichtelijke plek. Vergelijk '+listings.length+' tweedehands auto&rsquo;s op prijs, km-stand en merk &mdash; zonder meerdere sites te hoeven bezoeken. Klik op een merk om het volledige aanbod te zien, of ga terug naar de <a href="/" style="color:#d14413">live zoekmachine</a> voor uitgebreide filters.</p>' +'</section>\n' : '') +'  <div class="auto-grid" id="aanbod">'+(cards||'<p class="empty">Geen occasions gevonden voor deze combinatie. Probeer een andere merk- of modelcombinatie, of bekijk het <a href="/occasions/" style="color:#d14413">volledige aanbod</a>.</p>')+'</div>\n' +
     geoText +
@@ -637,6 +677,7 @@ function main() {
   });
 
   updateHomepageMerkenLinks(merkCounts);
+  updateHomepageStedenLinks(STEDEN);
 
   // Merk/model-URLs verzamelen voor de sitemap (encodeURIComponent i.v.m.
   // merknamen met een spatie, zoals "alfa romeo" of "aston martin").
