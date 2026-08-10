@@ -26,7 +26,6 @@
     window.SUPABASE_URL = 'https://xbuznnkrkfdsjyjkarjo.supabase.co';
     window.SUPABASE_ANON_KEY = 'sb_publishable_e4kljbGegfh2jVD92MsDKA_XSGQf-sP';
   </script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <meta name="description" content="42.000+ auto's van 6 platforms, dagelijks bijgewerkt. Filter op merk, prijs en km-stand — en zie direct of je een goede deal hebt. Gratis, geen account.">
   <meta name="keywords" content="tweedehands auto, auto kopen, auto vergelijken, marktplaats auto, nederland, occasions">
@@ -4369,6 +4368,14 @@ function setMerkFilter(merk) {
   if (_m) { _m.value = merk; if (typeof updateModelDropdown === 'function') updateModelDropdown(); zoekNu(); window.scrollTo({top: document.getElementById('resultatenHeader')?.offsetTop || 400, behavior: 'smooth'}); }
 }
 </script>
+<!-- Supabase-SDK stond voorheen blokkerend bovenaan de head en hield daarmee
+     het parsen van de hele pagina (nav, zoekmachine, alle inline CSS/JS) op
+     totdat de CDN-fetch klaar was -- terwijl window.supabase pas hieronder,
+     in het accounts-blok, voor het eerst gebruikt wordt. Hier laden houdt
+     exact dezelfde synchrone laadvolgorde aan (dit script blokkeert nog
+     steeds tot het klaar is, vóór de IIFE eronder start) maar zonder de
+     rest van de pagina op te houden. -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 // ===== ACCOUNTS: favorieten + zoekagenten synchroniseren (Supabase) =====
 // Volledig additief: zolang SUPABASE_URL/ANON_KEY niet zijn ingevuld (zie
