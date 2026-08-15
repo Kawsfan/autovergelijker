@@ -1205,6 +1205,14 @@ async function main() {
       } else if (prev && prev.prijsHistorie) {
         l.prijsHistorie = prev.prijsHistorie;
       }
+      // "Dagen online"-badge (index.html, sinds #84) leest a.eersteGezien --
+      // maar die datum werd nergens gezet, dus de badge rendert nooit (altijd
+      // undefined). Zelfde carry-over-patroon als prijsHistorie hierboven:
+      // eenmaal gezet blijft de datum staan zolang de advertentie in de
+      // dataset blijft; pas bij een écht nieuwe advertentie (of de eerste run
+      // na deze fix, wanneer bestaande listings deze datum nog niet hebben)
+      // telt vandaag als eerste keer gezien.
+      l.eersteGezien = (prev && prev.eersteGezien) ? prev.eersteGezien : new Date().toISOString().slice(0,10);
       byId[l.id] = l;
     }
 
