@@ -31,7 +31,14 @@ jobs:
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          git add data/ sitemap.xml occasions/ artikelen/ llms.txt 2>/dev/null || true
+          # index.html hoort hierbij: generate-occasions.js herschrijft daar de
+          # statische merken-/steden-linkblokken in (updateHomepageMerkenLinks/
+          # updateHomepageStedenLinks). Stond dit lijstje niet compleet, dan
+          # bleven die wijzigingen onstaged staan en faalde de "git pull
+          # --rebase" verderop op elke run met "You have unstaged changes" --
+          # zie ook check-scrape-health.js voor eventuele toekomstige
+          # write-targets die hier ook bij moeten.
+          git add data/ sitemap.xml occasions/ artikelen/ llms.txt index.html 2>/dev/null || true
           if git diff --staged --quiet; then
             echo "Geen wijzigingen om te committen, klaar."
             exit 0

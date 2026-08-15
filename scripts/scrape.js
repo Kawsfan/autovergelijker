@@ -1208,8 +1208,17 @@ async function main() {
       byId[l.id] = l;
     }
 
+  // Advertenties die niet meer teruggevonden worden (verkocht/verwijderd op
+  // de bron) blijven nog een paar dagen staan i.p.v. meteen te verdwijnen --
+  // dat geeft speling voor een incidentele hapering van 1 bron zonder dat
+  // die auto's meteen uit de dataset vallen. Was voorheen 30 dagen: met 3
+  // scrapes/dag bleef een verkochte auto dan een hele maand aanklikbaar op
+  // Carkijker terwijl de advertentie op de bron allang weg was. check-
+  // scrape-health.js vangt een échte bron-storing al apart af (faalt de run
+  // bij een drop van >50% t.o.v. de vorige run), dus deze cutoff hoeft dat
+  // niet ook nog te doen.
   const cutoff = new Date();
-  cutoff.setDate(cutoff.getDate() - 30);
+  cutoff.setDate(cutoff.getDate() - 2);
   const cutoffStr = cutoff.toISOString().split('T')[0];
   let listings = Object.values(byId)
     .filter(l => l.bijgewerkt >= cutoffStr)
@@ -1350,7 +1359,7 @@ async function main() {
 
 
   const verwijderd = Object.keys(byId).length - listings.length;
-  if (verwijderd > 0) console.log(`ÃÂÃÂ°ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¯ÃÂÃÂ¸ÃÂÃÂ  ${verwijderd} verlopen listings verwijderd (>30 dagen)`);
+  if (verwijderd > 0) console.log(`ÃÂÃÂ°ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¯ÃÂÃÂ¸ÃÂÃÂ  ${verwijderd} verlopen listings verwijderd (>2 dagen)`);
 
   console.log(`ÃÂÃÂ°ÃÂÃÂÃÂÃÂÃÂÃÂ Totaal na merge: ${listings.length} listings`);
 
