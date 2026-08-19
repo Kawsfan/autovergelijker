@@ -501,6 +501,28 @@ function parseerViaBovag(html, gezien, label, uitgebreideDiagnose) {
         .map(m => m[1].trim()).filter(a => /id=|type="application/.test(a)).slice(0, 25);
       console.log(`   diagnose ${label}: HTML ${html.length} chars, title="${(html.match(/<title>([^<]*)<\/title>/)||[])[1] || '?'}"`);
       console.log(`   diagnose ${label}: relevante <script>-tags gevonden (max 25): ${JSON.stringify(scriptTags)}`);
+      // Vervolgvraag na de vorige diagnose (zie #92): er staan wel 2
+      // application/ld+json-blokken in de pagina, alleen niet van het
+      // @type ItemList dat we herkennen. Log hier wat ze wél bevatten
+      // (@type + eerste 300 tekens) -- misschien staan de listings er per
+      // stuk in (bv. individuele Product/Car-items) i.p.v. als ItemList,
+      // wat een veel simpelere fix zou zijn dan het RSC-Flight-protocol
+      // (self.__next_f.push(...)) proberen te parsen, dat de duidelijkste
+      // aanwijzing is (samen met id="_R_" op de webpack-chunk hierboven)
+      // dat viaBOVAG inmiddels Next.js App Router + React Server
+      // Components gebruikt i.p.v. de oude Pages Router met __NEXT_DATA__.
+      const ldBlocksVoorDiagnose = [...html.matchAll(/<script type="application\/ld\+json"[^>]*>([\s\S]*?)<\/script>/g)];
+      ldBlocksVoorDiagnose.forEach((block, i) => {
+        try {
+          const d = JSON.parse(block[1]);
+          const typ = Array.isArray(d) ? `array[${d.length}], eerste @type=${d[0]?.['@type']}` : d['@type'];
+          console.log(`   diagnose ${label}: ld+json-blok ${i + 1}/${ldBlocksVoorDiagnose.length}: @type=${typ}, snippet=${block[1].slice(0, 300).replace(/\s+/g, ' ')}`);
+        } catch (e) {
+          console.log(`   diagnose ${label}: ld+json-blok ${i + 1}/${ldBlocksVoorDiagnose.length}: parse-fout (${e.message}), snippet=${block[1].slice(0, 300).replace(/\s+/g, ' ')}`);
+        }
+      });
+      const flightChunks = (html.match(/self\.__next_f\.push\(/g) || []).length;
+      console.log(`   diagnose ${label}: self.__next_f.push(...)-chunks gevonden: ${flightChunks} (>0 bevestigt RSC/App Router i.p.v. Pages Router)`);
     }
     return results;
   }
