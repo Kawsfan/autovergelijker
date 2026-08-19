@@ -430,7 +430,7 @@ async function scrapeViaBovag() {
       console.log(` ${label}: HTTP ${resp.status}`);
       if (!resp.ok) continue;
       const html = await resp.text();
-      const found = parseerViaBovag(html, gezien, label);
+      const found = parseerViaBovag(html, gezien, label, i === 0);
       all.push(...found);
       console.log(` ${label}: ${found.length} nieuw ÃÂÃÂ¢ÃÂÃÂÃÂÃÂ totaal VB ${all.length}`);
     } catch (e) {
@@ -441,24 +441,106 @@ async function scrapeViaBovag() {
   return all;
 }
 
-function parseerViaBovag(html, gezien, label) {
+// viaBOVAG leverde tot ~15 aug 2026 betrouwbaar __NEXT_DATA__; sindsdien
+// levert dat blok niets meer op (site-herbouw, framework-wissel?). Tot we
+// weten wat de nieuwe paginastructuur is, proberen we hier ook de twee
+// andere gangbare SSR-hydratiepatronen (Nuxt, en JSON-LD zoals AutoTrack al
+// succesvol gebruikt) voor we het opgeven -- en loggen we op de eerste
+// pagina van elke run genoeg over de ruwe HTML om de echte nieuwe structuur
+// te kunnen achterhalen uit de workflow-logs, zonder de site zelf te hoeven
+// bezoeken.
+function parseerViaBovag(html, gezien, label, uitgebreideDiagnose) {
   const results = [];
 
-  // Extract __NEXT_DATA__ JSON ÃÂ¢ÃÂÃÂ veel betrouwbaarder dan HTML regex
+  let items = null;
+  let bron = null;
+
   const ndMatch = html.match(/<script id="__NEXT_DATA__" type="application\/json">([\s\S]+?)<\/script>/);
-  if (!ndMatch) {
-    console.log(` ${label}: geen __NEXT_DATA__ gevonden, skip`);
-    return results;
+  if (ndMatch) {
+    try {
+      const nd = JSON.parse(ndMatch[1]);
+      const sr = nd.props?.pageProps?.serverSearchResults;
+      items = sr?.results || [];
+      bron = '__NEXT_DATA__';
+    } catch (e) { /* val door naar volgende strategie */ }
   }
 
-  let items;
-  try {
-    const nd = JSON.parse(ndMatch[1]);
-    const sr = nd.props?.pageProps?.serverSearchResults;
-    items = sr?.results || [];
-    console.log(` ${label}: ${items.length} resultaten in __NEXT_DATA__`);
-  } catch (e) {
-    console.log(` ${label}: JSON parse fout: ${e.message}`);
+  if (!items) {
+    const nuxtMatch = html.match(/<script id="__NUXT_DATA__"[^>]*>([\s\S]+?)<\/script>/)
+      || html.match(/window\.__NUXT__\s*=\s*(\{[\s\S]+?\});?\s*<\/script>/);
+    if (nuxtMatch) {
+      try {
+        const nd = JSON.parse(nuxtMatch[1]);
+        // Nuxt-payloads verschillen sterk per site-opzet; dit is een gok naar
+        // de meest gangbare vindplaats. Faalt dit, dan valt de diagnose
+        // hieronder terug op de ruwe structuur-dump.
+        const guess = nd.data?.results || nd.state?.results || nd.props?.pageProps?.results;
+        if (Array.isArray(guess)) { items = guess; bron = '__NUXT__'; }
+      } catch (e) { /* val door */ }
+    }
+  }
+
+  if (!items) {
+    const ldBlocks = [...html.matchAll(/<script type="application\/ld\+json"[^>]*>([\s\S]*?)<\/script>/g)];
+    for (const block of ldBlocks) {
+      try {
+        const d = JSON.parse(block[1]);
+        if (d['@type'] === 'ItemList' && Array.isArray(d.itemListElement)) {
+          items = d.itemListElement.map(e => e.item || e).filter(Boolean);
+          bron = 'JSON-LD ItemList';
+          break;
+        }
+      } catch (e) { /* volgend blok */ }
+    }
+  }
+
+  if (!items) {
+    console.log(` ${label}: geen enkel bekend data-patroon gevonden (__NEXT_DATA__/__NUXT__/JSON-LD), skip`);
+    if (uitgebreideDiagnose) {
+      const scriptTags = [...html.matchAll(/<script\b([^>]*)>/g)]
+        .map(m => m[1].trim()).filter(a => /id=|type="application/.test(a)).slice(0, 25);
+      console.log(`   diagnose ${label}: HTML ${html.length} chars, title="${(html.match(/<title>([^<]*)<\/title>/)||[])[1] || '?'}"`);
+      console.log(`   diagnose ${label}: relevante <script>-tags gevonden (max 25): ${JSON.stringify(scriptTags)}`);
+    }
+    return results;
+  }
+  console.log(` ${label}: ${items.length} resultaten via ${bron}`);
+
+  // __NEXT_DATA__/__NUXT__ leveren viaBOVAG's eigen vehicle/company-vormige
+  // items; JSON-LD is schema.org-gestructureerd (Car/Offer) zoals AutoTrack
+  // ook gebruikt -- andere velden, dus niet door dezelfde mapping heen.
+  if (bron === 'JSON-LD ItemList') {
+    for (const item of items) {
+      const rawUrl = item.url || item['@id'] || '';
+      if (!rawUrl) continue;
+      const url = rawUrl.startsWith('http') ? rawUrl : 'https://www.viabovag.nl' + rawUrl;
+      if (gezien.has(url)) continue;
+      gezien.add(url);
+
+      const idM = url.match(/(\d{4,})\/?$/);
+      const id = 'vb_' + (idM ? idM[1] : url.replace(/[^a-z0-9]/gi, '').slice(-24));
+
+      const prijs = item.offers?.price || item.price || 0;
+      const kmRaw = item.mileageFromOdometer?.value ?? item.mileage ?? null;
+      const km = kmRaw ? parseInt(String(kmRaw).replace(/[^\d]/g, '')) : null;
+      const yearM = String(item.productionDate || item.modelDate || '').match(/\b(19|20)\d{2}\b/);
+      const imgSrc = (Array.isArray(item.image) ? item.image[0] : item.image) || '';
+
+      results.push({
+        id,
+        bron: 'ViaBovag',
+        titel: (item.name || '').substring(0, 80),
+        prijs: typeof prijs === 'string' ? parseInt(prijs.replace(/[^\d]/g, '')) : (prijs || null),
+        km,
+        jaar: yearM ? parseInt(yearM[0]) : null,
+        brandstof: item.fuelType || '',
+        locatie: item.offers?.seller?.address?.addressLocality || null,
+        url,
+        imgSrc: typeof imgSrc === 'string' ? imgSrc : '',
+        imgs: (Array.isArray(item.image) ? item.image : (item.image ? [item.image] : [])).filter(u => typeof u === 'string'),
+        bijgewerkt: new Date().toISOString().slice(0, 10),
+      });
+    }
     return results;
   }
 
