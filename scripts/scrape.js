@@ -1329,8 +1329,22 @@ async function main() {
   // scrape-health.js vangt een échte bron-storing al apart af (faalt de run
   // bij een drop van >50% t.o.v. de vorige run), dus deze cutoff hoeft dat
   // niet ook nog te doen.
+  //
+  // 2 dagen (eerste versie van deze fix) bleek te krap: MP_API_BASE +
+  // de ~15 merk-specifieke MP_*_OFFSETS-zoekopdrachten (verderop in dit
+  // bestand) leveren samen maar ~1.500-2.500 unieke Marktplaats-advertenties
+  // per run, want Marktplaats' eigen zoek-API staakt na ~1.000 resultaten
+  // per query. Met een lang venster (30 dagen = 90 runs) krijgt vrijwel elke
+  // nog-actieve advertentie op een gegeven moment de kans om in die
+  // gelimiteerde resultatenset voor te komen -- met een kort venster (2
+  // dagen = 6 runs) veel minder, waardoor nog gewoon te koop staande auto's
+  // die toevallig niet in de laatste paar runs bovenaan stonden ook wegvielen,
+  // niet alleen écht verlopen advertenties. 7 dagen (21 runs) is een
+  // tussenweg: ruim meer herkansingen om opnieuw gevonden te worden, terwijl
+  // een advertentie die een volle week niet meer opduikt met vrij hoge
+  // zekerheid daadwerkelijk weg is.
   const cutoff = new Date();
-  cutoff.setDate(cutoff.getDate() - 2);
+  cutoff.setDate(cutoff.getDate() - 7);
   const cutoffStr = cutoff.toISOString().split('T')[0];
   let listings = Object.values(byId)
     .filter(l => l.bijgewerkt >= cutoffStr)
@@ -1471,7 +1485,7 @@ async function main() {
 
 
   const verwijderd = Object.keys(byId).length - listings.length;
-  if (verwijderd > 0) console.log(`ÃÂÃÂ°ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¯ÃÂÃÂ¸ÃÂÃÂ  ${verwijderd} verlopen listings verwijderd (>2 dagen)`);
+  if (verwijderd > 0) console.log(`ÃÂÃÂ°ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¯ÃÂÃÂ¸ÃÂÃÂ  ${verwijderd} verlopen listings verwijderd (>7 dagen)`);
 
   console.log(`ÃÂÃÂ°ÃÂÃÂÃÂÃÂÃÂÃÂ Totaal na merge: ${listings.length} listings`);
 
