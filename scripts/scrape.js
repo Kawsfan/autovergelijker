@@ -433,6 +433,7 @@ async function scrapeViaBovag() {
       const found = parseerViaBovag(html, gezien, label, i === 0);
       all.push(...found);
       console.log(` ${label}: ${found.length} nieuw ÃÂÃÂ¢ÃÂÃÂÃÂÃÂ totaal VB ${all.length}`);
+      if (i === 1) await probeViaBovagRscNavigatie(i + 1);
     } catch (e) {
       console.log(` ${label}: fout - ${e.message}`);
     }
@@ -530,6 +531,85 @@ function vindViaBovagPaginaHints(html) {
     });
   });
   return hints;
+}
+
+// Diagnostisch experiment voor het paginerings-mysterie (vervolg op #97/#98):
+// vindViaBovagPaginaHints() vond geen paginerings-metadata in de normale
+// full-page-HTML, en ?pagina=N levert daar altijd dezelfde 24 resultaten op.
+// Eén verklaring: de full-page-HTML van /auto/occasion is statisch/ISR-
+// gecached zonder de queryparam in de cache-sleutel, terwijl Next.js App
+// Router bij een ECHTE (browser-)paginanavigatie een apart verzoek stuurt
+// naar dezelfde URL met de header "RSC: 1" (en evt. "Next-Url") en dan de
+// kale Flight-payload teruggeeft (content-type text/x-component) i.p.v. de
+// gecachete HTML -- die databron zou de queryparam wel kunnen respecteren.
+// Dit is geen gok naar een onbekend API-endpoint, maar Next.js' eigen,
+// gedocumenteerde client-navigatiemechanisme. Puur diagnostisch: wijzigt de
+// hoofd-scrapeloop niet, logt alleen of dit spoor iets anders oplevert dan
+// de 24 al bekende listings zodat de eerstvolgende run-logs uitwijzen of dit
+// de moeite waard is om echt te integreren.
+function zoekListingAchtigVanuitFlightTekst(chunkTekst) {
+  const gevonden = [];
+  const gezienObj = new Set();
+  function lijktOpListing(v) {
+    if (!v || typeof v !== 'object' || Array.isArray(v)) return false;
+    const laag = Object.keys(v).map(function(k){ return k.toLowerCase(); });
+    const heeftPrijs = laag.some(function(k){ return k.includes('price') || k === 'prijs' || k === 'vraagprijs'; });
+    const heeftTitel = laag.some(function(k){ return k.includes('title') || k === 'titel' || k.includes('brand') || k === 'merk' || k === 'name' || k === 'naam'; });
+    return heeftPrijs && heeftTitel;
+  }
+  function doorzoek(v, diepte) {
+    if (v == null || diepte > 8) return;
+    if (typeof v !== 'object') return;
+    if (lijktOpListing(v)) {
+      const key = JSON.stringify(v).slice(0, 200);
+      if (!gezienObj.has(key)) { gezienObj.add(key); gevonden.push(v); }
+      return;
+    }
+    if (Array.isArray(v)) { v.forEach(function(x){ doorzoek(x, diepte + 1); }); return; }
+    Object.keys(v).forEach(function(k){ doorzoek(v[k], diepte + 1); });
+  }
+  if (!chunkTekst) return gevonden;
+  chunkTekst.split('\n').forEach(function(regel) {
+    const m = regel.match(/^[0-9a-f]+:(.*)$/i);
+    const payload = m ? m[1] : regel;
+    for (var offset = 0; offset <= 1; offset++) {
+      const kandidaat = payload.slice(offset);
+      if (!kandidaat || !/^[[{]/.test(kandidaat)) continue;
+      try { doorzoek(JSON.parse(kandidaat), 0); break; } catch (e) { /* volgende */ }
+    }
+  });
+  return gevonden;
+}
+
+async function probeViaBovagRscNavigatie(paginaNum) {
+  const url = vbUrl(paginaNum);
+  const varianten = [
+    { naam: 'RSC-only', extra: { 'RSC': '1' } },
+    { naam: 'RSC+Next-Url', extra: { 'RSC': '1', 'Next-Url': '/auto/occasion' } },
+  ];
+  for (const variant of varianten) {
+    try {
+      const resp = await fetch(url, { headers: Object.assign({}, HEADERS_VB, variant.extra) });
+      const ct = resp.headers.get('content-type') || '(onbekend)';
+      const tekst = await resp.text();
+      // Reageert de server met een kale Flight-payload (geen self.__next_f.push-
+      // wrapper), zoek dan direct in de ruwe tekst; is het toch volledige HTML
+      // (d.w.z. de header werd genegeerd), val dan terug op de bestaande
+      // HTML-parser zodat we sowieso zien of het verschilt van de normale 24.
+      const directeHits = zoekListingAchtigVanuitFlightTekst(tekst);
+      const viaHtmlHits = /self\.__next_f\.push/.test(tekst) ? extraheerViaBovagFlightItems(tekst) : [];
+      const items = directeHits.length ? directeHits : viaHtmlHits;
+      console.log(`   diagnose VB-RSC-probe p${paginaNum} [${variant.naam}]: HTTP ${resp.status}, content-type=${ct}, lengte=${tekst.length}, listing-achtige objecten=${items.length}`);
+      if (items.length) {
+        const idsOfUrls = items.slice(0, 3).map(function(it) {
+          return it.id || it.url || it.friendlyUriPart || '?';
+        });
+        console.log(`   diagnose VB-RSC-probe p${paginaNum} [${variant.naam}] voorbeelden: ${idsOfUrls.join(', ')}`);
+      }
+    } catch (e) {
+      console.log(`   diagnose VB-RSC-probe p${paginaNum} [${variant.naam}]: fout - ${e.message}`);
+    }
+  }
 }
 
 // viaBOVAG leverde tot ~15 aug 2026 betrouwbaar __NEXT_DATA__; sindsdien
