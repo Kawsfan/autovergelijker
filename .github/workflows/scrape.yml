@@ -5,6 +5,18 @@ on:
     - cron: '0 6,12,18 * * *'
   workflow_dispatch:
 
+# Zonder deze guard kan een handmatige workflow_dispatch-run (bv. om een fix
+# te verifiëren) overlappen met de geplande cron-run. Beide scrapen dan
+# gelijktijdig en racen om als eerste te committen+pushen, wat tot een echte
+# git-mergeconflict leidt in de "Commit resultaten"-stap (gezien op 20 aug:
+# CONFLICT (content) in tientallen occasions/*.html-bestanden + sitemap.xml,
+# gevolgd door 3 mislukte push-pogingen). cancel-in-progress: false zodat een
+# lopende run zijn scrape gewoon afmaakt -- de volgende run wacht in de rij
+# i.p.v. de eerste te annuleren en scrape-resultaten te verspillen.
+concurrency:
+  group: scrape-workflow
+  cancel-in-progress: false
+
 jobs:
   scrape:
     runs-on: ubuntu-latest
