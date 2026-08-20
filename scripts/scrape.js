@@ -441,6 +441,57 @@ async function scrapeViaBovag() {
   return all;
 }
 
+// Next.js App Router/RSC serialiseert server-data als self.__next_f.push
+// ([chunkId, "regel1\nregel2\n..."])-aanroepen; elke regel is doorgaans
+// "<id>:<payload>" waarbij <payload> ofwel direct geldige JSON is, ofwel
+// geldige JSON na een enkel type-letterteken (I=import, H=hint, T=text,
+// etc. -- React's eigen Flight-notatie). We reïmplementeren die notatie niet
+// volledig; in plaats daarvan zoeken we alle JSON-parseerbare regel-payloads
+// af op objecten die op een auto-listing lijken (bevat zowel een prijs- als
+// een titel/merk-achtig veld), ongeacht waar ze in de boomstructuur zitten.
+function extraheerViaBovagFlightItems(html) {
+  const chunks = [...html.matchAll(/self\.__next_f\.push\(\[\d+,\s*"((?:\\.|[^"\\])*)"\]\)/g)]
+    .map(function(m) {
+      try { return JSON.parse('"' + m[1] + '"'); } catch (e) { return ''; }
+    });
+
+  const gevonden = [];
+  const gezienObj = new Set();
+  function lijktOpListing(v) {
+    if (!v || typeof v !== 'object' || Array.isArray(v)) return false;
+    const laag = Object.keys(v).map(function(k){ return k.toLowerCase(); });
+    const heeftPrijs = laag.some(function(k){ return k.includes('price') || k === 'prijs' || k === 'vraagprijs'; });
+    const heeftTitel = laag.some(function(k){ return k.includes('title') || k === 'titel' || k.includes('brand') || k === 'merk' || k === 'name' || k === 'naam'; });
+    return heeftPrijs && heeftTitel;
+  }
+  function doorzoek(v, diepte) {
+    if (v == null || diepte > 8) return;
+    if (typeof v !== 'object') return;
+    if (lijktOpListing(v)) {
+      const key = JSON.stringify(v).slice(0, 200);
+      if (!gezienObj.has(key)) { gezienObj.add(key); gevonden.push(v); }
+      return; // niet verder afdalen binnen een gevonden listing-object
+    }
+    if (Array.isArray(v)) { v.forEach(function(x){ doorzoek(x, diepte + 1); }); return; }
+    Object.keys(v).forEach(function(k){ doorzoek(v[k], diepte + 1); });
+  }
+
+  chunks.forEach(function(chunkTekst) {
+    if (!chunkTekst) return;
+    chunkTekst.split('\n').forEach(function(regel) {
+      const m = regel.match(/^[0-9a-f]+:(.*)$/i);
+      const payload = m ? m[1] : regel;
+      // Payload begint met JSON ([ of { of "), evt. na één type-letterteken.
+      for (var offset = 0; offset <= 1; offset++) {
+        const kandidaat = payload.slice(offset);
+        if (!kandidaat || !/^[[{]/.test(kandidaat)) continue;
+        try { doorzoek(JSON.parse(kandidaat), 0); break; } catch (e) { /* volgende offset of regel */ }
+      }
+    });
+  });
+  return gevonden;
+}
+
 // viaBOVAG leverde tot ~15 aug 2026 betrouwbaar __NEXT_DATA__; sindsdien
 // levert dat blok niets meer op (site-herbouw, framework-wissel?). Tot we
 // weten wat de nieuwe paginastructuur is, proberen we hier ook de twee
@@ -494,8 +545,22 @@ function parseerViaBovag(html, gezien, label, uitgebreideDiagnose) {
     }
   }
 
+  // RSC Flight-protocol (Next.js App Router): viaBOVAG's SSR-hydratatiedata
+  // zit sinds de framework-wissel in self.__next_f.push([id,"..."])-chunks
+  // i.p.v. één __NEXT_DATA__-blob. De vorige diagnose (#92) bevestigde dit
+  // (id="_R_"-webpack-chunk, geen bruikbare ld+json). Geen officieel
+  // geparste boomstructuur -- we scannen de losgekoppelde chunk-teksten op
+  // JSON-eilanden die op een auto-listing lijken (prijs + titel/merk-achtig
+  // veld). Fragieler dan de andere strategieën (breekt mogelijk weer bij een
+  // volgende ViaBovag-release), maar de enige route zonder hun officiële
+  // Flight-boomstructuur te reïmplementeren.
   if (!items) {
-    console.log(` ${label}: geen enkel bekend data-patroon gevonden (__NEXT_DATA__/__NUXT__/JSON-LD), skip`);
+    const flightItems = extraheerViaBovagFlightItems(html);
+    if (flightItems.length) { items = flightItems; bron = 'RSC-Flight'; }
+  }
+
+  if (!items) {
+    console.log(` ${label}: geen enkel bekend data-patroon gevonden (__NEXT_DATA__/__NUXT__/JSON-LD/RSC-Flight), skip`);
     if (uitgebreideDiagnose) {
       const scriptTags = [...html.matchAll(/<script\b([^>]*)>/g)]
         .map(m => m[1].trim()).filter(a => /id=|type="application/.test(a)).slice(0, 25);
@@ -527,6 +592,52 @@ function parseerViaBovag(html, gezien, label, uitgebreideDiagnose) {
     return results;
   }
   console.log(` ${label}: ${items.length} resultaten via ${bron}`);
+
+  // RSC-Flight-items zijn heuristisch gevonden JSON-objecten met onbekende,
+  // niet-gedocumenteerde veldnamen -- flexibele mapping die meerdere
+  // gangbare varianten probeert i.p.v. één vaste vorm aan te nemen.
+  if (bron === 'RSC-Flight') {
+    for (const item of items) {
+      const veld = function(){ for (var i=0;i<arguments.length;i++){ var v=arguments[i]; if (v!=null && v!=='') return v; } return null; };
+      const rawUrl = veld(item.url, item.href, item.detailUrl, item.link, item.slug);
+      if (!rawUrl) continue;
+      const url = String(rawUrl).startsWith('http') ? String(rawUrl) : 'https://www.viabovag.nl' + (String(rawUrl).startsWith('/') ? '' : '/') + rawUrl;
+      if (gezien.has(url)) continue;
+      gezien.add(url);
+
+      const idM = url.match(/(\d{4,})\/?$/);
+      const id = 'vb_' + (idM ? idM[1] : url.replace(/[^a-z0-9]/gi, '').slice(-24));
+
+      const prijsRaw = veld(item.price, item.prijs, item.vraagprijs);
+      const prijs = prijsRaw != null ? parseInt(String(prijsRaw).replace(/[^\d]/g, '')) || null : null;
+      const kmRaw = veld(item.mileage, item.km, item.kilometerstand, item.mileageKm);
+      const km = kmRaw != null ? parseInt(String(kmRaw).replace(/[^\d]/g, '')) || null : null;
+      const jaarRaw = veld(item.year, item.jaar, item.bouwjaar, item.modelYear, item.constructionYear);
+      const jaarM = String(jaarRaw||'').match(/\b(19|20)\d{2}\b/);
+      const titel = veld(item.title, item.titel, item.name, item.naam);
+      const imgSrc = veld(item.image, item.imageUrl, item.imgSrc, item.thumbnail, Array.isArray(item.images)?item.images[0]:null);
+
+      results.push({
+        id,
+        bron: 'ViaBovag',
+        titel: titel ? String(titel).substring(0, 80) : null,
+        prijs,
+        km,
+        jaar: jaarM ? parseInt(jaarM[0]) : null,
+        brandstof: veld(item.fuelType, item.brandstof) || '',
+        locatie: veld(item.city, item.plaats, item.location) || null,
+        url,
+        imgSrc: typeof imgSrc === 'string' ? imgSrc : '',
+        imgs: typeof imgSrc === 'string' ? [imgSrc] : [],
+        bijgewerkt: new Date().toISOString().slice(0, 10),
+      });
+    }
+    if (uitgebreideDiagnose && results.length) {
+      console.log(`   diagnose ${label}: RSC-Flight voorbeeldobject (ruwe sleutels): ${JSON.stringify(Object.keys(items[0]))}`);
+      console.log(`   diagnose ${label}: RSC-Flight eerste gemapte listing: ${JSON.stringify(results[0])}`);
+    }
+    return results;
+  }
 
   // __NEXT_DATA__/__NUXT__ leveren viaBOVAG's eigen vehicle/company-vormige
   // items; JSON-LD is schema.org-gestructureerd (Car/Offer) zoals AutoTrack
