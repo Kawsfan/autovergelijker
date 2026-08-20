@@ -492,6 +492,46 @@ function extraheerViaBovagFlightItems(html) {
   return gevonden;
 }
 
+// Diagnose voor het paginerings-mysterie uit #97: alle 30 "pagina's"
+// (?pagina=2, ?pagina=3, ...) leverden identiek dezelfde 24 resultaten op --
+// de nieuwe (RSC-)site lijkt die query-param niet meer server-side te
+// respecteren. Zoekt in dezelfde Flight-chunks naar sleutels die op
+// paginerings-metadata lijken (totalCount/totalPages/pageSize/currentPage/
+// hasNextPage e.d.), zodat uit de eerstvolgende workflow-run-logs blijkt of
+// de site dat soort info überhaupt meestuurt (en zo ja, onder welke naam)
+// i.p.v. daar blind naar te gissen.
+function vindViaBovagPaginaHints(html) {
+  const hints = [];
+  const patroon = /totalcount|totalpages|totalresults|totalitems|pagesize|currentpage|pagenumber|hasnextpage|resultcount/i;
+  const chunks = [...html.matchAll(/self\.__next_f\.push\(\[\d+,\s*"((?:\\.|[^"\\])*)"\]\)/g)]
+    .map(function(m) { try { return JSON.parse('"' + m[1] + '"'); } catch (e) { return ''; } });
+  function doorzoek(v, pad, diepte) {
+    if (v == null || diepte > 8 || hints.length >= 20) return;
+    if (typeof v !== 'object') return;
+    if (Array.isArray(v)) { v.forEach(function(x, i){ doorzoek(x, pad + '[' + i + ']', diepte + 1); }); return; }
+    Object.keys(v).forEach(function(k) {
+      if (patroon.test(k) && (typeof v[k] === 'number' || typeof v[k] === 'string')) {
+        hints.push(pad + '.' + k + '=' + JSON.stringify(v[k]));
+      }
+      doorzoek(v[k], pad + '.' + k, diepte + 1);
+    });
+  }
+  chunks.forEach(function(chunkTekst) {
+    if (!chunkTekst) return;
+    chunkTekst.split('\n').forEach(function(regel) {
+      const m = regel.match(/^([0-9a-f]+):(.*)$/i);
+      const idPrefix = m ? m[1] : '?';
+      const payload = m ? m[2] : regel;
+      for (var offset = 0; offset <= 1; offset++) {
+        const kandidaat = payload.slice(offset);
+        if (!kandidaat || !/^[[{]/.test(kandidaat)) continue;
+        try { doorzoek(JSON.parse(kandidaat), 'chunk' + idPrefix, 0); break; } catch (e) { /* volgende offset/regel */ }
+      }
+    });
+  });
+  return hints;
+}
+
 // viaBOVAG leverde tot ~15 aug 2026 betrouwbaar __NEXT_DATA__; sindsdien
 // levert dat blok niets meer op (site-herbouw, framework-wissel?). Tot we
 // weten wat de nieuwe paginastructuur is, proberen we hier ook de twee
@@ -597,6 +637,16 @@ function parseerViaBovag(html, gezien, label, uitgebreideDiagnose) {
   // niet-gedocumenteerde veldnamen -- flexibele mapping die meerdere
   // gangbare varianten probeert i.p.v. één vaste vorm aan te nemen.
   if (bron === 'RSC-Flight') {
+    // Eerste run (#97) onthulde de echte top-level sleutels: id, mobilityType,
+    // url, friendlyUriPart, externalAdvertisementUrl, imageUrl, title, price,
+    // priceExcludesVat, isFinanceable, vehicle, company, useAdbooster. title/
+    // price/imageUrl mapten meteen goed; km/jaar/brandstof/locatie bleven
+    // null omdat ze -- net als in de oude __NEXT_DATA__-vorm hierboven --
+    // genest zitten in vehicle/company. Zelfde backend/domeinmodel, alleen
+    // een andere renderlaag, dus hergebruikt hier bewust exact dezelfde
+    // veldnamen (v.mileage/v.year/v.fuelTypes/company.city) die daar al
+    // bewezen werken, met de generieke veld()-fallbacks als vangnet mocht
+    // die aanname toch niet (meer) kloppen.
     for (const item of items) {
       const veld = function(){ for (var i=0;i<arguments.length;i++){ var v=arguments[i]; if (v!=null && v!=='') return v; } return null; };
       const rawUrl = veld(item.url, item.href, item.detailUrl, item.link, item.slug);
@@ -608,11 +658,15 @@ function parseerViaBovag(html, gezien, label, uitgebreideDiagnose) {
       const idM = url.match(/(\d{4,})\/?$/);
       const id = 'vb_' + (idM ? idM[1] : url.replace(/[^a-z0-9]/gi, '').slice(-24));
 
+      const v = item.vehicle || {};
+      const co = item.company || {};
+      const fuelArr = Array.isArray(v.fuelTypes) ? v.fuelTypes : (v.fuelTypes ? [v.fuelTypes] : []);
+
       const prijsRaw = veld(item.price, item.prijs, item.vraagprijs);
       const prijs = prijsRaw != null ? parseInt(String(prijsRaw).replace(/[^\d]/g, '')) || null : null;
-      const kmRaw = veld(item.mileage, item.km, item.kilometerstand, item.mileageKm);
+      const kmRaw = veld(v.mileage, item.mileage, item.km, item.kilometerstand, item.mileageKm);
       const km = kmRaw != null ? parseInt(String(kmRaw).replace(/[^\d]/g, '')) || null : null;
-      const jaarRaw = veld(item.year, item.jaar, item.bouwjaar, item.modelYear, item.constructionYear);
+      const jaarRaw = veld(v.year, item.year, item.jaar, item.bouwjaar, item.modelYear, item.constructionYear);
       const jaarM = String(jaarRaw||'').match(/\b(19|20)\d{2}\b/);
       const titel = veld(item.title, item.titel, item.name, item.naam);
       const imgSrc = veld(item.image, item.imageUrl, item.imgSrc, item.thumbnail, Array.isArray(item.images)?item.images[0]:null);
@@ -624,8 +678,8 @@ function parseerViaBovag(html, gezien, label, uitgebreideDiagnose) {
         prijs,
         km,
         jaar: jaarM ? parseInt(jaarM[0]) : null,
-        brandstof: veld(item.fuelType, item.brandstof) || '',
-        locatie: veld(item.city, item.plaats, item.location) || null,
+        brandstof: veld(fuelArr[0], item.fuelType, item.brandstof) || '',
+        locatie: veld(co.city, item.city, item.plaats, item.location) || null,
         url,
         imgSrc: typeof imgSrc === 'string' ? imgSrc : '',
         imgs: typeof imgSrc === 'string' ? [imgSrc] : [],
@@ -634,7 +688,15 @@ function parseerViaBovag(html, gezien, label, uitgebreideDiagnose) {
     }
     if (uitgebreideDiagnose && results.length) {
       console.log(`   diagnose ${label}: RSC-Flight voorbeeldobject (ruwe sleutels): ${JSON.stringify(Object.keys(items[0]))}`);
+      console.log(`   diagnose ${label}: RSC-Flight vehicle-subobject: ${JSON.stringify(items[0].vehicle)}`);
+      console.log(`   diagnose ${label}: RSC-Flight company-subobject: ${JSON.stringify(items[0].company)}`);
       console.log(`   diagnose ${label}: RSC-Flight eerste gemapte listing: ${JSON.stringify(results[0])}`);
+      // Alle 30 "pagina's" (?pagina=N) leverden in #97 identiek dezelfde 24
+      // resultaten op -- de site lijkt die query-param niet meer server-side
+      // te respecteren. Check of er ergens paginerings-metadata meegestuurd
+      // wordt, als aanwijzing voor hoe de échte paginering nu werkt.
+      const paginaHints = vindViaBovagPaginaHints(html);
+      console.log(`   diagnose ${label}: paginerings-achtige velden gevonden (max 20): ${paginaHints.length ? JSON.stringify(paginaHints) : '(geen)'}`);
     }
     return results;
   }
