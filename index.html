@@ -1358,7 +1358,12 @@ async function laadListings() {
       window._laadVolledig = function() {
         if (window._volledigGeladen) return;
         window._volledigGeladen = true;
-        fetch('/data/listings.json').then(function(r){return r.json();}).then(function(fullData){
+        // listings-lean.json i.p.v. listings.json (performance-audit 31 aug):
+        // zelfde volledige advertentieset, maar zonder de imgs-fotogalerij
+        // (~39% kleiner) -- die is alleen nodig in de detailweergave, en
+        // daar zorgt de vangnet-fetch in openDetail() (zie verderop) alsnog
+        // voor de volledige galerij via het bijbehorende merken/<merk>.json.
+        fetch('/data/listings-lean.json').then(function(r){return r.json();}).then(function(fullData){
           var full = fullData.listings||[];
           // totaal blijft ongewijzigd (zelfde bron als listings-top.json), dus alleen de
           // achterliggende pool aanvullen — geen zichtbare aantallen laten "springen".
@@ -1805,6 +1810,25 @@ function openDetail(id) {
   document.getElementById('detailTitel').textContent = a.titel;
   window._galImgs = (a.imgs && a.imgs.length) ? a.imgs.slice(0,10).map(u=>u.replace('/250x188.webp','/800x600.webp').replace('/250x188.jpg','/800x600.jpg')) : (a.imgSrc ? [a.imgSrc.replace('/250x188.webp','/800x600.webp')] : []);
   window._galIdx = 0;
+  // Vangnet voor advertenties uit listings-lean.json (achtergrond-load zonder
+  // imgs, zie window._laadVolledig): a.imgs ontbreekt dan, dus hierboven
+  // staat alleen de ene imgSrc-thumbnail in de galerij. Haal in dat geval
+  // alsnog het bijbehorende merken/<merk>.json op -- dat bestand bevat de
+  // volledige imgs-array altijd -- en vul de galerij met terugwerkende
+  // kracht aan zodra dat binnen is. huidigDetailId===id voorkomt dat een
+  // late respons de galerij van een inmiddels geopende, andere advertentie
+  // overschrijft.
+  if ((!a.imgs || !a.imgs.length) && a.merk) {
+    var _slug = a.merk.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+    fetch('/data/merken/' + _slug + '.json').then(function(r){ return r.ok ? r.json() : null; }).then(function(d){
+      if (!d || huidigDetailId !== id) return;
+      var voll = (d.listings || []).find(function(x){ return x.id === id; });
+      if (voll && voll.imgs && voll.imgs.length) {
+        window._galImgs = voll.imgs.slice(0,10).map(function(u){ return u.replace('/250x188.webp','/800x600.webp').replace('/250x188.jpg','/800x600.jpg'); });
+        galRender();
+      }
+    }).catch(function(){});
+  }
   document.getElementById('detailInhoud').innerHTML = `
     <div class="gallery-main" style="position:relative">
       <button class="gal-prev gal-nav" onclick="galNav(-1)" aria-label="Vorige foto">&#8249;</button>

@@ -1852,6 +1852,23 @@ async function main() {
   const _topPath = path.join(process.cwd(), 'data', 'listings-top.json');
   fs.writeFileSync(_topPath, JSON.stringify(_topData));
   console.log(' listings-top.json: top ' + _topL.length + ' deals geschreven');
+  // ── listings-lean.json: ALLE advertenties, ook zonder imgs (performance-
+  // audit 31 aug) -- dit is wat de frontend op de achtergrond bijlaadt nadat
+  // listings-top.json getoond is (zie window._laadVolledig in index.html).
+  // imgs was met ~9,26MB verreweg de grootste velden-kostenpost van het volle
+  // listings.json (24MB totaal); alleen de detail-foto-gallerij gebruikt dat
+  // veld, en die heeft in index.html inmiddels een vangnet dat bij een
+  // ontbrekende imgs-array alsnog het bijbehorende merken/<merk>.json ophaalt
+  // (dat wél altijd imgs bevat) -- dus geen zichtbaar verlies, wel ~39%
+  // minder bytes voor iedereen die deze achtergrond-load daadwerkelijk
+  // binnenhaalt. data/listings.json zelf blijft ongewijzigd (volledige
+  // fidelity, o.a. voor de eigen merge-logica hierboven en scripts/check-
+  // scrape-health.js).
+  const _leanL = (data.listings||[]).map(function(l){ var _c = Object.assign({}, l); delete _c.imgs; return _c; });
+  const _leanData = Object.assign({}, data, {listings: _leanL});
+  const _leanPath = path.join(process.cwd(), 'data', 'listings-lean.json');
+  fs.writeFileSync(_leanPath, JSON.stringify(_leanData));
+  console.log(' listings-lean.json: ' + _leanL.length + ' listings zonder imgs geschreven');
   // ââ Per-merk JSON bestanden genereren (voor lazy brand loading) ââ
   const _merkDir = path.join(process.cwd(), 'data', 'merken');
   if (!fs.existsSync(_merkDir)) fs.mkdirSync(_merkDir, { recursive: true });
