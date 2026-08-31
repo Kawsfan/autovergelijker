@@ -1,10 +1,10 @@
-# AutoVergelijker 🚗
+# Carkijker 🚗
 
-Vergelijk tweedehands auto's uit heel Nederland op één plek. Dagelijks bijgewerkt vanuit vijf grote advertentiesites.
+Vergelijk tweedehands auto's uit heel Nederland op één plek. 3x per dag automatisch bijgewerkt vanuit zes grote advertentiesites.
 
 ## Live site
 
-**[kawsfan.github.io/autovergelijker](https://kawsfan.github.io/autovergelijker/)**
+**[carkijker.nl](https://carkijker.nl/)**
 
 ## Bronnen
 
@@ -12,44 +12,61 @@ Vergelijk tweedehands auto's uit heel Nederland op één plek. Dagelijks bijgewe
 |------|------|
 | [Marktplaats](https://www.marktplaats.nl) | Particulier & dealer |
 | [Gaspedaal](https://www.gaspedaal.nl) | Dealer |
-| [AutoTrack](https://www.autotrack.nl) | Dealer |
 | [AutoScout24](https://www.autoscout24.nl) | Dealer |
+| [AutoTrack](https://www.autotrack.nl) | Dealer |
+| [AutoTrader](https://www.autotrader.nl) | Dealer |
 | [ViaBovag](https://www.viabovag.nl) | BOVAG-gecertificeerd |
 
 ## Functies
 
-- 🔍 Zoek op merk, model, prijs, kilometerstand, jaar en brandstof
-- 🏷️ Gekleurde labels per advertentiesite
-- 🔄 Dagelijks bijgewerkt via een automatische scraper (GitHub Actions)
+- 🔍 Zoek en filter op merk, model, prijs, kilometerstand, bouwjaar en brandstof
+- 🏷️ Gekleurde labels per advertentiesite, en particulier/dealer-badge waar te herleiden
+- 📉 Prijshistorie per advertentie, met een apart "prijsverlagingen"-overzicht
+- 🕓 "Dagen online"-badge op basis van wanneer een advertentie voor het eerst is gezien
+- 🔄 3x per dag automatisch bijgewerkt via GitHub Actions (06:00 / 12:00 / 18:00 UTC)
 - ⚡ Razendsnel — geen server, geen database, gewoon statische JSON
-- 📊 Dagelijks scrape-rapport per bron (via `data/scrape-report.json`)
+- 🗺️ Landingspagina's per merk, model en stad (`/occasions/...`), plus een paar redactionele artikelen (`/artikelen/...`)
+- 📊 Dagelijkse gezondheidscheck per bron — de workflow faalt zichtbaar als een bron wegvalt of fors inzakt
 - 🔁 Retry-logica: mislukte requests worden tot 3x opnieuw geprobeerd
 
 ## Hoe werkt het?
 
-Elke nacht draait er een Node.js scraper op GitHub Actions. Die haalt advertenties op uit de vijf bronnen en slaat ze op in `data/cars.json`. De website laadt dit bestand direct in — geen server, geen database.
+Drie keer per dag draait er een Node.js-scraper op GitHub Actions. Die haalt advertenties op uit de zes bronnen, genereert de merk/model/stad-landingspagina's en artikelen, en commit alles terug naar `main`. De website laadt de JSON-bestanden direct in — geen server, geen database.
 
 ```
-GitHub Actions (dagelijks 06:00 UTC)
+GitHub Actions (06:00 / 12:00 / 18:00 UTC, concurrency-guard voorkomt overlap)
     └─ node scripts/scrape.js
-         ├─ Marktplaats, Gaspedaal, AutoTrack, AutoScout24, ViaBovag
-         ├─ fetchWithRetry (3x backoff bij fouten)
-         ├─ data/cars.json  ← advertenties
-         └─ data/scrape-report.json  ← statistieken per bron
+    │     ├─ Marktplaats, Gaspedaal, AutoScout24, AutoTrack, AutoTrader, ViaBovag
+    │     ├─ fetchWithRetry (3x backoff bij fouten)
+    │     ├─ merge met bestaande data + cutoff (advertenties die >7 dagen niet
+    │     │  meer gezien zijn vallen weg)
+    │     ├─ data/listings.json       ← actuele advertenties + prijshistorie
+    │     ├─ data/listings-top.json   ← lichte selectie voor snelle homepage-load
+    │     ├─ data/scrape-report.json  ← aantal nieuwe advertenties per bron, laatste run
+    │     └─ data/scrape-health.json  ← dagelijkse tellingen per bron, voor de gezondheidscheck
+    ├─ node generate-occasions.js     → occasions/<merk>/<model|stad>/index.html + sitemap.xml
+    ├─ node generate-artikelen.js     → artikelen/<slug>/index.html + llms.txt
+    ├─ commit + push naar main
+    └─ node scripts/check-scrape-health.js
+          → faalt de workflow zichtbaar bij een bron die wegvalt of >50% inzakt
+            t.o.v. de vorige run, of al 2+ dagen op 0 staat
 ```
 
 ## Techniek
 
 - **Frontend**: Vanilla HTML/CSS/JS — geen frameworks
-- **Scraper**: Node.js met fetch + exponential backoff retry
-- **Hosting**: GitHub Pages
-- **CI/CD**: GitHub Actions
+- **Scraper**: Node.js met `fetch` + exponential backoff retry
+- **Hosting**: Cloudflare Workers (static assets) voor productie; Netlify voor PR-deploy-previews
+- **CI/CD**: GitHub Actions — dagelijkse scraper + `validate.yml` voor PR-validatie
 
 ## Lokaal draaien
 
 ```bash
 git clone https://github.com/Kawsfan/autovergelijker.git
 cd autovergelijker
-node scripts/scrape.js   # scraper draaien
+node scripts/scrape.js          # scraper draaien
+node generate-occasions.js      # merk/model/stad-pagina's + sitemap genereren
+node generate-artikelen.js      # artikel-pagina's genereren
+node scripts/validate.js        # gegenereerde bestanden valideren
 # open index.html in je browser
 ```
