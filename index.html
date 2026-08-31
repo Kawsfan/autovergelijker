@@ -1290,7 +1290,7 @@ window.ADS_ENABLED = false;
 // ── LADEN ─────────────────────────────────────────────────────────────────────
 async function laadListings() {
   try {
-    const resp = await fetch('https://raw.githubusercontent.com/Kawsfan/autovergelijker/main/data/listings-top.json');
+    const resp = await fetch('/data/listings-top.json');
     if (!resp.ok) throw new Error('HTTP ' + resp.status);
     const data = await resp.json();
     // data.totaal komt uit de scraper en is identiek in listings-top.json en listings.json —
@@ -1358,7 +1358,7 @@ async function laadListings() {
       window._laadVolledig = function() {
         if (window._volledigGeladen) return;
         window._volledigGeladen = true;
-        fetch('https://raw.githubusercontent.com/Kawsfan/autovergelijker/main/data/listings.json').then(function(r){return r.json();}).then(function(fullData){
+        fetch('/data/listings.json').then(function(r){return r.json();}).then(function(fullData){
           var full = fullData.listings||[];
           // totaal blijft ongewijzigd (zelfde bron als listings-top.json), dus alleen de
           // achterliggende pool aanvullen — geen zichtbare aantallen laten "springen".
@@ -1999,15 +1999,32 @@ document.addEventListener('DOMContentLoaded', laadListings);
     <div id="markdownBody" class="markdown-body"><em>Laden...</em></div>
   </div>
 </div>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js"></script>
 <script>
+// marked.min.js wordt hieronder pas dynamisch geladen zodra de info-modal
+// voor het eerst opent (i.p.v. een blokkerend <script src> midden in de
+// pagina) -- het is alleen nodig voor die ene modal, dus hoeft de rest van
+// de pagina niet op te houden bij het laden/parsen.
+function _laadMarked() {
+  if (window.marked) return Promise.resolve();
+  if (window._markedLaadPromise) return window._markedLaadPromise;
+  window._markedLaadPromise = new Promise(function(resolve, reject) {
+    var s = document.createElement('script');
+    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js';
+    s.onload = resolve;
+    s.onerror = reject;
+    document.head.appendChild(s);
+  });
+  return window._markedLaadPromise;
+}
 function openInfo() {
   var modal = document.getElementById('infoModal');
   modal.style.display = 'flex';
   if (!window._readmeLoaded) {
-    fetch('https://raw.githubusercontent.com/Kawsfan/autovergelijker/main/README.md')
-      .then(function(r){ return r.text(); })
-      .then(function(md){
+    Promise.all([
+      _laadMarked(),
+      fetch('/README.md').then(function(r){ return r.text(); })
+    ]).then(function(resultaten){
+        var md = resultaten[1];
         document.getElementById('markdownBody').innerHTML = marked.parse(md);
         window._readmeLoaded = true;
       });
