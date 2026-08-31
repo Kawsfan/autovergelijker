@@ -421,6 +421,12 @@ const VB_URLS = Array.from({length:30},(_,i)=>vbUrl(i+1));
 async function scrapeViaBovag() {
   const all = [];
   const gezien = new Set();
+  // Ruwe id's/url's van pagina 1, apart bijgehouden (los van de gemapte
+  // 'gezien'-Set hierboven) zodat de RSC-navigatieheader-probe op pagina 2
+  // een harde overlap-vergelijking kan doen i.p.v. alleen een los aantal te
+  // loggen -- daarmee kunnen we in de logs zien of dat spoor daadwerkelijk
+  // andere advertenties teruggeeft, niet alleen een andere respons-vorm.
+  let paginaEenRuweIds = null;
 
   for (let i = 0; i < VB_URLS.length; i++) {
     const url = VB_URLS[i];
@@ -433,7 +439,12 @@ async function scrapeViaBovag() {
       const found = parseerViaBovag(html, gezien, label, i === 0);
       all.push(...found);
       console.log(` ${label}: ${found.length} nieuw ÃÂÃÂ¢ÃÂÃÂÃÂÃÂ totaal VB ${all.length}`);
-      if (i === 1) await probeViaBovagRscNavigatie(i + 1);
+      if (i === 0) {
+        const ruweItems = extraheerViaBovagFlightItems(html);
+        paginaEenRuweIds = new Set(ruweItems.map(function(it) { return it.id || it.url || it.friendlyUriPart || null; }).filter(Boolean));
+        console.log(`   diagnose VB p1: ${paginaEenRuweIds.size} unieke ruwe id's/url's vastgelegd voor overlap-vergelijking`);
+      }
+      if (i === 1) await probeViaBovagRscNavigatie(i + 1, paginaEenRuweIds);
     } catch (e) {
       console.log(` ${label}: fout - ${e.message}`);
     }
@@ -581,7 +592,7 @@ function zoekListingAchtigVanuitFlightTekst(chunkTekst) {
   return gevonden;
 }
 
-async function probeViaBovagRscNavigatie(paginaNum) {
+async function probeViaBovagRscNavigatie(paginaNum, paginaEenIds) {
   const url = vbUrl(paginaNum);
   const varianten = [
     { naam: 'RSC-only', extra: { 'RSC': '1' } },
@@ -605,6 +616,17 @@ async function probeViaBovagRscNavigatie(paginaNum) {
           return it.id || it.url || it.friendlyUriPart || '?';
         });
         console.log(`   diagnose VB-RSC-probe p${paginaNum} [${variant.naam}] voorbeelden: ${idsOfUrls.join(', ')}`);
+        // De kern van deze diagnose: leveren deze objecten daadwerkelijk
+        // ANDERE advertenties op dan pagina 1, of is dit toch dezelfde 24 in
+        // een andere respons-vorm? Vergelijk elk gevonden item z'n ruwe
+        // id/url/friendlyUriPart tegen de set die op pagina 1 is vastgelegd.
+        if (paginaEenIds && paginaEenIds.size) {
+          const alleSleutels = items.map(function(it) { return it.id || it.url || it.friendlyUriPart || null; }).filter(Boolean);
+          const nieuw = alleSleutels.filter(function(k) { return !paginaEenIds.has(k); });
+          console.log(`   diagnose VB-RSC-probe p${paginaNum} [${variant.naam}] overlap-check: ${alleSleutels.length - nieuw.length}/${alleSleutels.length} identiek aan pagina 1, ${nieuw.length} ECHT NIEUW${nieuw.length ? ' (' + nieuw.slice(0, 3).join(', ') + ')' : ''}`);
+        } else {
+          console.log(`   diagnose VB-RSC-probe p${paginaNum} [${variant.naam}] overlap-check: geen pagina-1-referentieset beschikbaar, kan niet vergelijken`);
+        }
       }
     } catch (e) {
       console.log(`   diagnose VB-RSC-probe p${paginaNum} [${variant.naam}]: fout - ${e.message}`);
