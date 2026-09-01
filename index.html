@@ -1288,11 +1288,34 @@ const VANDAAG = new Date().toISOString().split('T')[0];
 window.ADS_ENABLED = false;
 
 // ── LADEN ─────────────────────────────────────────────────────────────────────
+// Kleine sleep-helper voor de retry-backoff hieronder.
+function _sleep(ms) { return new Promise(function(r){ setTimeout(r, ms); }); }
+// listings-top.json (~3,4MB) is de kritieke eerste fetch: zonder resultaat
+// hier toont de hele pagina "Laden mislukt". Eén hapering op een wisselende
+// mobiele verbinding (of een tussentijds afgebroken/onvolledige respons, die
+// resp.json() als parse-fout naar boven gooit) was voorheen definitief -- geen
+// retry, dus pas een handmatige refresh hielp. Probeert nu tot 3x, met een
+// korte oplopende pauze, voor we de "Laden mislukt"-melding daadwerkelijk
+// tonen.
+async function _fetchListingsTopMetRetry() {
+  const max = 3;
+  let laatsteFout;
+  for (let poging = 1; poging <= max; poging++) {
+    try {
+      const resp = await fetch('/data/listings-top.json', { cache: 'no-store' });
+      if (!resp.ok) throw new Error('HTTP ' + resp.status);
+      return await resp.json();
+    } catch (e) {
+      laatsteFout = e;
+      if (poging < max) await _sleep(poging * 700);
+    }
+  }
+  throw laatsteFout;
+}
+
 async function laadListings() {
   try {
-    const resp = await fetch('/data/listings-top.json');
-    if (!resp.ok) throw new Error('HTTP ' + resp.status);
-    const data = await resp.json();
+    const data = await _fetchListingsTopMetRetry();
     // data.totaal komt uit de scraper en is identiek in listings-top.json en listings.json —
     // dit getal verandert dus niet als de volledige dataset later op de achtergrond bijladen wordt.
     window._totaalAdvertenties = data.totaal || (data.listings || []).length;
