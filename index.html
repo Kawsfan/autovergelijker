@@ -1444,11 +1444,19 @@ async function laadListings() {
     }
   } catch (err) {
     window._laadStatus = 'mislukt';
+    // De generieke melding hieronder gaf tot nu toe geen enkel aanknopingspunt
+    // om een structurele "Laden mislukt" (retry hielp niet, dus geen
+    // eenmalige netwerkhapering) te diagnosticeren zonder devtools-toegang.
+    // Toon daarom ook de daadwerkelijke JS-foutmelding, in leesbare/kopieerbare
+    // vorm -- console.error blijft staan voor wie wél devtools heeft.
+    console.error('laadListings mislukt:', err);
+    const foutDetail = (err && (err.name || 'Error') + ': ' + (err.message || String(err))) || 'onbekende fout';
     document.getElementById('autoGrid').innerHTML = `
       <div class="geen-resultaten">
         <span class="icon">⚠️</span>
         <h2>Laden mislukt</h2>
         <p>Vernieuw de pagina om het opnieuw te proberen.</p>
+        <p style="margin-top:10px;font-size:11.5px;font-family:monospace;color:var(--subtekst);word-break:break-word;user-select:text">${escHtml(foutDetail)}</p>
       </div>`;
     ((document.getElementById('statusTekst')||{})||{}).textContent = 'Laden mislukt';
   }
