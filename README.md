@@ -1,6 +1,6 @@
 # Carkijker 🚗
 
-Vergelijk tweedehands auto's uit heel Nederland op één plek. 3x per dag automatisch bijgewerkt vanuit zes grote advertentiesites.
+Vergelijk tweedehands auto's uit heel Nederland op één plek. 3x per dag automatisch bijgewerkt vanuit zeven grote advertentiesites.
 
 ## Live site
 
@@ -16,6 +16,7 @@ Vergelijk tweedehands auto's uit heel Nederland op één plek. 3x per dag automa
 | [AutoTrack](https://www.autotrack.nl) | Dealer |
 | [AutoTrader](https://www.autotrader.nl) | Dealer |
 | [ViaBovag](https://www.viabovag.nl) | BOVAG-gecertificeerd |
+| [AutoWereld](https://www.autowereld.nl) | Dealer |
 
 ## Functies
 
@@ -31,12 +32,12 @@ Vergelijk tweedehands auto's uit heel Nederland op één plek. 3x per dag automa
 
 ## Hoe werkt het?
 
-Drie keer per dag draait er een Node.js-scraper op GitHub Actions. Die haalt advertenties op uit de zes bronnen, genereert de merk/model/stad-landingspagina's en artikelen, en commit alles terug naar `main`. De website laadt de JSON-bestanden direct in — geen server, geen database.
+Drie keer per dag draait er een Node.js-scraper op GitHub Actions. Die haalt advertenties op uit de zeven bronnen, genereert de merk/model/stad-landingspagina's en artikelen, en commit alles terug naar `main`. De website laadt de JSON-bestanden direct in — geen server, geen database.
 
 ```
 GitHub Actions (06:00 / 12:00 / 18:00 UTC, concurrency-guard voorkomt overlap)
     └─ node scripts/scrape.js
-    │     ├─ Marktplaats, Gaspedaal, AutoScout24, AutoTrack, AutoTrader, ViaBovag
+    │     ├─ Marktplaats, Gaspedaal, AutoScout24, AutoTrack, AutoTrader, ViaBovag, AutoWereld
     │     ├─ fetchWithRetry (3x backoff bij fouten)
     │     ├─ merge met bestaande data + cutoff (advertenties die >7 dagen niet
     │     │  meer gezien zijn vallen weg)

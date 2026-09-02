@@ -100,6 +100,18 @@ const HEADERS_ATR = {
   'Upgrade-Insecure-Requests': '1',
 };
 
+const HEADERS_AW = {
+  'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+  'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
+  'Accept-Language': 'nl-NL,nl;q=0.9,en;q=0.8',
+  'Cache-Control': 'no-cache',
+  'Sec-Fetch-Dest': 'document',
+  'Sec-Fetch-Mode': 'navigate',
+  'Sec-Fetch-Site': 'none',
+  'Sec-Fetch-User': '?1',
+  'Upgrade-Insecure-Requests': '1',
+};
+
 // ÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂ MARKTPLAATS ÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂ
 
 const MP_API_BASE = 'https://www.marktplaats.nl/lrp/api/search?l1CategoryId=91&numberOfResultsPerPage=100';
@@ -1405,6 +1417,179 @@ function parseerAutoTrader(html, gezien, label) {
   return results;
 }
 
+// ── AUTOWERELD ───────────────────────────────────────────────────────────
+// Zevende bron, toegevoegd 2 sep op verzoek van de gebruiker. autowereld.nl's
+// exacte structuur (URL-paden, tech stack) is vanuit deze sandbox niet te
+// verkennen -- zelfde netwerkbeperking als bij elke andere bron hier (zie
+// ViaBovag/AutoTrack/AutoTrader hierboven, allemaal ontwikkeld door eerst
+// een diagnostische eerste versie in productie te draaien en op basis van de
+// workflow-run-logs bij te sturen).
+//
+// AW_URLS bevat daarom 3 verschillende gegokte top-level paden i.p.v. 3
+// pagina's van hetzelfde pad -- levert bij de eerste run direct een
+// HTTP-status per gok op, i.p.v. blind paginering te proberen op een pad dat
+// misschien al fout is. parseerAutoWereld() probeert vervolgens, in volgorde,
+// de patronen die de andere 6 bronnen al bleken te gebruiken (JSON-LD
+// ItemList/Car -- AutoTrack's aanpak, en het gangbaarst voor Google's
+// rich results -- dan een generieke zoektocht door een eventueel
+// __NEXT_DATA__/__NUXT__-blob naar listing-achtige objecten, dezelfde
+// diepte-onafhankelijke heuristiek als extraheerViaBovagFlightItems()
+// hierboven) en logt bij nul resultaten expliciet genoeg over de ruwe
+// pagina om na de eerstvolgende run direct te kunnen bijsturen i.p.v. blind
+// te gissen.
+const AW_URLS = [
+  'https://www.autowereld.nl/occasions',
+  'https://www.autowereld.nl/auto-kopen',
+  'https://www.autowereld.nl/aanbod',
+];
+
+async function scrapeAutoWereld() {
+  const all = [];
+  const gezien = new Set();
+
+  for (let i = 0; i < AW_URLS.length; i++) {
+    const url = AW_URLS[i];
+    const label = `AW p${i + 1}`;
+    try {
+      const resp = await fetchWithRetry(url, { headers: HEADERS_AW });
+      console.log(` ${label}: HTTP ${resp.status}`);
+      if (!resp.ok) continue;
+      const html = await resp.text();
+      const found = parseerAutoWereld(html, gezien, label, true);
+      all.push(...found);
+      console.log(` ${label}: ${found.length} nieuw -- totaal AW ${all.length}`);
+    } catch (e) {
+      console.log(` ${label}: fout - ${e.message}`);
+    }
+    if (i < AW_URLS.length - 1) await sleep(6000);
+  }
+  return all;
+}
+
+// Zoekt, onafhankelijk van de exacte boomstructuur, naar objecten die op een
+// auto-listing lijken (zowel een prijs- als titel/merk-achtig veld) --
+// zelfde heuristiek als extraheerViaBovagFlightItems()/lijktOpListing()
+// hierboven, maar toegepast op een reeds geparste JS-objectboom
+// (__NEXT_DATA__/__NUXT__/etc.) i.p.v. op Flight-tekstchunks. Niet ViaBovag-
+// specifiek, dus hier los herbruikbaar gehouden i.p.v. gekopieerd.
+function vindListingAchtigeObjecten(v, resultaat, gezienObj, diepte) {
+  if (v == null || diepte > 8 || resultaat.length >= 500) return;
+  if (typeof v !== 'object') return;
+  if (!Array.isArray(v)) {
+    const laag = Object.keys(v).map(function(k){ return k.toLowerCase(); });
+    const heeftPrijs = laag.some(function(k){ return k.includes('price') || k === 'prijs' || k === 'vraagprijs'; });
+    const heeftTitel = laag.some(function(k){ return k.includes('title') || k === 'titel' || k.includes('brand') || k === 'merk' || k.includes('make') || k === 'name' || k === 'naam'; });
+    if (heeftPrijs && heeftTitel) {
+      const key = JSON.stringify(v).slice(0, 200);
+      if (!gezienObj.has(key)) { gezienObj.add(key); resultaat.push(v); }
+      return;
+    }
+  }
+  if (Array.isArray(v)) { v.forEach(function(x){ vindListingAchtigeObjecten(x, resultaat, gezienObj, diepte + 1); }); return; }
+  Object.keys(v).forEach(function(k){ vindListingAchtigeObjecten(v[k], resultaat, gezienObj, diepte + 1); });
+}
+
+function parseerAutoWereld(html, gezien, label, uitgebreideDiagnose) {
+  const results = [];
+  let items = [];
+  let herkomst = '';
+
+  // Strategie 1: JSON-LD ItemList/Car (schema.org) -- zelfde patroon als
+  // parseerAutoTrack hierboven.
+  const ldBlocks = [...html.matchAll(/<script type="application\/ld\+json"[^>]*>([\s\S]*?)<\/script>/g)];
+  for (const block of ldBlocks) {
+    try {
+      const d = JSON.parse(block[1]);
+      if (d['@type'] === 'ItemList' && Array.isArray(d.itemListElement)) {
+        items = d.itemListElement.map(function(e){ return e.item || e; }).filter(Boolean);
+        herkomst = 'JSON-LD ItemList';
+        break;
+      }
+      if (Array.isArray(d) && d[0] && d[0]['@type'] === 'Car') {
+        items = d;
+        herkomst = 'JSON-LD Car-array';
+        break;
+      }
+    } catch (e) { /* volgende block */ }
+  }
+
+  // Strategie 2: __NEXT_DATA__/__NUXT__ -- generieke zoektocht naar
+  // listing-achtige objecten ongeacht de boomstructuur.
+  if (items.length === 0) {
+    const stateMatch = html.match(/<script id="__NEXT_DATA__" type="application\/json">([\s\S]*?)<\/script>/)
+      || html.match(/window\.__NUXT__\s*=\s*(\{[\s\S]*?\});?\s*<\/script>/);
+    if (stateMatch) {
+      try {
+        const data = JSON.parse(stateMatch[1]);
+        const gevonden = [];
+        vindListingAchtigeObjecten(data, gevonden, new Set(), 0);
+        if (gevonden.length) { items = gevonden; herkomst = '__NEXT_DATA__/__NUXT__ generiek'; }
+      } catch (e) { /* val door naar diagnose hieronder */ }
+    }
+  }
+
+  if (items.length === 0) {
+    console.log(` ${label}: geen listings gevonden (${html.length} chars HTML, JSON-LD blocks: ${ldBlocks.length}, __NEXT_DATA__: ${/__NEXT_DATA__/.test(html)}, __NUXT__: ${/__NUXT__/.test(html)})`);
+    if (uitgebreideDiagnose) {
+      console.log(`   diagnose ${label}: eerste 500 chars HTML: ${html.slice(0, 500).replace(/\s+/g, ' ')}`);
+    }
+    return results;
+  }
+
+  console.log(` ${label}: ${items.length} items via ${herkomst}`);
+  if (uitgebreideDiagnose && items.length) {
+    console.log(`   diagnose ${label}: ruwe sleutels eerste item: ${JSON.stringify(Object.keys(items[0]))}`);
+    console.log(`   diagnose ${label}: eerste item (max 800 chars): ${JSON.stringify(items[0]).slice(0, 800)}`);
+  }
+
+  for (const item of items) {
+    const rawUrl = item.url || item['@id'] || item.href || '';
+    if (!rawUrl) continue;
+    const url = rawUrl.startsWith('http') ? rawUrl : 'https://www.autowereld.nl' + rawUrl;
+    if (gezien.has(url)) continue;
+    gezien.add(url);
+
+    const idM = url.match(/(\d{5,})\/?(?:$|[?#])/);
+    const id = 'aw-' + (idM ? idM[1] : url.replace(/[^a-z0-9]/gi, '').slice(-24));
+
+    const prijsRaw = (item.offers && item.offers.price) ?? item.price ?? item.prijs ?? 0;
+    const prijs = typeof prijsRaw === 'string' ? parseInt(prijsRaw.replace(/[^\d]/g, '')) : (prijsRaw || null);
+    if (!prijs || prijs < 500 || prijs > 500000) continue;
+
+    const kmRaw = (item.mileageFromOdometer && item.mileageFromOdometer.value) ?? item.mileage ?? item.km ?? item.kilometerstand ?? null;
+    const km = kmRaw ? parseInt(String(kmRaw).replace(/[^\d]/g, '')) : null;
+
+    const yearRaw = item.productionDate || item.modelDate || item.jaar || item.bouwjaar || '';
+    const yearM = String(yearRaw).match(/\b(19|20)\d{2}\b/);
+    const jaar = yearM ? parseInt(yearM[0]) : null;
+
+    const imgRaw = item.image || item.imgs || item.afbeeldingen || '';
+    const imgs = (Array.isArray(imgRaw) ? imgRaw : (imgRaw ? [imgRaw] : [])).filter(function(u){ return typeof u === 'string'; });
+
+    const locatieRaw = (item.offers && item.offers.seller && item.offers.seller.address && item.offers.seller.address.addressLocality) || item.locatie || item.plaats || '';
+
+    results.push({
+      id,
+      bron: 'AutoWereld',
+      titel: (item.name || item.title || item.titel || (`${item.brand || ''} ${item.model || ''}`).trim() || '').substring(0, 80),
+      prijs,
+      jaar,
+      km,
+      brandstof: item.fuelType || item.brandstof || '',
+      carrosserie: item.bodyType || item.carrosserie || '',
+      transmissie: item.vehicleTransmission || item.transmissie || '',
+      kleur: item.color || item.kleur || '',
+      locatie: titleCaseLocatie(locatieRaw) || 'Nederland',
+      url,
+      imgSrc: imgs[0] || '',
+      imgs: imgs.slice(0, 10),
+      bijgewerkt: new Date().toISOString().split('T')[0]
+    });
+  }
+
+  return results;
+}
+
 // ÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂ MAIN ÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂ
 
 
@@ -1476,7 +1661,12 @@ async function main() {
   const atrListings = await scrapeAutoTrader();
   console.log(`ÃÂÃÂ¢ÃÂÃÂÃÂÃÂ AutoTrader: ${atrListings.length} listings`);
 
-  const nieuw = [...mpListings, ...gpListings, ...vbListings, ...atListings, ...as24Listings, ...atrListings];
+
+  console.log('\nAutoWereld (occasions)...');
+  const awListings = await scrapeAutoWereld();
+  console.log(`AutoWereld: ${awListings.length} listings`);
+
+  const nieuw = [...mpListings, ...gpListings, ...vbListings, ...atListings, ...as24Listings, ...atrListings, ...awListings];
   console.log(`\nÃÂÃÂ°ÃÂÃÂÃÂÃÂÃÂÃÂ Vandaag gescrapt: ${nieuw.length} listings`);
 
   // ÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂ Bestaande listings inladen en samenvoegen ÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂ
