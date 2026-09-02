@@ -125,32 +125,69 @@ const MP_FORD_BASE = 'https://www.marktplaats.nl/lrp/api/search?l1CategoryId=91&
 const MP_FORD_OFFSETS = [0, 100, 200];
 const MP_FORD_EXPLORER_BASE = 'https://www.marktplaats.nl/lrp/api/search?l1CategoryId=91&numberOfResultsPerPage=100&query=ford+explorer+elektrisch';
 const MP_FORD_EXPLORER_OFFSETS = [0, 100];
-const MP_JEEP_BASE = 'https://www.marktplaats.nl/lrp/api/search?l1CategoryId=91&numberOfResultsPerPage=100&query=jeep';
-const MP_JEEP_OFFSETS = [0, 100];
-const MP_ALFA_ROMEO_BASE = 'https://www.marktplaats.nl/lrp/api/search?l1CategoryId=91&numberOfResultsPerPage=100&query=alfa+romeo';
-const MP_ALFA_ROMEO_OFFSETS = [0, 100];
-const MP_SUZUKI_BASE = 'https://www.marktplaats.nl/lrp/api/search?l1CategoryId=91&numberOfResultsPerPage=100&query=suzuki';
-const MP_SUZUKI_OFFSETS = [0, 100];
-const MP_MITSUBISHI_BASE = 'https://www.marktplaats.nl/lrp/api/search?l1CategoryId=91&numberOfResultsPerPage=100&query=mitsubishi';
-const MP_MITSUBISHI_OFFSETS = [0, 100];
-const MP_CUPRA_BASE = 'https://www.marktplaats.nl/lrp/api/search?l1CategoryId=91&numberOfResultsPerPage=100&query=cupra';
-const MP_CUPRA_OFFSETS = [0, 100];
-const MP_MG_BASE = 'https://www.marktplaats.nl/lrp/api/search?l1CategoryId=91&numberOfResultsPerPage=100&query=mg';
-const MP_MG_OFFSETS = [0, 100];
-const MP_POLESTAR_BASE = 'https://www.marktplaats.nl/lrp/api/search?l1CategoryId=91&numberOfResultsPerPage=100&query=polestar';
-const MP_POLESTAR_OFFSETS = [0, 100];
-const MP_JAGUAR_BASE = 'https://www.marktplaats.nl/lrp/api/search?l1CategoryId=91&numberOfResultsPerPage=100&query=jaguar';
-const MP_JAGUAR_OFFSETS = [0, 100];
-const MP_SUBARU_BASE = 'https://www.marktplaats.nl/lrp/api/search?l1CategoryId=91&numberOfResultsPerPage=100&query=subaru';
-const MP_SUBARU_OFFSETS = [0, 100];
-const MP_LEXUS_BASE = 'https://www.marktplaats.nl/lrp/api/search?l1CategoryId=91&numberOfResultsPerPage=100&query=lexus';
-const MP_LEXUS_OFFSETS = [0, 100];
-const MP_BYD_BASE = 'https://www.marktplaats.nl/lrp/api/search?l1CategoryId=91&numberOfResultsPerPage=100&query=byd';
-const MP_BYD_OFFSETS = [0, 100];
-const MP_SMART_BASE = 'https://www.marktplaats.nl/lrp/api/search?l1CategoryId=91&numberOfResultsPerPage=100&query=smart';
-const MP_SMART_OFFSETS = [0, 100];
-const MP_DS_BASE = 'https://www.marktplaats.nl/lrp/api/search?l1CategoryId=91&numberOfResultsPerPage=100&query=ds';
-const MP_DS_OFFSETS = [0, 100];
+// Merk-specifieke Marktplaats-queries: elke entry een eigen, onafhankelijke
+// zoekopdracht (dus met een eigen ~1.000-resultaten-budget bij Marktplaats'
+// zoek-API -- zie MP_OFFSETS hierboven, die budget zit voor de algemene
+// query al vol). offsets bepaalt hoe diep we die eigen 1.000 in gaan.
+//
+// MP_MIDDEN_DIEPTE (5 offsets = tot 500 resultaten) i.p.v. meteen de volle
+// MP_VOLLE_DIEPTE (10 offsets = tot 1.000): elke offset is 1 extra request +
+// sleep, en met 35 merken hieronder telt dat snel op in workflow-runtime.
+// Bewuste tussenstap -- na de eerstvolgende run(s) is aan scrape-report.json
+// per merk te zien welke query's tegen hun 500-limiet aanlopen (dus meer
+// aanbod laten liggen) en die kunnen gericht naar MP_VOLLE_DIEPTE.
+//
+// Twee groepen, samengevoegd 2 sep n.a.v. sessie-analyse ("waarom stokt het
+// totaal aanbod rond 22-24k"):
+// - De eerste 13 (Jeep t/m DS) bestonden al, maar stonden op maar 200 van
+//   hun beschikbare 1.000 (offsets [0,100]) -- gratis winst op bewezen
+//   werkende queries, nu naar MP_MIDDEN_DIEPTE getrokken.
+// - De overige 22 (Volkswagen t/m Ford) zijn nieuw: de grootste merken in
+//   Nederland, die tot nu toe GEEN eigen query hadden en dus volledig
+//   afhankelijk waren van de algemene query -- die al aan de eigen
+//   1.000-resultatenlimiet van Marktplaats vastzit. Dit is de belangrijkste
+//   hefboom om het totale aanbod voorbij het huidige plafond te krijgen.
+const MP_VOLLE_DIEPTE = Array.from({length:10},(_,i)=>i*100);
+const MP_MIDDEN_DIEPTE = [0, 100, 200, 300, 400];
+const MP_MERK_QUERIES = [
+  { naam: 'Jeep', query: 'jeep' },
+  { naam: 'Alfa Romeo', query: 'alfa+romeo' },
+  { naam: 'Suzuki', query: 'suzuki' },
+  { naam: 'Mitsubishi', query: 'mitsubishi' },
+  { naam: 'Cupra', query: 'cupra' },
+  { naam: 'MG', query: 'mg' },
+  { naam: 'Polestar', query: 'polestar' },
+  { naam: 'Jaguar', query: 'jaguar' },
+  { naam: 'Subaru', query: 'subaru' },
+  { naam: 'Lexus', query: 'lexus' },
+  { naam: 'BYD', query: 'byd' },
+  { naam: 'Smart', query: 'smart' },
+  { naam: 'DS', query: 'ds' },
+  { naam: 'Volkswagen', query: 'volkswagen' },
+  { naam: 'BMW', query: 'bmw' },
+  { naam: 'Toyota', query: 'toyota' },
+  { naam: 'Audi', query: 'audi' },
+  { naam: 'Peugeot', query: 'peugeot' },
+  { naam: 'Renault', query: 'renault' },
+  { naam: 'Hyundai', query: 'hyundai' },
+  { naam: 'Kia', query: 'kia' },
+  { naam: 'Volvo', query: 'volvo' },
+  { naam: 'Skoda', query: 'skoda' },
+  { naam: 'Mercedes-Benz', query: 'mercedes-benz' },
+  { naam: 'Seat', query: 'seat' },
+  { naam: 'Opel', query: 'opel' },
+  { naam: 'Fiat', query: 'fiat' },
+  { naam: 'Honda', query: 'honda' },
+  { naam: 'Mazda', query: 'mazda' },
+  { naam: 'Nissan', query: 'nissan' },
+  { naam: 'Dacia', query: 'dacia' },
+  { naam: 'Mini', query: 'mini' },
+  { naam: 'Land Rover', query: 'land+rover' },
+  { naam: 'Porsche', query: 'porsche' },
+  // Algemeen Ford (Focus/Fiesta/Puma/Kuga e.d.) -- MP_FORD_BASE hierboven is
+  // specifiek de Mach-E-EV-query, dekt de rest van het merk niet.
+  { naam: 'Ford', query: 'ford' },
+];
 
 async function scrapeMarktplaats() {
   const all = [];
@@ -240,6 +277,27 @@ async function scrapeMarktplaats() {
       console.log(label + ': ' + found.length + ' nieuw');
     } catch (e) { console.log(label + ': fout - ' + e.message); }
     if (i < MP_FORD_EXPLORER_OFFSETS.length - 1) await sleep(4000);
+  }
+
+  // Merk-specifieke queries (zie MP_MERK_QUERIES hierboven) -- 13 bestaande
+  // niche/EV-merken nu dieper (200->500), plus 22 nieuwe mainstream-merken
+  // die tot nu toe geen eigen query hadden.
+  for (const merk of MP_MERK_QUERIES) {
+    const base = 'https://www.marktplaats.nl/lrp/api/search?l1CategoryId=91&numberOfResultsPerPage=100&query=' + merk.query;
+    for (let i = 0; i < MP_MIDDEN_DIEPTE.length; i++) {
+      const url = base + '&offset=' + MP_MIDDEN_DIEPTE[i];
+      const label = 'MP ' + merk.naam + ' p' + (i + 1);
+      try {
+        const res = await fetchWithRetry(url, { headers: HEADERS_MP });
+        if (!res.ok) { console.log(label + ': HTTP ' + res.status); continue; }
+        const json = await res.json();
+        const items = json.listings || [];
+        const found = parseerMPItems(items, gezien);
+        all.push(...found);
+        console.log(label + ': ' + found.length + ' nieuw');
+      } catch (e) { console.log(label + ': fout - ' + e.message); }
+      if (i < MP_MIDDEN_DIEPTE.length - 1) await sleep(4000);
+    }
   }
 
   return all;
@@ -334,6 +392,59 @@ const GP_URLS = [
   // DS
   'https://www.gaspedaal.nl/ds',
   'https://www.gaspedaal.nl/ds?p=2',
+
+  // Nieuw (2 sep, sessie-analyse "waarom stokt het totaal aanbod"): de
+  // grootste merken in Nederland hadden hier tot nu toe geen eigen pad,
+  // dus leunden volledig op de algemene /zoeken-query hierboven (die maar
+  // 2 pagina's diep gaat). Zelfde bescheiden diepte (2 pagina's) als de
+  // bestaande merk-paden hierboven -- bewuste startdiepte, later gericht
+  // dieper op basis van scrape-report.json-yield per merk.
+  'https://www.gaspedaal.nl/volkswagen',
+  'https://www.gaspedaal.nl/volkswagen?p=2',
+  'https://www.gaspedaal.nl/bmw',
+  'https://www.gaspedaal.nl/bmw?p=2',
+  'https://www.gaspedaal.nl/toyota',
+  'https://www.gaspedaal.nl/toyota?p=2',
+  'https://www.gaspedaal.nl/audi',
+  'https://www.gaspedaal.nl/audi?p=2',
+  'https://www.gaspedaal.nl/peugeot',
+  'https://www.gaspedaal.nl/peugeot?p=2',
+  'https://www.gaspedaal.nl/renault',
+  'https://www.gaspedaal.nl/renault?p=2',
+  'https://www.gaspedaal.nl/hyundai',
+  'https://www.gaspedaal.nl/hyundai?p=2',
+  'https://www.gaspedaal.nl/kia',
+  'https://www.gaspedaal.nl/kia?p=2',
+  'https://www.gaspedaal.nl/volvo',
+  'https://www.gaspedaal.nl/volvo?p=2',
+  'https://www.gaspedaal.nl/skoda',
+  'https://www.gaspedaal.nl/skoda?p=2',
+  'https://www.gaspedaal.nl/mercedes-benz',
+  'https://www.gaspedaal.nl/mercedes-benz?p=2',
+  'https://www.gaspedaal.nl/seat',
+  'https://www.gaspedaal.nl/seat?p=2',
+  'https://www.gaspedaal.nl/opel',
+  'https://www.gaspedaal.nl/opel?p=2',
+  'https://www.gaspedaal.nl/fiat',
+  'https://www.gaspedaal.nl/fiat?p=2',
+  'https://www.gaspedaal.nl/honda',
+  'https://www.gaspedaal.nl/honda?p=2',
+  'https://www.gaspedaal.nl/mazda',
+  'https://www.gaspedaal.nl/mazda?p=2',
+  'https://www.gaspedaal.nl/nissan',
+  'https://www.gaspedaal.nl/nissan?p=2',
+  'https://www.gaspedaal.nl/dacia',
+  'https://www.gaspedaal.nl/dacia?p=2',
+  'https://www.gaspedaal.nl/mini',
+  'https://www.gaspedaal.nl/mini?p=2',
+  'https://www.gaspedaal.nl/land-rover',
+  'https://www.gaspedaal.nl/land-rover?p=2',
+  'https://www.gaspedaal.nl/porsche',
+  'https://www.gaspedaal.nl/porsche?p=2',
+  // Algemeen Ford (Focus/Fiesta/Puma/Kuga e.d.) -- /ford/elektrisch en
+  // /ford/mach-e hierboven dekken alleen de EV-varianten.
+  'https://www.gaspedaal.nl/ford',
+  'https://www.gaspedaal.nl/ford?p=2',
 ];
 
 async function scrapeGaspedaal() {
@@ -994,6 +1105,59 @@ const AS24_URLS = [
   // DS
   'https://www.autoscout24.nl/lst/ds?sort=standard&desc=0&ustate=N%2CU&size=20&page=1',
   'https://www.autoscout24.nl/lst/ds?sort=standard&desc=0&ustate=N%2CU&size=20&page=2',
+
+  // Nieuw (2 sep, sessie-analyse "waarom stokt het totaal aanbod"): de
+  // grootste merken in Nederland hadden hier tot nu toe geen eigen pad,
+  // dus leunden volledig op de 3 algemene pagina's hierboven (60 items).
+  // Zelfde bescheiden diepte (2 pagina's) als de bestaande merk-paden --
+  // bewuste startdiepte, later gericht dieper op basis van scrape-
+  // report.json-yield per merk.
+  'https://www.autoscout24.nl/lst/volkswagen?sort=standard&desc=0&ustate=N%2CU&size=20&page=1',
+  'https://www.autoscout24.nl/lst/volkswagen?sort=standard&desc=0&ustate=N%2CU&size=20&page=2',
+  'https://www.autoscout24.nl/lst/bmw?sort=standard&desc=0&ustate=N%2CU&size=20&page=1',
+  'https://www.autoscout24.nl/lst/bmw?sort=standard&desc=0&ustate=N%2CU&size=20&page=2',
+  'https://www.autoscout24.nl/lst/toyota?sort=standard&desc=0&ustate=N%2CU&size=20&page=1',
+  'https://www.autoscout24.nl/lst/toyota?sort=standard&desc=0&ustate=N%2CU&size=20&page=2',
+  'https://www.autoscout24.nl/lst/audi?sort=standard&desc=0&ustate=N%2CU&size=20&page=1',
+  'https://www.autoscout24.nl/lst/audi?sort=standard&desc=0&ustate=N%2CU&size=20&page=2',
+  'https://www.autoscout24.nl/lst/peugeot?sort=standard&desc=0&ustate=N%2CU&size=20&page=1',
+  'https://www.autoscout24.nl/lst/peugeot?sort=standard&desc=0&ustate=N%2CU&size=20&page=2',
+  'https://www.autoscout24.nl/lst/renault?sort=standard&desc=0&ustate=N%2CU&size=20&page=1',
+  'https://www.autoscout24.nl/lst/renault?sort=standard&desc=0&ustate=N%2CU&size=20&page=2',
+  'https://www.autoscout24.nl/lst/hyundai?sort=standard&desc=0&ustate=N%2CU&size=20&page=1',
+  'https://www.autoscout24.nl/lst/hyundai?sort=standard&desc=0&ustate=N%2CU&size=20&page=2',
+  'https://www.autoscout24.nl/lst/kia?sort=standard&desc=0&ustate=N%2CU&size=20&page=1',
+  'https://www.autoscout24.nl/lst/kia?sort=standard&desc=0&ustate=N%2CU&size=20&page=2',
+  'https://www.autoscout24.nl/lst/volvo?sort=standard&desc=0&ustate=N%2CU&size=20&page=1',
+  'https://www.autoscout24.nl/lst/volvo?sort=standard&desc=0&ustate=N%2CU&size=20&page=2',
+  'https://www.autoscout24.nl/lst/skoda?sort=standard&desc=0&ustate=N%2CU&size=20&page=1',
+  'https://www.autoscout24.nl/lst/skoda?sort=standard&desc=0&ustate=N%2CU&size=20&page=2',
+  'https://www.autoscout24.nl/lst/mercedes-benz?sort=standard&desc=0&ustate=N%2CU&size=20&page=1',
+  'https://www.autoscout24.nl/lst/mercedes-benz?sort=standard&desc=0&ustate=N%2CU&size=20&page=2',
+  'https://www.autoscout24.nl/lst/seat?sort=standard&desc=0&ustate=N%2CU&size=20&page=1',
+  'https://www.autoscout24.nl/lst/seat?sort=standard&desc=0&ustate=N%2CU&size=20&page=2',
+  'https://www.autoscout24.nl/lst/opel?sort=standard&desc=0&ustate=N%2CU&size=20&page=1',
+  'https://www.autoscout24.nl/lst/opel?sort=standard&desc=0&ustate=N%2CU&size=20&page=2',
+  'https://www.autoscout24.nl/lst/fiat?sort=standard&desc=0&ustate=N%2CU&size=20&page=1',
+  'https://www.autoscout24.nl/lst/fiat?sort=standard&desc=0&ustate=N%2CU&size=20&page=2',
+  'https://www.autoscout24.nl/lst/honda?sort=standard&desc=0&ustate=N%2CU&size=20&page=1',
+  'https://www.autoscout24.nl/lst/honda?sort=standard&desc=0&ustate=N%2CU&size=20&page=2',
+  'https://www.autoscout24.nl/lst/mazda?sort=standard&desc=0&ustate=N%2CU&size=20&page=1',
+  'https://www.autoscout24.nl/lst/mazda?sort=standard&desc=0&ustate=N%2CU&size=20&page=2',
+  'https://www.autoscout24.nl/lst/nissan?sort=standard&desc=0&ustate=N%2CU&size=20&page=1',
+  'https://www.autoscout24.nl/lst/nissan?sort=standard&desc=0&ustate=N%2CU&size=20&page=2',
+  'https://www.autoscout24.nl/lst/dacia?sort=standard&desc=0&ustate=N%2CU&size=20&page=1',
+  'https://www.autoscout24.nl/lst/dacia?sort=standard&desc=0&ustate=N%2CU&size=20&page=2',
+  'https://www.autoscout24.nl/lst/mini?sort=standard&desc=0&ustate=N%2CU&size=20&page=1',
+  'https://www.autoscout24.nl/lst/mini?sort=standard&desc=0&ustate=N%2CU&size=20&page=2',
+  'https://www.autoscout24.nl/lst/land-rover?sort=standard&desc=0&ustate=N%2CU&size=20&page=1',
+  'https://www.autoscout24.nl/lst/land-rover?sort=standard&desc=0&ustate=N%2CU&size=20&page=2',
+  'https://www.autoscout24.nl/lst/porsche?sort=standard&desc=0&ustate=N%2CU&size=20&page=1',
+  'https://www.autoscout24.nl/lst/porsche?sort=standard&desc=0&ustate=N%2CU&size=20&page=2',
+  // Algemeen Ford -- de bestaande /lst/ford-regel hierboven filtert al op
+  // fuel=E (alleen elektrisch), dekt de rest van het merk niet.
+  'https://www.autoscout24.nl/lst/ford?sort=standard&desc=0&ustate=N%2CU&size=20&page=1',
+  'https://www.autoscout24.nl/lst/ford?sort=standard&desc=0&ustate=N%2CU&size=20&page=2',
 ];
 
 async function scrapeAutoScout24() {
@@ -1142,201 +1306,6 @@ async function scrapeAutoTrader() {
       console.log(` ${label}: fout - ${e.message}`);
     }
     if (i < ATR_URLS.length - 1) await sleep(6000);
-  }
-
-  // Jeep extra
-  for (let i = 0; i < MP_JEEP_OFFSETS.length; i++) {
-    const url = MP_JEEP_BASE + '&offset=' + MP_JEEP_OFFSETS[i];
-    const label = 'MP Jeep p' + (i+1);
-    try {
-      const res = await fetchWithRetry(url);
-      const json = await res.json();
-      const items = json.listings || [];
-      const found = parseerMPItems(items, gezien);
-      all.push(...found);
-      console.log(label + ': ' + found.length + ' nieuw');
-    } catch (e) { console.log(label + ': fout - ' + e.message); }
-    if (i < MP_JEEP_OFFSETS.length - 1) await sleep(4000);
-  }
-
-  // Alfa Romeo extra
-  for (let i = 0; i < MP_ALFA_ROMEO_OFFSETS.length; i++) {
-    const url = MP_ALFA_ROMEO_BASE + '&offset=' + MP_ALFA_ROMEO_OFFSETS[i];
-    const label = 'MP Alfa Romeo p' + (i+1);
-    try {
-      const res = await fetchWithRetry(url);
-      const json = await res.json();
-      const items = json.listings || [];
-      const found = parseerMPItems(items, gezien);
-      all.push(...found);
-      console.log(label + ': ' + found.length + ' nieuw');
-    } catch (e) { console.log(label + ': fout - ' + e.message); }
-    if (i < MP_ALFA_ROMEO_OFFSETS.length - 1) await sleep(4000);
-  }
-
-  // Suzuki extra
-  for (let i = 0; i < MP_SUZUKI_OFFSETS.length; i++) {
-    const url = MP_SUZUKI_BASE + '&offset=' + MP_SUZUKI_OFFSETS[i];
-    const label = 'MP Suzuki p' + (i+1);
-    try {
-      const res = await fetchWithRetry(url);
-      const json = await res.json();
-      const items = json.listings || [];
-      const found = parseerMPItems(items, gezien);
-      all.push(...found);
-      console.log(label + ': ' + found.length + ' nieuw');
-    } catch (e) { console.log(label + ': fout - ' + e.message); }
-    if (i < MP_SUZUKI_OFFSETS.length - 1) await sleep(4000);
-  }
-
-  // Mitsubishi extra
-  for (let i = 0; i < MP_MITSUBISHI_OFFSETS.length; i++) {
-    const url = MP_MITSUBISHI_BASE + '&offset=' + MP_MITSUBISHI_OFFSETS[i];
-    const label = 'MP Mitsubishi p' + (i+1);
-    try {
-      const res = await fetchWithRetry(url);
-      const json = await res.json();
-      const items = json.listings || [];
-      const found = parseerMPItems(items, gezien);
-      all.push(...found);
-      console.log(label + ': ' + found.length + ' nieuw');
-    } catch (e) { console.log(label + ': fout - ' + e.message); }
-    if (i < MP_MITSUBISHI_OFFSETS.length - 1) await sleep(4000);
-  }
-
-  // Cupra extra
-  for (let i = 0; i < MP_CUPRA_OFFSETS.length; i++) {
-    const url = MP_CUPRA_BASE + '&offset=' + MP_CUPRA_OFFSETS[i];
-    const label = 'MP Cupra p' + (i+1);
-    try {
-      const res = await fetchWithRetry(url);
-      const json = await res.json();
-      const items = json.listings || [];
-      const found = parseerMPItems(items, gezien);
-      all.push(...found);
-      console.log(label + ': ' + found.length + ' nieuw');
-    } catch (e) { console.log(label + ': fout - ' + e.message); }
-    if (i < MP_CUPRA_OFFSETS.length - 1) await sleep(4000);
-  }
-
-  // MG extra
-  for (let i = 0; i < MP_MG_OFFSETS.length; i++) {
-    const url = MP_MG_BASE + '&offset=' + MP_MG_OFFSETS[i];
-    const label = 'MP MG p' + (i+1);
-    try {
-      const res = await fetchWithRetry(url);
-      const json = await res.json();
-      const items = json.listings || [];
-      const found = parseerMPItems(items, gezien);
-      all.push(...found);
-      console.log(label + ': ' + found.length + ' nieuw');
-    } catch (e) { console.log(label + ': fout - ' + e.message); }
-    if (i < MP_MG_OFFSETS.length - 1) await sleep(4000);
-  }
-
-  // Polestar extra
-  for (let i = 0; i < MP_POLESTAR_OFFSETS.length; i++) {
-    const url = MP_POLESTAR_BASE + '&offset=' + MP_POLESTAR_OFFSETS[i];
-    const label = 'MP Polestar p' + (i+1);
-    try {
-      const res = await fetchWithRetry(url);
-      const json = await res.json();
-      const items = json.listings || [];
-      const found = parseerMPItems(items, gezien);
-      all.push(...found);
-      console.log(label + ': ' + found.length + ' nieuw');
-    } catch (e) { console.log(label + ': fout - ' + e.message); }
-    if (i < MP_POLESTAR_OFFSETS.length - 1) await sleep(4000);
-  }
-
-  // Jaguar extra
-  for (let i = 0; i < MP_JAGUAR_OFFSETS.length; i++) {
-    const url = MP_JAGUAR_BASE + '&offset=' + MP_JAGUAR_OFFSETS[i];
-    const label = 'MP Jaguar p' + (i+1);
-    try {
-      const res = await fetchWithRetry(url);
-      const json = await res.json();
-      const items = json.listings || [];
-      const found = parseerMPItems(items, gezien);
-      all.push(...found);
-      console.log(label + ': ' + found.length + ' nieuw');
-    } catch (e) { console.log(label + ': fout - ' + e.message); }
-    if (i < MP_JAGUAR_OFFSETS.length - 1) await sleep(4000);
-  }
-
-  // Subaru extra
-  for (let i = 0; i < MP_SUBARU_OFFSETS.length; i++) {
-    const url = MP_SUBARU_BASE + '&offset=' + MP_SUBARU_OFFSETS[i];
-    const label = 'MP Subaru p' + (i+1);
-    try {
-      const res = await fetchWithRetry(url);
-      const json = await res.json();
-      const items = json.listings || [];
-      const found = parseerMPItems(items, gezien);
-      all.push(...found);
-      console.log(label + ': ' + found.length + ' nieuw');
-    } catch (e) { console.log(label + ': fout - ' + e.message); }
-    if (i < MP_SUBARU_OFFSETS.length - 1) await sleep(4000);
-  }
-
-  // Lexus extra
-  for (let i = 0; i < MP_LEXUS_OFFSETS.length; i++) {
-    const url = MP_LEXUS_BASE + '&offset=' + MP_LEXUS_OFFSETS[i];
-    const label = 'MP Lexus p' + (i+1);
-    try {
-      const res = await fetchWithRetry(url);
-      const json = await res.json();
-      const items = json.listings || [];
-      const found = parseerMPItems(items, gezien);
-      all.push(...found);
-      console.log(label + ': ' + found.length + ' nieuw');
-    } catch (e) { console.log(label + ': fout - ' + e.message); }
-    if (i < MP_LEXUS_OFFSETS.length - 1) await sleep(4000);
-  }
-
-  // BYD extra
-  for (let i = 0; i < MP_BYD_OFFSETS.length; i++) {
-    const url = MP_BYD_BASE + '&offset=' + MP_BYD_OFFSETS[i];
-    const label = 'MP BYD p' + (i+1);
-    try {
-      const res = await fetchWithRetry(url);
-      const json = await res.json();
-      const items = json.listings || [];
-      const found = parseerMPItems(items, gezien);
-      all.push(...found);
-      console.log(label + ': ' + found.length + ' nieuw');
-    } catch (e) { console.log(label + ': fout - ' + e.message); }
-    if (i < MP_BYD_OFFSETS.length - 1) await sleep(4000);
-  }
-
-  // Smart extra
-  for (let i = 0; i < MP_SMART_OFFSETS.length; i++) {
-    const url = MP_SMART_BASE + '&offset=' + MP_SMART_OFFSETS[i];
-    const label = 'MP Smart p' + (i+1);
-    try {
-      const res = await fetchWithRetry(url);
-      const json = await res.json();
-      const items = json.listings || [];
-      const found = parseerMPItems(items, gezien);
-      all.push(...found);
-      console.log(label + ': ' + found.length + ' nieuw');
-    } catch (e) { console.log(label + ': fout - ' + e.message); }
-    if (i < MP_SMART_OFFSETS.length - 1) await sleep(4000);
-  }
-
-  // DS extra
-  for (let i = 0; i < MP_DS_OFFSETS.length; i++) {
-    const url = MP_DS_BASE + '&offset=' + MP_DS_OFFSETS[i];
-    const label = 'MP DS p' + (i+1);
-    try {
-      const res = await fetchWithRetry(url);
-      const json = await res.json();
-      const items = json.listings || [];
-      const found = parseerMPItems(items, gezien);
-      all.push(...found);
-      console.log(label + ': ' + found.length + ' nieuw');
-    } catch (e) { console.log(label + ': fout - ' + e.message); }
-    if (i < MP_DS_OFFSETS.length - 1) await sleep(4000);
   }
 
   return all;
