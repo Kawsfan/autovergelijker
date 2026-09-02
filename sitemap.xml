@@ -19,7 +19,7 @@
   <url><loc>https://carkijker.nl/occasions/ford/explorer/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/occasions/ford/e-transit/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/occasions/ford/ecosport/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
-  <url><loc>https://carkijker.nl/occasions/ford/capri/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://carkijker.nl/occasions/ford/ka/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/occasions/volkswagen/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://carkijker.nl/occasions/volkswagen/golf/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/occasions/volkswagen/polo/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
@@ -30,7 +30,7 @@
   <url><loc>https://carkijker.nl/occasions/volkswagen/caddy/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/occasions/volkswagen/id.4/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/occasions/volkswagen/up!/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
-  <url><loc>https://carkijker.nl/occasions/volkswagen/crafter/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://carkijker.nl/occasions/volkswagen/passat/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/occasions/suzuki/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://carkijker.nl/occasions/suzuki/swift/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/occasions/suzuki/vitara/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
@@ -89,12 +89,12 @@
   <url><loc>https://carkijker.nl/occasions/audi/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://carkijker.nl/occasions/audi/a3/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/occasions/audi/a6/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://carkijker.nl/occasions/audi/e-tron/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/occasions/audi/a4/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/occasions/audi/q3/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
-  <url><loc>https://carkijker.nl/occasions/audi/e-tron/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/occasions/audi/q4/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
-  <url><loc>https://carkijker.nl/occasions/audi/q5/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/occasions/audi/a1/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://carkijker.nl/occasions/audi/q5/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/occasions/audi/q2/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/occasions/audi/a5/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/occasions/peugeot/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
@@ -108,6 +108,17 @@
   <url><loc>https://carkijker.nl/occasions/peugeot/e-308/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/occasions/peugeot/rifter/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/occasions/peugeot/e-rifter/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://carkijker.nl/occasions/bmw/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://carkijker.nl/occasions/bmw/3-serie/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://carkijker.nl/occasions/bmw/x5/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://carkijker.nl/occasions/bmw/1-serie/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://carkijker.nl/occasions/bmw/x3/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://carkijker.nl/occasions/bmw/5-serie/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://carkijker.nl/occasions/bmw/x1/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://carkijker.nl/occasions/bmw/2-serie/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://carkijker.nl/occasions/bmw/i3/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://carkijker.nl/occasions/bmw/ix3/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://carkijker.nl/occasions/bmw/ix1/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/occasions/lexus/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://carkijker.nl/occasions/lexus/nx/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/occasions/lexus/lbx/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
@@ -119,17 +130,6 @@
   <url><loc>https://carkijker.nl/occasions/lexus/es/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/occasions/lexus/is-serie/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/occasions/lexus/gs/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
-  <url><loc>https://carkijker.nl/occasions/bmw/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://carkijker.nl/occasions/bmw/3-serie/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
-  <url><loc>https://carkijker.nl/occasions/bmw/x5/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
-  <url><loc>https://carkijker.nl/occasions/bmw/1-serie/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
-  <url><loc>https://carkijker.nl/occasions/bmw/5-serie/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
-  <url><loc>https://carkijker.nl/occasions/bmw/x3/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
-  <url><loc>https://carkijker.nl/occasions/bmw/x1/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
-  <url><loc>https://carkijker.nl/occasions/bmw/2-serie/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
-  <url><loc>https://carkijker.nl/occasions/bmw/i3/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
-  <url><loc>https://carkijker.nl/occasions/bmw/ix3/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
-  <url><loc>https://carkijker.nl/occasions/bmw/4-serie/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/occasions/renault/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://carkijker.nl/occasions/renault/clio/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/occasions/renault/captur/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
@@ -147,8 +147,8 @@
   <url><loc>https://carkijker.nl/occasions/mg/mg4/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/occasions/mg/zs/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/occasions/mg/mg5/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
-  <url><loc>https://carkijker.nl/occasions/mg/hs/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/occasions/mg/tf/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://carkijker.nl/occasions/mg/hs/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/occasions/mg/mgs5/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/occasions/mg/mg3/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/occasions/mg/td/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
@@ -208,8 +208,8 @@
   <url><loc>https://carkijker.nl/occasions/volvo/ex40/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/occasions/volvo/v90/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/occasions/jaguar/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://carkijker.nl/occasions/jaguar/f-pace/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/occasions/jaguar/xj/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://carkijker.nl/occasions/jaguar/f-pace/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/occasions/jaguar/xf/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/occasions/jaguar/i-pace/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/occasions/jaguar/f-type/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
@@ -243,8 +243,8 @@
   <url><loc>https://carkijker.nl/occasions/kia/rio/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/occasions/kia/stonic/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/occasions/kia/e-niro/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
-  <url><loc>https://carkijker.nl/occasions/kia/xceed/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/occasions/kia/proceed/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://carkijker.nl/occasions/kia/xceed/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/occasions/polestar/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://carkijker.nl/occasions/hyundai/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://carkijker.nl/occasions/hyundai/kona/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
@@ -253,19 +253,10 @@
   <url><loc>https://carkijker.nl/occasions/hyundai/ioniq/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/occasions/hyundai/i30/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/occasions/hyundai/i20/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
-  <url><loc>https://carkijker.nl/occasions/hyundai/santa/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/occasions/hyundai/bayon/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://carkijker.nl/occasions/hyundai/santa/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/occasions/hyundai/nexo/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/occasions/hyundai/ix35/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
-  <url><loc>https://carkijker.nl/occasions/smart/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://carkijker.nl/occasions/smart/fortwo/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
-  <url><loc>https://carkijker.nl/occasions/smart/forfour/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
-  <url><loc>https://carkijker.nl/occasions/smart/roadster/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
-  <url><loc>https://carkijker.nl/occasions/smart/0.7/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
-  <url><loc>https://carkijker.nl/occasions/smart/eq/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
-  <url><loc>https://carkijker.nl/occasions/smart/city-coup%C3%A9/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
-  <url><loc>https://carkijker.nl/occasions/smart/crossblade/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
-  <url><loc>https://carkijker.nl/occasions/smart/city-coup%C3%A9%2Fcity-cabrio/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/occasions/fiat/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://carkijker.nl/occasions/fiat/panda/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/occasions/fiat/500e/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
@@ -277,6 +268,15 @@
   <url><loc>https://carkijker.nl/occasions/fiat/ducato/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/occasions/fiat/tipo/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/occasions/fiat/topolino/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://carkijker.nl/occasions/smart/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://carkijker.nl/occasions/smart/fortwo/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://carkijker.nl/occasions/smart/forfour/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://carkijker.nl/occasions/smart/roadster/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://carkijker.nl/occasions/smart/0.7/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://carkijker.nl/occasions/smart/eq/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://carkijker.nl/occasions/smart/city-coup%C3%A9/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://carkijker.nl/occasions/smart/crossblade/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://carkijker.nl/occasions/smart/city-coup%C3%A9%2Fcity-cabrio/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/occasions/byd/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://carkijker.nl/occasions/byd/seal/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/occasions/byd/atto/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
@@ -289,8 +289,8 @@
   <url><loc>https://carkijker.nl/occasions/citro%C3%ABn/c5/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/occasions/citro%C3%ABn/c4/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/occasions/citro%C3%ABn/e-c4/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
-  <url><loc>https://carkijker.nl/occasions/citro%C3%ABn/e-c3/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/occasions/citro%C3%ABn/berlingo/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://carkijker.nl/occasions/citro%C3%ABn/e-c3/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/occasions/citro%C3%ABn/jumpy/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/occasions/citro%C3%ABn/ds/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/occasions/skoda/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
@@ -299,8 +299,8 @@
   <url><loc>https://carkijker.nl/occasions/skoda/fabia/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/occasions/skoda/kodiaq/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/occasions/skoda/superb/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
-  <url><loc>https://carkijker.nl/occasions/skoda/kamiq/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/occasions/skoda/karoq/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://carkijker.nl/occasions/skoda/kamiq/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/occasions/skoda/elroq/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/occasions/skoda/scala/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/occasions/skoda/citigo/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
@@ -339,8 +339,8 @@
   <url><loc>https://carkijker.nl/occasions/mazda/cx-5/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/occasions/mazda/mx-30/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/occasions/mazda/cx-30/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
-  <url><loc>https://carkijker.nl/occasions/mazda/mx-5/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/occasions/mazda/cx-3/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://carkijker.nl/occasions/mazda/mx-5/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/occasions/mazda/6e/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/occasions/mazda/cx-60/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/occasions/mazda/cx-6e/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
@@ -377,14 +377,14 @@
   <url><loc>https://carkijker.nl/occasions/honda/insight/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/occasions/iveco/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://carkijker.nl/occasions/iveco/daily/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://carkijker.nl/occasions/saab/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://carkijker.nl/occasions/saab/9-3/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://carkijker.nl/occasions/saab/9-5/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/occasions/leapmotor/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://carkijker.nl/occasions/leapmotor/t03/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/occasions/leapmotor/c10/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/occasions/leapmotor/b03x/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/occasions/leapmotor/b10/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
-  <url><loc>https://carkijker.nl/occasions/saab/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://carkijker.nl/occasions/saab/9-3/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
-  <url><loc>https://carkijker.nl/occasions/saab/9-5/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/occasions/chevrolet/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://carkijker.nl/occasions/chevrolet/camaro/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/occasions/chevrolet/silverado/</loc><lastmod>2026-09-02</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
