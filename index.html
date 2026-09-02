@@ -1161,7 +1161,7 @@
       <select id="sortering" onchange="herSorteer()" aria-label="Sorteren op">
         <option value="prijs-asc">Prijs ↑</option>
         <option value="prijs-desc">Prijs ↓</option>
-        <option value="jaar-desc">Nieuwste eerst</option>
+        <option value="jaar-desc">Nieuwste</option>
         <option value="km-asc">Minste km</option>
               <option value="deal-score" selected>Beste deal 🏆</option>
         <option value="pkm-asc">Laagste €/km</option>
@@ -1796,7 +1796,17 @@ function isDealer(a){
 function sorteer(lijst, sort) {
   if (sort === 'prijs-asc')  return lijst.sort((a,b) => a.prijs - b.prijs);
   if (sort === 'prijs-desc') return lijst.sort((a,b) => b.prijs - a.prijs);
-  if (sort === 'jaar-desc')  return lijst.sort((a,b) => (b.jaar||0) - (a.jaar||0));
+  if (sort === 'jaar-desc') {
+    // Waarde heet nog 'jaar-desc' (legacy, uit de tijd dat dit echt op
+    // bouwjaar sorteerde), maar dit is de "Nieuwste eerst"-optie in de UI --
+    // dat hoort te betekenen "recentst aan Carkijker toegevoegd", niet
+    // "hoogste bouwjaar". Een gebruiker meldde een BYD Atto 3 met bouwjaar
+    // 2027 die al 12 dagen online stond bovenaan "Nieuwste eerst": precies
+    // dit verschil. Sorteert nu op eersteGezien (ISO-datum YYYY-MM-DD, dus
+    // gewone stringvergelijking sorteert al correct); advertenties zonder
+    // dat veld vallen achteraan.
+    return lijst.sort((a,b) => (b.eersteGezien||'').localeCompare(a.eersteGezien||''));
+  }
   if (sort === 'km-asc')     return lijst.sort((a,b) => (a.km||999999) - (b.km||999999));
   if (sort === 'deal-score') {
     lijst = lijst.sort(function(a,b){ return (b.dealScore||0)-(a.dealScore||0); });
@@ -2101,7 +2111,7 @@ var TRANS = {
     hero_p:  "Echte advertenties, echte foto's, rechtstreeks uit de bron",
     search_ph: "Zoek op trefwoord, merk, model of plaats",
     lbl: ["Merk","Model","Bouwjaar","Prijs","Brandstof","Km.stand","Transmissie","Carrosserie"],
-    sort: {"prijs-asc":"Prijs ↑","prijs-desc":"Prijs ↓","jaar-desc":"Nieuwste eerst","km-asc":"Minste km"},
+    sort: {"prijs-asc":"Prijs ↑","prijs-desc":"Prijs ↓","jaar-desc":"Nieuwste","km-asc":"Minste km"},
     btn_wis: "\u2715 Wis alles", btn_zoek: "Zoeken", btn_terug: "\u2190 Terug",
     hero_cta: "🔍 Zoek jouw auto",
     afstand_lbl: "📍 Afstand",
