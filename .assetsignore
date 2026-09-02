@@ -1,6 +1,17 @@
 # Cloudflare Workers static assets: max 25 MiB per bestand.
-# Deze twee bestanden overschrijden dat en worden nu rechtstreeks vanaf
-# raw.githubusercontent.com opgehaald door de frontend (zie index.html) —
-# ze hoeven dus niet als static asset meegedeployed te worden.
+#
+# data/listings.json wordt door de frontend niet meer opgehaald sinds #105
+# (vervangen door data/listings-lean.json, zonder imgs) -- alleen scrape.js
+# zelf en scripts/check-scrape-health.js gebruiken de volle versie nog,
+# server-side. Op ~24,8MB zit dit bestand toch al gevaarlijk dicht tegen de
+# 25MiB-limiet, dus blijft bewust uitgesloten als static asset.
+#
+# data/listings-top.json stond hier eerder ook in (nog van vóór #104, toen
+# beide bestanden rechtstreeks vanaf raw.githubusercontent.com werden
+# opgehaald i.p.v. same-origin) -- #104 zette die fetch om naar een relatief
+# /data/listings-top.json-pad, maar deze regel werd toen niet meegenomen.
+# Gevolg: Cloudflare heeft dit bestand sindsdien nooit gedeployed, wat op
+# zowel mobiel als desktop een permanente "Laden mislukt" / HTTP 404 gaf
+# voor exact die kritieke eerste fetch. Op ~3,5MB zit dit ruim binnen de
+# limiet en hoort dus wél gedeployed te worden -- vandaar verwijderd.
 data/listings.json
-data/listings-top.json
