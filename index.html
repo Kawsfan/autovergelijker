@@ -1682,7 +1682,7 @@ function toonResultaten(lijst) {
       <div class="auto-foto">
         <button class="fav-btn${_favs.has(a.id)?' fav-actief':''}" data-fav="${a.id}" onclick="toggleFav(event,'${a.id}')" title="Fav">${_favs.has(a.id)?'♥':'♡'}</button>
         <button class="vgl-btn${_vgl.includes(a.id)?' vgl-actief':''}" data-vgl="${a.id}" onclick="toggleVergelijk(event,'${a.id}')" title="Vergelijk">⊕</button>
-        ${(()=>{window._vglData[a.id]=a;return a.bijgewerkt===new Date().toISOString().slice(0,10)?'<span class=\"nieuw-badge\">NIEUW</span>':''})()}${(()=>{var _d=isDealer(a);return _d===true?'<span class="dealer-badge">DEALER</span>':_d===false?'<span class="particulier-badge">PRIVÉ</span>':''})()}
+        ${(()=>{window._vglData[a.id]=a;return '';})()}${(()=>{var _d=isDealer(a);return _d===true?'<span class="dealer-badge">DEALER</span>':_d===false?'<span class="particulier-badge">PRIVÉ</span>':''})()}
         ${(()=>{if(a.prijsHistorie&&a.prijsHistorie.length){
           var oud=a.prijsHistorie[a.prijsHistorie.length-1].prijs;
           return '<span class="prijs-daling">↘ was €'+Number(oud).toLocaleString('nl-NL')+'</span>';
@@ -1711,8 +1711,15 @@ function toonResultaten(lijst) {
                     return 'https://images.weserv.nl/'+String.fromCharCode(63)+'url='+s.replace(/^https:[/][/]/,'')+'&w=800&q=82';
                   }
                   return s.replace(/\/\d+x\d+\.webp$/,'/800x600.webp');})())+'" alt="'+escHtml(a.titel)+'" onerror="this.onerror=null;this.closest(\'.auto-foto\').insertAdjacentHTML(\'beforeend\',_fotoLeegHtml());this.remove();" />'}
-        ${a.bijgewerkt === VANDAAG ? '<span class="nieuw-badge">NIEUW</span>' : ''}
-       ${(()=>{if(!a.eersteGezien)return '';const _d=Math.round((Date.now()-new Date(a.eersteGezien+'T12:00:00').getTime())/86400000);if(_d<1)return '';if(_d<14)return '<span class="verk-badge verk-recent">'+_d+((window.lang||'nl')==='en'?' listed':' online')+'</span>';return '<span class="verk-badge verk-lang">2+ '+((window.lang||'nl')==='en'?'weeks':'weken')+'</span>';})()}
+        ${/* NIEUW hoort "vandaag voor het eerst gescraped" te betekenen, niet "vandaag
+           nogmaals gezien" -- a.bijgewerkt wordt bij ELKE run voor elke nog actieve
+           advertentie op vandaag gezet (ook al stond hij er al weken), dus stond dit
+           badge tot nu toe op bijna elke kaart na een scrape-run. a.eersteGezien
+           verandert alleen de allereerste keer dat we een advertentie zien.
+           Verving ook het aparte "N online"/"2+ weken"-badge hieronder (verwarrend
+           in de resultatengrid volgens gebruiker) -- nu simpelweg NIEUW of niets;
+           de precieze "X dagen online" blijft wel in de detailweergave staan. */''}
+        ${a.eersteGezien === VANDAAG ? '<span class="nieuw-badge">NIEUW</span>' : ''}
 
       </div>
       <div class="auto-info">
@@ -4228,6 +4235,36 @@ window.zoekNu=function(){
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',_addTDBtn);
   else setTimeout(_addTDBtn,300);
+}());
+</script>
+<script>
+(function(){
+  // Snelfilter-tegenhanger van het NIEUW-badge hierboven: alleen advertenties
+  // die vandaag voor het eerst gescraped zijn (a.eersteGezien), niet "nog
+  // steeds actief, net weer bevestigd" -- zelfde onderscheid als bij het
+  // badge. Zelfde toggle-patroon als Prijsdaling/Top Deals hierboven.
+  window._toonNieuw=false;
+  var _origTRnw=window.toonResultaten;
+  window.toonResultaten=function(lijst){
+    if(window._toonNieuw&&lijst&&lijst.length){
+      lijst=lijst.filter(function(a){return a.eersteGezien===VANDAAG;});
+    }
+    return _origTRnw.apply(this,[lijst]);
+  };
+  function _addNieuwBtn(){
+    if(document.getElementById('nieuwFilterBtn'))return;
+    var btn=document.createElement('button');
+    btn.id='nieuwFilterBtn';btn.innerHTML='✨ Nieuw';
+    btn.addEventListener('click',function(){window._toonNieuw=!window._toonNieuw;btn.classList.toggle('aktief',window._toonNieuw);window._pagina=1;window.zoekNu();});
+    // Zelfde .quick-btns-vak als Prijsdaling/Top Deals hierboven.
+    var qb=document.querySelector('#quickFilterWrap .quick-btns');
+    if(qb){qb.appendChild(btn);return;}
+    var td=document.getElementById('topDealsBtn');
+    if(td&&td.parentNode){td.parentNode.insertBefore(btn,td.nextSibling);}
+    else{var _k=document.getElementById('kmMin'),_ki=_k&&_k.closest('.filter-range,.filter-item');if(_ki&&_ki.parentNode)_ki.parentNode.insertBefore(btn,_ki.nextSibling);}
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',_addNieuwBtn);
+  else setTimeout(_addNieuwBtn,300);
 }());
 </script>
 
