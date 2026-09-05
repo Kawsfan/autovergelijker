@@ -112,6 +112,19 @@ const HEADERS_AW = {
   'Upgrade-Insecure-Requests': '1',
 };
 
+// Diagnostische probe (zie AW_URLS): elke echte-browser-achtige headerset
+// hierboven kreeg op alle 3 geraden paden DPG Media's MyPrivacy-consentgate
+// terug (JS-redirect naar privacygate-confirm) i.p.v. de daadwerkelijke
+// pagina. Veel sites met zo'n cookie-wall zonderen bekende zoekmachine-
+// crawlers daar bewust van uit (anders zou Google de pagina achter de
+// cookie-wall nooit kunnen indexeren) -- vandaar deze Googlebot-UA-variant
+// als goedkope test of dat hier ook zo werkt.
+const HEADERS_AW_BOT = {
+  'User-Agent': 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)',
+  'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+  'Accept-Language': 'nl-NL,nl;q=0.9,en;q=0.8',
+};
+
 // ÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂ MARKTPLAATS ÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂ
 
 const MP_API_BASE = 'https://www.marktplaats.nl/lrp/api/search?l1CategoryId=91&numberOfResultsPerPage=100';
@@ -947,6 +960,58 @@ const AT_URLS = [
   // Ford Explorer Elektrisch
   'https://www.autotrack.nl/aanbod/merk/ford/model/explorer',
   'https://www.autotrack.nl/aanbod/merk/ford/model/explorer?pageNumber=2&pageSize=30',
+
+  // Nieuw (sessie-analyse "waarom stokt het totaal aanbod"): dezelfde 22
+  // grootste NL-merken als bij Marktplaats/Gaspedaal/AutoScout24 (#112),
+  // hier toegevoegd via het al bewezen werkende /aanbod/merk/<merk>-pad
+  // (zie tesla/ford hierboven). Bescheiden startdiepte (2 pagina's), later
+  // gericht dieper op basis van per-merk yield.
+  'https://www.autotrack.nl/aanbod/merk/volkswagen',
+  'https://www.autotrack.nl/aanbod/merk/volkswagen?pageNumber=2&pageSize=30',
+  'https://www.autotrack.nl/aanbod/merk/bmw',
+  'https://www.autotrack.nl/aanbod/merk/bmw?pageNumber=2&pageSize=30',
+  'https://www.autotrack.nl/aanbod/merk/toyota',
+  'https://www.autotrack.nl/aanbod/merk/toyota?pageNumber=2&pageSize=30',
+  'https://www.autotrack.nl/aanbod/merk/audi',
+  'https://www.autotrack.nl/aanbod/merk/audi?pageNumber=2&pageSize=30',
+  'https://www.autotrack.nl/aanbod/merk/peugeot',
+  'https://www.autotrack.nl/aanbod/merk/peugeot?pageNumber=2&pageSize=30',
+  'https://www.autotrack.nl/aanbod/merk/renault',
+  'https://www.autotrack.nl/aanbod/merk/renault?pageNumber=2&pageSize=30',
+  'https://www.autotrack.nl/aanbod/merk/hyundai',
+  'https://www.autotrack.nl/aanbod/merk/hyundai?pageNumber=2&pageSize=30',
+  'https://www.autotrack.nl/aanbod/merk/kia',
+  'https://www.autotrack.nl/aanbod/merk/kia?pageNumber=2&pageSize=30',
+  'https://www.autotrack.nl/aanbod/merk/volvo',
+  'https://www.autotrack.nl/aanbod/merk/volvo?pageNumber=2&pageSize=30',
+  'https://www.autotrack.nl/aanbod/merk/skoda',
+  'https://www.autotrack.nl/aanbod/merk/skoda?pageNumber=2&pageSize=30',
+  'https://www.autotrack.nl/aanbod/merk/mercedes-benz',
+  'https://www.autotrack.nl/aanbod/merk/mercedes-benz?pageNumber=2&pageSize=30',
+  'https://www.autotrack.nl/aanbod/merk/seat',
+  'https://www.autotrack.nl/aanbod/merk/seat?pageNumber=2&pageSize=30',
+  'https://www.autotrack.nl/aanbod/merk/opel',
+  'https://www.autotrack.nl/aanbod/merk/opel?pageNumber=2&pageSize=30',
+  'https://www.autotrack.nl/aanbod/merk/fiat',
+  'https://www.autotrack.nl/aanbod/merk/fiat?pageNumber=2&pageSize=30',
+  'https://www.autotrack.nl/aanbod/merk/honda',
+  'https://www.autotrack.nl/aanbod/merk/honda?pageNumber=2&pageSize=30',
+  'https://www.autotrack.nl/aanbod/merk/mazda',
+  'https://www.autotrack.nl/aanbod/merk/mazda?pageNumber=2&pageSize=30',
+  'https://www.autotrack.nl/aanbod/merk/nissan',
+  'https://www.autotrack.nl/aanbod/merk/nissan?pageNumber=2&pageSize=30',
+  'https://www.autotrack.nl/aanbod/merk/dacia',
+  'https://www.autotrack.nl/aanbod/merk/dacia?pageNumber=2&pageSize=30',
+  'https://www.autotrack.nl/aanbod/merk/mini',
+  'https://www.autotrack.nl/aanbod/merk/mini?pageNumber=2&pageSize=30',
+  'https://www.autotrack.nl/aanbod/merk/land-rover',
+  'https://www.autotrack.nl/aanbod/merk/land-rover?pageNumber=2&pageSize=30',
+  'https://www.autotrack.nl/aanbod/merk/porsche',
+  'https://www.autotrack.nl/aanbod/merk/porsche?pageNumber=2&pageSize=30',
+  // Algemeen Ford -- merk/ford/model/mustang-mach-e en /explorer hierboven
+  // dekken alleen die 2 EV-modellen, niet de rest van het merk.
+  'https://www.autotrack.nl/aanbod/merk/ford',
+  'https://www.autotrack.nl/aanbod/merk/ford?pageNumber=2&pageSize=30',
 ];
 
 async function scrapeAutoTrack() {
@@ -1300,6 +1365,24 @@ const ATR_URLS = [
   // Hybride (fuel 2 = Elektro/Benzine, 3 = Elektro/Diesel)
   'https://www.autotrader.nl/auto?fuel=2%2C3',
   'https://www.autotrader.nl/auto?fuel=2%2C3&page=2',
+
+  // Diagnostische merk-filter-probe (sessie-analyse "waarom stokt het totaal
+  // aanbod"): AutoTrader heeft, anders dan Marktplaats/Gaspedaal/AutoScout24/
+  // AutoTrack, nog geen enkele merk-specifieke query -- alleen ?fuel=<code>
+  // is bekend, en die codes zijn cryptische nummers (2,3 voor hybride-
+  // varianten), geen leesbare merknaam zoals bij AutoScout24's /lst/<merk> of
+  // AutoTrack's /aanbod/merk/<merk>. Simpelweg 22x /auto?merk=<naam> gokken
+  // zoals bij die andere bronnen is hier dus veel onzekerder: een onbekende
+  // parameter wordt op dit soort platforms vaak stilzwijgend genegeerd
+  // (levert dan gewoon de algemene lijst terug, geen fout) i.p.v. een
+  // duidelijke 404/lege respons zoals bij AutoWereld's paden. Daarom eerst 3
+  // varianten proberen op één groot merk (Volkswagen) i.p.v. blind alle 22 --
+  // parseerAutoTrader() logt bij deze URL's de merkverdeling van de
+  // resultaten, zodat uit de eerstvolgende run-log blijkt welke (als die er
+  // is) daadwerkelijk filtert.
+  'https://www.autotrader.nl/auto?make=volkswagen',
+  'https://www.autotrader.nl/auto?brand=volkswagen',
+  'https://www.autotrader.nl/auto?merk=volkswagen',
 ];
 
 async function scrapeAutoTrader() {
@@ -1314,7 +1397,11 @@ async function scrapeAutoTrader() {
       console.log(` ${label}: HTTP ${resp.status}`);
       if (!resp.ok) continue;
       const html = await resp.text();
-      const found = parseerAutoTrader(html, gezien, label);
+      // Diagnose alleen voor de merk-filter-probes hierboven (zie ATR_URLS) --
+      // logt de merkverdeling van de resultaten zodat blijkt of het gegokte
+      // queryparam daadwerkelijk filtert of stilzwijgend genegeerd wordt.
+      const isDiagProbe = /[?&](make|brand|merk)=volkswagen/i.test(url);
+      const found = parseerAutoTrader(html, gezien, label, isDiagProbe);
       all.push(...found);
       console.log(` ${label}: ${found.length} nieuw ÃÂÃÂ¢ÃÂÃÂÃÂÃÂ totaal ATR ${all.length}`);
     } catch (e) {
@@ -1331,7 +1418,7 @@ function titleCaseLocatie(s) {
   return String(s).toLowerCase().replace(/(^|[\s-])(\p{L})/gu, (m, sep, c) => sep + c.toUpperCase());
 }
 
-function parseerAutoTrader(html, gezien, label) {
+function parseerAutoTrader(html, gezien, label, uitgebreideDiagnose) {
   const results = [];
 
   // AutoTrader.nl draait tegenwoordig op het AutoScout24-platform; de listings
@@ -1350,6 +1437,20 @@ function parseerAutoTrader(html, gezien, label) {
   } catch (e) {
     console.log(` ${label}: __NEXT_DATA__ parse fout - ${e.message}`);
     return results;
+  }
+
+  // Diagnose voor de merk-filter-probes in ATR_URLS: telt de merkverdeling
+  // van de RUWE (ongefilterde) resultaten. Bij een werkend filter hoort dit
+  // vrijwel uitsluitend "Volkswagen" te zijn; blijft het een brede mix van
+  // merken, dan negeert AutoTrader het gegokte queryparam stilzwijgend en
+  // kregen we gewoon de algemene lijst terug.
+  if (uitgebreideDiagnose) {
+    const merkTelling = {};
+    for (const item of listings) {
+      const m = (item.vehicle && item.vehicle.make) || '(onbekend)';
+      merkTelling[m] = (merkTelling[m] || 0) + 1;
+    }
+    console.log(`   diagnose ${label}: merkverdeling ruwe resultaten: ${JSON.stringify(merkTelling)}`);
   }
 
   for (const item of listings) {
@@ -1421,10 +1522,19 @@ function parseerAutoTrader(html, gezien, label) {
 // hierboven) en logt bij nul resultaten expliciet genoeg over de ruwe
 // pagina om na de eerstvolgende run direct te kunnen bijsturen i.p.v. blind
 // te gissen.
+// De 3 oorspronkelijke gegokte paden bleken alle 3 correct (de privacygate's
+// eigen redirectUri-parameter bevestigt dit expliciet), maar leverden zonder
+// uitzondering DPG Media's consentgate op i.p.v. de pagina zelf -- zie
+// HEADERS_AW_BOT hierboven. Elke entry hier daarom nu {url, headers}: eerst
+// nog een keer met normale browser-headers (voor het geval de gate ooit
+// verdwijnt/anders reageert), dan dezelfde 3 paden met de Googlebot-UA-probe.
 const AW_URLS = [
-  'https://www.autowereld.nl/occasions',
-  'https://www.autowereld.nl/auto-kopen',
-  'https://www.autowereld.nl/aanbod',
+  { url: 'https://www.autowereld.nl/occasions', headers: HEADERS_AW },
+  { url: 'https://www.autowereld.nl/auto-kopen', headers: HEADERS_AW },
+  { url: 'https://www.autowereld.nl/aanbod', headers: HEADERS_AW },
+  { url: 'https://www.autowereld.nl/occasions', headers: HEADERS_AW_BOT },
+  { url: 'https://www.autowereld.nl/auto-kopen', headers: HEADERS_AW_BOT },
+  { url: 'https://www.autowereld.nl/aanbod', headers: HEADERS_AW_BOT },
 ];
 
 async function scrapeAutoWereld() {
@@ -1432,10 +1542,10 @@ async function scrapeAutoWereld() {
   const gezien = new Set();
 
   for (let i = 0; i < AW_URLS.length; i++) {
-    const url = AW_URLS[i];
+    const { url, headers } = AW_URLS[i];
     const label = `AW p${i + 1}`;
     try {
-      const resp = await fetchWithRetry(url, { headers: HEADERS_AW });
+      const resp = await fetchWithRetry(url, { headers });
       console.log(` ${label}: HTTP ${resp.status}`);
       if (!resp.ok) continue;
       const html = await resp.text();
