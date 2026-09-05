@@ -282,6 +282,21 @@ async function scrapeMarktplaats() {
   // Merk-specifieke queries (zie MP_MERK_QUERIES hierboven) -- 13 bestaande
   // niche/EV-merken nu dieper (200->500), plus 22 nieuwe mainstream-merken
   // die tot nu toe geen eigen query hadden.
+  //
+  // Sleep hier bewust 8s i.p.v. de 4s van de andere MP-loops hierboven, en
+  // óók tussen twee verschillende merken (niet alleen tussen pagina's van
+  // hetzelfde merk zoals eerst): de run van 5 sep liet zien dat Marktplaats
+  // na ~155 requests in ~10,5 minuut sustained querying (13 bestaande +
+  // 13 van de 22 nieuwe merken, dus nog vóór het einde van de merk-loop)
+  // consequent HTTP 403 begint te geven, en dat blijft zo voor de rest van
+  // die run -- geen recovery, ook niet na de ingebouwde 3x-retry. Gevolg:
+  // Honda, Mazda, Nissan, Dacia, Mini, Land Rover, Porsche en Ford (de
+  // laatste 8 van de 22 nieuwe merken) kregen die run domweg 0 resultaten,
+  // niet omdat ze leeg zijn maar omdat we geblokkeerd werden. We wéten nog
+  // niet of dit een request-rate- of een request-count-limiet is, dus dit
+  // is een eerste, evidence-based poging (2x zo langzaam) -- de eerstvolgende
+  // run-logs laten zien of de blokkade nu later/niet meer optreedt, of dat
+  // dit verder omlaag moet.
   for (const merk of MP_MERK_QUERIES) {
     const base = 'https://www.marktplaats.nl/lrp/api/search?l1CategoryId=91&numberOfResultsPerPage=100&query=' + merk.query;
     for (let i = 0; i < MP_MIDDEN_DIEPTE.length; i++) {
@@ -296,7 +311,7 @@ async function scrapeMarktplaats() {
         all.push(...found);
         console.log(label + ': ' + found.length + ' nieuw');
       } catch (e) { console.log(label + ': fout - ' + e.message); }
-      if (i < MP_MIDDEN_DIEPTE.length - 1) await sleep(4000);
+      await sleep(8000);
     }
   }
 
