@@ -143,7 +143,35 @@ const MERKEN_DISPLAY = {
   // zonder expliciete entry hier werden deze meerwoordige merken op de
   // homepage/occasions-pagina's als "Land rover", "Lynk & co" etc. getoond.
   'land rover': 'Land Rover', 'aston martin': 'Aston Martin', 'lynk & co': 'Lynk & Co',
+  // Slugify-varianten (zie slugifyMerk() hieronder) -- de spatie/&-varianten
+  // hierboven blijven staan voor bestaande code die nog de ruwe merknaam als
+  // sleutel gebruikt (bv. het woord-voor-woord model-detectie hieronder),
+  // maar de daadwerkelijke URL/mapnaam is sinds de "Page with redirect"-fix
+  // (Google Search Console, sep '26) de geslugifyde vorm.
+  'land-rover': 'Land Rover', 'aston-martin': 'Aston Martin', 'lynk-co': 'Lynk & Co',
 };
+
+// Zet een ruwe merknaam om in een URL-veilige slug: geen spaties, geen "&",
+// geen diakrieten. Root cause van de "Page with redirect"-meldingen in
+// Google Search Console (sep '26, 65 pagina's): meerwoordige/geaccentueerde
+// merken ("Alfa Romeo", "Land Rover", "Lynk & Co", "Citroën") werden tot nu
+// toe RAUW gebruikt als mapnaam ÉN in de <link rel="canonical">-tag, terwijl
+// alleen sitemap.xml encodeURIComponent() toepaste -- drie verschillende
+// representaties van "dezelfde" URL (rauwe spatie op disk/in canonical,
+// %20 in de sitemap), waarbij een daadwerkelijk HTTP-verzoek voor de rauwe
+// (ongeldige) URL uit de canonical-tag/homepage-links door Cloudflare naar
+// de correcte vorm wordt doorgestuurd -- exact een "Page with redirect".
+// Gebruikt vanaf nu overal als enige bron van waarheid voor de map-/URL-naam;
+// de RAUWE merknaam (met spatie) blijft wél nodig voor de woord-voor-woord
+// model-detectie in de generatielus hieronder, dus die twee bewust
+// gescheiden gehouden (merkKey vs. merkSlug).
+function slugifyMerk(naam) {
+  return String(naam || '')
+    .normalize('NFD').replace(/[̀-ͯ]/g, '') // ë -> e, ö -> o, enz.
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
 
 function escHtml(s) {
   return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
@@ -209,8 +237,12 @@ function updateHomepageMerkenLinks(merkCounts) {
     .sort(function(a, b) { return b[1] - a[1]; });
   if (!top.length) return;
   const links = top.map(function(e) {
-    return '<a href="/occasions/' + e[0] + '/" style="display:inline-flex;align-items:center;gap:.3rem;background:#fff;border:1px solid #e5e5ea;border-radius:20px;padding:.3rem .9rem;font-size:.83rem;color:#1a56db;text-decoration:none">' +
-      slugToDisplay(e[0]) + ' <span style="color:#aaa;font-size:.75rem">(' + e[1] + ')</span></a>';
+    // e[0] is de rauwe merknaam (kan spaties/"&"/diakrieten bevatten) --
+    // slugifyMerk() voor de href, zodat deze exact overeenkomt met de
+    // daadwerkelijke mapnaam/canonical-URL (zie slugifyMerk()-comment).
+    const slug = slugifyMerk(e[0]);
+    return '<a href="/occasions/' + slug + '/" style="display:inline-flex;align-items:center;gap:.3rem;background:#fff;border:1px solid #e5e5ea;border-radius:20px;padding:.3rem .9rem;font-size:.83rem;color:#1a56db;text-decoration:none">' +
+      slugToDisplay(slug) + ' <span style="color:#aaa;font-size:.75rem">(' + e[1] + ')</span></a>';
   }).join('');
   const re = /<div id="merken-links-grid"[^>]*>[\s\S]*?<\/div>/;
   if (!re.test(html)) { console.warn('  index.html: #merken-links-grid niet gevonden, overgeslagen'); return; }
@@ -337,8 +369,11 @@ function buildPage({ merkSlug, modelSlug, filtered, listings }) {
     // Geen slice(0,16) meer -- dit is de /occasions/-hub, de belangrijkste
     // interne-linkbron naar de merk-pagina's. Zie updateHomepageMerkenLinks()
     // hierboven voor dezelfde overweging op de homepage.
+    // e[0] is de rauwe merknaam -- slugifyMerk() voor de href, zelfde reden
+    // als updateHomepageMerkenLinks() hierboven (Google Search Console
+    // "Page with redirect"-fix, sep '26).
     merkLinks = Object.entries(mc).filter(function(e){return e[1]>=MIN_MERK_COUNT;}).sort(function(a,b){return b[1]-a[1];})
-      .map(function(e){return '<a href="/occasions/'+e[0]+'/" class="model-link">'+slugToDisplay(e[0])+' <span>('+e[1]+')</span></a>';}).join('');
+      .map(function(e){var slug=slugifyMerk(e[0]);return '<a href="/occasions/'+slug+'/" class="model-link">'+slugToDisplay(slug)+' <span>('+e[1]+')</span></a>';}).join('');
     // Steden-pagina's (STEDEN, verderop in dit bestand) hadden tot nu toe
     // helemaal geen interne link vanaf welke hub dan ook -- alleen bereikbaar
     // via sitemap.xml. STEDEN is op module-niveau gedefinieerd en al
@@ -648,10 +683,17 @@ function main() {
   listings.forEach(function(a){ const m=(a.merk||'').toLowerCase().trim(); if(m) merkCounts[m]=(merkCounts[m]||0)+1; });
 
   Object.entries(merkCounts).filter(function(e){return e[1]>=MIN_MERK_COUNT;}).sort(function(a,b){return b[1]-a[1];}).forEach(function(entry) {
-    const merkSlug = entry[0];
+    // merkKey: rauwe merknaam (kan spaties/"&"/diakrieten bevatten, bv. "alfa
+    // romeo", "lynk & co", "citroën") -- alléén voor het matchen tegen
+    // advertentie-merk/titel hieronder. merkSlug: geslugifyde vorm, de enige
+    // die nog als mapnaam/URL-padsegment gebruikt wordt (zie slugifyMerk()
+    // hierboven voor waarom -- dit was de bron van 65 "Page with redirect"-
+    // meldingen in Google Search Console, sep '26).
+    const merkKey = entry[0];
+    const merkSlug = slugifyMerk(merkKey);
     const filtered = listings.filter(function(a){
       const m=(a.merk||'').toLowerCase().trim();
-      return m===merkSlug||m.includes(merkSlug)||(merkSlug==='vw'&&(m==='volkswagen'||(a.titel||'').toLowerCase().startsWith('volkswagen')));
+      return m===merkKey||m.includes(merkKey)||(merkKey==='vw'&&(m==='volkswagen'||(a.titel||'').toLowerCase().startsWith('volkswagen')));
     });
     if (filtered.length < MIN_MERK_COUNT) return;
     const merkDir = path.join(OUT_DIR, merkSlug);
@@ -665,16 +707,18 @@ function main() {
     // Sla de volledige merknaam over, ook als die uit meerdere woorden bestaat
     // (bv. "alfa romeo", "land rover", "aston martin", "lynk & co") -- anders wordt
     // het tweede woord van de merknaam zélf (bv. "romeo", "rover", "martin") ten
-    // onrechte als modelnaam gezien. Elk woord van de merkslug wordt tegen de
-    // titel gematcht, waarbij een los "&"-teken in de titel wordt overgeslagen
-    // (sommige advertenties spellen "Lynk & Co" zonder het teken). Begint de titel
-    // niet met de merknaam (de verzamelcategorie "overig" bv. is geen woord uit de
-    // advertentietitel zelf), dan valt dit terug op de oude aanname van precies
-    // één woord vóór het model, zodat dat gedrag daar ongewijzigd blijft.
+    // onrechte als modelnaam gezien. Elk woord van de RAUWE merknaam (merkKey,
+    // niet de geslugifyde merkSlug -- die heeft geen spaties meer om op te
+    // splitsen) wordt tegen de titel gematcht, waarbij een los "&"-teken in de
+    // titel wordt overgeslagen (sommige advertenties spellen "Lynk & Co" zonder
+    // het teken). Begint de titel niet met de merknaam (de verzamelcategorie
+    // "overig" bv. is geen woord uit de advertentietitel zelf), dan valt dit
+    // terug op de oude aanname van precies één woord vóór het model, zodat dat
+    // gedrag daar ongewijzigd blijft.
     // # en ? zijn ongeldig in gedeployde bestandsnamen (Netlify) en werken sowieso
     // niet als padsegment in een URL (# is een fragment-scheidingsteken) — verwijderen
     // vóórdat dit als mapnaam/modelSlug gebruikt wordt (bv. modelnamen als "Smart #1").
-    const merkWoorden = merkSlug.split(' ').filter(function(x){ return x && x !== '&'; });
+    const merkWoorden = merkKey.split(' ').filter(function(x){ return x && x !== '&'; });
     filtered.forEach(function(a){
       const w = (a.titel||'').toLowerCase().split(' ');
       let idx = 0;
