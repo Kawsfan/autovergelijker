@@ -143,25 +143,27 @@ const MP_FORD_EXPLORER_OFFSETS = [0, 100];
 // zoek-API -- zie MP_OFFSETS hierboven, die budget zit voor de algemene
 // query al vol). offsets bepaalt hoe diep we die eigen 1.000 in gaan.
 //
-// MP_MIDDEN_DIEPTE (5 offsets = tot 500 resultaten) i.p.v. meteen de volle
-// MP_VOLLE_DIEPTE (10 offsets = tot 1.000): elke offset is 1 extra request +
-// sleep, en met 35 merken hieronder telt dat snel op in workflow-runtime.
-// Bewuste tussenstap -- na de eerstvolgende run(s) is aan scrape-report.json
-// per merk te zien welke query's tegen hun 500-limiet aanlopen (dus meer
-// aanbod laten liggen) en die kunnen gericht naar MP_VOLLE_DIEPTE.
+// Startte op MP_MIDDEN_DIEPTE (5 offsets = 500 resultaten) i.p.v. meteen de
+// volle MP_VOLLE_DIEPTE (10 offsets = 1.000) -- bewuste tussenstap om te
+// meten of dit extra volume Marktplaats' rate-limiting zou triggeren (zie
+// de sleep-uitleg hieronder, #113). scrape-report.json van 5-6 sep bevestigt
+// inmiddels twee dingen tegelijk: (1) de 8s-throttle-fix hield stand -- 0
+// HTTP 403's over alle 35 merken in de daaropvolgende runs -- en (2) op
+// pagina 5 (positie 500) leverden ALLE 35 merken nog 70-100 nieuwe
+// resultaten op, geen enkel teken van uitputting. Beide samen rechtvaardigen
+// de escalatie naar MP_VOLLE_DIEPTE hieronder.
 //
 // Twee groepen, samengevoegd 2 sep n.a.v. sessie-analyse ("waarom stokt het
 // totaal aanbod rond 22-24k"):
-// - De eerste 13 (Jeep t/m DS) bestonden al, maar stonden op maar 200 van
-//   hun beschikbare 1.000 (offsets [0,100]) -- gratis winst op bewezen
-//   werkende queries, nu naar MP_MIDDEN_DIEPTE getrokken.
+// - De eerste 13 (Jeep t/m DS) bestonden al, maar stonden aanvankelijk op
+//   maar 200 van hun beschikbare 1.000 (offsets [0,100]) -- gratis winst op
+//   bewezen werkende queries.
 // - De overige 22 (Volkswagen t/m Ford) zijn nieuw: de grootste merken in
 //   Nederland, die tot nu toe GEEN eigen query hadden en dus volledig
 //   afhankelijk waren van de algemene query -- die al aan de eigen
-//   1.000-resultatenlimiet van Marktplaats vastzit. Dit is de belangrijkste
-//   hefboom om het totale aanbod voorbij het huidige plafond te krijgen.
+//   1.000-resultatenlimiet van Marktplaats vastzit. Dit was de belangrijkste
+//   hefboom om het totale aanbod voorbij het toenmalige plafond te krijgen.
 const MP_VOLLE_DIEPTE = Array.from({length:10},(_,i)=>i*100);
-const MP_MIDDEN_DIEPTE = [0, 100, 200, 300, 400];
 const MP_MERK_QUERIES = [
   { naam: 'Jeep', query: 'jeep' },
   { naam: 'Alfa Romeo', query: 'alfa+romeo' },
@@ -299,21 +301,17 @@ async function scrapeMarktplaats() {
   // Sleep hier bewust 8s i.p.v. de 4s van de andere MP-loops hierboven, en
   // óók tussen twee verschillende merken (niet alleen tussen pagina's van
   // hetzelfde merk zoals eerst): de run van 5 sep liet zien dat Marktplaats
-  // na ~155 requests in ~10,5 minuut sustained querying (13 bestaande +
-  // 13 van de 22 nieuwe merken, dus nog vóór het einde van de merk-loop)
-  // consequent HTTP 403 begint te geven, en dat blijft zo voor de rest van
-  // die run -- geen recovery, ook niet na de ingebouwde 3x-retry. Gevolg:
-  // Honda, Mazda, Nissan, Dacia, Mini, Land Rover, Porsche en Ford (de
-  // laatste 8 van de 22 nieuwe merken) kregen die run domweg 0 resultaten,
-  // niet omdat ze leeg zijn maar omdat we geblokkeerd werden. We wéten nog
-  // niet of dit een request-rate- of een request-count-limiet is, dus dit
-  // is een eerste, evidence-based poging (2x zo langzaam) -- de eerstvolgende
-  // run-logs laten zien of de blokkade nu later/niet meer optreedt, of dat
-  // dit verder omlaag moet.
+  // op de oude 4s-cadans na ~155 requests in ~10,5 minuut sustained
+  // querying consequent HTTP 403 begon te geven (Honda, Mazda, Nissan,
+  // Dacia, Mini, Land Rover, Porsche en Ford kregen die run domweg 0
+  // resultaten, niet omdat ze leeg zijn maar omdat we geblokkeerd werden).
+  // Op 8s bevestigden de daaropvolgende runs (#113) 0 HTTP 403's meer over
+  // alle 35 merken × nu 10 pagina's -- vandaar dat de diepte hieronder
+  // inmiddels naar MP_VOLLE_DIEPTE kon (zie de comment daarboven).
   for (const merk of MP_MERK_QUERIES) {
     const base = 'https://www.marktplaats.nl/lrp/api/search?l1CategoryId=91&numberOfResultsPerPage=100&query=' + merk.query;
-    for (let i = 0; i < MP_MIDDEN_DIEPTE.length; i++) {
-      const url = base + '&offset=' + MP_MIDDEN_DIEPTE[i];
+    for (let i = 0; i < MP_VOLLE_DIEPTE.length; i++) {
+      const url = base + '&offset=' + MP_VOLLE_DIEPTE[i];
       const label = 'MP ' + merk.naam + ' p' + (i + 1);
       try {
         const res = await fetchWithRetry(url, { headers: HEADERS_MP });

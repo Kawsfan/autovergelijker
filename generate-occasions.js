@@ -121,13 +121,21 @@ const OCC_STYLE =
   '.auto-foto{position:relative;aspect-ratio:16/9;background:#f0f0eb;overflow:hidden}' +
   '.auto-foto img{width:100%;height:100%;object-fit:cover}' +
   '.auto-foto-leeg{width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;color:#888;background:#f0f0eb}.auto-foto-leeg span{font-size:11.5px}' +
-  '.bron-label{position:absolute;top:10px;right:10px;padding:3px 8px;border-radius:4px;font-size:11px;font-weight:700;color:#fff;background:#888}' +
-  '.bron-marktplaats{background:#0063D3}.bron-gaspedaal{background:#E87722}.bron-viabovag{background:#003082}.bron-autotrack{background:#1B5FA8}.bron-autoscout24{background:#FF6600}.bron-autotrader{background:#0057B8}' +
+  // Dealer/particulier is op deze landingspagina's nuttiger dan de bron
+  // (welke site) -- vandaar op de prominente plek (rechtsboven op de foto).
+  // right:10px i.p.v. de homepage se right:42px, want hier zit geen
+  // favoriet-hartje in die hoek dat ruimte inneemt.
+  '.dealer-badge{position:absolute;top:10px;right:10px;background:#1a56db;color:#fff;font-size:10px;font-weight:700;padding:2px 6px;border-radius:3px;letter-spacing:.3px;z-index:2;pointer-events:none}' +
+  '.particulier-badge{position:absolute;top:10px;right:10px;background:#16a34a;color:#fff;font-size:10px;font-weight:700;padding:2px 6px;border-radius:3px;letter-spacing:.3px;z-index:2;pointer-events:none}' +
   '.auto-info{padding:14px 16px 12px;flex:1;display:flex;flex-direction:column;gap:6px}' +
   '.auto-info h3{font-size:14px;font-weight:700;margin:0;color:#1a1a2e;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;line-height:1.38}' +
   '.auto-prijs-groot{font-size:21px;font-weight:800;color:#111;letter-spacing:-.4px;margin:2px 0 0}' +
   '.auto-specs-row{display:flex;gap:10px;flex-wrap:wrap;margin:2px 0}' +
-  '.auto-spec-chip{font-size:11.5px;color:#6b7280;display:flex;align-items:center;gap:3px}.auto-spec-chip svg{flex-shrink:0}';
+  '.auto-spec-chip{font-size:11.5px;color:#6b7280;display:flex;align-items:center;gap:3px}.auto-spec-chip svg{flex-shrink:0}' +
+  // Bron (welke site) blijft zichtbaar, maar gedegradeerd naar een klein
+  // tekstlabel onderaan de kaart -- zelfde patroon als index.html.
+  '.auto-card-footer{display:flex;align-items:center;justify-content:space-between;margin-top:auto;padding-top:10px;border-top:1px solid #f1f2f4}' +
+  '.auto-bron-tag{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.4px}';
 
 const MERKEN_DISPLAY = {
   bmw: 'BMW', vw: 'Volkswagen', volkswagen: 'Volkswagen',
@@ -187,6 +195,21 @@ function fmt(n) {
 function bronClass(bron) {
   return (bron || '').toLowerCase().replace(/[^a-z0-9]/g, '');
 }
+// Zelfde logica als isDealer() in index.html (client-side) -- bewust hier
+// gedupliceerd, zelfde patroon als slugToDisplay()/MERKEN_DISPLAY.
+function isDealer(a) {
+  if (!a) return null;
+  var b = (a.bron||'').toLowerCase();
+  if (b==='gaspedaal'||b==='viabovag'||b==='autoscout24') return true;
+  var t = (a.titel||'').toLowerCase();
+  if (['dealer','garage','occasions','autobedrijf','autohandel'].some(function(w){return t.includes(w);})) return true;
+  // Marktplaats is de enige bron hier met echte particuliere aanbieders --
+  // zonder dealer-signaalwoorden in de titel is dit vrijwel zeker een
+  // particuliere advertentie. Bij andere/onbekende bronnen blijft het
+  // "onbekend" (null) i.p.v. een gok op particulier.
+  if (b==='marktplaats') return false;
+  return null;
+}
 // Zelfde kaart-component (markup + classes) als .auto-card op de homepage,
 // zodat een occasion-kaart er hier identiek uitziet -- i.p.v. de eigen,
 // losstaande kaartstijl die deze pagina's eerder hadden.
@@ -198,16 +221,28 @@ function renderAutoCard(a, fallbackTitel) {
     a.brandstof ? '<span class="auto-spec-chip"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 22V8l9-6 9 6v14"/><line x1="9" y1="22" x2="9" y2="12"/><line x1="15" y1="22" x2="15" y2="12"/><rect x="9" y="12" width="6" height="10"/></svg>' + escHtml(a.brandstof) + '</span>' : '',
     a.transmissie ? '<span class="auto-spec-chip">' + escHtml(a.transmissie) + '</span>' : '',
   ].join('');
+  // Welke site de advertentie levert is op een merk/stad-landingspagina minder
+  // relevant dan of het een dealer of particulier is (dat scheelt qua garantie/
+  // onderhandelingsruimte) -- vandaar dealer/particulier nu op de prominente
+  // plek (rechtsboven op de foto, zelfde positie als het oude bron-label), en
+  // de bron zelf gedegradeerd naar een klein tekstlabel onderaan de kaart.
+  // Zelfde tweedeling als op de homepage (index.html: .dealer-badge/
+  // .particulier-badge + .auto-bron-tag).
+  const dealer = isDealer(a);
+  const dealerBadge = dealer === true ? '<span class="dealer-badge">DEALER</span>'
+    : dealer === false ? '<span class="particulier-badge">PRIVÉ</span>' : '';
+  const bronKleur = ({'Marktplaats':'#0063D3','Gaspedaal':'#E87722','ViaBovag':'#003082','AutoScout24':'#FF6600','AutoTrack':'#1B5FA8','AutoTrader':'#0057B8'})[a.bron] || '#9ca3af';
   return '<a href="' + escHtml(outUrl(a.url, a.bron)) + '" target="_blank" rel="noopener noreferrer" class="auto-card" itemscope itemtype="https://schema.org/Car"' +
     ' data-out data-bron="' + escHtml(a.bron || '') + '" data-merk="' + escHtml(a.merk || '') + '" data-prijs="' + (a.prijs || '') + '">' +
     '<div class="auto-foto">' +
     (a.imgSrc ? '<img src="' + escHtml(a.imgSrc) + '" alt="' + escHtml(titel) + '" loading="lazy" width="280" height="158" onerror="_fotoFout(this)">' : FOTO_LEEG_HTML) +
-    (a.bron ? '<span class="bron-label bron-' + bronClass(a.bron) + '">' + escHtml(a.bron) + '</span>' : '') +
+    dealerBadge +
     '</div>' +
     '<div class="auto-info">' +
     '<h3 itemprop="name">' + escHtml(titel) + '</h3>' +
     '<div class="auto-prijs-groot" itemprop="offers" itemscope itemtype="https://schema.org/Offer"><span itemprop="price" content="' + (a.prijs || '') + '">' + (a.prijs ? '&euro; ' + fmt(a.prijs) : 'Prijs op aanvraag') + '</span><meta itemprop="priceCurrency" content="EUR"></div>' +
     '<div class="auto-specs-row">' + specs + '</div>' +
+    (a.bron ? '<div class="auto-card-footer"><span class="auto-bron-tag" style="color:' + bronKleur + '">' + escHtml(a.bron) + '</span></div>' : '') +
     '</div></a>';
 }
 function cap(s) { return s ? s.charAt(0).toUpperCase() + s.slice(1) : ''; }
@@ -558,10 +593,23 @@ function buildStadPage(stadSlug, stad, filtered, listings, landelijkeStats) {
   // lokaal >10% van de advertenties uitmaakt EN dat >3x het landelijke aandeel
   // van datzelfde merk is, is de lokale prijs vermoedelijk niet representatief
   // en tonen we liever geen (misleidende) claim dan een verkeerde.
+  // merkTellingen (en de afgeleide topMerk) los van de regioTekst-gate
+  // berekend -- de FAQ hieronder gebruikt het populairste merk ook wanneer
+  // filtered.length < 8 (de drempel is alleen bedoeld om de landelijke
+  // prijsvergelijking betrouwbaar te houden, niet voor "welk merk komt hier
+  // het vaakst voor").
+  const merkTellingen = {};
+  filtered.forEach(function(l){ var m=l.merk||'onbekend'; merkTellingen[m]=(merkTellingen[m]||0)+1; });
+  let topMerk = null, topMerkCount = 0;
+  for (const m in merkTellingen) {
+    if (m === 'onbekend') continue;
+    if (merkTellingen[m] > topMerkCount) { topMerk = m; topMerkCount = merkTellingen[m]; }
+  }
+  const topMerkNaam = topMerk ? (MERKEN_DISPLAY[topMerk] || cap(topMerk)) : null;
+
   let regioTekst = '';
+  let regioDuiding = ''; // "3% goedkoper dan"/"vergelijkbaar met" -- ook los gebruikt in de FAQ hieronder
   if (filtered.length >= 8 && landelijkeStats && landelijkeStats.gem > 0 && gemPrijs > 0) {
-    const merkTellingen = {};
-    filtered.forEach(function(l){ var m=l.merk||'onbekend'; merkTellingen[m]=(merkTellingen[m]||0)+1; });
     let gedomineerd = false;
     for (const m in merkTellingen) {
       if (merkTellingen[m] < 5) continue;
@@ -571,10 +619,17 @@ function buildStadPage(stadSlug, stad, filtered, listings, landelijkeStats) {
     }
     if (!gedomineerd) {
       const verschilPct = Math.round((gemPrijs - landelijkeStats.gem) / landelijkeStats.gem * 100);
-      const duiding = verschilPct < -3 ? Math.abs(verschilPct) + '% goedkoper dan' : verschilPct > 3 ? verschilPct + '% duurder dan' : 'vergelijkbaar met';
-      regioTekst = 'Gemiddeld betaal je in ' + stad.naam + ' &euro; ' + gemPrijs.toLocaleString('nl-NL') + ' voor een tweedehands auto -- dat is ' + duiding + ' het landelijk gemiddelde van &euro; ' + landelijkeStats.gem.toLocaleString('nl-NL') + '.';
+      regioDuiding = verschilPct < -3 ? Math.abs(verschilPct) + '% goedkoper dan' : verschilPct > 3 ? verschilPct + '% duurder dan' : 'vergelijkbaar met';
+      regioTekst = 'Gemiddeld betaal je in ' + stad.naam + ' &euro; ' + gemPrijs.toLocaleString('nl-NL') + ' voor een tweedehands auto -- dat is ' + regioDuiding + ' het landelijk gemiddelde van &euro; ' + landelijkeStats.gem.toLocaleString('nl-NL') + '.';
     }
   }
+
+  // Goedkoopste occasion in de stad -- eigen berekening (buildPage() heeft dit
+  // al voor merk/model-pagina's, maar buildStadPage() had nog geen "goedkoop"-
+  // stat). prijs >= 300 sluit invoerfouten/placeholder-nullen uit, zelfde
+  // ondergrens als de landelijke referentiestatistiek hierboven (landelijkeAutos).
+  const metPrijs = filtered.filter(function(l){ return l.prijs != null && l.prijs >= 300; });
+  const goedkoopste = metPrijs.length ? [...metPrijs].sort(function(a,b){ return (a.prijs||0)-(b.prijs||0); })[0] : null;
   const cards = filtered.slice(0,24).map(function(l){ return renderAutoCard(l, stad.naam); }).join('');
 
   // Structured data -- ontbrak hier volledig (in tegenstelling tot buildPage(),
@@ -602,6 +657,59 @@ function buildStadPage(stadSlug, stad, filtered, listings, landelijkeStats) {
     { '@type': 'ListItem', position: 3, name: stad.naam,   item: SITE_ORIGIN + '/occasions/' + stadSlug + '/' },
   ] };
 
+  // FAQ -- zowel zichtbare HTML (Google eist dat FAQPage-schema overeenkomt met
+  // wat de bezoeker daadwerkelijk op de pagina ziet) als JSON-LD. Dit is het
+  // belangrijkste SEO/GEO-onderdeel van deze pagina: concrete, quotable
+  // antwoorden op vragen die mensen letterlijk aan Google/ChatGPT/Perplexity
+  // stellen ("wat kost een occasion in <stad>") zijn precies het soort content
+  // dat antwoord-engines citeren, en die vandaag nergens op deze pagina stond.
+  const faqItems = [];
+  if (filtered.length > 0 && gemPrijs > 0) {
+    faqItems.push({
+      q: 'Wat kost een tweedehands auto in ' + stad.naam + '?',
+      a: 'Op basis van ' + filtered.length + ' actuele advertenties is de gemiddelde vraagprijs van een tweedehands auto in ' + stad.naam + ' &euro; ' + fmt(gemPrijs) + '. De mediaanprijs -- waarbij de helft goedkoper is -- ligt op &euro; ' + fmt(medPrijs) + '.' + (regioDuiding ? ' Dat is ' + regioDuiding + ' het landelijk gemiddelde van &euro; ' + fmt(landelijkeStats.gem) + '.' : ''),
+    });
+  }
+  if (topMerk && topMerkCount >= 3) {
+    faqItems.push({
+      q: 'Wat is het populairste automerk als occasion in ' + stad.naam + '?',
+      a: topMerkNaam + ' komt het vaakst voor in het occasion-aanbod van ' + stad.naam + ': ' + topMerkCount + ' van de ' + filtered.length + ' advertenties (' + Math.round(topMerkCount / filtered.length * 100) + '%).',
+    });
+  }
+  if (goedkoopste) {
+    faqItems.push({
+      q: 'Wat is de goedkoopste occasion in ' + stad.naam + '?',
+      a: 'De goedkoopste tweedehands auto in het huidige aanbod van ' + stad.naam + ' is een ' + (goedkoopste.titel || 'occasion') + ' voor &euro; ' + fmt(goedkoopste.prijs) + '. Het aanbod wisselt dagelijks.',
+    });
+  }
+  faqItems.push({
+    q: 'Waar vind ik tweedehands auto\'s in ' + stad.naam + '?',
+    a: 'Carkijker verzamelt dagelijks occasions uit ' + stad.naam + ' en omgeving van Marktplaats, AutoScout24, Gaspedaal, ViaBOVAG en AutoTrack op één plek, van zowel particuliere verkopers als dealers.',
+  });
+  const faqSchema = faqItems.length ? { '@context': 'https://schema.org', '@type': 'FAQPage', 'mainEntity': faqItems.map(function(f){
+    return { '@type': 'Question', 'name': f.q, 'acceptedAnswer': { '@type': 'Answer', 'text': f.a.replace(/&euro;/g, 'EUR') } };
+  }) } : null;
+  const faqHtml = faqItems.length
+    ? '<div class="faq-section" aria-label="Veelgestelde vragen over occasions in '+stad.naam+'">' +
+      '<h2>Veelgestelde vragen over occasions in '+stad.naam+'</h2>' +
+      faqItems.map(function(f){ return '<div class="faq-item"><h3>'+f.q+'</h3><p>'+f.a+'</p></div>'; }).join('') +
+      '</div>'
+    : '';
+
+  // Andere steden -- interne links waren tot nu toe beperkt tot Home/Occasions/
+  // huidige stad in de nav. Dezelfde regio eerst (meest relevant voor een
+  // bezoeker die net buiten de kernstad zoekt), daarna aangevuld met overige
+  // steden tot een handvol links.
+  const andereSteden = Object.entries(STEDEN).filter(function(e){ return e[0] !== stadSlug; });
+  const zelfdeRegio = andereSteden.filter(function(e){ return e[1].regio === stad.regio; });
+  const overigeRegio = andereSteden.filter(function(e){ return e[1].regio !== stad.regio; });
+  const nabijeSteden = zelfdeRegio.concat(overigeRegio).slice(0, 6);
+  const nabijeStedenHtml = nabijeSteden.length
+    ? '<div class="nearby-section"><h2>Occasions in andere steden</h2><div class="nearby-links">' +
+      nabijeSteden.map(function(e){ return '<a href="/occasions/'+e[0]+'/" class="nearby-link">'+e[1].naam+'</a>'; }).join('') +
+      '</div></div>'
+    : '';
+
   return '<!doctype html><html lang="nl"><head>'+
     '<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'+
     GA_SNIPPET +
@@ -612,6 +720,7 @@ function buildStadPage(stadSlug, stad, filtered, listings, landelijkeStats) {
     '<link rel="canonical" href="https://carkijker.nl/occasions/'+stadSlug+'/">'+
     '<script type="application/ld+json">'+safeJsonLd(stadSchema)+'<\/script>'+
     '<script type="application/ld+json">'+safeJsonLd(stadBcSchema)+'<\/script>'+
+    (faqSchema ? '<script type="application/ld+json">'+safeJsonLd(faqSchema)+'<\/script>' : '')+
     '<style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:"Segoe UI",Arial,sans-serif;background:#f5f5f0;color:#333;line-height:1.5}'+
     'nav{background:rgba(255,255,255,.96);border-bottom:1px solid rgba(0,0,0,.08);padding:0 1.1rem;height:56px;display:flex;align-items:center;gap:.9rem;'+
     'position:sticky;top:0;z-index:200;box-shadow:0 1px 0 rgba(0,0,0,.04);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);font-size:.875rem;overflow-x:auto;white-space:nowrap}'+
@@ -629,13 +738,29 @@ function buildStadPage(stadSlug, stad, filtered, listings, landelijkeStats) {
     '.auto-foto{position:relative;aspect-ratio:16/9;background:#f0f0eb;overflow:hidden}'+
     '.auto-foto img{width:100%;height:100%;object-fit:cover}'+
     '.auto-foto-leeg{width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;color:#888;background:#f0f0eb}.auto-foto-leeg span{font-size:11.5px}'+
-    '.bron-label{position:absolute;top:10px;right:10px;padding:3px 8px;border-radius:4px;font-size:11px;font-weight:700;color:#fff;background:#888}'+
-    '.bron-marktplaats{background:#0063D3}.bron-gaspedaal{background:#E87722}.bron-viabovag{background:#003082}.bron-autotrack{background:#1B5FA8}.bron-autoscout24{background:#FF6600}.bron-autotrader{background:#0057B8}'+
+    '.dealer-badge{position:absolute;top:10px;right:10px;background:#1a56db;color:#fff;font-size:10px;font-weight:700;padding:2px 6px;border-radius:3px;letter-spacing:.3px;z-index:2;pointer-events:none}'+
+    '.particulier-badge{position:absolute;top:10px;right:10px;background:#16a34a;color:#fff;font-size:10px;font-weight:700;padding:2px 6px;border-radius:3px;letter-spacing:.3px;z-index:2;pointer-events:none}'+
     '.auto-info{padding:14px 16px 12px;flex:1;display:flex;flex-direction:column;gap:6px}'+
     '.auto-info h3{font-size:14px;font-weight:700;margin:0;color:#1a1a2e;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;line-height:1.38}'+
     '.auto-prijs-groot{font-size:21px;font-weight:800;color:#111;letter-spacing:-.4px;margin:2px 0 0}'+
     '.auto-specs-row{display:flex;gap:10px;flex-wrap:wrap;margin:2px 0}'+
-    '.auto-spec-chip{font-size:11.5px;color:#6b7280;display:flex;align-items:center;gap:3px}.auto-spec-chip svg{flex-shrink:0}</style></head><body>'+
+    '.auto-spec-chip{font-size:11.5px;color:#6b7280;display:flex;align-items:center;gap:3px}.auto-spec-chip svg{flex-shrink:0}'+
+    '.auto-card-footer{display:flex;align-items:center;justify-content:space-between;margin-top:auto;padding-top:10px;border-top:1px solid #f1f2f4}'+
+    '.auto-bron-tag{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.4px}'+
+    // FAQ + andere-steden secties -- zelfde kaartstijl (wit blok, afgeronde
+    // hoeken, subtiele schaduw) als .geo-blok/.stat-card hierboven, voor
+    // visuele consistentie met de rest van de pagina.
+    '.faq-section{margin-top:1.5rem;padding:1.25rem;background:#fff;border-radius:14px;border:1px solid rgba(0,0,0,.07);box-shadow:0 1px 4px rgba(0,0,0,.06)}'+
+    '.faq-section h2{font-size:1.05rem;margin-bottom:.75rem;color:#1a1a2e}'+
+    '.faq-item{margin-bottom:.9rem}.faq-item:last-child{margin-bottom:0}'+
+    '.faq-item h3{font-size:.9rem;color:#1a1a2e;margin-bottom:.2rem}'+
+    '.faq-item p{font-size:.875rem;color:#444}'+
+    '.nearby-section{margin-top:1.5rem}'+
+    '.nearby-section h2{font-size:1.05rem;margin-bottom:.6rem;color:#1a1a2e}'+
+    '.nearby-links{display:flex;flex-wrap:wrap;gap:.5rem}'+
+    '.nearby-link{background:#fff;border:1px solid rgba(0,0,0,.08);border-radius:20px;padding:.35rem .9rem;font-size:.83rem;color:#d14413;text-decoration:none;transition:border-color .15s}'+
+    '.nearby-link:hover{border-color:#d14413}'+
+    '</style></head><body>'+
     '<nav><a href="/" class="logo">Car<span>kijker</span></a><a href="/occasions/">Occasions</a><a href="/occasions/'+stadSlug+'/">'+stad.naam+'</a></nav>'+
     '<div class="container">'+
     '<h1>Tweedehands auto occasions '+stad.naam+'</h1>'+
@@ -648,6 +773,8 @@ function buildStadPage(stadSlug, stad, filtered, listings, landelijkeStats) {
     '</div>'+
     '<div class="auto-grid" id="aanbod">'+cards+'</div>'+
     (filtered.length === 0 ? '<p style="color:#666;margin-top:1rem">Geen occasions gevonden in '+stad.naam+'. Bekijk ons <a href="/">volledig aanbod</a>.</p>' : '')+
+    faqHtml +
+    nabijeStedenHtml +
     '</div></body></html>';
 }
 
