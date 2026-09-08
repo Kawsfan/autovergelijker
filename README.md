@@ -46,6 +46,10 @@ GitHub Actions (06:00 / 12:00 / 18:00 UTC, concurrency-guard voorkomt overlap)
     │     ├─ data/scrape-report.json  ← aantal nieuwe advertenties per bron, laatste run
     │     └─ data/scrape-health.json  ← dagelijkse tellingen per bron, voor de gezondheidscheck
     ├─ node generate-occasions.js     → occasions/<merk>/<model|stad>/index.html + sitemap.xml
+    ├─ node scripts/sync-headlessify-artikelen.js
+    │     → haalt gepubliceerde artikelen op uit Headlessify (Supabase) en
+    │       schrijft data/artikelen/*.json; no-op zolang de HEADLESSIFY_*-
+    │       secrets niet gezet zijn
     ├─ node generate-artikelen.js     → artikelen/<slug>/index.html + llms.txt
     ├─ commit + push naar main
     └─ node scripts/check-scrape-health.js
@@ -59,6 +63,27 @@ GitHub Actions (06:00 / 12:00 / 18:00 UTC, concurrency-guard voorkomt overlap)
 - **Scraper**: Node.js met `fetch` + exponential backoff retry
 - **Hosting**: Cloudflare Workers (static assets) voor productie; Netlify voor PR-deploy-previews
 - **CI/CD**: GitHub Actions — dagelijkse scraper + `validate.yml` voor PR-validatie
+
+## Artikelen beheren via Headlessify
+
+De `/artikelen/*`-content wordt beheerd in [Headlessify](https://github.com/Kawsfan/Headlessify),
+een eigen headless CMS. `data/artikelen/*.json` is daarmee geen handmatig
+bij te werken bron meer zodra dit is ingeschakeld — de sync-stap in de
+workflow overschrijft die map met wat er in Headlessify op `published` staat
+(en verwijdert bestanden voor artikelen die daar niet meer published zijn).
+
+Inschakelen:
+1. Eenmalig de bestaande artikelen importeren, zodat ze niet verdwijnen bij
+   de eerste sync:
+   ```bash
+   SUPABASE_URL=... SUPABASE_SERVICE_ROLE_KEY=... \
+     node scripts/import-artikelen-naar-headlessify.js
+   ```
+2. Twee repo-secrets toevoegen (Settings → Secrets and variables → Actions):
+   `HEADLESSIFY_SUPABASE_URL` en `HEADLESSIFY_SUPABASE_SERVICE_ROLE_KEY`.
+3. Vanaf de eerstvolgende workflow-run schrijft en beheert Headlessify de
+   artikelen; nieuwe/gewijzigde artikelen ga je vanaf dan via de Headlessify-
+   studio in, niet meer als los JSON-bestand in deze repo.
 
 ## Lokaal draaien
 

@@ -36,6 +36,15 @@ jobs:
       - name: Genereer occasions pagina's
         run: node generate-occasions.js
 
+      # No-op zolang de HEADLESSIFY_*-secrets niet gezet zijn (zie
+      # scripts/sync-headlessify-artikelen.js) -- pas een wijziging als
+      # Headlessify daadwerkelijk in gebruik is.
+      - name: Sync artikelen uit Headlessify
+        env:
+          SUPABASE_URL: ${{ secrets.HEADLESSIFY_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.HEADLESSIFY_SUPABASE_SERVICE_ROLE_KEY }}
+        run: node scripts/sync-headlessify-artikelen.js
+
       - name: Genereer artikelen pagina's
         run: node generate-artikelen.js
 
