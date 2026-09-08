@@ -1388,7 +1388,21 @@ async function laadListings() {
         // (~39% kleiner) -- die is alleen nodig in de detailweergave, en
         // daar zorgt de vangnet-fetch in openDetail() (zie verderop) alsnog
         // voor de volledige galerij via het bijbehorende merken/<merk>.json.
+        //
+        // Sinds 8 sep '26 staat dit bestand in kolomvorm (gedeelde `fields`-
+        // lijst + `rows` array-per-advertentie i.p.v. object-per-advertentie)
+        // -- nodig om onder Cloudflare's 25MiB-bestandslimiet te blijven bij
+        // 46,8k+ advertenties (zie scripts/scrape.js). Meteen na het fetchen
+        // weer terug naar gewone objecten, zodat de rest van deze functie
+        // (en de rest van de codebase) ongewijzigd blijft.
         fetch('/data/listings-lean.json').then(function(r){return r.json();}).then(function(fullData){
+          if (fullData.fields && fullData.rows) {
+            fullData.listings = fullData.rows.map(function(row){
+              var o = {};
+              for (var i=0;i<fullData.fields.length;i++){ if (row[i] !== null) o[fullData.fields[i]] = row[i]; }
+              return o;
+            });
+          }
           var full = fullData.listings||[];
           // totaal blijft ongewijzigd (zelfde bron als listings-top.json), dus alleen de
           // achterliggende pool aanvullen — geen zichtbare aantallen laten "springen".

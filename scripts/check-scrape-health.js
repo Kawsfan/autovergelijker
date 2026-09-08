@@ -27,6 +27,13 @@ if (history.length < 2) {
 
 const vandaag = history[history.length - 1].tellingen || {};
 const gisteren = history[history.length - 2].tellingen || {};
+// dedupVerwijderd: hoeveel advertenties van een bron vandaag als "duplicaat
+// van een andere bron" zijn weggegooid door de cross-source dedup in
+// scrape.js (zie toelichting daar). Puur informatief hier -- geen eigen
+// faaldrempel -- zodat een geleidelijke bron-daling die de 50%-drempel
+// hieronder nooit haalt (zoals Gaspedaal, sep '26: enkele procenten per dag)
+// toch een verklaring krijgt i.p.v. onopgemerkt te blijven.
+const dedupVandaag = history[history.length - 1].dedupVerwijderd || {};
 
 // Aantal opeenvolgende dagen (terugtellend vanaf vandaag) dat een bron op 0
 // staat. Vangt het geval dat de dag-op-dag-vergelijking hieronder mist: een
@@ -60,7 +67,8 @@ for (const bron of VERWACHTE_BRONNEN) {
     console.error(`✗ ${bron}: gedaald van ${was} naar ${nu} (-${pct}%) — mogelijk kapot.`);
     fout = true;
   } else {
-    console.log(`✓ ${bron}: ${nu} actief${was ? ` (was ${was})` : ''}`);
+    const dedupSuffix = dedupVandaag[bron] ? ` (waarvan ${dedupVandaag[bron]} vandaag als duplicaat van een andere bron verwijderd)` : '';
+    console.log(`✓ ${bron}: ${nu} actief${was ? ` (was ${was})` : ''}${dedupSuffix}`);
   }
 }
 
