@@ -2164,11 +2164,33 @@ async function main() {
   // binnenhaalt. data/listings.json zelf blijft ongewijzigd (volledige
   // fidelity, o.a. voor de eigen merge-logica hierboven en scripts/check-
   // scrape-health.js).
-  const _leanL = (data.listings||[]).map(function(l){ var _c = Object.assign({}, l); delete _c.imgs; return _c; });
-  const _leanData = Object.assign({}, data, {listings: _leanL});
+  //
+  // Kolomvorm i.p.v. array van objecten (8 sep '26): bij 55MB/46.8k listings
+  // in listings.json groeide listings-lean.json (imgs eruit) door naar
+  // 32,3MB -- over Cloudflare Workers' limiet van 25MiB per static asset
+  // heen. "Workers Builds: autovergelijker" faalde daardoor stil op elke
+  // push naar main (ontdekt via PR #118). De ~19 herhaalde veldnamen per
+  // advertentie (id/bron/titel/...) namen ruwweg een derde van de
+  // bestandsgrootte in zonder informatie toe te voegen -- een gedeelde
+  // fieldlijst + array-per-rij i.p.v. object-per-rij elimineert die
+  // herhaling zonder ook maar 1 byte data te verliezen. index.html
+  // reconstrueert de gewone objecten meteen na het fetchen, dus verder in
+  // de codebase verandert niets.
+  const _leanFieldSet = {};
+  (data.listings||[]).forEach(function(l){
+    Object.keys(l).forEach(function(k){ if (k !== 'imgs') _leanFieldSet[k] = true; });
+  });
+  const _leanFields = Object.keys(_leanFieldSet).sort();
+  const _leanRows = (data.listings||[]).map(function(l){
+    return _leanFields.map(function(k){ return l[k] === undefined ? null : l[k]; });
+  });
+  const _leanData = Object.assign({}, data);
+  delete _leanData.listings;
+  _leanData.fields = _leanFields;
+  _leanData.rows = _leanRows;
   const _leanPath = path.join(process.cwd(), 'data', 'listings-lean.json');
   fs.writeFileSync(_leanPath, JSON.stringify(_leanData));
-  console.log(' listings-lean.json: ' + _leanL.length + ' listings zonder imgs geschreven');
+  console.log(' listings-lean.json: ' + _leanRows.length + ' listings (kolomvorm, zonder imgs) geschreven');
   // ââ Per-merk JSON bestanden genereren (voor lazy brand loading) ââ
   const _merkDir = path.join(process.cwd(), 'data', 'merken');
   if (!fs.existsSync(_merkDir)) fs.mkdirSync(_merkDir, { recursive: true });
