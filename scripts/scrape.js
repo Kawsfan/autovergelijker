@@ -1935,6 +1935,21 @@ async function main() {
   // Deduplicatie: verwijder zelfde auto van meerdere platforms
   const _dedupMap = {};
   const _dedupList = [];
+  // Per-bron telling van wat hier sneuvelt -- opgezet n.a.v. een opvallende
+  // Gaspedaal-daling (9.692 -> 7.612, sep '26) die samenviel met de
+  // Marktplaats-diepte-1.000-escalatie (#117). Vermoeden: Marktplaats staat
+  // eerst in `listings` (zie ...mpListings hierboven) en wint dus elke
+  // gelijkspel-score, dus met 4x zoveel Marktplaats-kandidaten botst een
+  // Gaspedaal-advertentie nu vaker op dezelfde (merk/model/bouwjaar/km-bucket/
+  // prijs-bucket) sleutel en sneuvelt als "duplicaat" -- ook wanneer het
+  // eigenlijk gewoon een andere auto is. Dit logt alleen (nog geen
+  // gedragswijziging) zodat we na een paar scrape-runs met echte cijfers
+  // kunnen bepalen of/hoe de sleutel preciezer moet.
+  const _dedupVerwijderdPerBron = {};
+  function _telDedupVerwijderd(bron) {
+    const b = bron || 'onbekend';
+    _dedupVerwijderdPerBron[b] = (_dedupVerwijderdPerBron[b] || 0) + 1;
+  }
   for (const l of listings) {
     if (!l.merk || !l.prijs) { _dedupList.push(l); continue; }
     const _key = [
@@ -1949,8 +1964,11 @@ async function main() {
       _dedupMap[_key] = { listing: l, idx: _dedupList.length };
       _dedupList.push(l);
     } else if (_score(l) > _score(_dedupMap[_key].listing)) {
+      _telDedupVerwijderd(_dedupMap[_key].listing.bron);
       _dedupList[_dedupMap[_key].idx] = l;
       _dedupMap[_key].listing = l;
+    } else {
+      _telDedupVerwijderd(l.bron);
     }
   }
   const _dupCount = listings.length - _dedupList.length;
@@ -2237,7 +2255,13 @@ async function main() {
     let _shData = [];
     try { _shData = JSON.parse(fs.readFileSync(_shPath, 'utf8')); } catch(e) {}
     _shData = _shData.filter(d => d.datum !== _today);
-    _shData.push({ datum: _today, tellingen: _tellingen });
+    // dedupVerwijderd: per bron hoeveel advertenties de cross-source dedup
+    // hierboven heeft weggegooid als "duplicaat van een andere bron" -- zie
+    // toelichting bij _dedupVerwijderdPerBron. Los van _tellingen (dat toont
+    // het EIND-aantal per bron) laat dit zien hoeveel een bron daaraan heeft
+    // *ingeleverd*, wat een schijnbare bron-daling kan verklaren zonder dat
+    // de bron zelf minder oplevert.
+    _shData.push({ datum: _today, tellingen: _tellingen, dedupVerwijderd: _dedupVerwijderdPerBron });
     if (_shData.length > 30) _shData = _shData.slice(-30);
     fs.writeFileSync(_shPath, JSON.stringify(_shData));
     console.log('Scrape-health bijgewerkt: ' + Object.keys(_tellingen).length + ' bronnen -> ' + _shPath);
