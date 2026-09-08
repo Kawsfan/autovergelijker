@@ -3454,8 +3454,18 @@ function sluitMarkt() {
     wrap.innerHTML =
       '<table class="markt-vgl-tabel"><thead><tr><th></th><th>'+escHtml(naam1)+'</th><th>'+escHtml(naam2)+'</th></tr></thead><tbody>'+rijen+'</tbody></table>' +
       (bTekst ? '<p class="markt-betrouwbaarheid">'+bTekst+'</p>' : '') +
-      '<div class="markt-vgl-cta"><a href="/?merk='+encodeURIComponent(merk1)+'&model='+encodeURIComponent(model1)+'">Bekijk '+escHtml(naam1)+'-aanbod &rarr;</a>' +
-      '<a href="/?merk='+encodeURIComponent(merk2)+'&model='+encodeURIComponent(model2)+'">Bekijk '+escHtml(naam2)+'-aanbod &rarr;</a></div>';
+      // rel="nofollow": deze CTA's genereren een ?merk=&model=-URL per gekozen
+      // merk/model-paar in deze vergelijker -- bij tientallen merken x modellen
+      // een combinatorische explosie aan dunne, homepage-duplicerende query-
+      // string-URL's. GSC "Page indexing" meldde 14+ van zulke URL's als
+      // "Discovered - currently not indexed" (sep '26) -- Google vindt ze via
+      // deze links, maar kruipt ze (terecht) niet. nofollow voorkomt dat
+      // crawl-budget hieraan wordt besteed; de link blijft gewoon klikbaar
+      // voor bezoekers. De écht indexeerbare, canonieke pagina voor een merk/
+      // model is /occasions/<merk>/<model>/ (zie generate-occasions.js) -- die
+      // wordt al apart gelinkt via _renderMerkenLinks() e.d.
+      '<div class="markt-vgl-cta"><a href="/?merk='+encodeURIComponent(merk1)+'&model='+encodeURIComponent(model1)+'" rel="nofollow">Bekijk '+escHtml(naam1)+'-aanbod &rarr;</a>' +
+      '<a href="/?merk='+encodeURIComponent(merk2)+'&model='+encodeURIComponent(model2)+'" rel="nofollow">Bekijk '+escHtml(naam2)+'-aanbod &rarr;</a></div>';
   }
 
   // Vaste prijsstappen van de #prijsMin/#prijsMax select-filters op de homepage --
