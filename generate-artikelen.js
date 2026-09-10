@@ -61,6 +61,7 @@ h1{font-size:1.9rem;font-weight:800;line-height:1.25;margin-bottom:.9rem;color:#
 .toc a:hover{text-decoration:underline}
 article section{margin-bottom:1.9rem}
 article h2{font-size:1.25rem;font-weight:700;margin-bottom:.6rem;color:#1a1a2e;scroll-margin-top:1rem}
+article h3{font-size:1.05rem;font-weight:700;margin:1.1rem 0 .5rem;color:#1a1a2e}
 article p{font-size:.98rem;color:#333;margin-bottom:.8rem}
 article a{color:#d14413}
 .faq-sectie{margin-top:2.5rem;background:#fff;border:1px solid rgba(0,0,0,.07);border-radius:14px;box-shadow:0 1px 4px rgba(0,0,0,.06);padding:1.4rem 1.6rem}
