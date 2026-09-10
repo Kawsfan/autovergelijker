@@ -50,7 +50,7 @@ async function main() {
 
   const docs = await getJson(
     `${SUPABASE_URL}/rest/v1/documents?select=slug,data,published_at,updated_at` +
-      `&project_id=eq.${projectId}&type_slug=eq.${TYPE_SLUG}&status=eq.published`,
+      `&project_id=eq.${projectId}&type_slug=eq.${TYPE_SLUG}&status=eq.published&deleted_at=is.null`,
     headers
   );
 
