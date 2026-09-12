@@ -2176,21 +2176,62 @@ async function main() {
   // herhaling zonder ook maar 1 byte data te verliezen. index.html
   // reconstrueert de gewone objecten meteen na het fetchen, dus verder in
   // de codebase verandert niets.
+  //
+  // Chunking (12 sep '26): de kolomvorm-fix loste het op bij 46,8k listings,
+  // maar bij 61,7k (4 dagen later) stond listings-lean.json al weer op
+  // 29,6MB -- opnieuw over de 25MiB-grens (opnieuw ontdekt via een faalde
+  // Cloudflare-build, ditmaal op PR #120). Eén bestand kleiner maken lost
+  // het probleem niet duurzaam op zolang het advertentie-aantal blijft
+  // groeien (en dat is precies de bedoeling -- op naar de 100k). In plaats
+  // van steeds opnieuw handmatig te moeten ingrijpen: splits in zoveel
+  // bestanden (listings-lean-0.json, -1.json, ...) als nodig om elk ruim
+  // onder de limiet te houden (streefwaarde 8MB, dus royale marge). Groeit
+  // het aanbod verder, dan komt er vanzelf een chunk bij -- geen vaste
+  // grens meer om ooit weer tegenaan te lopen. index.html haalt eerst chunk
+  // 0 op (voor het totale chunk-aantal), en de rest daarna parallel.
   const _leanFieldSet = {};
   (data.listings||[]).forEach(function(l){
     Object.keys(l).forEach(function(k){ if (k !== 'imgs') _leanFieldSet[k] = true; });
   });
   const _leanFields = Object.keys(_leanFieldSet).sort();
-  const _leanRows = (data.listings||[]).map(function(l){
+  const _leanRowsAll = (data.listings||[]).map(function(l){
     return _leanFields.map(function(k){ return l[k] === undefined ? null : l[k]; });
   });
-  const _leanData = Object.assign({}, data);
-  delete _leanData.listings;
-  _leanData.fields = _leanFields;
-  _leanData.rows = _leanRows;
-  const _leanPath = path.join(process.cwd(), 'data', 'listings-lean.json');
-  fs.writeFileSync(_leanPath, JSON.stringify(_leanData));
-  console.log(' listings-lean.json: ' + _leanRows.length + ' listings (kolomvorm, zonder imgs) geschreven');
+  const LEAN_CHUNK_TARGET_BYTES = 8 * 1024 * 1024; // 8MB -- ruime marge onder Cloudflare's 25MiB
+  const _leanChunks = [];
+  let _huidigeChunk = [];
+  let _huidigeBytes = 64; // ruwe basisoverhead van de omliggende JSON-structuur per bestand
+  _leanRowsAll.forEach(function(row){
+    const rowBytes = JSON.stringify(row).length + 1;
+    if (_huidigeChunk.length && _huidigeBytes + rowBytes > LEAN_CHUNK_TARGET_BYTES) {
+      _leanChunks.push(_huidigeChunk);
+      _huidigeChunk = [];
+      _huidigeBytes = 64;
+    }
+    _huidigeChunk.push(row);
+    _huidigeBytes += rowBytes;
+  });
+  if (_huidigeChunk.length) _leanChunks.push(_huidigeChunk);
+  // Oude chunk-bestanden van een vorige (grotere) run opruimen, anders blijft
+  // een verouderd, niet meer gelinkt bestand achter dat de Cloudflare-
+  // buildcheck alsnog kan raken (precies zo'n bestand veroorzaakte dit issue).
+  let _oudChunkIdx = _leanChunks.length;
+  while (fs.existsSync(path.join(process.cwd(), 'data', 'listings-lean-' + _oudChunkIdx + '.json'))) {
+    fs.unlinkSync(path.join(process.cwd(), 'data', 'listings-lean-' + _oudChunkIdx + '.json'));
+    _oudChunkIdx++;
+  }
+  const _oudEnkelvoudigPad = path.join(process.cwd(), 'data', 'listings-lean.json');
+  if (fs.existsSync(_oudEnkelvoudigPad)) fs.unlinkSync(_oudEnkelvoudigPad); // vervangen door de chunk-bestanden
+  _leanChunks.forEach(function(rows, i){
+    const chunkData = Object.assign({}, data);
+    delete chunkData.listings;
+    chunkData.fields = _leanFields;
+    chunkData.rows = rows;
+    chunkData.chunkIndex = i;
+    chunkData.totalChunks = _leanChunks.length;
+    fs.writeFileSync(path.join(process.cwd(), 'data', 'listings-lean-' + i + '.json'), JSON.stringify(chunkData));
+  });
+  console.log(' listings-lean-*.json: ' + _leanRowsAll.length + ' listings in ' + _leanChunks.length + ' bestand(en) (kolomvorm, zonder imgs) geschreven');
   // ââ Per-merk JSON bestanden genereren (voor lazy brand loading) ââ
   const _merkDir = path.join(process.cwd(), 'data', 'merken');
   if (!fs.existsSync(_merkDir)) fs.mkdirSync(_merkDir, { recursive: true });

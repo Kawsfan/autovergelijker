@@ -15,3 +15,15 @@
 # voor exact die kritieke eerste fetch. Op ~3,5MB zit dit ruim binnen de
 # limiet en hoort dus wél gedeployed te worden -- vandaar verwijderd.
 data/listings.json
+
+# .git (12 sep '26): zonder gecommit wrangler.jsonc detecteert Wrangler bij
+# elke build zelf de asset-directory en gebruikt daarvoor de hele
+# repo-checkout ("."). Zonder deze regel neemt hij dan ook .git/ mee als
+# "asset" -- en git-pakketbestanden (.git/objects/pack/*.pack) groeien vanzelf
+# mee met de geschiedenis van deze repo (3x/dag automatische data-commits).
+# Op 12 sep '26 zat zo'n pakketbestand op 27,9MB, over de 25MiB-assetlimiet
+# heen, waardoor "Workers Builds: autovergelijker" faalde met "Asset too
+# large" -- volledig los van de daadwerkelijke sitebestanden (die zaten
+# allemaal ruim binnen de limiet). .git hoort sowieso nooit een gedeployed
+# asset te zijn.
+.git

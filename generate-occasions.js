@@ -77,6 +77,13 @@ function outUrl(url, bron) {
 // zodat beide gevallen er identiek uitzien.
 const FOTO_LEEG_HTML = '<div class="auto-foto-leeg"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 13l1.6-4.8A2 2 0 0 1 6.5 7h11a2 2 0 0 1 1.9 1.2L21 13"/><path d="M3 13h18v3.5a1 1 0 0 1-1 1h-1.5a1 1 0 0 1-1-1V16H6.5v.5a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V13Z"/><circle cx="7" cy="16" r="1.2"/><circle cx="17" cy="16" r="1.2"/></svg><span>Geen foto beschikbaar</span></div>';
 const FOTO_FOUT_SCRIPT = '<script>function _fotoFout(img){img.insertAdjacentHTML("afterend",' + JSON.stringify(FOTO_LEEG_HTML) + ');img.remove();}<\/script>';
+// Dealscore-tooltip (.auto-deal-pill, zie renderAutoCard) opent standaard alleen
+// via :hover -- onbereikbaar op een touchscreen. De kaart hier is (anders dan op
+// de homepage) zelf een <a href>-link naar de bron, dus een tik op de pil moet
+// zowel de tooltip tonen ALS voorkomen dat die tik de hele kaart wegnavigeert.
+// Zelfde tap-toggle-aanpak als index.html._toggleDealTip(), hier als eigen
+// scriptje omdat deze statische pagina's geen gedeeld inline-scriptblok hebben.
+const DEAL_TIP_SCRIPT = '<script>function _toggleDealTip(event){event.preventDefault();event.stopPropagation();var el=event.currentTarget;var was=el.classList.contains("tip-open");document.querySelectorAll(".auto-deal-pill.tip-open").forEach(function(p){p.classList.remove("tip-open");});if(!was)el.classList.add("tip-open");}document.addEventListener("click",function(e){if(!e.target.closest(".auto-deal-pill")){document.querySelectorAll(".auto-deal-pill.tip-open").forEach(function(p){p.classList.remove("tip-open");});}});<\/script>';
 const MIN_MERK_COUNT = 3;
 const MIN_MODEL_COUNT = 2;
 const MAX_MODELS     = 10;
@@ -135,7 +142,11 @@ const OCC_STYLE =
   // Bron (welke site) blijft zichtbaar, maar gedegradeerd naar een klein
   // tekstlabel onderaan de kaart -- zelfde patroon als index.html.
   '.auto-card-footer{display:flex;align-items:center;justify-content:space-between;margin-top:auto;padding-top:10px;border-top:1px solid #f1f2f4}' +
-  '.auto-bron-tag{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.4px}';
+  '.auto-bron-tag{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.4px}' +
+  // Dealscore-pil + tap-toggle tooltip -- zelfde CSS als index.html (.auto-deal-pill).
+  '.auto-deal-pill{font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px;position:relative;cursor:help;border:none;font:inherit}' +
+  '.auto-deal-pill::after{content:attr(data-tip);position:absolute;bottom:calc(100% + 6px);right:0;background:#1a1a2e;color:#fff;font-size:11px;font-weight:500;line-height:1.45;padding:8px 10px;border-radius:6px;white-space:normal;width:190px;max-width:60vw;text-align:left;z-index:20;pointer-events:none;box-shadow:0 2px 8px rgba(0,0,0,.22);opacity:0;transition:opacity .15s}' +
+  '.auto-deal-pill:hover::after,.auto-deal-pill.tip-open::after{opacity:1}';
 
 const MERKEN_DISPLAY = {
   bmw: 'BMW', vw: 'Volkswagen', volkswagen: 'Volkswagen',
@@ -232,6 +243,14 @@ function renderAutoCard(a, fallbackTitel) {
   const dealerBadge = dealer === true ? '<span class="dealer-badge">DEALER</span>'
     : dealer === false ? '<span class="particulier-badge">PRIVÉ</span>' : '';
   const bronKleur = ({'Marktplaats':'#0063D3','Gaspedaal':'#E87722','ViaBovag':'#003082','AutoScout24':'#FF6600','AutoTrack':'#1B5FA8','AutoTrader':'#0057B8'})[a.bron] || '#9ca3af';
+  // Dealscore stond tot nu toe alleen op de homepage-kaart (index.html), niet
+  // hier -- terwijl bezoekers vanuit Google juist vaak HIER als eerste
+  // binnenkomen. Zelfde pil + tooltip-tekst als index.html; tap-toggle via
+  // DEAL_TIP_SCRIPT (deze kaart is zelf een <a href>, dus preventDefault is
+  // hier ook nodig, anders navigeert een tik op de pil naar de bron weg).
+  const dealPill = (a.dealScore != null && a.dealScore > 0)
+    ? '<button type="button" class="auto-deal-pill" onclick="_toggleDealTip(event)" data-tip="Dealscore: vergelijkt prijs met soortgelijke occasions' + (a.dealBasis === 'regressie' ? ', gecorrigeerd voor bouwjaar en km-stand' : '') + '. Groen (60+) = goede deal, rood (<35) = duur." style="background:' + (a.dealScore > 60 ? '#dcfce7' : a.dealScore < 35 ? '#fee2e2' : '#fef9c3') + ';color:' + (a.dealScore > 60 ? '#15803d' : a.dealScore < 35 ? '#b91c1c' : '#854d0e') + '">' + Math.round(a.dealScore) + ' score</button>'
+    : '';
   return '<a href="' + escHtml(outUrl(a.url, a.bron)) + '" target="_blank" rel="noopener noreferrer" class="auto-card" itemscope itemtype="https://schema.org/Car"' +
     ' data-out data-bron="' + escHtml(a.bron || '') + '" data-merk="' + escHtml(a.merk || '') + '" data-prijs="' + (a.prijs || '') + '">' +
     '<div class="auto-foto">' +
@@ -242,7 +261,7 @@ function renderAutoCard(a, fallbackTitel) {
     '<h3 itemprop="name">' + escHtml(titel) + '</h3>' +
     '<div class="auto-prijs-groot" itemprop="offers" itemscope itemtype="https://schema.org/Offer"><span itemprop="price" content="' + (a.prijs || '') + '">' + (a.prijs ? '&euro; ' + fmt(a.prijs) : 'Prijs op aanvraag') + '</span><meta itemprop="priceCurrency" content="EUR"></div>' +
     '<div class="auto-specs-row">' + specs + '</div>' +
-    (a.bron ? '<div class="auto-card-footer"><span class="auto-bron-tag" style="color:' + bronKleur + '">' + escHtml(a.bron) + '</span></div>' : '') +
+    (a.bron || dealPill ? '<div class="auto-card-footer"><span class="auto-bron-tag" style="color:' + bronKleur + '">' + escHtml(a.bron || '') + '</span>' + dealPill + '</div>' : '') +
     '</div></a>';
 }
 function cap(s) { return s ? s.charAt(0).toUpperCase() + s.slice(1) : ''; }
@@ -536,6 +555,7 @@ const MERK_INTRO = {
     '  ' + GA_SNIPPET + '\n' +
     '  ' + OUT_TRACK_SNIPPET + '\n' +
     '  ' + FOTO_FOUT_SCRIPT + '\n' +
+    '  ' + DEAL_TIP_SCRIPT + '\n' +
     '  <title>'+pageTitle+'</title>\n' +
     '  <meta name="description" content="'+metaDesc+'">\n' +
     '  <link rel="canonical" href="'+SITE_ORIGIN+canonicalPath+'">\n' +
@@ -715,6 +735,7 @@ function buildStadPage(stadSlug, stad, filtered, listings, landelijkeStats) {
     GA_SNIPPET +
     OUT_TRACK_SNIPPET +
     FOTO_FOUT_SCRIPT +
+    DEAL_TIP_SCRIPT +
     '<title>Tweedehands auto '+stad.naam+' | Carkijker</title>'+
     '<meta name="description" content="Bekijk '+filtered.length+' tweedehands auto occasions in '+stad.naam+', '+stad.regio+'. Vergelijk prijzen en vind jouw ideale occasion.">'+
     '<link rel="canonical" href="https://carkijker.nl/occasions/'+stadSlug+'/">'+
@@ -747,6 +768,9 @@ function buildStadPage(stadSlug, stad, filtered, listings, landelijkeStats) {
     '.auto-spec-chip{font-size:11.5px;color:#6b7280;display:flex;align-items:center;gap:3px}.auto-spec-chip svg{flex-shrink:0}'+
     '.auto-card-footer{display:flex;align-items:center;justify-content:space-between;margin-top:auto;padding-top:10px;border-top:1px solid #f1f2f4}'+
     '.auto-bron-tag{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.4px}'+
+    '.auto-deal-pill{font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px;position:relative;cursor:help;border:none;font:inherit}'+
+    '.auto-deal-pill::after{content:attr(data-tip);position:absolute;bottom:calc(100% + 6px);right:0;background:#1a1a2e;color:#fff;font-size:11px;font-weight:500;line-height:1.45;padding:8px 10px;border-radius:6px;white-space:normal;width:190px;max-width:60vw;text-align:left;z-index:20;pointer-events:none;box-shadow:0 2px 8px rgba(0,0,0,.22);opacity:0;transition:opacity .15s}'+
+    '.auto-deal-pill:hover::after,.auto-deal-pill.tip-open::after{opacity:1}'+
     // FAQ + andere-steden secties -- zelfde kaartstijl (wit blok, afgeronde
     // hoeken, subtiele schaduw) als .geo-blok/.stat-card hierboven, voor
     // visuele consistentie met de rest van de pagina.
