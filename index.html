@@ -392,9 +392,11 @@
     .auto-spec-chip svg { flex-shrink: 0; }
     .auto-card-footer { display: flex; align-items: center; justify-content: space-between; margin-top: auto; padding-top: 10px; border-top: 1px solid #f1f2f4; }
     .auto-bron-tag { font-size: 10px; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: .4px; }
-    .auto-deal-pill { font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 20px; position: relative; cursor: default; }
-    .auto-deal-pill::after { content: attr(data-tip); position: absolute; bottom: calc(100% + 6px); right: 0; background: #1a1a2e; color: white; font-size: 11px; font-weight: 500; line-height: 1.45; padding: 6px 10px; border-radius: 6px; white-space: nowrap; z-index: 20; pointer-events: none; box-shadow: 0 2px 8px rgba(0,0,0,0.22); opacity: 0; transition: opacity 0.15s; }
-    .auto-deal-pill:hover::after { opacity: 1; }
+    .auto-deal-pill { font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 20px; position: relative; cursor: help; border: none; font: inherit; font-weight: 700; }
+    /* white-space:normal + vaste breedte i.p.v. nowrap: de tooltip-tekst is te lang voor
+       één regel en liep op smalle (mobiele) kaarten potentieel over de viewportrand heen. */
+    .auto-deal-pill::after { content: attr(data-tip); position: absolute; bottom: calc(100% + 6px); right: 0; background: #1a1a2e; color: white; font-size: 11px; font-weight: 500; line-height: 1.45; padding: 8px 10px; border-radius: 6px; white-space: normal; width: 190px; max-width: 60vw; text-align: left; z-index: 20; pointer-events: none; box-shadow: 0 2px 8px rgba(0,0,0,0.22); opacity: 0; transition: opacity 0.15s; }
+    .auto-deal-pill:hover::after, .auto-deal-pill.tip-open::after { opacity: 1; }
 
     .auto-meta { display: flex; gap: 14px; font-size: 12px; color: var(--subtekst); margin-bottom: 8px; }
     .auto-meta strong { color: var(--donker); font-weight: 600; }
@@ -1778,7 +1780,7 @@ function toonResultaten(lijst) {
         </div>
         <div class="auto-card-footer">
           <span class="auto-bron-tag" style="color:${({'Marktplaats':'#0063D3','Gaspedaal':'#E87722','ViaBovag':'#003082','AutoScout24':'#FF6600','AutoTrack':'#1B5FA8'})[a.bron]||'#9ca3af'}">${a.bron||'—'}</span>
-          ${(a.dealScore!=null&&a.dealScore>0)?'<span class="auto-deal-pill" data-tip="Dealscore: vergelijkt prijs met soortgelijke occasions'+(a.dealBasis==='regressie'?', gecorrigeerd voor bouwjaar en km-stand':'')+'. Groen (60+) = goede deal, rood (<35) = duur." style="background:'+(a.dealScore>60?'#dcfce7':a.dealScore<35?'#fee2e2':'#fef9c3')+';color:'+(a.dealScore>60?'#15803d':a.dealScore<35?'#b91c1c':'#854d0e')+'">'+Math.round(a.dealScore)+' score</span>':''}
+          ${(a.dealScore!=null&&a.dealScore>0)?'<button type="button" class="auto-deal-pill" onclick="_toggleDealTip(event)" data-tip="Dealscore: vergelijkt prijs met soortgelijke occasions'+(a.dealBasis==='regressie'?', gecorrigeerd voor bouwjaar en km-stand':'')+'. Groen (60+) = goede deal, rood (<35) = duur." style="background:'+(a.dealScore>60?'#dcfce7':a.dealScore<35?'#fee2e2':'#fef9c3')+';color:'+(a.dealScore>60?'#15803d':a.dealScore<35?'#b91c1c':'#854d0e')+'">'+Math.round(a.dealScore)+' score</button>':''}
         </div></div>
     </div>`);
     // Tier 2: één rustige, gereserveerde advertentieplek na de 8e kaart op
@@ -1953,7 +1955,7 @@ function openDetail(id) {
         if (a.dealScore != null && a.dealScore > 0) {
           var dsBg = a.dealScore>60?'#dcfce7':a.dealScore<35?'#fee2e2':'#fef9c3';
           var dsCol = a.dealScore>60?'#15803d':a.dealScore<35?'#b91c1c':'#854d0e';
-          chips += '<span class="auto-deal-pill" data-tip="Dealscore: vergelijkt prijs met soortgelijke occasions'+(a.dealBasis==='regressie'?', gecorrigeerd voor bouwjaar en km-stand':'')+'. Groen (60+) = goede deal, rood (<35) = duur." style="background:'+dsBg+';color:'+dsCol+'">'+Math.round(a.dealScore)+' score</span>';
+          chips += '<button type="button" class="auto-deal-pill" onclick="_toggleDealTip(event)" data-tip="Dealscore: vergelijkt prijs met soortgelijke occasions'+(a.dealBasis==='regressie'?', gecorrigeerd voor bouwjaar en km-stand':'')+'. Groen (60+) = goede deal, rood (<35) = duur." style="background:'+dsBg+';color:'+dsCol+'">'+Math.round(a.dealScore)+' score</button>';
         }
         if (a.eersteGezien) {
           var _d = Math.round((Date.now()-new Date(a.eersteGezien+'T12:00:00').getTime())/86400000);
@@ -2655,6 +2657,12 @@ var _kofferbakDB={
 function _lookupKofferbak(titel){if(!titel)return null;var t=titel.toLowerCase();var best=null,bestLen=0;for(var k in _kofferbakDB){if(t.includes(k)&&k.length>bestLen){best=_kofferbakDB[k];bestLen=k.length;}}return best;}
 function _parseSoh(a){var t=(a.titel||'')+' '+(a.beschrijving||'');var m=t.match(/(\d+(?:[,\.]\d+)?)\s*%\s*soh/i)||t.match(/soh\s*(\d+(?:[,\.]\d+)?)\s*%/i);if(!m)return null;var v=parseFloat((m[1]||m[2]).replace(',','.'));return(v>0&&v<=100)?v:null;}
 function toggleFav(event,id){event.stopPropagation();if(_favs.has(id)){_favs.delete(id);}else{_favs.add(id);}localStorage.setItem('_av_favs',JSON.stringify([..._favs]));var b=event.currentTarget;if(b){b.classList.toggle('fav-actief',_favs.has(id));b.title=_favs.has(id)?'Verwijder uit favorieten':'Voeg toe aan favorieten';}}
+// Dealscore-tooltip (.auto-deal-pill) opent tot nu toe alleen via :hover --
+// op een touchscreen (verreweg het meeste verkeer) is die uitleg dus
+// onbereikbaar. Tik toggelt 'm nu ook open/dicht; stopPropagation voorkomt
+// dat de tik ook nog de hele kaart (openDetail) activeert.
+function _toggleDealTip(event){event.stopPropagation();var el=event.currentTarget;var was=el.classList.contains('tip-open');document.querySelectorAll('.auto-deal-pill.tip-open').forEach(function(p){p.classList.remove('tip-open');});if(!was)el.classList.add('tip-open');}
+document.addEventListener('click',function(e){if(!e.target.closest('.auto-deal-pill')){document.querySelectorAll('.auto-deal-pill.tip-open').forEach(function(p){p.classList.remove('tip-open');});}});
 function toggleVergelijk(event,id){event.stopPropagation();var i=_vgl.indexOf(id);if(i>=0){_vgl.splice(i,1);}else{if(_vgl.length>=3){alert("Max. 3 auto\u2019s");return;}_vgl.push(id);}updateVglBar();document.querySelectorAll("[data-vgl=\""+id+"\"]").forEach(function(b){var sel=_vgl.includes(id);b.classList.toggle("vgl-actief",sel);b.title=sel?"Verwijder":"Voeg toe";});}
 function updateVglBar(){var b=document.getElementById("vglBar");if(!b)return;b.style.display=_vgl.length?"flex":"none";document.getElementById("vglCount").textContent=_vgl.length+" geselecteerd";}
 function openVergelijk(){
