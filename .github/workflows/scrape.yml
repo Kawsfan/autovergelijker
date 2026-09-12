@@ -50,7 +50,11 @@ jobs:
           # --rebase" verderop op elke run met "You have unstaged changes" --
           # zie ook check-scrape-health.js voor eventuele toekomstige
           # write-targets die hier ook bij moeten.
-          git add data/ sitemap.xml occasions/ artikelen/ llms.txt index.html 2>/dev/null || true
+          # marktanalyse/ ontbrak hier na de introductie van buildMarktPage()
+          # (PR #121) -- run #251 (12 sep) faalde daardoor 3x op exact deze
+          # "unstaged changes"-fout, want generate-occasions.js schrijft ook
+          # naar marktanalyse/ maar dat pad werd nooit gestaged.
+          git add data/ sitemap.xml occasions/ marktanalyse/ artikelen/ llms.txt index.html 2>/dev/null || true
           if git diff --staged --quiet; then
             echo "Geen wijzigingen om te committen, klaar."
             exit 0
