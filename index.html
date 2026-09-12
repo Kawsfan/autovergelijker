@@ -809,19 +809,23 @@
    met veel lege ruimte erboven, uit de pas met de dropdowns/slider ernaast.
    Nu in een .filter-quick-vak met eigen label, zelfde hoogte/stijl (35px,
    7px radius, var(--grijs2)-rand) als de dropdowns, voor visuele consistentie. */
-/* min-width 240px = ruim genoeg voor beide knoppen op hun natuurlijke
-   (content-based) breedte (gemeten: 112px + 107px + 8px gap = 227px) --
-   zonder die marge duwde de standaard flex-min-content-regel (een flex-item
-   krimpt normaal niet onder zijn eigen tekstbreedte) Top Deals letterlijk
-   over de rand van dit vak heen, de Transmissie-toggle ernaast in. */
-.filter-quick{flex:1.2;min-width:240px;}
+/* min-width 340px = ruim genoeg voor alle drie de knoppen op hun natuurlijke
+   (content-based) breedte (gemeten: 112px + 107px + 91px (latere ✨ Nieuw-knop)
+   + 2x8px gap = 326px) -- zonder die marge duwde de standaard
+   flex-min-content-regel (een flex-item krimpt normaal niet onder zijn eigen
+   tekstbreedte) de knoppenrij letterlijk over de rand van dit vak heen, de
+   Transmissie-toggle ernaast in. Was 240px (voor 2 knoppen) tot de Nieuw-knop
+   erbij kwam zonder deze marge mee te schalen. */
+.filter-quick{flex:1.2;min-width:340px;}
 .filter-quick label{display:block;font-size:11px;font-weight:600;color:var(--subtekst);text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px;}
 .quick-btns{display:flex;gap:8px;min-width:0;}
-#prijsdalingBtn,#topDealsBtn{display:flex;align-items:center;justify-content:center;flex:1;gap:5px;height:35px;padding:0 12px;background:white;border:1.5px solid var(--grijs2);border-radius:7px;font-size:13px;font-weight:600;color:var(--tekst);cursor:pointer;font-family:inherit;transition:all .15s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+#prijsdalingBtn,#topDealsBtn,#nieuwFilterBtn{display:flex;align-items:center;justify-content:center;flex:1;gap:5px;height:35px;padding:0 12px;background:white;border:1.5px solid var(--grijs2);border-radius:7px;font-size:13px;font-weight:600;color:var(--tekst);cursor:pointer;font-family:inherit;transition:all .15s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 #prijsdalingBtn.aktief{background:#fff0ec;border-color:var(--oranje);color:var(--oranje);}
 #prijsdalingBtn:hover:not(.aktief){border-color:#aaa;}
 #topDealsBtn.aktief{background:#fff8ec;border-color:#e8905a;color:#e8905a;}
 #topDealsBtn:hover:not(.aktief){border-color:#aaa;}
+#nieuwFilterBtn.aktief{background:#fef9e7;border-color:#d9a441;color:#b8860b;}
+#nieuwFilterBtn:hover:not(.aktief){border-color:#aaa;}
 @media(max-width:600px){
   .nav-live-pill{background:rgba(0,0,0,0.05);border-radius:20px;padding:6px 14px;font-size:13px;font-weight:600;cursor:default;}
   .nav-live{display:none;}
