@@ -65,3 +65,17 @@ jobs:
 
       - name: Controleer scraper-gezondheid per bron
         run: node scripts/check-scrape-health.js
+
+      - name: Verstuur zoekagent-e-mailmeldingen
+        # Slaat zichzelf stilletjes over zolang SUPABASE_SERVICE_ROLE_KEY/
+        # RESEND_API_KEY nog niet als repo-secret zijn ingesteld (zie
+        # scripts/send-notifications.js). continue-on-error zodat een losse
+        # mislukte verstuurpoging (bv. Resend-rate-limit) niet de daadwerkelijke
+        # scrape/deploy-run in de Actions-geschiedenis als "failed" laat zien --
+        # dat signaal is voorbehouden aan de scraper-gezondheidscheck hierboven.
+        run: node scripts/send-notifications.js
+        continue-on-error: true
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
