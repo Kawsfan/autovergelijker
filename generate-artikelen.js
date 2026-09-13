@@ -189,7 +189,7 @@ function buildIndexPage(artikelen) {
     '  <nav><a href="/" class="logo">Car<span>kijker</span></a><a href="/artikelen/">Artikelen</a></nav>\n' +
     '  <div class="container">\n' +
     '    <h1>Artikelen</h1>\n' +
-    '    <p class="subtitle" style="color:#666;font-size:.9rem;margin-top:.3rem">Praktische gidsen over auto kopen, verkopen en onderhoud &mdash; geschreven door de Carkijker-redactie.</p>\n' +
+    '    <p class="subtitle" style="color:#666;font-size:.9rem;margin-top:.3rem">Praktische gidsen over auto kopen, verkopen en onderhoud, geschreven door de Carkijker-redactie.</p>\n' +
     '    <div class="art-grid">' + cards + '</div>\n' +
     '    <a href="/" class="back-link">&larr; Terug naar live zoeken</a>\n' +
     '  </div>\n</body>\n</html>';
