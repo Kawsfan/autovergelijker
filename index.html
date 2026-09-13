@@ -4199,10 +4199,27 @@ window.addEventListener('load',function(){
 });
 
 var _uf=['merkFilter','modelInput','brandstofFilter','carrosserieFilter','jaarMin','jaarMax','prijsMin','prijsMax','kmMin','kmMax'];
+// _toURL schreef hier voorheen de URL terug met de DOM-id zelf als
+// parameternaam (bv. "merkFilter"), terwijl elke binnenkomende/gedeelde link
+// (marktanalyse-CTA's, generate-occasions.js z'n marktHref, en alles wat
+// Google ooit heeft geïndexeerd) de kortere naam gebruikt die
+// urlNaarFilters() hierboven leest ("merk"). Gevolg: bij het laden van
+// bijvoorbeeld /?merk=audi zette urlNaarFilters() de select correct, maar
+// riep daarna zoekNu() aan -- en de zoekNu-wrapper hieronder roept altijd
+// eerst _toURL() aan, die de adresbalk meteen herschreef naar
+// /?merkFilter=audi. Googlebot's renderer ziet dat als de "uiteindelijke"
+// URL na het uitvoeren van JS en rapporteerde daardoor ALLE ?merk=<merk>-
+// links in Search Console als "Page with redirect" (65 stuks, ontdekt 13
+// sep) -- geen echte HTTP-redirect, maar een JS-URL-mismatch met exact
+// hetzelfde effect voor de crawler. _fromURL() blijft bewust ongemoeid: die
+// matcht toch al nergens op deze 4 keys (dus geen regressie), en aanpassen
+// zou een timing-risico introduceren als merkFilter/carrosserieFilter hun
+// <option>-lijst pas later dynamisch vullen.
+var _ufParamNaam={merkFilter:'merk',modelInput:'model',brandstofFilter:'brandstof',carrosserieFilter:'carrosserie'};
 function _toURL(){
   try{
     var p=new URLSearchParams();
-    _uf.forEach(function(id){var e=document.getElementById(id);if(e&&e.value)p.set(id,e.value);});
+    _uf.forEach(function(id){var e=document.getElementById(id);if(e&&e.value)p.set(_ufParamNaam[id]||id,e.value);});
     var zi=document.getElementById('zoekInput');if(zi&&zi.value)p.set('q',zi.value);
     var qs=p.toString();
     history.replaceState(null,'',qs?'?'+qs:location.pathname);
