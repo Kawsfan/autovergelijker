@@ -73,14 +73,53 @@ function vindNieuweMatches(agent, listings, vandaag) {
 function fmt(n) { return String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, '.'); }
 function escHtml(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
 
-function autoRijHtml(a, extra) {
-  return '<tr><td style="padding:12px 0;border-bottom:1px solid #eee">' +
-    '<div style="font-weight:600;color:#1a1a2e;margin-bottom:2px">' + escHtml(a.titel) + '</div>' +
-    '<span style="color:#d14413;font-weight:700;font-size:15px">' + (a.prijs ? '&euro; ' + fmt(a.prijs) : 'Prijs op aanvraag') + '</span>' +
-    '<span style="color:#888;font-size:13px"> &middot; ' + (a.jaar || '') + (a.km != null ? ' &middot; ' + fmt(a.km) + ' km' : '') + (a.bron ? ' &middot; ' + escHtml(a.bron) : '') + '</span>' +
+// Zelfde kleurdrempels (60/35) als de .auto-deal-pill op de occasion-
+// pagina's (zie renderAutoCard() in generate-occasions.js) -- dezelfde
+// dealScore moet er in de mail hetzelfde uitzien als op de site.
+function dealBadgeHtml(score) {
+  if (score == null) return '';
+  const kleur = score > 60 ? ['#dcfce7', '#15803d'] : score < 35 ? ['#fee2e2', '#b91c1c'] : ['#fef9c3', '#854d0e'];
+  return '<span style="background:' + kleur[0] + ';color:' + kleur[1] + ';font-size:11px;font-weight:700;padding:2px 7px;border-radius:10px;white-space:nowrap">' + Math.round(score) + ' score</span>';
+}
+
+// isBeste: zet een "BESTE DEAL"-label op de eerste (dus na sortering de
+// hoogst scorende) rij van een sectie, zodat de klant niet zelf per rij
+// de dealScore hoeft te vergelijken.
+function autoRijHtml(a, extra, isBeste) {
+  const img = a.imgSrc
+    ? '<img src="' + escHtml(a.imgSrc) + '" width="72" height="54" style="display:block;border-radius:6px;object-fit:cover" alt="">'
+    : '<div style="width:72px;height:54px;background:#f1f2f4;border-radius:6px"></div>';
+  const besteLabel = isBeste
+    ? '<span style="display:inline-block;background:#fff3e0;color:#d14413;font-size:10.5px;font-weight:700;padding:2px 7px;border-radius:10px;margin-bottom:4px">&#127942; BESTE DEAL</span><br>'
+    : '';
+  // Titel is bewust een link naar de originele advertentie (a.url) --
+  // voorheen platte tekst, waardoor je in de mail geen enkele auto kon
+  // openen zonder terug naar de site te gaan en opnieuw te zoeken.
+  return '<tr>' +
+    '<td style="padding:12px 0;border-bottom:1px solid #eee;vertical-align:top;width:80px">' + img + '</td>' +
+    '<td style="padding:12px 0 12px 12px;border-bottom:1px solid #eee;vertical-align:top">' +
+    besteLabel +
+    '<a href="' + escHtml(a.url) + '" target="_blank" style="font-weight:600;color:#1a1a2e;text-decoration:none;display:block;margin-bottom:2px">' + escHtml(a.titel) + '</a>' +
+    '<span style="color:#d14413;font-weight:700;font-size:15px">' + (a.prijs ? '&euro; ' + fmt(a.prijs) : 'Prijs op aanvraag') + '</span> ' + dealBadgeHtml(a.dealScore) +
+    '<div style="color:#888;font-size:13px;margin-top:2px">' + (a.jaar || '') + (a.km != null ? ' &middot; ' + fmt(a.km) + ' km' : '') + (a.bron ? ' &middot; ' + escHtml(a.bron) : '') + '</div>' +
     (extra ? '<div style="margin-top:2px">' + extra + '</div>' : '') +
     '</td></tr>';
 }
+
+// Reconstrueert de homepage-filter-URL voor een zoekagent, met dezelfde
+// parameternamen als urlNaarFilters() in index.html leest (merk/q/prijsMin/
+// prijsMax) -- zodat "Bekijk alle resultaten" ook echt hetzelfde filter
+// toont i.p.v. de kale homepage.
+function zoekagentUrl(agent) {
+  const p = [];
+  if (agent.merk) p.push('merk=' + encodeURIComponent(agent.merk));
+  if (agent.q) p.push('q=' + encodeURIComponent(agent.q));
+  if (agent.min_prijs != null) p.push('prijsMin=' + agent.min_prijs);
+  if (agent.max_prijs != null) p.push('prijsMax=' + agent.max_prijs);
+  return SITE_ORIGIN + '/' + (p.length ? '?' + p.join('&') : '');
+}
+
+function dealScoreVan(x) { return x != null && x.dealScore != null ? x.dealScore : -1; }
 
 // Eén digest-mail per gebruiker met alle secties die voor hem/haar gelden
 // deze run -- i.p.v. een apart mailtje per zoekagent of per prijsdaling, wat
@@ -90,25 +129,30 @@ function bouwDigestHtml(secties) {
   const TOON_MAX = 10;
   let inhoud = '';
   if (secties.prijsdalingen.length) {
-    const rijen = secties.prijsdalingen.slice(0, TOON_MAX).map(function(pd) {
+    // Gesorteerd op dealScore (hoogste eerst) -- we willen de beste deal
+    // bovenaan presenteren, niet zomaar de eerst-gevonden prijsdaling.
+    const gesorteerd = secties.prijsdalingen.slice().sort(function(a, b) { return dealScoreVan(b.listing) - dealScoreVan(a.listing); });
+    const rijen = gesorteerd.slice(0, TOON_MAX).map(function(pd, i) {
       const badge = '<span style="color:#16a34a;font-weight:700;font-size:13px">&#8600; was &euro; ' + fmt(pd.vorige) + '</span>';
-      return autoRijHtml(pd.listing, badge);
+      return autoRijHtml(pd.listing, badge, i === 0 && dealScoreVan(pd.listing) > 60);
     }).join('');
-    const meer = secties.prijsdalingen.length > TOON_MAX ? '<p style="color:#888;font-size:13px;margin-top:8px">+ nog ' + (secties.prijsdalingen.length - TOON_MAX) + ' andere prijsdalingen.</p>' : '';
+    const meer = gesorteerd.length > TOON_MAX ? '<p style="color:#888;font-size:13px;margin-top:8px">+ nog ' + (gesorteerd.length - TOON_MAX) + ' andere prijsdalingen.</p>' : '';
     inhoud += '<h2 style="color:#1a1a2e;font-size:18px;margin:20px 0 8px">Prijsdaling op je favorieten</h2>' +
       '<table style="width:100%;border-collapse:collapse">' + rijen + '</table>' + meer;
   }
   secties.zoekagenten.forEach(function(za) {
-    const rijen = za.matches.slice(0, TOON_MAX).map(function(a){ return autoRijHtml(a); }).join('');
-    const meer = za.matches.length > TOON_MAX ? '<p style="color:#888;font-size:13px;margin-top:8px">+ nog ' + (za.matches.length - TOON_MAX) + ' andere nieuwe advertenties.</p>' : '';
+    const gesorteerd = za.matches.slice().sort(function(a, b) { return dealScoreVan(b) - dealScoreVan(a); });
+    const rijen = gesorteerd.slice(0, TOON_MAX).map(function(a, i) { return autoRijHtml(a, null, i === 0 && dealScoreVan(a) > 60); }).join('');
+    const meer = gesorteerd.length > TOON_MAX ? '<p style="color:#888;font-size:13px;margin-top:8px">+ nog ' + (gesorteerd.length - TOON_MAX) + ' andere nieuwe advertenties.</p>' : '';
     inhoud += '<h2 style="color:#1a1a2e;font-size:18px;margin:20px 0 8px">Nieuw bij je zoekagent: ' + escHtml(za.agent.label) + '</h2>' +
       '<p style="color:#444;font-size:14px;margin:0 0 4px">Er ' + (za.matches.length === 1 ? 'is 1 nieuwe advertentie' : 'zijn ' + za.matches.length + ' nieuwe advertenties') + ' gevonden.</p>' +
-      '<table style="width:100%;border-collapse:collapse">' + rijen + '</table>' + meer;
+      '<table style="width:100%;border-collapse:collapse">' + rijen + '</table>' + meer +
+      '<p style="margin:8px 0 0"><a href="' + zoekagentUrl(za.agent) + '" style="color:#d14413;font-size:13px;font-weight:600;text-decoration:none">Bekijk alle resultaten voor deze zoekagent &rarr;</a></p>';
   });
   return '<div style="font-family:Arial,Helvetica,sans-serif;max-width:560px;margin:0 auto;color:#333">' +
     '<div style="font-size:20px;font-weight:800;color:#d14413;margin-bottom:8px">Car<span style="color:#1a1a2e">kijker</span></div>' +
     inhoud +
-    '<p style="margin-top:24px"><a href="' + SITE_ORIGIN + '/" style="background:#d14413;color:#fff;padding:11px 20px;border-radius:8px;text-decoration:none;font-weight:600;font-size:14px;display:inline-block">Bekijk op Carkijker &rarr;</a></p>' +
+    '<p style="margin-top:24px"><a href="' + SITE_ORIGIN + '/" style="background:#d14413;color:#fff;padding:11px 20px;border-radius:8px;text-decoration:none;font-weight:600;font-size:14px;display:inline-block">Bekijk alle occasions op Carkijker &rarr;</a></p>' +
     '<p style="color:#aaa;font-size:12px;margin-top:28px;border-top:1px solid #eee;padding-top:12px">Je ontvangt dit omdat je favorieten en/of een zoekagent hebt opgeslagen op Carkijker. Log in op carkijker.nl om deze te beheren of te verwijderen.</p>' +
     '</div>';
 }
