@@ -47,7 +47,20 @@ self.addEventListener("fetch",function(e){
       var c=r.clone();
       caches.open(CACHE).then(function(cache){cache.put(e.request,c);});
       return r;
-    }).catch(function(){return caches.match(e.request);}));
+    }).catch(function(){
+      // caches.match(e.request) resolveert naar undefined als deze exacte
+      // URL (incl. querystring, bv. ?merk=Tesla) nooit eerder gecached is --
+      // e.respondWith(undefined) gooit dan "TypeError: Failed to convert
+      // value to 'Response'" i.p.v. gewoon de pagina offline te tonen (Sep
+      // '26, gevonden tijdens live debuggen van de favorieten-sync). "/"
+      // staat via STATIC altijd gegarandeerd in de cache (zie install()
+      // hierboven), dus dat is de laatste geldige fallback vóór een
+      // synthetische Response -- e.respondWith() moet linksom of rechtsom
+      // altijd een echt Response-object krijgen.
+      return caches.match(e.request).then(function(cached){
+        return cached || caches.match("/") || new Response("Offline en geen cache beschikbaar.", {status: 503, headers: {"Content-Type": "text/plain"}});
+      });
+    }));
     return;
   }
 });
