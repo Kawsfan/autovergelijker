@@ -1,0 +1,51 @@
+{
+  "slug": "auto-verkopen-tips",
+  "titel": "Auto verkopen: zo doe je dat slim, snel en veilig",
+  "metaDescription": "Auto verkopen? Van een realistische vraagprijs bepalen tot oplichting herkennen: deze gids helpt je jouw tweedehands auto slim, snel en veilig te verkopen.",
+  "categorie": "Verkopen",
+  "categorieSlug": "verkopen",
+  "gepubliceerd": "2026-09-13",
+  "bijgewerkt": "2026-09-13",
+  "auteur": "Carkijker redactie",
+  "leestijdMinuten": 7,
+  "intro": "Een auto goed verkopen draait om drie dingen: een realistische vraagprijs, een eerlijke en volledige advertentie, en alert blijven op oplichting. Hieronder de complete aanpak, van prijsbepaling tot overdracht.",
+  "secties": [
+    {
+      "kop": "Bepaal een realistische vraagprijs",
+      "html": "<p>De meest gemaakte fout bij het verkopen van een auto: te hoog inzetten \"omdat er nog ruimte moet zijn om af te dingen\". Dat werkt averechts &mdash; kopers filteren op prijs en zien je advertentie dan niet eens. Vergelijk in plaats daarvan actief met vergelijkbare occasions van hetzelfde merk, model, bouwjaar en km-stand, bijvoorbeeld via de <a href=\"/\">live vergelijker op Carkijker</a> of een specifieke <a href=\"/marktanalyse/volkswagen/golf/\">marktanalyse-pagina</a> met gemiddelde prijzen per model.</p>"
+    },
+    {
+      "kop": "Maak je auto verkoopklaar",
+      "html": "<p>Een grondige wasbeurt (binnen en buiten), kleine schades laten herstellen indien de kosten opwegen tegen de waardestijging, en een recente APK-keuring verhogen de verkoopprijs vaak meer dan ze kosten. Verwijder persoonlijke spullen en zorg dat de auto rookvrij ruikt &mdash; kleine details die bij een proefrit direct opvallen.</p>"
+    },
+    {
+      "kop": "Verzamel de juiste documenten vooraf",
+      "html": "<p>Kentekenbewijs, onderhoudsboekje of facturen, APK-rapport en (indien van toepassing) een NAP-registratie van de kilometerstand. Een koper die deze documenten meteen kan inzien, twijfelt minder en onderhandelt minder hard.</p>"
+    },
+    {
+      "kop": "Schrijf een sterke, eerlijke advertentie",
+      "html": "<p>Vermeld merk, model, bouwjaar, km-stand, brandstoftype, transmissie, onderhoudshistorie én eventuele gebreken. Verzwijgen van schade of gebreken levert op korte termijn misschien een snellere verkoop op, maar kan achteraf leiden tot een juridisch geschil met de koper. Goede foto's bij daglicht (buiten, binnen, kilometerteller, eventuele schadeplekken) verhogen de respons aanzienlijk.</p>"
+    },
+    {
+      "kop": "Waar plaats je je advertentie?",
+      "html": "<p>De grootste platforms &mdash; Marktplaats, AutoScout24, Gaspedaal en ViaBOVAG &mdash; bereiken samen de meeste potentiële kopers. Elk platform heeft een net iets ander publiek en prijsstructuur, dus loont het om op meerdere tegelijk te adverteren als je snel wilt verkopen.</p>"
+    },
+    {
+      "kop": "Blijf alert op oplichting",
+      "html": "<p>Veelvoorkomende trucs: een 'koper' die via WhatsApp een te hoog bedrag aanbiedt en vraagt om een deel terug te storten, of iemand die een auto 'blind' wil kopen zonder bezichtiging en vraagt om vooraf te betalen via een onbekende betaaldienst. Vertrouw alleen op een fysieke bezichtiging, contante betaling of een bankoverschrijving die je zelf op je rekening ziet binnenkomen vóórdat je de sleutel overhandigt.</p>"
+    },
+    {
+      "kop": "De overdracht: wat moet je regelen?",
+      "html": "<p>Meld de eigendomsoverdracht bij de RDW (dit gebeurt automatisch bij overschrijving op het postkantoor of via een erkend RDW-overschrijvingsbedrijf), zeg je autoverzekering op zodra het kenteken niet meer op jouw naam staat, en geef alle sleutels en documentatie mee. Maak een kopie van het overdrachtsbewijs voor je eigen administratie.</p>"
+    }
+  ],
+  "faq": [
+    { "vraag": "Moet ik gebreken aan mijn auto vermelden in de advertentie?", "antwoord": "Ja. Verborgen gebreken die je bewust hebt verzwegen, kunnen na de verkoop leiden tot een juridisch geschil en (gedeeltelijke) ontbinding van de koop. Eerlijkheid voorkomt problemen achteraf en scheelt tijd bij bezichtigingen." },
+    { "vraag": "Hoe bepaal ik een realistische vraagprijs?", "antwoord": "Vergelijk actief met vergelijkbare occasions (zelfde merk, model, bouwjaar, km-stand) die op dit moment te koop staan, bijvoorbeeld via een vergelijkingssite of een marktanalyse per model. Prijzen die duidelijk afwijken van de markt worden zelden goed opgemerkt of juist gewantrouwd." },
+    { "vraag": "Is contante betaling veilig bij de verkoop van een auto?", "antwoord": "Contante betaling is relatief veilig zolang je het bedrag ter plekke natelt of bankbiljetten laat controleren. Een bankoverschrijving is nog veiliger, mits je wacht tot het bedrag daadwerkelijk op je eigen rekening staat voordat je de auto overdraagt." }
+  ],
+  "gerelateerd": [
+    { "label": "Vergelijk je prijs met de markt (Volkswagen Golf)", "url": "/marktanalyse/volkswagen/golf/" },
+    { "label": "Bekijk alle occasions per merk", "url": "/occasions/" }
+  ]
+}
