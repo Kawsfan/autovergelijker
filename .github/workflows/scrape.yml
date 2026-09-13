@@ -83,3 +83,19 @@ jobs:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+
+      - name: Stuur alert bij workflow-failure
+        # Draait ALLEEN als een van de vorige stappen (scrape/generate/commit/
+        # gezondheidscheck) is mislukt -- if: failure() kijkt naar de status
+        # van de hele job tot nu toe, dus ook als eerdere stappen om die
+        # reden zijn overgeslagen. Aanleiding: op 12 sep faalde deze workflow
+        # ~6 uur onopgemerkt (zie PR #125) omdat er geen enkel alarm bestond
+        # op workflow-niveau -- check-scrape-health.js bewaakt alleen de
+        # kwaliteit per bron, niet of de workflow zelf uitvalt. Slaat
+        # zichzelf stilletjes over zolang RESEND_API_KEY/ALERT_EMAIL nog niet
+        # zijn ingesteld (zie scripts/send-failure-alert.js).
+        if: failure()
+        run: node scripts/send-failure-alert.js
+        env:
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          ALERT_EMAIL: ${{ secrets.ALERT_EMAIL }}
