@@ -327,6 +327,33 @@ function updateHomepageStedenLinks(steden) {
   console.log('  index.html: statische steden-links bijgewerkt (' + entries.length + ' steden)');
 }
 
+// ── Advertentie-aantal in de homepage-meta/schema actueel houden ──
+// meta description, og:description, twitter:description, de WebSite-schema
+// description en één FAQ-antwoord noemen allemaal "42.000+"/"42.000
+// advertenties" hardcoded. Dat is precies de tekst die Google/Bing als
+// zoekresultaat-snippet toont én die een AI-assistent zou citeren als
+// iemand "hoeveel auto's staan er op Carkijker" vraagt -- een stilzwijgend
+// verouderd cijfer is dus geen cosmetisch issue. Matcht op de vaste tekst
+// eromheen (niet op "42.000" zelf), zodat dit ook op de 2e, 3e, ... run nog
+// werkt i.p.v. alleen de allereerste keer dat het cijfer klopte.
+function updateHomepageStats(totaal) {
+  const indexPath = path.join(process.cwd(), 'index.html');
+  if (!fs.existsSync(indexPath) || !totaal) return;
+  let html = fs.readFileSync(indexPath, 'utf-8');
+  const afgerond = (Math.floor(totaal / 1000) * 1000).toLocaleString('nl-NL');
+  let count = 0;
+  const tel = function() { count++; return afgerond; };
+  html = html.replace(/\d[\d.]*(?=\+ auto's van 6 platforms)/g, tel);
+  html = html.replace(/\d[\d.]*(?=\+ advertenties van 6 platforms)/g, tel);
+  html = html.replace(/(meer dan )\d[\d.]*(?= advertenties dagelijks bijgewerkt)/, function(m, prefix) { count++; return prefix + afgerond; });
+  if (count) {
+    fs.writeFileSync(indexPath, html, 'utf-8');
+    console.log('  index.html: advertentie-aantal in meta/schema bijgewerkt naar ' + afgerond + '+ (' + count + ' plek(ken))');
+  } else {
+    console.warn('  index.html: geen advertentie-aantal-tekst gevonden om bij te werken, overgeslagen');
+  }
+}
+
 function extraheerMerk(titel) {
   if (!titel) return '';
   const lower = titel.toLowerCase();
@@ -1089,6 +1116,7 @@ function main() {
 
   updateHomepageMerkenLinks(merkCounts);
   updateHomepageStedenLinks(STEDEN);
+  updateHomepageStats(listings.length);
 
   // Merk/model-URLs verzamelen voor de sitemap (encodeURIComponent i.v.m.
   // merknamen met een spatie, zoals "alfa romeo" of "aston martin").
