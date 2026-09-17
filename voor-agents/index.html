@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Voor developers en AI-agents: hoe je Carkijker-data ophaalt</title>
+<meta name="description" content="Carkijker's occasion-data is vrij te raadplegen: geen login, geen API-key. Documentatie voor developers en AI-agents die willen zoeken, filteren of de beste deal willen vinden.">
+<meta name="keywords" content="carkijker api, auto data json, ai agent auto zoeken, mcp autovergelijker, occasion data feed">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://carkijker.nl/voor-agents/">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://carkijker.nl/voor-agents/">
+<meta property="og:title" content="Voor developers en AI-agents: hoe je Carkijker-data ophaalt">
+<meta property="og:description" content="Carkijker's occasion-data is vrij te raadplegen: geen login, geen API-key. Documentatie voor developers en AI-agents die willen zoeken, filteren of de beste deal willen vinden.">
+<meta property="og:image" content="https://carkijker.nl/og-image.jpg">
+<link rel="icon" type="image/png" href="/favicon.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/manifest.json">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-TD2KWCXTV3"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-TD2KWCXTV3');</script>
+<script type="application/ld+json">
+[
+  {
+    "@context": "https://schema.org",
+    "@type": "AboutPage",
+    "name": "Voor developers en AI-agents",
+    "url": "https://carkijker.nl/voor-agents/",
+    "description": "Hoe developers en AI-agents de occasion-data van Carkijker kunnen ophalen: databestanden, veldbeschrijving, URL-parameters en spelregels voor geautomatiseerd gebruik.",
+    "inLanguage": "nl",
+    "isPartOf": { "@type": "WebSite", "name": "Carkijker", "url": "https://carkijker.nl/" },
+    "mainEntity": { "@id": "https://carkijker.nl/#organization" }
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": "Carkijker", "item": "https://carkijker.nl/" },
+      { "@type": "ListItem", "position": 2, "name": "Voor developers en AI-agents", "item": "https://carkijker.nl/voor-agents/" }
+    ]
+  }
+]
+</script>
+<style>
+  :root {
+    --oranje: #d14413;
+    --oranje-hover: #c43d10;
+    --donker: #1a1a2e;
+    --bg: #f5f5f0;
+    --kaart: #ffffff;
+    --grijs2: #e8e8e3;
+    --tekst: #333;
+    --subtekst: #666;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { overflow-x: hidden; max-width: 100%; }
+  body {
+    -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
+    font-family: 'Segoe UI', Arial, sans-serif; background: var(--bg); color: var(--tekst);
+    min-height: 100vh; line-height: 1.6;
+  }
+
+  nav {
+    background: rgba(255,255,255,0.96); border-bottom: 1px solid rgba(0,0,0,0.08);
+    padding: 0 28px; display: flex; align-items: center; gap: .6rem;
+    height: 62px; position: sticky; top: 0; z-index: 200;
+    box-shadow: 0 1px 0 rgba(0,0,0,0.04);
+    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  }
+  .logo { font-size: 22px; font-weight: 800; color: var(--oranje); letter-spacing: -0.5px; text-decoration: none; }
+  .logo span { color: var(--donker); }
+  nav a:not(.logo) { font-size: 13.5px; color: var(--subtekst); text-decoration: none; }
+  nav a:not(.logo):hover { color: var(--oranje); }
+  nav a+a::before { content: " › "; color: #aaa; margin: 0 .3rem; }
+
+  .hero {
+    background: linear-gradient(135deg, var(--donker) 0%, #16213e 60%, #0f3460 100%);
+    color: white; padding: 48px 24px 40px; text-align: center;
+  }
+  .hero-inner { max-width: 680px; margin: 0 auto; }
+  .hero h1 { font-size: clamp(26px, 4vw, 34px); font-weight: 800; margin-bottom: 12px; line-height: 1.2; letter-spacing: -0.5px; }
+  .hero p { font-size: 16px; opacity: 0.82; line-height: 1.65; }
+
+  .page { max-width: 720px; margin: 0 auto; padding: 40px 20px 64px; }
+
+  .page h2 { font-size: 21px; font-weight: 800; color: var(--donker); line-height: 1.25; margin: 44px 0 18px; letter-spacing: -0.3px; }
+  .page > section:first-child h2 { margin-top: 0; }
+  .page p { font-size: 15.5px; color: var(--tekst); margin-bottom: 14px; }
+  .page p:last-child { margin-bottom: 0; }
+  .page code { background: var(--grijs2); border-radius: 4px; padding: 1px 6px; font-size: .9em; font-family: 'SFMono-Regular', Consolas, monospace; }
+
+  .stat-strook {
+    display: flex; flex-wrap: wrap; gap: 14px; margin-top: 18px;
+  }
+  .stat-tegel {
+    flex: 1; min-width: 140px; background: var(--kaart); border: 1px solid var(--grijs2);
+    border-radius: 14px; padding: 18px 16px; text-align: center;
+  }
+  .stat-tegel b { display: block; font-size: 24px; font-weight: 800; color: var(--oranje); margin-bottom: 4px; }
+  .stat-tegel span { font-size: 12.5px; color: var(--subtekst); }
+
+  .werkt-lijst { list-style: none; margin-top: 20px; display: grid; gap: 16px; }
+  .werkt-lijst li {
+    background: var(--kaart); border: 1px solid var(--grijs2); border-radius: 12px;
+    padding: 18px 20px; display: flex; gap: 14px; align-items: flex-start;
+  }
+  .werkt-ic {
+    flex-shrink: 0; width: 34px; height: 34px; border-radius: 9px; background: #fff3ee;
+    display: flex; align-items: center; justify-content: center; font-size: 16px;
+  }
+  .werkt-lijst strong { color: var(--donker); display: block; line-height: 1.3; margin-bottom: 8px; }
+  .werkt-lijst p { font-size: 14.5px; color: var(--tekst); margin: 0; }
+
+  .endpoint-kaart {
+    background: var(--kaart); border: 1px solid var(--grijs2); border-radius: 14px;
+    padding: 20px 22px; margin-top: 18px;
+  }
+  .endpoint-kaart h3 { font-size: 16px; color: var(--donker); margin-bottom: 6px; }
+  .endpoint-kaart .pad { font-family: 'SFMono-Regular', Consolas, monospace; font-size: 13.5px; color: var(--oranje-hover); background: #fff3ee; padding: 6px 10px; border-radius: 6px; display: inline-block; margin: 6px 0 12px; word-break: break-all; }
+  .endpoint-kaart p { font-size: 14.5px; margin-bottom: 10px; }
+  .endpoint-kaart p:last-child { margin-bottom: 0; }
+
+  .veld-tabel { width: 100%; border-collapse: collapse; margin-top: 14px; font-size: 13.5px; }
+  .veld-tabel th, .veld-tabel td { text-align: left; padding: 7px 10px; border-bottom: 1px solid var(--grijs2); }
+  .veld-tabel th { color: var(--subtekst); font-weight: 700; font-size: 12px; text-transform: uppercase; letter-spacing: .3px; }
+  .veld-tabel td:first-child { font-family: 'SFMono-Regular', Consolas, monospace; color: var(--donker); white-space: nowrap; }
+
+  pre.code-blok {
+    background: var(--donker); color: #e8e8e3; border-radius: 10px; padding: 16px 18px;
+    font-size: 12.5px; line-height: 1.6; overflow-x: auto; margin-top: 14px;
+    font-family: 'SFMono-Regular', Consolas, monospace;
+  }
+  pre.code-blok .cm { color: #8b8b9e; }
+
+  .contact-kaart {
+    margin-top: 18px; background: var(--donker); border-radius: 16px; padding: 28px 26px;
+    color: white; text-align: center;
+  }
+  .contact-kaart p { color: rgba(255,255,255,.78); font-size: 14.5px; margin-bottom: 18px; }
+  .contact-btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--oranje); color: white; text-decoration: none;
+    padding: 13px 26px; border-radius: 50px; font-size: 15px; font-weight: 700;
+    letter-spacing: 0.2px; transition: transform .15s, box-shadow .15s;
+    box-shadow: 0 4px 16px rgba(209,68,19,.35);
+  }
+  .contact-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(209,68,19,.45); }
+
+  footer {
+    background: var(--donker); color: rgba(255,255,255,.7);
+    text-align: center; padding: 28px 20px; font-size: 13px; line-height: 1.7;
+  }
+  footer a { color: rgba(255,255,255,.85); }
+  footer strong { color: white; }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="logo">Car<span>kijker</span></a>
+  <a href="/voor-agents/">Voor developers en AI-agents</a>
+</nav>
+
+<div class="hero">
+  <div class="hero-inner">
+    <h1>Voor developers en AI-agents</h1>
+    <p>De occasion-data achter Carkijker is gewoon publiek JSON &mdash; geen login, geen API-key, geen rate-limiting-gedoe. Hieronder staat precies wat je kunt ophalen, hoe de velden heten, en wat de spelregels zijn.</p>
+  </div>
+</div>
+
+<div class="page">
+
+  <section aria-labelledby="wat-titel">
+    <h2 id="wat-titel">Wat staat er klaar om op te halen?</h2>
+    <p>Carkijker aggregeert tweedehands autoaanbod van 6 grote Nederlandse platforms, drie keer per dag automatisch ververst. Alle onderliggende data staat als statisch JSON-bestand op deze site &mdash; dezelfde bestanden die de website zelf gebruikt, geen aparte "API-laag" erbovenop.</p>
+    <div class="stat-strook">
+      <div class="stat-tegel"><b>68.000+</b><span>advertenties, dagelijks bijgewerkt</span></div>
+      <div class="stat-tegel"><b>3&times;</b><span>per dag een verse update</span></div>
+      <div class="stat-tegel"><b>0</b><span>login of API-key nodig</span></div>
+    </div>
+  </section>
+
+  <section aria-labelledby="top-titel">
+    <h2 id="top-titel">De snelste weg naar de beste deal</h2>
+    <p>Zoek je simpelweg "de beste deal" of "de beste deal binnen een merk/model", dan is dit het bestand dat je nodig hebt: een gewone array van objecten, al gesorteerd op dealscore (hoogste eerst).</p>
+    <div class="endpoint-kaart">
+      <h3>Top-dealscore selectie</h3>
+      <span class="pad">GET /data/listings-top.json</span>
+      <p>Bevat de <strong>5.000 advertenties met de hoogste dealscore</strong> van het volledige aanbod (dus al voorgesorteerd &mdash; geen eigen sorteerlogica nodig). Formaat: gewoon een array van objecten onder de sleutel <code>listings</code>, geen bijzondere structuur.</p>
+      <table class="veld-tabel">
+        <tr><th>Veld</th><th>Betekenis</th></tr>
+        <tr><td>merk, model, titel</td><td>Merk, model en volledige advertentietitel</td></tr>
+        <tr><td>prijs, jaar, km</td><td>Vraagprijs (&euro;), bouwjaar, kilometerstand</td></tr>
+        <tr><td>brandstof, carrosserie, transmissie, kleur</td><td>Voertuigkenmerken</td></tr>
+        <tr><td>dealScore, dealBasis</td><td>0&ndash;100, hoger = beter geprijsd voor dit merk/model/bouwjaar/km. Zie uitleg hieronder.</td></tr>
+        <tr><td>afschrijvingJaar, afschrijvingKm</td><td>Geschatte waardedaling per jaar / per verdubbeling km-stand (indien betrouwbaar te berekenen)</td></tr>
+        <tr><td>priceTrend</td><td>"stijgend" / "dalend" / "stabiel" voor dit merk/model op dit moment</td></tr>
+        <tr><td>url</td><td>Link naar de <strong>originele advertentie</strong> bij de bron &mdash; altijd doorlinken hiernaartoe, zie spelregels</td></tr>
+        <tr><td>bron, locatie, imgSrc</td><td>Herkomstplatform, plaatsnaam, hoofdafbeelding</td></tr>
+        <tr><td>bijgewerkt, eersteGezien</td><td>Datums: laatste update en eerste keer gezien door Carkijker</td></tr>
+      </table>
+    </div>
+  </section>
+
+  <section aria-labelledby="volledig-titel">
+    <h2 id="volledig-titel">Het volledige aanbod</h2>
+    <p>Wil je verder dan de top 5.000, dan staat het complete aanbod (alle 68.000+ advertenties) verspreid over meerdere bestanden om ruim onder Cloudflare's bestandsgrootte-limiet te blijven.</p>
+    <div class="endpoint-kaart">
+      <h3>Volledig aanbod (chunked, kolomvorm)</h3>
+      <span class="pad">GET /data/listings-lean-0.json, -1.json, -2.json, ...</span>
+      <p><strong>Let op: dit is geen array van objecten.</strong> Om herhaling van dezelfde ~20 veldnamen per advertentie te vermijden, staat elk bestand in kolomvorm: een gedeelde <code>fields</code>-lijst plus <code>rows</code> met alleen de waarden, in dezelfde volgorde. Elk bestand bevat ook <code>chunkIndex</code> en <code>totalChunks</code>, zodat je weet hoeveel bestanden je in totaal moet ophalen (dit aantal groeit mee met het aanbod).</p>
+      <pre class="code-blok"><span class="cm">// reconstructie naar gewone objecten, in JavaScript:</span>
+const res = await fetch("https://carkijker.nl/data/listings-lean-0.json");
+const { fields, rows, totalChunks } = await res.json();
+const listings = rows.map(row =>
+  Object.fromEntries(fields.map((f, i) => [f, row[i]]))
+);
+<span class="cm">// haal chunk 1..totalChunks-1 op dezelfde manier op voor de rest</span></pre>
+      <p>Dezelfde velden als hierboven, min <code>afschrijvingJaar</code>/<code>afschrijvingKm</code>/<code>priceTrend</code> die alleen in listings-top.json zitten, plus <code>id</code> en <code>prijsHistorie</code> (array van eerdere prijzen met datum).</p>
+    </div>
+  </section>
+
+  <section aria-labelledby="zoeken-titel">
+    <h2 id="zoeken-titel">Zoeken via de site zelf</h2>
+    <p>Carkijker's zoekmachine ondersteunt filteren via URL-parameters, handig als je resultaten wilt delen of naar een specifieke selectie wilt linken:</p>
+    <div class="endpoint-kaart">
+      <span class="pad">https://carkijker.nl/?merk=Volkswagen&amp;model=Golf&amp;prijsMax=15000</span>
+      <table class="veld-tabel">
+        <tr><th>Parameter</th><th>Betekenis</th></tr>
+        <tr><td>q</td><td>Vrije zoekterm</td></tr>
+        <tr><td>merk, model, brandstof, carrosserie, trans</td><td>Filters (exacte waarden zoals getoond in de site-UI)</td></tr>
+        <tr><td>jaarMin, jaarMax</td><td>Bouwjaar-range</td></tr>
+        <tr><td>prijsMin, prijsMax</td><td>Prijs-range in euro's</td></tr>
+        <tr><td>kmMin, kmMax</td><td>Kilometerstand-range</td></tr>
+      </table>
+      <p style="margin-top:14px"><strong>Belangrijk:</strong> deze resultaten worden client-side gerenderd. Een simpele HTTP-aanvraag (zonder JavaScript uit te voeren) krijgt de kale pagina terug, niet de gefilterde lijst. Voor puur programmatische toegang gebruik je de JSON-bestanden hierboven; deze URL's zijn vooral bedoeld om te delen met een mens, of voor een agent die daadwerkelijk een browser aanstuurt.</p>
+    </div>
+  </section>
+
+  <section aria-labelledby="dealscore-titel">
+    <h2 id="dealscore-titel">Wat betekent dealscore precies?</h2>
+    <p>Kort: 0&ndash;100, waarbij een hogere score betekent dat de vraagprijs relatief laag is <em>vergeleken met andere advertenties van hetzelfde merk, model, bouwjaar en km-stand</em> &mdash; geen absoluut kwaliteitsoordeel over de auto zelf. De volledige rekenmethode (regressie op bouwjaar en km-stand binnen elke merk/modelgroep) staat uitgelegd in <a href="/artikelen/dealscore-uitgelegd/">dit artikel</a>.</p>
+  </section>
+
+  <section aria-labelledby="spelregels-titel">
+    <h2 id="spelregels-titel">Spelregels voor geautomatiseerd gebruik</h2>
+    <ul class="werkt-lijst">
+      <li>
+        <span class="werkt-ic">🔗</span>
+        <div>
+          <strong>Link door naar de originele advertentie.</strong>
+          <p>Toon je resultaten aan een eindgebruiker, verwijs dan naar het <code>url</code>-veld (de oorspronkelijke advertentie bij de bron) in plaats van de data als eigen aanbod te presenteren. Carkijker is zelf ook een aggregator, geen oorspronkelijke bron.</p>
+        </div>
+      </li>
+      <li>
+        <span class="werkt-ic">⏱️</span>
+        <div>
+          <strong>Vaker dan 3x per dag ophalen heeft geen zin.</strong>
+          <p>De data ververst 's ochtends, 's middags en 's avonds (06:00 / 12:00 / 18:00 UTC). Check het <code>bijgewerkt</code>-veld in het bestand om te zien of er sindsdien een nieuwe versie is, in plaats van continu te pollen.</p>
+        </div>
+      </li>
+      <li>
+        <span class="werkt-ic">📄</span>
+        <div>
+          <strong>Zoals-is, zonder garantie.</strong>
+          <p>De data wordt met zorg samengesteld maar kan afwijken van de actuele advertentie bij de bron (prijswijzigingen, verkochte auto's). Verifieer bij twijfel via het <code>url</code>-veld.</p>
+        </div>
+      </li>
+      <li>
+        <span class="werkt-ic">🤖</span>
+        <div>
+          <strong>Liever citeren dan queryen?</strong>
+          <p>Zie <a href="/llms.txt">llms.txt</a> voor een overzicht van de belangrijkste pagina's, en <a href="/robots.txt">robots.txt</a> voor expliciete toestemming aan GPTBot, ClaudeBot, PerplexityBot, OAI-SearchBot en andere AI-crawlers.</p>
+        </div>
+      </li>
+    </ul>
+  </section>
+
+  <section aria-labelledby="contact-titel">
+    <h2 id="contact-titel">Bouw je iets met deze data?</h2>
+    <div class="contact-kaart">
+      <p>Loop je tegen iets aan, mis je een veld, of bouw je iets moois met deze data? Laat het weten.</p>
+      <a class="contact-btn" href="mailto:info@carkijker.nl">✉️ info@carkijker.nl</a>
+    </div>
+  </section>
+
+</div>
+
+<footer>
+  <strong>Carkijker</strong>: dagelijks bijgewerkt vanuit Marktplaats, AutoScout24, Gaspedaal en ViaBOVAG.<br>
+  <a href="/">Terug naar zoeken</a> &nbsp;&middot;&nbsp; <a href="/over-ons/">Over ons</a> &nbsp;&middot;&nbsp; <a href="/occasions/">Occasions per merk</a> &nbsp;&middot;&nbsp; <a href="/artikelen/">Artikelen</a> &nbsp;&middot;&nbsp; <a href="/voor-bronnen/">Voor bronnen</a>
+</footer>
+
+</body>
+</html>
