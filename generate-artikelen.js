@@ -23,6 +23,7 @@ const path = require('path');
 const ART_DIR      = path.join(__dirname, 'data', 'artikelen');
 const OUT_DIR       = path.join(__dirname, 'artikelen');
 const SITE_ORIGIN   = 'https://carkijker.nl';
+const LISTINGS_PATH = path.join(__dirname, 'data', 'listings.json');
 const GA_SNIPPET =
   '<script async src="https://www.googletagmanager.com/gtag/js?id=G-TD2KWCXTV3"><\/script>' +
   '<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}' +
@@ -239,11 +240,27 @@ function main() {
     console.log('Sitemap bijgewerkt: ' + added + ' nieuwe artikel-URLs');
   }
 
-  // llms.txt bijwerken — sectie tussen markers wordt elke run herschreven,
-  // zodat nieuwe artikelen (die er wekelijks bijkomen) automatisch verschijnen.
+  // llms.txt bijwerken — secties tussen markers worden elke run herschreven,
+  // zodat nieuwe artikelen (die er wekelijks bijkomen) automatisch verschijnen
+  // én het advertentie-aantal in de intro nooit stil kan verouderen (stond
+  // hardcoded op "42.000+" terwijl het aanbod inmiddels ruim over de 68.000
+  // zit -- precies het soort feitelijke onjuistheid die een AI-assistent dan
+  // zou citeren).
   const llmsPath = path.join(process.cwd(), 'llms.txt');
   if (fs.existsSync(llmsPath)) {
     let llms = fs.readFileSync(llmsPath, 'utf-8');
+
+    const introStart = '<!-- INTRO:START -->';
+    const introEnd = '<!-- INTRO:END -->';
+    if (llms.includes(introStart) && llms.includes(introEnd) && fs.existsSync(LISTINGS_PATH)) {
+      const totaal = JSON.parse(fs.readFileSync(LISTINGS_PATH, 'utf-8')).totaal || 0;
+      const afgerond = Math.floor(totaal / 1000) * 1000;
+      const intro = '> Carkijker is een gratis Nederlandse zoekmachine voor auto\'s die het aanbod van 6 grote platforms aggregeert op één plek. Met ' + afgerond.toLocaleString('nl-NL') + '+ actuele advertenties, een unieke deal score en dagelijkse updates.';
+      const before = llms.slice(0, llms.indexOf(introStart) + introStart.length);
+      const after = llms.slice(llms.indexOf(introEnd));
+      llms = before + '\n' + intro + '\n' + after;
+    }
+
     const startMarker = '<!-- ARTIKELEN:START -->';
     const endMarker = '<!-- ARTIKELEN:END -->';
     if (llms.includes(startMarker) && llms.includes(endMarker)) {
@@ -252,9 +269,10 @@ function main() {
       const before = llms.slice(0, llms.indexOf(startMarker) + startMarker.length);
       const after = llms.slice(llms.indexOf(endMarker));
       llms = before + '\n' + sectie + '\n' + after;
-      fs.writeFileSync(llmsPath, llms, 'utf-8');
-      console.log('llms.txt bijgewerkt: ' + artikelen.length + ' artikelen');
     }
+
+    fs.writeFileSync(llmsPath, llms, 'utf-8');
+    console.log('llms.txt bijgewerkt: ' + artikelen.length + ' artikelen');
   }
 }
 

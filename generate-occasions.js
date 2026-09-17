@@ -327,6 +327,33 @@ function updateHomepageStedenLinks(steden) {
   console.log('  index.html: statische steden-links bijgewerkt (' + entries.length + ' steden)');
 }
 
+// ── Advertentie-aantal in de homepage-meta/schema actueel houden ──
+// meta description, og:description, twitter:description, de WebSite-schema
+// description en één FAQ-antwoord noemen allemaal "42.000+"/"42.000
+// advertenties" hardcoded. Dat is precies de tekst die Google/Bing als
+// zoekresultaat-snippet toont én die een AI-assistent zou citeren als
+// iemand "hoeveel auto's staan er op Carkijker" vraagt -- een stilzwijgend
+// verouderd cijfer is dus geen cosmetisch issue. Matcht op de vaste tekst
+// eromheen (niet op "42.000" zelf), zodat dit ook op de 2e, 3e, ... run nog
+// werkt i.p.v. alleen de allereerste keer dat het cijfer klopte.
+function updateHomepageStats(totaal) {
+  const indexPath = path.join(process.cwd(), 'index.html');
+  if (!fs.existsSync(indexPath) || !totaal) return;
+  let html = fs.readFileSync(indexPath, 'utf-8');
+  const afgerond = (Math.floor(totaal / 1000) * 1000).toLocaleString('nl-NL');
+  let count = 0;
+  const tel = function() { count++; return afgerond; };
+  html = html.replace(/\d[\d.]*(?=\+ auto's van 6 platforms)/g, tel);
+  html = html.replace(/\d[\d.]*(?=\+ advertenties van 6 platforms)/g, tel);
+  html = html.replace(/(meer dan )\d[\d.]*(?= advertenties dagelijks bijgewerkt)/, function(m, prefix) { count++; return prefix + afgerond; });
+  if (count) {
+    fs.writeFileSync(indexPath, html, 'utf-8');
+    console.log('  index.html: advertentie-aantal in meta/schema bijgewerkt naar ' + afgerond + '+ (' + count + ' plek(ken))');
+  } else {
+    console.warn('  index.html: geen advertentie-aantal-tekst gevonden om bij te werken, overgeslagen');
+  }
+}
+
 function extraheerMerk(titel) {
   if (!titel) return '';
   const lower = titel.toLowerCase();
@@ -649,7 +676,7 @@ function buildStadPage(stadSlug, stad, filtered, listings, landelijkeStats) {
     if (!gedomineerd) {
       const verschilPct = Math.round((gemPrijs - landelijkeStats.gem) / landelijkeStats.gem * 100);
       regioDuiding = verschilPct < -3 ? Math.abs(verschilPct) + '% goedkoper dan' : verschilPct > 3 ? verschilPct + '% duurder dan' : 'vergelijkbaar met';
-      regioTekst = 'Gemiddeld betaal je in ' + stad.naam + ' &euro; ' + gemPrijs.toLocaleString('nl-NL') + ' voor een tweedehands auto -- dat is ' + regioDuiding + ' het landelijk gemiddelde van &euro; ' + landelijkeStats.gem.toLocaleString('nl-NL') + '.';
+      regioTekst = 'Gemiddeld betaal je in ' + stad.naam + ' &euro; ' + gemPrijs.toLocaleString('nl-NL') + ' voor een tweedehands auto, dat is ' + regioDuiding + ' het landelijk gemiddelde van &euro; ' + landelijkeStats.gem.toLocaleString('nl-NL') + '.';
     }
   }
 
@@ -696,7 +723,7 @@ function buildStadPage(stadSlug, stad, filtered, listings, landelijkeStats) {
   if (filtered.length > 0 && gemPrijs > 0) {
     faqItems.push({
       q: 'Wat kost een tweedehands auto in ' + stad.naam + '?',
-      a: 'Op basis van ' + filtered.length + ' actuele advertenties is de gemiddelde vraagprijs van een tweedehands auto in ' + stad.naam + ' &euro; ' + fmt(gemPrijs) + '. De mediaanprijs -- waarbij de helft goedkoper is -- ligt op &euro; ' + fmt(medPrijs) + '.' + (regioDuiding ? ' Dat is ' + regioDuiding + ' het landelijk gemiddelde van &euro; ' + fmt(landelijkeStats.gem) + '.' : ''),
+      a: 'Op basis van ' + filtered.length + ' actuele advertenties is de gemiddelde vraagprijs van een tweedehands auto in ' + stad.naam + ' &euro; ' + fmt(gemPrijs) + '. De mediaanprijs (waarbij de helft goedkoper is) ligt op &euro; ' + fmt(medPrijs) + '.' + (regioDuiding ? ' Dat is ' + regioDuiding + ' het landelijk gemiddelde van &euro; ' + fmt(landelijkeStats.gem) + '.' : ''),
     });
   }
   if (topMerk && topMerkCount >= 3) {
@@ -835,8 +862,8 @@ function buildStadPage(stadSlug, stad, filtered, listings, landelijkeStats) {
 // voorzichtigheid uitstralen i.p.v. dat pas te doen ná een klik.
 function betrouwbaarheidsTekst(n) {
   if (n >= 100) return null;
-  if (n >= 30) return 'Gebaseerd op ' + n + ' advertenties -- redelijk betrouwbaar.';
-  return 'Gebaseerd op slechts ' + n + ' advertenties -- kleine steekproef, interpreteer met voorzichtigheid.';
+  if (n >= 30) return 'Gebaseerd op ' + n + ' advertenties: redelijk betrouwbaar.';
+  return 'Gebaseerd op slechts ' + n + ' advertenties: kleine steekproef, interpreteer met voorzichtigheid.';
 }
 function bouwPrijsChart(reeks) {
   const W = 680, H = 220, PAD_L = 66, PAD_R = 16, PAD_T = 16, PAD_B = 28;
@@ -925,10 +952,10 @@ function buildMarktPage(merkSlug, modelSlug, merkName, modelName, filtered) {
   }
   if (trend && voldoendeVoorDuiding) {
     const duiding = richting === 'omlaag'
-      ? 'De prijs beweegt momenteel in het voordeel van kopers -- een ' + naam + ' is de afgelopen periode goedkoper geworden. Voor verkopers kan het lonen niet te lang te wachten als deze trend doorzet.'
+      ? 'De prijs beweegt momenteel in het voordeel van kopers: een ' + naam + ' is de afgelopen periode goedkoper geworden. Voor verkopers kan het lonen niet te lang te wachten als deze trend doorzet.'
       : richting === 'omhoog'
-        ? 'De prijs beweegt momenteel in het voordeel van verkopers -- een ' + naam + ' is de afgelopen periode duurder geworden. Kopers doen er goed aan de markt te blijven volgen voordat de vraagprijs verder oploopt.'
-        : 'De prijs is de afgelopen periode nauwelijks veranderd -- geen duidelijk voor- of nadeel voor kopers of verkopers op dit moment.';
+        ? 'De prijs beweegt momenteel in het voordeel van verkopers: een ' + naam + ' is de afgelopen periode duurder geworden. Kopers doen er goed aan de markt te blijven volgen voordat de vraagprijs verder oploopt.'
+        : 'De prijs is de afgelopen periode nauwelijks veranderd, geen duidelijk voor- of nadeel voor kopers of verkopers op dit moment.';
     faqItems.push({
       q: 'Is nu een goed moment om een ' + naam + ' te kopen of verkopen?',
       a: duiding,
@@ -947,7 +974,7 @@ function buildMarktPage(merkSlug, modelSlug, merkName, modelName, filtered) {
   return '<!doctype html><html lang="nl"><head>' +
     '<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">' +
     GA_SNIPPET + OUT_TRACK_SNIPPET +
-    '<title>Marktanalyse ' + naam + ' -- prijstrend en afschrijving | Carkijker</title>' +
+    '<title>Marktanalyse ' + naam + ': prijstrend en afschrijving | Carkijker</title>' +
     '<meta name="description" content="Prijstrend, afschrijving en marktdata van de tweedehands ' + naam + '. Gebaseerd op ' + filtered.length + ' actuele advertenties, dagelijks bijgewerkt.">' +
     '<link rel="canonical" href="' + SITE_ORIGIN + '/marktanalyse/' + merkSlug + '/' + modelSlug + '/">' +
     '<script type="application/ld+json">' + safeJsonLd(bcSchema) + '<\/script>' +
@@ -969,7 +996,7 @@ function buildMarktPage(merkSlug, modelSlug, merkName, modelName, filtered) {
         bouwPrijsChart(reeks) +
         (betrouw ? '<p style="font-size:.8rem;color:#888;margin-top:.5rem">' + betrouw + '</p>' : '') +
         '</div>'
-      : '<div class="kaart"><h2>Prijsontwikkeling</h2><p style="font-size:.875rem;color:#666">Nog onvoldoende historische data voor een betrouwbare trend van deze specifieke combinatie -- kom later terug, dit wordt dagelijks bijgewerkt.</p></div>') +
+      : '<div class="kaart"><h2>Prijsontwikkeling</h2><p style="font-size:.875rem;color:#666">Nog onvoldoende historische data voor een betrouwbare trend van deze specifieke combinatie. Kom later terug, dit wordt dagelijks bijgewerkt.</p></div>') +
     (afschrijving
       ? '<div class="kaart"><h2>Afschrijving</h2><p style="font-size:.875rem;color:#444">Op basis van vergelijkbare advertenties (gecorrigeerd voor bouwjaar en kilometerstand) verliest een ' + naam + ' gemiddeld ongeveer <strong>&euro; ' + fmt(afschrijving.afschrijvingJaar) + ' per jaar</strong> en <strong>&euro; ' + fmt(afschrijving.afschrijvingKm) + '</strong> bij een verdubbeling van de kilometerstand.</p></div>'
       : '') +
@@ -1089,6 +1116,7 @@ function main() {
 
   updateHomepageMerkenLinks(merkCounts);
   updateHomepageStedenLinks(STEDEN);
+  updateHomepageStats(listings.length);
 
   // Merk/model-URLs verzamelen voor de sitemap (encodeURIComponent i.v.m.
   // merknamen met een spatie, zoals "alfa romeo" of "aston martin").
