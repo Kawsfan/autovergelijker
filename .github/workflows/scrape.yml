@@ -30,6 +30,33 @@ jobs:
         with:
           node-version: '20'
 
+      - name: Cache vorige listings.json (voor prijshistorie/dedup-merge)
+        # data/listings.json (78MB+, "Bestaand: ... listings geladen" in de
+        # volgende stap) stond tot nu toe elke run opnieuw in git gecommit --
+        # ver over GitHub's aanbevolen 50MB-bestandslimiet (letterlijke
+        # warning in de "Commit resultaten"-log), en de .git-geschiedenis
+        # groeide daardoor ongeremd (835MB, sep '26; groeit met elke run
+        # mee). Dit bestand is puur de eigen "vorige staat" van de scraper
+        # (voor prijshistorie/dedup, zie main() in scrape.js) -- geen
+        # publiek bestand (staat al in .assetsignore, wordt nooit gedeployed)
+        # -- hoort dus niet in git-geschiedenis te zitten, alleen tussen
+        # scraperuns bewaard te blijven. GitHub Actions cache doet precies
+        # dat, gratis, binnen het bestaande 10GB-cachebudget per repo.
+        #
+        # FASE 1 (deze stap): cache toevoegen NAAST het bestaande commit-
+        # mechanisme in "Commit resultaten" hieronder -- git blijft voorlopig
+        # ook committen, dus deze stap kan niets breken, hooguit een cache-
+        # miss geven (dan valt scrape.js terug op het door git uitgecheckte
+        # bestand, exact het huidige gedrag). Pas als een volgende run
+        # bevestigt dat de cache daadwerkelijk gevuld raakt, volgt fase 2:
+        # listings.json uit git-tracking halen.
+        uses: actions/cache@v4
+        with:
+          path: data/listings.json
+          key: listings-data-${{ github.run_id }}
+          restore-keys: |
+            listings-data-
+
       - name: Scrape auto listings
         run: node scripts/scrape.js
 
