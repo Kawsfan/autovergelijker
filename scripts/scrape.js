@@ -5,6 +5,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const { berekenDealScores } = require('../lib/dealscore');
 
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
@@ -1787,7 +1788,7 @@ async function main() {
   if (listings.length < voorFilter)
     console.log(`Ã°ÂÂÂ ${voorFilter - listings.length} outliers gefilterd (prijs/km buiten bereik)`);
 
-  // ── LUCAS: DEAL SCORE v2 (regressie op bouwjaar+km binnen merk+model) ──
+  // ── DEAL SCORE v2 (regressie op bouwjaar+km binnen merk+model) ──
   // v1 vergeleek de prijs alleen met het platte gemiddelde van de merk+model-groep,
   // ongeacht bouwjaar/km-stand -- een auto die goedkoop is OMDAT hij oud en hoog-
   // kilometer is kreeg daardoor dezelfde (hoge) score als een auto die echt goedkoop
@@ -1796,110 +1797,12 @@ async function main() {
   // v2 rekent per groep een verwachte prijs uit die corrigeert voor bouwjaar en
   // km-stand (lineaire regressie, km als log() ivm afnemende meerwaarde per km),
   // en vergelijkt de vraagprijs met díie verwachting i.p.v. met het platte gemiddelde.
+  //
+  // Het rekenwerk zelf staat in lib/dealscore.js -- dit was jarenlang het meest
+  // risicovolle stukje logica in de codebase (bepaalt het getal dat elke bezoeker
+  // als "goede deal" te zien krijgt) zonder één enkele test. Zie test/dealscore.test.js.
   {
-    const _extMerk = t => {
-      const merken = ['Tesla','BMW','Mercedes','Audi','Volkswagen','VW','Ford','Toyota','Renault','Peugeot','Opel','Kia','Hyundai','Volvo','Seat','Skoda','Nissan','Honda','Mazda','Dacia','Porsche','Fiat'];
-      const s = (t||'').toLowerCase();
-      for (const m of merken) if (s.startsWith(m.toLowerCase())) return m.toLowerCase();
-      return s.split(' ')[0];
-    };
-    const _extModel = t => ((t||'').split(' ').slice(1,3).join(' ')).toLowerCase();
-    // Groepeer bij voorkeur op de schone merk/model-velden (merk ~100%, model ~72%
-    // van de listings gevuld) i.p.v. uitsluitend een ruwe regex over de titel -- dat
-    // gaf voorheen te grove/inconsistente groepen omdat verschillende schrijfwijzes
-    // van dezelfde trim in aparte groepen belandden. Titel-parsing blijft fallback
-    // voor listings zonder model-veld.
-    const _groepKey = l => (l.merk || _extMerk(l.titel) || 'onbekend').toLowerCase() + '|' +
-      (l.model ? l.model.toLowerCase() : _extModel(l.titel));
-
-    // Gauss-Jordan-eliminatie (partial pivoting) voor het 3x3-stelsel van de OLS-
-    // regressie prijs = b0 + b1*bouwjaar + b2*log(km+1). Retourneert null bij een
-    // (bijna) singuliere matrix (bv. alle auto's in de groep exact hetzelfde bouwjaar).
-    function _solve3(A, b) {
-      const M = A.map((rij, i) => rij.concat([b[i]]));
-      for (let col = 0; col < 3; col++) {
-        let piv = col;
-        for (let r = col + 1; r < 3; r++) if (Math.abs(M[r][col]) > Math.abs(M[piv][col])) piv = r;
-        if (Math.abs(M[piv][col]) < 1e-9) return null;
-        const tmp = M[col]; M[col] = M[piv]; M[piv] = tmp;
-        for (let r = 0; r < 3; r++) {
-          if (r === col) continue;
-          const f = M[r][col] / M[col][col];
-          for (let c = col; c < 4; c++) M[r][c] -= f * M[col][c];
-        }
-      }
-      return [M[0][3] / M[0][0], M[1][3] / M[1][1], M[2][3] / M[2][2]];
-    }
-
-    const groepen = {};
-    for (const l of listings) {
-      if (l.prijs == null) continue;
-      (groepen[_groepKey(l)] = groepen[_groepKey(l)] || []).push(l);
-    }
-
-    const gModel = {};  // regressiecoëfficiënten + residu-std per groep (bouwjaar+km-gecorrigeerd)
-    const gFlat = {};   // plat prijs-gemiddelde/std per groep -- fallback voor kleine groepen
-                         // en listings zonder bouwjaar/km
-    for (const [key, items] of Object.entries(groepen)) {
-      const prijzen = items.map(l => l.prijs);
-      if (prijzen.length >= 3) {
-        const gem = prijzen.reduce((a,b)=>a+b,0) / prijzen.length;
-        const std = Math.sqrt(prijzen.map(p=>(p-gem)**2).reduce((a,b)=>a+b,0) / prijzen.length);
-        gFlat[key] = { gem, std };
-      }
-      // Regressie heeft genoeg vrijheidsgraden nodig om betrouwbaar te zijn (3
-      // parameters) -- onder de 8 complete datapunten vertrouwen we 'm niet en
-      // valt de groep terug op het platte gemiddelde hierboven.
-      const compleet = items.filter(l => l.jaar != null && l.km != null);
-      if (compleet.length < 8) continue;
-      let n=0,sJaar=0,sLogKm=0,sJaar2=0,sLogKm2=0,sJaarLogKm=0,sPrijs=0,sJaarPrijs=0,sLogKmPrijs=0;
-      for (const l of compleet) {
-        const j = l.jaar, lk = Math.log(l.km + 1), p = l.prijs;
-        n++; sJaar+=j; sLogKm+=lk; sJaar2+=j*j; sLogKm2+=lk*lk; sJaarLogKm+=j*lk;
-        sPrijs+=p; sJaarPrijs+=j*p; sLogKmPrijs+=lk*p;
-      }
-      const coef = _solve3(
-        [[n, sJaar, sLogKm], [sJaar, sJaar2, sJaarLogKm], [sLogKm, sJaarLogKm, sLogKm2]],
-        [sPrijs, sJaarPrijs, sLogKmPrijs]
-      );
-      if (!coef) continue;
-      const [b0, b1, b2] = coef;
-      const residuen = compleet.map(l => l.prijs - (b0 + b1*l.jaar + b2*Math.log(l.km + 1)));
-      const rStd = Math.sqrt(residuen.reduce((a,r)=>a+r*r,0) / n);
-      if (rStd >= 200) gModel[key] = { b0, b1, b2, std: rStd };
-    }
-
-    let regressie = 0, groepScore = 0, onbekend = 0;
-    for (const l of listings) {
-      if (l.prijs == null) { l.dealScore = 50; l.dealBasis = 'onbekend'; onbekend++; continue; }
-      const key = _groepKey(l);
-      const m = gModel[key];
-      if (m && l.jaar != null && l.km != null) {
-        const verwacht = m.b0 + m.b1*l.jaar + m.b2*Math.log(l.km + 1);
-        const z = (l.prijs - verwacht) / m.std;
-        l.dealScore = Math.round(Math.max(0, Math.min(100, ((-z + 3) / 6) * 100)));
-        l.dealBasis = 'regressie';
-        regressie++;
-        // Afschrijvingscurve: dezelfde regressiecoëfficiënten die net de verwachte
-        // prijs opleverden, hergebruikt om uit te drukken hoeveel een auto van dit
-        // merk+model gemiddeld verliest per jaar (b1: prijseffect van +1 bouwjaar,
-        // dus +1 jaar jonger) en per verdubbeling van de km-stand (b2 is het prijs-
-        // effect van +1 log(km); een verdubbeling is +ln(2) op de log-schaal).
-        // Alleen tonen als het teken klopt (jonger/minder km -> duurder) -- een
-        // omgekeerd teken duidt op een te ruizige/afwijkende groep (bv. youngtimers
-        // die juist in waarde stijgen) waar deze simpele uitleg niet op past.
-        if (m.b1 > 0) l.afschrijvingJaar = Math.round(m.b1);
-        const kmVerlies = -m.b2 * Math.LN2;
-        if (kmVerlies > 0) l.afschrijvingKm = Math.round(kmVerlies);
-        continue;
-      }
-      const s = gFlat[key];
-      if (!s || s.std < 200) { l.dealScore = 50; l.dealBasis = 'onbekend'; onbekend++; continue; }
-      const z = (l.prijs - s.gem) / s.std;
-      l.dealScore = Math.round(Math.max(0, Math.min(100, ((-z + 3) / 6) * 100)));
-      l.dealBasis = 'groep';
-      groepScore++;
-    }
+    const { regressie, groepScore, onbekend } = berekenDealScores(listings);
     console.log(`🎯 DealScore v2: ${regressie} obv bouwjaar/km-regressie, ${groepScore} obv groepsgemiddelde, ${onbekend} onbekend`);
   }
 
