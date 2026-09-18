@@ -914,7 +914,7 @@
     <button class="lang-btn" data-lang="en" onclick="setLang('en')">EN</button>
   </div>
   
-  <button class="info-btn" id="accountNavBtn" onclick="document.getElementById('accountModal').style.display='flex'" style="display:none">&#128100;<span class="nav-txt" id="accountNavTxt"> Inloggen</span></button>
+  <button class="info-btn" id="accountNavBtn" onclick="gtag('event','account_modal_open');document.getElementById('accountModal').style.display='flex'" style="display:none">&#128100;<span class="nav-txt" id="accountNavTxt"> Inloggen</span></button>
   <button class="info-btn" id="agentNavBtn" onclick="openAgent()">&#128276;<span class="nav-txt"> Zoekagent</span></button>
   <button class="info-btn" onclick="openMarkt()">&#128202;<span class="nav-txt"> Markt</span></button>
   <a href="/tco/" class="info-btn" style="text-decoration:none;">⛽<span class="nav-txt"> Kosten</span></a>
@@ -4660,6 +4660,11 @@ function setMerkFilter(merk) {
     var target = document.getElementById('account' + modus.charAt(0).toUpperCase() + modus.slice(1));
     if (target) target.style.display = '';
     _accountMsg('');
+    // Funnel-zichtbaarheid (was volledig blind): alleen 'registreren' is
+    // hier interessant -- dat wordt uitsluitend vanuit de expliciete "Account
+    // aanmaken"-link aangeroepen (niet vanuit _updAccountUI's automatische
+    // login/ingelogd-switches), dus dit meet echte gebruikersintentie.
+    if (modus === 'registreren') gtag('event', 'signup_view');
   };
 
   function _updAccountUI(){
@@ -4738,9 +4743,14 @@ function setMerkFilter(merk) {
     var ww = (document.getElementById('accountLoginWw')||{}).value;
     if (!email || !ww) { _accountMsg('Vul e-mailadres en wachtwoord in.'); return; }
     _accountMsg('Bezig met inloggen...');
+    gtag('event', 'login_attempt');
     _sb.auth.signInWithPassword({ email: email, password: ww }).then(function(res){
-      if (res.error) { _accountMsg('Inloggen mislukt: ' + res.error.message); return; }
-    }).catch(function(e){ _accountMsg('Inloggen mislukt: ' + e.message); });
+      // error.message van Supabase is een generieke tekst (bv. "Invalid login
+      // credentials") -- geen e-mailadres of andere PII, dus veilig als
+      // event-parameter. Dit is de enige plek waar we nu kunnen zíen dat
+      // bezoekers hier vastlopen i.p.v. het pas te horen via een screenshot.
+      if (res.error) { _accountMsg('Inloggen mislukt: ' + res.error.message); gtag('event', 'login_error', { error_message: res.error.message }); return; }
+    }).catch(function(e){ _accountMsg('Inloggen mislukt: ' + e.message); gtag('event', 'login_error', { error_message: e.message }); });
   };
 
   window.accountRegistrerenVerstuur = function(){
@@ -4749,16 +4759,20 @@ function setMerkFilter(merk) {
     if (!email || !ww) { _accountMsg('Vul e-mailadres en wachtwoord in.'); return; }
     if (ww.length < 6) { _accountMsg('Wachtwoord moet minstens 6 tekens zijn.'); return; }
     _accountMsg('Account aanmaken...');
+    gtag('event', 'signup_attempt');
     _sb.auth.signUp({ email: email, password: ww, options: { emailRedirectTo: location.origin + location.pathname } }).then(function(res){
-      if (res.error) { _accountMsg('Aanmaken mislukt: ' + res.error.message); return; }
+      if (res.error) { _accountMsg('Aanmaken mislukt: ' + res.error.message); gtag('event', 'signup_error', { error_message: res.error.message }); return; }
       // Als e-mailbevestiging aanstaat in het Supabase-project levert signUp()
       // nog geen sessie op -- dan moet de gebruiker eerst de bevestigingsmail
       // openen. Staat het uit, dan is res.data.session meteen gevuld en pikt
       // onAuthStateChange (SIGNED_IN) de rest vanzelf op.
       if (!(res.data && res.data.session)) {
         _accountMsg('Check je e-mail (' + email + ') om je account te bevestigen.');
+        gtag('event', 'signup_pending_confirmation');
+      } else {
+        gtag('event', 'signup_success');
       }
-    }).catch(function(e){ _accountMsg('Aanmaken mislukt: ' + e.message); });
+    }).catch(function(e){ _accountMsg('Aanmaken mislukt: ' + e.message); gtag('event', 'signup_error', { error_message: e.message }); });
   };
 
   window.accountResetVerstuur = function(){
