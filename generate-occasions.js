@@ -5,6 +5,7 @@
 
 const fs   = require('fs');
 const path = require('path');
+const { isDealer, slugifyMerk, dealScoreKleur } = require('./lib/carkijker-core');
 
 // Config
 const LISTINGS_PATH   = path.join(__dirname, 'data', 'listings.json');
@@ -184,14 +185,6 @@ const MERKEN_DISPLAY = {
 // de RAUWE merknaam (met spatie) blijft wél nodig voor de woord-voor-woord
 // model-detectie in de generatielus hieronder, dus die twee bewust
 // gescheiden gehouden (merkKey vs. merkSlug).
-function slugifyMerk(naam) {
-  return String(naam || '')
-    .normalize('NFD').replace(/[̀-ͯ]/g, '') // ë -> e, ö -> o, enz.
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '');
-}
-
 function escHtml(s) {
   return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 }
@@ -206,21 +199,8 @@ function fmt(n) {
 function bronClass(bron) {
   return (bron || '').toLowerCase().replace(/[^a-z0-9]/g, '');
 }
-// Zelfde logica als isDealer() in index.html (client-side) -- bewust hier
-// gedupliceerd, zelfde patroon als slugToDisplay()/MERKEN_DISPLAY.
-function isDealer(a) {
-  if (!a) return null;
-  var b = (a.bron||'').toLowerCase();
-  if (b==='gaspedaal'||b==='viabovag'||b==='autoscout24') return true;
-  var t = (a.titel||'').toLowerCase();
-  if (['dealer','garage','occasions','autobedrijf','autohandel'].some(function(w){return t.includes(w);})) return true;
-  // Marktplaats is de enige bron hier met echte particuliere aanbieders --
-  // zonder dealer-signaalwoorden in de titel is dit vrijwel zeker een
-  // particuliere advertentie. Bij andere/onbekende bronnen blijft het
-  // "onbekend" (null) i.p.v. een gok op particulier.
-  if (b==='marktplaats') return false;
-  return null;
-}
+// isDealer()/slugifyMerk() komen nu uit lib/carkijker-core.js (was hier en
+// in index.html bewust gedupliceerd -- zie dat bestand voor de uitleg).
 // Zelfde kaart-component (markup + classes) als .auto-card op de homepage,
 // zodat een occasion-kaart er hier identiek uitziet -- i.p.v. de eigen,
 // losstaande kaartstijl die deze pagina's eerder hadden.
@@ -248,8 +228,9 @@ function renderAutoCard(a, fallbackTitel) {
   // binnenkomen. Zelfde pil + tooltip-tekst als index.html; tap-toggle via
   // DEAL_TIP_SCRIPT (deze kaart is zelf een <a href>, dus preventDefault is
   // hier ook nodig, anders navigeert een tik op de pil naar de bron weg).
+  const dealKleur = a.dealScore != null ? dealScoreKleur(a.dealScore) : null;
   const dealPill = (a.dealScore != null && a.dealScore > 0)
-    ? '<button type="button" class="auto-deal-pill" onclick="_toggleDealTip(event)" data-tip="Dealscore: vergelijkt prijs met soortgelijke occasions' + (a.dealBasis === 'regressie' ? ', gecorrigeerd voor bouwjaar en km-stand' : '') + '. Groen (60+) = goede deal, rood (<35) = duur." style="background:' + (a.dealScore > 60 ? '#dcfce7' : a.dealScore < 35 ? '#fee2e2' : '#fef9c3') + ';color:' + (a.dealScore > 60 ? '#15803d' : a.dealScore < 35 ? '#b91c1c' : '#854d0e') + '">' + Math.round(a.dealScore) + ' score</button>'
+    ? '<button type="button" class="auto-deal-pill" onclick="_toggleDealTip(event)" data-tip="Dealscore: vergelijkt prijs met soortgelijke occasions' + (a.dealBasis === 'regressie' ? ', gecorrigeerd voor bouwjaar en km-stand' : '') + '. Groen (60+) = goede deal, rood (<35) = duur." style="background:' + dealKleur.bg + ';color:' + dealKleur.fg + '">' + Math.round(a.dealScore) + ' score</button>'
     : '';
   return '<a href="' + escHtml(outUrl(a.url, a.bron)) + '" target="_blank" rel="noopener noreferrer" class="auto-card" itemscope itemtype="https://schema.org/Car"' +
     ' data-out data-bron="' + escHtml(a.bron || '') + '" data-merk="' + escHtml(a.merk || '') + '" data-prijs="' + (a.prijs || '') + '">' +
