@@ -24,6 +24,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const { dealScoreKleur } = require('../lib/carkijker-core');
 
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -73,13 +74,13 @@ function vindNieuweMatches(agent, listings, vandaag) {
 function fmt(n) { return String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, '.'); }
 function escHtml(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
 
-// Zelfde kleurdrempels (60/35) als de .auto-deal-pill op de occasion-
-// pagina's (zie renderAutoCard() in generate-occasions.js) -- dezelfde
-// dealScore moet er in de mail hetzelfde uitzien als op de site.
+// dealScoreKleur() komt uit lib/carkijker-core.js -- dezelfde kleurdrempels
+// (60/35) als de .auto-deal-pill op de occasion-pagina's, zodat dezelfde
+// dealScore er in de mail hetzelfde uitziet als op de site.
 function dealBadgeHtml(score) {
   if (score == null) return '';
-  const kleur = score > 60 ? ['#dcfce7', '#15803d'] : score < 35 ? ['#fee2e2', '#b91c1c'] : ['#fef9c3', '#854d0e'];
-  return '<span style="background:' + kleur[0] + ';color:' + kleur[1] + ';font-size:11px;font-weight:700;padding:2px 7px;border-radius:10px;white-space:nowrap">' + Math.round(score) + ' score</span>';
+  const kleur = dealScoreKleur(score);
+  return '<span style="background:' + kleur.bg + ';color:' + kleur.fg + ';font-size:11px;font-weight:700;padding:2px 7px;border-radius:10px;white-space:nowrap">' + Math.round(score) + ' score</span>';
 }
 
 // isBeste: zet een "BESTE DEAL"-label op de eerste (dus na sortering de

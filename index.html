@@ -1241,6 +1241,12 @@
   <span style="font-size:.8rem;opacity:.8">Klik op een advertentie om naar de originele aanbieder te gaan. Prijzen zijn indicatief en kunnen afwijken. &nbsp;&middot;&nbsp; <a href="/occasions/" style="color:inherit">Occasions per merk</a> &nbsp;&middot;&nbsp; <a href="/over-ons/" style="color:inherit">Over ons</a> &nbsp;&middot;&nbsp; <a href="/voor-bronnen/" style="color:inherit">Voor bronnen</a> &nbsp;&middot;&nbsp; <a href="/voor-agents/" style="color:inherit">Voor developers</a></span>
 </footer>
 
+<!-- isDealer()/dealScoreKleur()/de URL-parameter-mapping komen hiervandaan
+     i.p.v. hier opnieuw gedefinieerd te staan -- zie lib/carkijker-core.js
+     voor de uitleg en test/carkijker-core.test.js voor de tests. Moet vóór
+     alle inline scripts hieronder staan, die verwachten dat window.CarkijkerCore
+     al bestaat. -->
+<script src="/lib/carkijker-core.js"></script>
 <script>
 
 function _saveFilters(){var s={z:document.getElementById("zoekInput").value,m:document.getElementById("merkFilter").value,mo:document.getElementById("modelInput").value,jn:document.getElementById("jaarMin").value,jx:document.getElementById("jaarMax").value,pn:document.getElementById("prijsMin").value,px:document.getElementById("prijsMax").value,kn:document.getElementById("kmMin").value,kx:document.getElementById("kmMax").value,b:(document.getElementById("brandstofFilter")||{}).value||"",c:(document.getElementById("carrosserieFilter")||{}).value||"",t:transmissieActief,s:document.getElementById("sortering").value};var any=s.z||s.m||s.mo||s.jn||s.jx||s.pn||s.px||s.kn||s.kx||s.b||s.c||s.t;if(any||s.s!="jaar-desc")localStorage.setItem("_ck_st",JSON.stringify(s));else localStorage.removeItem("_ck_st");}
@@ -1807,7 +1813,7 @@ function toonResultaten(lijst) {
         </div>
         <div class="auto-card-footer">
           <span class="auto-bron-tag" style="color:${({'Marktplaats':'#0063D3','Gaspedaal':'#E87722','ViaBovag':'#003082','AutoScout24':'#FF6600','AutoTrack':'#1B5FA8'})[a.bron]||'#9ca3af'}">${a.bron||'—'}</span>
-          ${(a.dealScore!=null&&a.dealScore>0)?'<button type="button" class="auto-deal-pill" onclick="_toggleDealTip(event)" data-tip="Dealscore: vergelijkt prijs met soortgelijke occasions'+(a.dealBasis==='regressie'?', gecorrigeerd voor bouwjaar en km-stand':'')+'. Groen (60+) = goede deal, rood (<35) = duur." style="background:'+(a.dealScore>60?'#dcfce7':a.dealScore<35?'#fee2e2':'#fef9c3')+';color:'+(a.dealScore>60?'#15803d':a.dealScore<35?'#b91c1c':'#854d0e')+'">'+Math.round(a.dealScore)+' score</button>':''}
+          ${(a.dealScore!=null&&a.dealScore>0)?'<button type="button" class="auto-deal-pill" onclick="_toggleDealTip(event)" data-tip="Dealscore: vergelijkt prijs met soortgelijke occasions'+(a.dealBasis==='regressie'?', gecorrigeerd voor bouwjaar en km-stand':'')+'. Groen (60+) = goede deal, rood (<35) = duur." style="background:'+CarkijkerCore.dealScoreKleur(a.dealScore).bg+';color:'+CarkijkerCore.dealScoreKleur(a.dealScore).fg+'">'+Math.round(a.dealScore)+' score</button>':''}
         </div></div>
     </div>`);
     // Tier 2: één rustige, gereserveerde advertentieplek na de 8e kaart op
@@ -1861,19 +1867,9 @@ function _populeerMerkFilter() {
   sel.innerHTML = html;
   if (cur) sel.value = cur;
 }
-function isDealer(a){
-  if(!a)return null;
-  var b=(a.bron||'').toLowerCase();
-  if(b==='gaspedaal'||b==='viabovag'||b==='autoscout24')return true;
-  var t=(a.titel||'').toLowerCase();
-  if(['dealer','garage','occasions','autobedrijf','autohandel'].some(function(w){return t.includes(w);}))return true;
-  // Marktplaats is de enige bron hier met echte particuliere aanbieders --
-  // zonder dealer-signaalwoorden in de titel is dit vrijwel zeker een
-  // particuliere advertentie. Bij andere/onbekende bronnen blijft het "onbekend"
-  // (null) i.p.v. een gok op particulier.
-  if(b==='marktplaats')return false;
-  return null;
-}
+// isDealer() komt uit CarkijkerCore (lib/carkijker-core.js) -- was hier en
+// in generate-occasions.js bewust gedupliceerd, nu één bron van waarheid.
+var isDealer = CarkijkerCore.isDealer;
 function sorteer(lijst, sort) {
   if (sort === 'prijs-asc')  return lijst.sort((a,b) => a.prijs - b.prijs);
   if (sort === 'prijs-desc') return lijst.sort((a,b) => b.prijs - a.prijs);
@@ -1980,8 +1976,9 @@ function openDetail(id) {
         // vlak voor de klik naar de bron, wil je die signalen kunnen zien.
         var chips = '';
         if (a.dealScore != null && a.dealScore > 0) {
-          var dsBg = a.dealScore>60?'#dcfce7':a.dealScore<35?'#fee2e2':'#fef9c3';
-          var dsCol = a.dealScore>60?'#15803d':a.dealScore<35?'#b91c1c':'#854d0e';
+          var dsKleur = CarkijkerCore.dealScoreKleur(a.dealScore);
+          var dsBg = dsKleur.bg;
+          var dsCol = dsKleur.fg;
           chips += '<button type="button" class="auto-deal-pill" onclick="_toggleDealTip(event)" data-tip="Dealscore: vergelijkt prijs met soortgelijke occasions'+(a.dealBasis==='regressie'?', gecorrigeerd voor bouwjaar en km-stand':'')+'. Groen (60+) = goede deal, rood (<35) = duur." style="background:'+dsBg+';color:'+dsCol+'">'+Math.round(a.dealScore)+' score</button>';
         }
         if (a.eersteGezien) {
@@ -4223,11 +4220,13 @@ var _uf=['merkFilter','modelInput','brandstofFilter','carrosserieFilter','jaarMi
 // matcht toch al nergens op deze 4 keys (dus geen regressie), en aanpassen
 // zou een timing-risico introduceren als merkFilter/carrosserieFilter hun
 // <option>-lijst pas later dynamisch vullen.
-var _ufParamNaam={merkFilter:'merk',modelInput:'model',brandstofFilter:'brandstof',carrosserieFilter:'carrosserie'};
+// De param-naam-mapping komt uit CarkijkerCore.resolveUrlParamNaam() (lib/
+// carkijker-core.js) -- dat is de code die eerder de "Page with redirect"-
+// bug (#131) veroorzaakte, nu met tests in test/carkijker-core.test.js.
 function _toURL(){
   try{
     var p=new URLSearchParams();
-    _uf.forEach(function(id){var e=document.getElementById(id);if(e&&e.value)p.set(_ufParamNaam[id]||id,e.value);});
+    _uf.forEach(function(id){var e=document.getElementById(id);if(e&&e.value)p.set(CarkijkerCore.resolveUrlParamNaam(id),e.value);});
     var zi=document.getElementById('zoekInput');if(zi&&zi.value)p.set('q',zi.value);
     var qs=p.toString();
     history.replaceState(null,'',qs?'?'+qs:location.pathname);
