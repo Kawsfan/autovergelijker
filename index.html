@@ -27,6 +27,78 @@
     window.SUPABASE_ANON_KEY = 'sb_publishable_e4kljbGegfh2jVD92MsDKA_XSGQf-sP';
   </script>
 
+  <!-- Client-side foutmonitoring: was een blinde vlek (kritiek rapport-punt --
+       fouten bij echte bezoekers bleven tot nu toe volledig onopgemerkt).
+       Bewust GEEN afhankelijkheid van de Supabase JS-SDK (die laadt pas laat,
+       zie het account-blok onderaan de pagina) -- dit stuurt rechtstreeks een
+       REST-call naar PostgREST, zodat fouten al vanaf de eerste regel JS
+       opgevangen worden, ook als de SDK zelf nooit laadt. Schrijft alleen
+       (insert-only RLS-policy, zie supabase/schema.sql) -- niemand kan via de
+       publieke anon-key ooit eigen of andermans foutregels lezen/wijzigen. -->
+  <script>
+  (function(){
+    if (typeof window.SUPABASE_URL !== 'string' || window.SUPABASE_URL.indexOf('VUL_HIER') === 0) return;
+
+    var _gezien = Object.create(null);
+    var _teller = 0;
+    var MAX_PER_PAGINA = 20;
+
+    function _logFout(payload){
+      if (_teller >= MAX_PER_PAGINA) return;
+      var sleutel = payload.message + '|' + payload.filename + '|' + payload.lineno;
+      if (_gezien[sleutel]) return;
+      _gezien[sleutel] = true;
+      _teller++;
+      fetch(window.SUPABASE_URL + '/rest/v1/client_errors', {
+        method: 'POST',
+        keepalive: true,
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': window.SUPABASE_ANON_KEY,
+          'Authorization': 'Bearer ' + window.SUPABASE_ANON_KEY,
+          'Prefer': 'return=minimal'
+        },
+        body: JSON.stringify(payload)
+      }).catch(function(){});
+    }
+
+    window.addEventListener('error', function(e){
+      // Cross-origin scripts (browserextensies, adblockers e.d.) geven een
+      // contentloos "Script error." zonder bestand/regel -- daar is niets
+      // aan te diagnosticeren, dus die loggen we bewust niet. Zonder
+      // capture:true (default hier) vallen ook mislukte <img>/<script>-
+      // resource-loads al buiten dit event, dat is gewenst: die worden al
+      // netjes afgehandeld door de eigen onerror-handlers per element.
+      if (!e || (e.message === 'Script error.' && !e.filename)) return;
+      var bestand = e.filename || '';
+      if (bestand.indexOf('extension://') !== -1) return;
+      _logFout({
+        message: String(e.message || 'onbekende fout').slice(0, 500),
+        stack: e.error && e.error.stack ? String(e.error.stack).slice(0, 2000) : null,
+        filename: bestand.slice(0, 500) || null,
+        lineno: typeof e.lineno === 'number' ? e.lineno : null,
+        colno: typeof e.colno === 'number' ? e.colno : null,
+        page_url: location.href,
+        user_agent: navigator.userAgent
+      });
+    });
+
+    window.addEventListener('unhandledrejection', function(e){
+      var reden = e && e.reason;
+      var bericht = reden instanceof Error ? reden.message : String(reden);
+      _logFout({
+        message: ('Unhandled promise rejection: ' + bericht).slice(0, 500),
+        stack: reden instanceof Error && reden.stack ? String(reden.stack).slice(0, 2000) : null,
+        filename: null,
+        lineno: null,
+        colno: null,
+        page_url: location.href,
+        user_agent: navigator.userAgent
+      });
+    });
+  })();
+  </script>
+
   <meta name="description" content="68.000+ auto's van 6 platforms, dagelijks bijgewerkt. Filter op merk, prijs en km-stand — en zie direct of je een goede deal hebt. Gratis, geen account.">
   <meta name="keywords" content="tweedehands auto, auto kopen, auto vergelijken, marktplaats auto, nederland, occasions">
   <meta name="robots" content="index, follow">
