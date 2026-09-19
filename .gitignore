@@ -1,0 +1,8 @@
+# data/listings.json (78MB+) is puur de scraper's eigen "vorige staat" voor
+# prijshistorie/dedup-merge tussen runs (zie main() in scrape.js) -- geen
+# publiek bestand (staat al in .assetsignore, wordt nooit gedeployed).
+# Werd voorheen 3x/dag opnieuw gecommit, ver over GitHub's aanbevolen 50MB-
+# bestandslimiet, en liet de .git-geschiedenis ongeremd groeien (835MB,
+# sep '26). Wordt sinds fase 1 (PR #140) bewaard via GitHub Actions cache
+# i.p.v. git -- zie de "Cache vorige listings.json"-stap in scrape.yml.
+data/listings.json
