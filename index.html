@@ -1443,7 +1443,7 @@ async function laadListings() {
             _vulZoekSuggesties();
             // Zoekagenten checken pas ná de volledige dataset opnieuw: de eerdere,
             // automatische check (3s na laden, zie de IIFE bij controleerZoekagenten)
-            // draait vrijwel altijd nog tegen de kleine top-5000-subset, en zou dus
+            // draait vrijwel altijd nog tegen de kleine top-300-subset, en zou dus
             // nieuwe advertenties buiten die subset structureel missen.
             if (typeof controleerZoekagenten === 'function') controleerZoekagenten(false);
             // Trending/merk-stats/schema zijn bij het eerste laden berekend op de kleine
@@ -2818,7 +2818,7 @@ function slaZoekagentOp(){var merk=(document.getElementById("merkFilter")||{}).v
 function controleerZoekagenten(handmatig){if(!window._alleAutos||!window._alleAutos.length)return;var vandaag=new Date().toISOString().slice(0,10);var list=_agenten();var totaalNieuw=0;list=list.map(function(agent){var matches=window._alleAutos.filter(function(a){if(agent.merk&&!(_getMerk(a.titel)||"").toLowerCase().includes(agent.merk.toLowerCase()))return false;if(agent.q&&!(((a.titel||"")+" "+(_getMerk(a.titel)||"")).toLowerCase().includes(agent.q.toLowerCase())))return false;if(agent.minPrijs!=null&&a.prijs!=null&&a.prijs<agent.minPrijs)return false;if(agent.maxPrijs!=null&&a.prijs!=null&&a.prijs>agent.maxPrijs)return false;return true;});var nieuw=matches.filter(function(a){return a.eersteGezien===vandaag&&!(agent.gezieneIds||[]).includes(a.id);});if(nieuw.length){totaalNieuw+=nieuw.length;agent.gezieneIds=(agent.gezieneIds||[]).concat(nieuw.map(function(a){return a.id;}));if(typeof Notification!=="undefined"&&Notification.permission==="granted"){new Notification("Zoekagent: "+agent.label,{body:nieuw.length+" nieuwe auto's gevonden!",icon:"/icons/icon-192.png"});}}return agent;});localStorage.setItem("zoekagenten",JSON.stringify(list));if(handmatig){var msg=document.getElementById("agentMsg");if(msg){msg.textContent=totaalNieuw?"Gevonden: "+totaalNieuw+" nieuwe auto('s)!":"Geen nieuwe auto's.";setTimeout(function(){if(msg)msg.textContent="";},3000);}}
 var btn=document.getElementById("agentNavBtn");if(btn&&totaalNieuw>0)btn.innerHTML="&#128276;("+totaalNieuw+") Zoekagent";}
 // Snelle eerste check, 3s na laden -- draait op dat moment meestal nog tegen de
-// kleine top-5000-subset (listings-top.json), dus kan nieuwe advertenties buiten
+// kleine top-300-subset (listings-top.json), dus kan nieuwe advertenties buiten
 // die subset missen. window._laadVolledig() roept controleerZoekagenten() daarom
 // hierboven nogmaals aan zodra de volledige dataset binnen is.
 (function(){if(typeof Notification!=="undefined"&&Notification.permission==="default")Notification.requestPermission();setTimeout(function(){controleerZoekagenten(false);},3000);})();
