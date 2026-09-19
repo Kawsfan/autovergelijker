@@ -185,7 +185,7 @@
     <div class="endpoint-kaart">
       <h3>Top-dealscore selectie</h3>
       <span class="pad">GET /data/listings-top.json</span>
-      <p>Bevat de <strong>5.000 advertenties met de hoogste dealscore</strong> van het volledige aanbod (dus al voorgesorteerd &mdash; geen eigen sorteerlogica nodig). Formaat: gewoon een array van objecten onder de sleutel <code>listings</code>, geen bijzondere structuur.</p>
+      <p>Bevat de <strong>300 advertenties met de hoogste dealscore</strong> van het volledige aanbod (dus al voorgesorteerd &mdash; geen eigen sorteerlogica nodig), lichtgewicht gehouden voor een snelle eerste render. Formaat: gewoon een array van objecten onder de sleutel <code>listings</code>, geen bijzondere structuur.</p>
       <table class="veld-tabel">
         <tr><th>Veld</th><th>Betekenis</th></tr>
         <tr><td>merk, model, titel</td><td>Merk, model en volledige advertentietitel</td></tr>
@@ -203,7 +203,7 @@
 
   <section aria-labelledby="volledig-titel">
     <h2 id="volledig-titel">Het volledige aanbod</h2>
-    <p>Wil je verder dan de top 5.000, dan staat het complete aanbod (alle 68.000+ advertenties) verspreid over meerdere bestanden om ruim onder Cloudflare's bestandsgrootte-limiet te blijven.</p>
+    <p>Wil je verder dan de top 300, dan staat het complete aanbod (alle 68.000+ advertenties) verspreid over meerdere bestanden om ruim onder Cloudflare's bestandsgrootte-limiet te blijven.</p>
     <div class="endpoint-kaart">
       <h3>Volledig aanbod (chunked, kolomvorm)</h3>
       <span class="pad">GET /data/listings-lean-0.json, -1.json, -2.json, ...</span>

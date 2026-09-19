@@ -1833,13 +1833,23 @@ async function main() {
     else if (/handmatig|manueel/i.test(trRaw)) l.transmissie = 'Handgeschakeld';
   }
   fs.writeFileSync(outPath, JSON.stringify(data));
-  // ââ listings-top.json: top 5000 by dealScore voor snelle homepage load
+  // ── listings-top.json: top 300 by dealScore voor snelle homepage load ──
+  // Was top 5000 (~3,4MB) tot een PageSpeed-meting (19 sep) een mobiele LCP
+  // van 8,0s liet zien tegenover 0,6s op desktop -- exact verklaard door deze
+  // "kritieke eerste fetch" in index.html (_fetchListingsTopMetRetry()): de
+  // eerste occasion-kaarten kunnen pas tekenen nadat dit bestand is
+  // opgehaald EN geparsed, en op een getrottelde mobiele verbinding/CPU
+  // (Lighthouse's mobiele simulatie) kost 3,4MB simpelweg te veel tijd. 300
+  // is ruim genoeg (12+ pagina's bij 24 resultaten/pagina, zie _pp in
+  // index.html) voordat de achtergrond-load van de volle set (via
+  // window._laadVolledig, luttele seconden later) het overneemt.
   // De volledige imgs-galerij (~49% van de databytes) wordt hier weggelaten - die is
   // alleen nodig in de detailweergave, niet in de resultatenlijst (die gebruikt imgSrc).
   // De achtergrond-load van listings.json (met imgs) vult dit binnen enkele seconden aan.
-  const _topL = [...(data.listings||[])].sort((a,b)=>(b.dealScore||0)-(a.dealScore||0)).slice(0,5000)
+  const TOP_SUBSET_SIZE = 300;
+  const _topL = [...(data.listings||[])].sort((a,b)=>(b.dealScore||0)-(a.dealScore||0)).slice(0,TOP_SUBSET_SIZE)
     .map(function(l){ var _c = Object.assign({}, l); delete _c.imgs; return _c; });
-  const _topData = Object.assign({}, data, {listings: _topL, isSubset: true, subsetSize: 5000});
+  const _topData = Object.assign({}, data, {listings: _topL, isSubset: true, subsetSize: TOP_SUBSET_SIZE});
   const _topPath = path.join(process.cwd(), 'data', 'listings-top.json');
   fs.writeFileSync(_topPath, JSON.stringify(_topData));
   console.log(' listings-top.json: top ' + _topL.length + ' deals geschreven');
