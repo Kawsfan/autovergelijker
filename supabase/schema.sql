@@ -26,6 +26,15 @@ create policy "favorites_select_own" on public.favorites
   for select using (auth.uid() = user_id);
 create policy "favorites_insert_own" on public.favorites
   for insert with check (auth.uid() = user_id);
+-- _syncFavorieten() in index.html doet een upsert(..., {onConflict:'user_id,listing_id'})
+-- bij elke login -- zodra een favoriet die al bestond opnieuw wordt geüpload, valt
+-- Postgres terug op het "ON CONFLICT DO UPDATE"-pad, en dat wordt getoetst aan de
+-- UPDATE-policy (niet de INSERT-policy). Zonder deze policy blokkeert RLS dat
+-- pad standaard (42501 permission denied -> PostgREST 403) -- live ontdekt op
+-- 20 sep via de client_errors-tabel/console: elke terugkerende ingelogde
+-- bezoeker met minstens 1 bestaande favoriet kreeg dit bij iedere paginaload.
+create policy "favorites_update_own" on public.favorites
+  for update using (auth.uid() = user_id) with check (auth.uid() = user_id);
 create policy "favorites_delete_own" on public.favorites
   for delete using (auth.uid() = user_id);
 
