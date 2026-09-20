@@ -158,10 +158,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
   <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">
-  <!-- Occasion-fotos: eigen img-proxy (Gaspedaal) + weserv.nl-fallback (overige bronnen
-       zonder eigen resize-preset) staan vast, dus preconnect kan hier al vóór de
-       listings-top.json-fetch klaarstaat -- scheelt DNS/TLS-tijd op de LCP-foto. -->
-  <link rel="preconnect" href="https://carkijker-img-proxy.fergusknies.workers.dev">
+  <!-- Occasion-fotos: alle bronnen (Gaspedaal via onze Worker, Admarkt/dealer-advertenties
+       zonder eigen preset) lopen inmiddels via images.weserv.nl voor resize/compressie, dus
+       preconnect kan hier al vóór de listings-top.json-fetch klaarstaat -- scheelt DNS/TLS-
+       tijd op de LCP-foto. Geen aparte preconnect meer naar carkijker-img-proxy: de browser
+       praat alleen nog met weserv.nl, die haalt Gaspedaal-fotos server-side bij onze Worker op. -->
   <link rel="preconnect" href="https://images.weserv.nl">
   <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
   <meta name="theme-color" content="#1a1a1a" media="(prefers-color-scheme: dark)">
@@ -1851,10 +1852,21 @@ function toonResultaten(lijst) {
                   // theorie ten onrechte op kunnen matchen. Gaspedaal ook bewust eerst checken.
                   var _host='';try{_host=new URL(s).hostname;}catch(_e){}
                   // Gaspedaal's CDN blokkeert verzoeken zonder de juiste Referer-header (hotlink-
-                  // bescherming) -- carkijker-img-proxy (eigen Cloudflare Worker) zet die header
-                  // server-side goed, en geeft de bron-afbeelding ongewijzigd door (die staat al
-                  // in "/images/large/", dus geen extra downscale/compressie nodig).
-                  if(_host.includes('gaspedaal'))return 'https://carkijker-img-proxy.fergusknies.workers.dev/?url='+encodeURIComponent(s);
+                  // bescherming) -- carkijker-img-proxy (eigen Cloudflare Worker, los project,
+                  // geen Git-koppeling) zet die header server-side goed. De Worker zelf geeft de
+                  // bron-afbeelding ongewijzigd door (die staat in "/images/large/", vaak >1MB) --
+                  // daarom hier ook nog een laag weserv.nl overheen, dezelfde resize-service als
+                  // de Admarkt/dealer-fallback hieronder: weserv haalt de foto bij ÓNZE Worker op
+                  // (dus mét de juiste Referer al gezet) en comprimeert 'm pas dan. De Worker-URL
+                  // (die zelf al een geëncodeerde Gaspedaal-URL als queryparam bevat) moet daarom
+                  // NOG EEN KEER encodeURIComponent doorlopen voordat 'ie als weserv's eigen url-
+                  // param meegaat -- weserv decodeert zijn url-param maar 1 laag, en zonder deze
+                  // dubbele encodering zou een eventuele "&"/"="/"?" in de Gaspedaal-URL zelf
+                  // (bv. een eigen querystring) weserv's queryparser in de war sturen en de
+                  // Gaspedaal-URL afkappen. Precies het patroon dat weserv.nl's eigen docs
+                  // voorschrijven voor "nested"/nested-proxy-URL's -- lokaal getest met url's mét
+                  // en zonder eigen querystring, beide keren een exacte round-trip.
+                  if(_host.includes('gaspedaal'))return 'https://images.weserv.nl/'+String.fromCharCode(63)+'url='+encodeURIComponent('carkijker-img-proxy.fergusknies.workers.dev/?url='+encodeURIComponent(s))+'&w=800&q=82';
                   // Marktplaats levert zelf al grote varianten via een size-preset-suffix
                   // (bv. "$_82.jpg") -- dezelfde $_86-truc die de detailgalerij al gebruikt,
                   // rechtstreeks van hun eigen CDN, geen externe resize-proxy nodig. Admarkt/
