@@ -22,6 +22,34 @@
   "publisher": { "@type": "Organization", "name": "Carkijker", "url": "https://www.carkijker.nl" }
 }
 </script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Wat is TCO?",
+      "acceptedAnswer": { "@type": "Answer", "text": "TCO staat voor Total Cost of Ownership: de totale eigendomskosten van een auto. Deze calculator richt zich op de drie grootste terugkerende kostenposten: brandstof, wegenbelasting en verzekering." }
+    },
+    {
+      "@type": "Question",
+      "name": "Hoe nauwkeurig is de wegenbelasting?",
+      "acceptedAnswer": { "@type": "Answer", "text": "De berekening is een schatting voor 2026: de 2024/2025-tarieven van de Belastingdienst, opgehoogd met de bekende inflatiecorrectie van 2,9%. Ook is de gewichtsbasis per 1 juli 2026 gewijzigd naar massa rijklaar, circa 100 kg meer dan voorheen. Het uiteindelijke bedrag kan afwijken afhankelijk van je exacte gewichtsklasse en provincie; check altijd de Belastingdienst-website voor het definitieve bedrag." }
+    },
+    {
+      "@type": "Question",
+      "name": "Wat zit er NIET in deze calculator?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Afschrijving, onderhoud, APK, banden, parkeergeld en rekeningrijden zijn niet meegenomen. Dit zijn wel relevante kostenposten, maar ze zijn sterk afhankelijk van rijgedrag en voertuig. Een vuistregel: tel 0,05 tot 0,10 euro per kilometer extra voor onderhoud en afschrijving." }
+    },
+    {
+      "@type": "Question",
+      "name": "Is elektrisch goedkoper dan benzine?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Bij elektrisch rijd je met een korting van 30% op de wegenbelasting (2026-2028; een volledige vrijstelling gold alleen t/m 2024). Energiekosten bij thuis laden zijn doorgaans 0,02 tot 0,04 euro per kilometer. Bij meer dan circa 15.000 km per jaar is elektrisch vaak goedkoper in gebruik, maar de aanschafprijs ligt hoger." }
+    }
+  ]
+}
+</script>
 <style>
   :root {
     --oranje: #d14413;
@@ -248,6 +276,8 @@
     transition: background .15s;
   }
   .cta-link:hover { background: #333; }
+  .cta-link.secundair { background: transparent; color: var(--text); border: 1.5px solid var(--border); }
+  .cta-link.secundair:hover { background: var(--border); }
 </style>
 </head>
 <body>
@@ -328,12 +358,12 @@
     <div class="card-title"><span class="icon">🛣️</span> Wegenbelasting (MRB)</div>
     <div class="form-grid">
       <div class="field">
-        <label for="gewicht">Gewicht leegrijdend (kg)</label>
+        <label for="gewicht">Massa rijklaar (kg)</label>
         <div class="field-unit">
           <input type="number" id="gewicht" value="1300" min="500" max="3500" step="50">
           <span class="unit-badge">kg</span>
         </div>
-        <small>Staat in je kentekenbewijs (deel 1A)</small>
+        <small>Staat in je kentekenbewijs (deel 1A). Let op: sinds 1 juli 2026 gebruikt de Belastingdienst de massa rijklaar i.p.v. de massa ledig &ndash; dat is circa 100 kg meer.</small>
       </div>
       <div class="field">
         <label for="provincie">Provincie</label>
@@ -458,7 +488,7 @@
     </div>
     <div class="faq-item">
       <div class="faq-q" onclick="toggleFaq(this)">Hoe nauwkeurig is de wegenbelasting? <span class="faq-icon">+</span></div>
-      <div class="faq-a">De berekening gebruikt de officiële MRB-tarieven van de Belastingdienst 2024/2025. Het uiteindelijke bedrag kan iets afwijken afhankelijk van je exacte gewichtsklasse en provincie. Check altijd de <a href="https://www.belastingdienst.nl/wps/wcm/connect/bldcontentnl/belastingdienst/auto_en_vervoer/belastingen_op_auto_en_motor/motorrijtuigenbelasting/tarief_mrb/" target="_blank" rel="noopener" style="color:#0369a1">Belastingdienst website</a> voor het definitieve bedrag.</div>
+      <div class="faq-a">De berekening is een schatting voor 2026: de 2024/2025-tarieven van de Belastingdienst, opgehoogd met de bekende inflatiecorrectie van 2,9%. Ook is de gewichtsbasis per 1 juli 2026 gewijzigd naar massa rijklaar (circa 100 kg meer dan voorheen) &ndash; zie het veld hierboven. Het uiteindelijke bedrag kan afwijken afhankelijk van je exacte gewichtsklasse en provincie. Check daarom altijd de <a href="https://www.belastingdienst.nl/wps/wcm/connect/bldcontentnl/belastingdienst/auto_en_vervoer/belastingen_op_auto_en_motor/motorrijtuigenbelasting/tarief_mrb/" target="_blank" rel="noopener" style="color:#0369a1">Belastingdienst website</a> voor het definitieve bedrag.</div>
     </div>
     <div class="faq-item">
       <div class="faq-q" onclick="toggleFaq(this)">Wat zit er NIET in deze calculator? <span class="faq-icon">+</span></div>
@@ -466,29 +496,37 @@
     </div>
     <div class="faq-item">
       <div class="faq-q" onclick="toggleFaq(this)">Elektrisch goedkoper dan benzine? <span class="faq-icon">+</span></div>
-      <div class="faq-a">Bij elektrisch rijd je momenteel zonder of met sterk verlaagde wegenbelasting (vrijstelling loopt af). Energiekosten (thuis laden) zijn doorgaans €0,02–€0,04 per km. Bij meer dan ~15.000 km/jaar is elektrisch vaak goedkoper in gebruik, maar de aanschafprijs ligt hoger.</div>
+      <div class="faq-a">Bij elektrisch rijd je met een korting van 30% op de wegenbelasting (2026-2028; een volledige vrijstelling gold alleen t/m 2024). Energiekosten (thuis laden) zijn doorgaans €0,02–€0,04 per km. Bij meer dan ~15.000 km/jaar is elektrisch vaak goedkoper in gebruik, maar de aanschafprijs ligt hoger.</div>
     </div>
   </div>
 
   <a href="/" class="cta-link">🔍 Zoek occasions op Carkijker →</a>
+  <a href="/inruilwaarde/" class="cta-link secundair">💰 Wat is jouw huidige auto waard? →</a>
 
   <p class="disclaimer">
-    Berekeningen zijn indicatief op basis van opgegeven waarden en de MRB-tarieven 2024/2025.<br>
+    Berekeningen zijn indicatief op basis van opgegeven waarden en een schatting van de MRB-tarieven 2026 (2024/2025-tarieven + 2,9% inflatiecorrectie).<br>
     Raadpleeg de Belastingdienst en je verzekeraar voor definitieve bedragen.
   </p>
 
 </div>
 
 <script>
-// MRB tarieftabel benzine (per kwartaal, nationaal basispercentage)
-// Bron: Belastingdienst 2024/2025
+// MRB tarieftabel benzine (per kwartaal, nationaal basispercentage).
+// Was oorspronkelijk Belastingdienst 2024/2025; de Belastingdienst-pagina
+// zelf was vanuit deze omgeving niet rechtstreeks te raadplegen (netwerk-
+// restrictie), maar via zoekresultaten wel bevestigd: 2026-tarieven liggen
+// 2,9% hoger (officiële inflatiecorrectie) dan 2024/2025. Onderstaande
+// bedragen zijn daarom de 2024/2025-tabel x1,029, afgerond -- een
+// onderbouwde schatting, GEEN direct overgenomen officiële 2026-tabel.
+// Check daarom altijd de link naar de Belastingdienst-rekentool in de FAQ
+// hieronder voor het exacte, definitieve bedrag.
 const MRB_BENZINE = [
-  [900,   89], [950,   97], [1000, 104], [1050, 112], [1100, 121],
-  [1150, 129], [1200, 137], [1250, 145], [1300, 153], [1350, 162],
-  [1400, 170], [1450, 180], [1500, 189], [1550, 199], [1600, 208],
-  [1650, 219], [1700, 228], [1750, 240], [1800, 252], [1850, 264],
-  [1900, 276], [1950, 290], [2000, 303], [2100, 327], [2200, 352],
-  [2300, 378], [2400, 405], [2500, 432], [9999, 460]
+  [900,   92], [950,  100], [1000, 107], [1050, 115], [1100, 125],
+  [1150, 133], [1200, 141], [1250, 149], [1300, 157], [1350, 167],
+  [1400, 175], [1450, 185], [1500, 194], [1550, 205], [1600, 214],
+  [1650, 225], [1700, 235], [1750, 247], [1800, 259], [1850, 272],
+  [1900, 284], [1950, 298], [2000, 312], [2100, 336], [2200, 362],
+  [2300, 389], [2400, 417], [2500, 445], [9999, 473]
 ];
 
 function getMRBBenzine(kg) {
@@ -507,7 +545,13 @@ function berekenMRB() {
   var factor = 1.0;
 
   if (brandstof === 'diesel') factor = 3.2; // diesel toeslag
-  else if (brandstof === 'elektrisch') factor = 0.0; // vrijgesteld (2024)
+  // Volledige vrijstelling voor elektrisch/waterstof verviel per 1-1-2025;
+  // van 2026 t/m 2028 geldt een overgangskorting van 30% (dus 70% van het
+  // normale tarief), aflopend naar 25% in 2029 en 0% (volledig tarief) vanaf
+  // 2030. Bron: zoekresultaten (rijksoverheid.nl/ondernemersplein.overheid.nl),
+  // de Belastingdienst-pagina zelf was vanuit deze omgeving niet rechtstreeks
+  // te raadplegen (netwerkrestrictie) -- check bij twijfel de officiële bron.
+  else if (brandstof === 'elektrisch') factor = 0.7;
   else if (brandstof === 'hybride') factor = 0.5; // PHEV: circa halftarief
   else if (brandstof === 'lpg') factor = 1.6;
   else factor = 1.0; // benzine
@@ -517,7 +561,7 @@ function berekenMRB() {
   // Info bijwerken
   var infoEl = document.getElementById('mrbInfo');
   if (brandstof === 'elektrisch') {
-    infoEl.textContent = '⚡ Elektrische auto\'s zijn in 2024 vrijgesteld van wegenbelasting. Vanaf 2025 geldt een gereduceerd tarief.';
+    infoEl.textContent = '⚡ Elektrische auto\'s krijgen in 2026-2028 een korting van 30% op de wegenbelasting (dus 70% van het normale tarief). Volledige vrijstelling gold alleen t/m 2024. Geschatte MRB: €' + Math.round(mrb_jaar) + ' per jaar.';
     infoEl.style.background = '#f0fdf4';
     infoEl.style.borderColor = '#86efac';
     infoEl.style.color = '#15803d';

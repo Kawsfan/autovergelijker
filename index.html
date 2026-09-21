@@ -2608,47 +2608,17 @@ function renderKaart() {
     _kaartMap.setView(bounds[0], 10);
   }
 }
-function openVergelijk() {
-  if (_vgl.length < 2) { alert('Selecteer minimaal 2 auto\'s'); return; }
-  var cars = _vgl.map(function(id){ return window._vglData[id]; }).filter(Boolean);
-  var n = cars.length;
-  var specs = [
-    ['Prijs', function(a){ return a.prijs ? '€'+a.prijs.toLocaleString('nl-NL') : ''; }],
-    ['Bouwjaar', function(a){ return a.jaar ? String(a.jaar) : ''; }],
-    ['Kilometerstand', function(a){ return a.km ? a.km.toLocaleString('nl-NL')+' km' : ''; }],
-    ['SOH', function(a){var sv=_parseSoh(a);return sv?sv+'%':'';}],
-    ['Brandstof', function(a){return a.brandstof||'';}],
-    ['Transmissie', function(a){ return a.transmissie || ''; }],
-    ['Carrosserie', function(a){ return a.carrosserie || ''; }],
-    ['Kofferbak', function(a){ var lk=a.kofferbak||_lookupKofferbak(a.titel); return lk?lk+' L':''; }]
-  ];
-  var carCols = cars.map(function(a) {
-    var img = a.imgSrc
-      ? '<img class="vgl-car-img" src="'+escHtml(a.imgSrc)+'" alt="" loading="lazy">'
-      : '<div class="vgl-car-no-img">=€</div>';
-    var nm = escHtml(a.titel || ((_getMerk(a.titel)||'')+' '+(_getModel(a.titel)||'')).trim() || 'Onbekend');
-    var prijs = a.prijs ? '€'+a.prijs.toLocaleString('nl-NL') : 'Prijs onbekend';
-    var link = a.url ? '<a href="'+escHtml(outUrl(a.url,a.bron))+'" target="_blank" class="vgl-lb-link" data-out data-bron="'+escHtml(a.bron||'')+'" data-merk="'+escHtml(a.merk||'')+'" data-prijs="'+(a.prijs||'')+'">Bekijk advertentie →</a>' : '';
-    return '<div class="vgl-car-col">'+img+'<div class="vgl-car-name">'+nm+'</div><div class="vgl-car-prijs">'+prijs+'</div>'+link+'</div>';
-  }).join('');
-  var specRows = specs.map(function(sp) {
-    var vals = cars.map(sp[1]);
-    var allSame = vals.every(function(v){ return v === vals[0]; });
-    var cells = vals.map(function(v){ return '<td class="vgl-spec-val">'+v+'</td>'; }).join('');
-    return '<tr class="vgl-spec-row'+(allSame ? '' : ' vgl-diff')+'">'
-      + '<td class="vgl-spec-label">'+sp[0]+'</td>' + cells + '</tr>';
-  }).join('');
-  var html = '<div class="vgl-lightbox" onclick="event.stopPropagation()">'
-    + '<div class="vgl-lb-header"><span class="vgl-lb-title">&#128202; Vergelijking ('+n+' auto\'s)</span>'
-    + '<button class="vgl-close-btn" onclick="closeVergelijk()"></button></div>'
-    + '<div class="vgl-cars-header" style="grid-template-columns:repeat('+n+',1fr)">' + carCols + '</div>'
-    + '<table class="vgl-spec-body"><tbody>' + specRows + '</tbody></table>'
-    + '</div>';
-  var modal = document.getElementById('vglModal');
-  modal.innerHTML = html;
-  modal.style.display = 'flex';
-  document.body.style.overflow = 'hidden';
-}
+// Bijvangst tijdens het uitzoeken van de RDW-lookup-bug hieronder: dit was
+// hier een TWEEDE, volledig dode openVergelijk()-definitie -- een latere
+// function openVergelijk(){...} verderop in dit bestand overschrijft 'm door
+// JS-hoisting al vóór er ook maar iets uitvoert, dus deze body draaide nooit.
+// Verwijderd i.p.v. laten staan, om toekomstige verwarring (welke van de
+// twee is "de echte"?) te voorkomen. De RDW-wrapper hieronder verwees naar
+// elementen (#vergelijkOverlay, .vgl-car-col) die alleen in DEZE dode versie
+// bestonden -- vandaar dat de RDW-kentekenlookup het nooit deed, ook al werkt
+// fetchRDW()/_updateRDWRows() zelf prima. Fix: de wrapper wijst nu naar de
+// daadwerkelijk gerenderde elementen (#vglModal, .vgl-car-th, .vgl-tbl --
+// zie de actieve openVergelijk() verderop).
 var _rdwData={};
 async function fetchRDW(kt,idx){
   var n=kt.replace(/-/g,'').toUpperCase().slice(0,8);
@@ -2709,9 +2679,14 @@ var _origOV=openVergelijk;
 openVergelijk=function(){
   _rdwData={};
   _origOV();
-  var ov=document.getElementById('vergelijkOverlay');
+  // Fix: dit keek voorheen naar #vergelijkOverlay/.vgl-car-col -- elementen
+  // die alleen in de inmiddels verwijderde, dode eerste openVergelijk()-
+  // definitie bestonden. De daadwerkelijk gerenderde modal is #vglModal, met
+  // per auto een <th class="vgl-car-th"> (geen <div class="vgl-car-col">) en
+  // de specificatietabel zelf heeft class "vgl-tbl" (niet "vgl-spec-body").
+  var ov=document.getElementById('vglModal');
   if(!ov)return;
-  ov.querySelectorAll('.vgl-car-col').forEach(function(col,i){
+  ov.querySelectorAll('.vgl-car-th').forEach(function(col,i){
     var w=document.createElement('div');w.className='vgl-kt-row';
     var inp=document.createElement('input');
     inp.className='vgl-kt-input';inp.placeholder='Kenteken (bv. AB-12-CD)';
@@ -2722,7 +2697,7 @@ openVergelijk=function(){
     });
     w.appendChild(inp);col.appendChild(w);
   });
-  var tbl=ov.querySelector('.vgl-spec-body');
+  var tbl=ov.querySelector('.vgl-tbl');
   if(tbl&&!document.getElementById('vgl-rdw-body')){
     var tb=document.createElement('tbody');tb.id='vgl-rdw-body';tbl.appendChild(tb);
   }
@@ -3620,59 +3595,12 @@ function sluitMarkt() {
   // transmissie-filters van de aanroeper, zodat de steekproef groot en stabiel blijft.
   // Retourneert {fout} of {marktwaarde, inruilMin, inruilMax, n}. Gedeeld door de
   // Marktanalyse-modal en de mini-widget op de auto-detailpagina.
+  // Verplaatst naar lib/carkijker-core.js (schatInruilwaarde) zodat de
+  // losse /inruilwaarde/-pagina exact dezelfde, geteste berekening gebruikt
+  // i.p.v. een tweede kopie die uit de pas kan lopen. Kleine wrapper hier
+  // vult 'm met window._alleAutos in, zoals de rest van deze modal al deed.
   function _schatInruilwaarde(merk, model, km, jaar) {
-    if (!merk || !model) return { fout: 'Selecteer hierboven een merk en model.' };
-    var huidigJaar = new Date().getFullYear();
-    if (!km || km <= 0) return { fout: 'Vul je kilometerstand in voor een schatting.' };
-    if (!jaar || jaar < 1980 || jaar > huidigJaar + 1) return { fout: 'Vul het bouwjaar van je auto in voor een schatting.' };
-
-    var subset = (window._alleAutos||[]).filter(function(a){
-      return a.merk===merk && a.model===model && a.prijs>=500;
-    });
-    if (subset.length < 5) return { fout: 'Onvoldoende advertenties van dit merk en model voor een betrouwbare schatting.' };
-
-    var metKm = subset.filter(function(a){ return a.km>1000 && a.km<300000; });
-    if (metKm.length < 5) return { fout: 'Onvoldoende advertenties met bekende kilometerstand voor een betrouwbare schatting.' };
-
-    // Multiple regressie prijs ~ b0 + b1*km + b2*jaar, met bouwjaar als tweede voorspeller
-    // (een jonge auto met veel km is meer waard dan een oude auto met evenveel km).
-    var metKmJaar = metKm.filter(function(a){ return a.jaar>=1980 && a.jaar<=huidigJaar+1; });
-
-    var marktwaarde;
-    var n;
-    if (metKmJaar.length >= 8) {
-      n = metKmJaar.length;
-      var meanKm=0, meanJaar=0, meanP=0;
-      metKmJaar.forEach(function(a){ meanKm+=a.km; meanJaar+=a.jaar; meanP+=a.prijs; });
-      meanKm/=n; meanJaar/=n; meanP/=n;
-      var Sxx=0, Sxz=0, Szz=0, Sxy=0, Szy=0;
-      metKmJaar.forEach(function(a){
-        var dk=a.km-meanKm, dj=a.jaar-meanJaar, dp=a.prijs-meanP;
-        Sxx+=dk*dk; Sxz+=dk*dj; Szz+=dj*dj; Sxy+=dk*dp; Szy+=dj*dp;
-      });
-      var det = Sxx*Szz - Sxz*Sxz;
-      if (Math.abs(det) > 1e-6 * (Sxx*Szz || 1)) {
-        var b1 = (Sxy*Szz - Szy*Sxz)/det;
-        var b2 = (Szy*Sxx - Sxy*Sxz)/det;
-        var b0 = meanP - b1*meanKm - b2*meanJaar;
-        marktwaarde = Math.max(500, Math.round(b0 + b1*km + b2*jaar));
-      }
-    }
-    if (marktwaarde == null) {
-      // Fallback: te weinig spreiding in jaar of te weinig data voor een stabiele
-      // multiple regressie — dan een enkelvoudige regressie op km.
-      n = metKm.length;
-      var sX=0,sY=0,sXY=0,sX2=0;
-      metKm.forEach(function(a){ sX+=a.km; sY+=a.prijs; sXY+=a.km*a.prijs; sX2+=a.km*a.km; });
-      var denom = n*sX2-sX*sX;
-      var sl = denom ? (n*sXY-sX*sY)/denom : 0;
-      var ic = (sY-sl*sX)/n;
-      marktwaarde = Math.max(500, Math.round(ic + sl * km));
-    }
-
-    var inruilMin = Math.round(marktwaarde * 0.70 / 50) * 50;
-    var inruilMax = Math.round(marktwaarde * 0.85 / 50) * 50;
-    return { marktwaarde: marktwaarde, inruilMin: inruilMin, inruilMax: inruilMax, n: n };
+    return CarkijkerCore.schatInruilwaarde(window._alleAutos, merk, model, km, jaar);
   }
 
   function berekenInruilwaarde() {
@@ -3957,6 +3885,7 @@ function _injectCarSchema(cars) {
     </div>
     <div class="markt-inruil">
       <div class="markt-inruil-title">&#128176; Wat is mijn auto waard?</div>
+      <p style="margin:0 0 10px;font-size:12.5px"><a href="/inruilwaarde/" target="_blank" style="color:var(--oranje)">Liever een losse pagina om te delen of te bookmarken? Open de zelfstandige inruilwaarde-tool &rarr;</a></p>
       <div class="markt-inruil-row-input">
         <label for="mInruilKm">Jouw km-stand</label>
         <input type="number" id="mInruilKm" placeholder="bv. 85000" min="0" step="1000" oninput="berekenInruilwaarde()" disabled>
