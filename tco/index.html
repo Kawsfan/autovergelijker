@@ -688,7 +688,26 @@ function applyPreset() {
   berekenMRB();
 }
 
+// Vanaf een occasion-detailpagina doorgelinkt met ?brandstof=<vrije tekst
+// van de listing zelf, bv. "Volledig elektrisch" of "Plug-in hybride"> --
+// zelfde losse substring-matching als elders in de codebase voor
+// brandstofherkenning (in plaats van een exacte match, want de listing-
+// waarde is niet gegarandeerd gelijk aan deze select's eigen 5 opties).
+function _brandstofUitQuery() {
+  var p = new URLSearchParams(location.search);
+  var raw = (p.get('brandstof') || '').toLowerCase();
+  if (!raw) return;
+  var match = /elektr/.test(raw) ? 'elektrisch'
+    : /hybr/.test(raw) ? 'hybride'
+    : /diesel/.test(raw) ? 'diesel'
+    : /lpg/.test(raw) ? 'lpg'
+    : /benzine/.test(raw) ? 'benzine'
+    : null;
+  if (match) document.getElementById('brandstof').value = match;
+}
+
 // Init
+_brandstofUitQuery();
 updatePrijs();
 updateVerzekering();
 </script>

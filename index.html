@@ -572,6 +572,14 @@
     .detail-chip.eigenaar.dealer { background: #dbeafe; color: #1a56db; }
     .detail-chip.eigenaar.particulier { background: #dcfce7; color: #16a34a; }
 
+    /* Kruislinks naar de losse rekentools (/tco/, /inruilwaarde/) -- vlak
+       vóór de klik naar de bron, dus terwijl iemand deze auto serieus
+       overweegt is precies het moment om "wat kost dit me" en "wat levert
+       mijn huidige auto op" aan te bieden. */
+    .detail-tools-links { display: flex; flex-direction: column; gap: 6px; margin: 4px 0 14px; }
+    .detail-tools-links a { font-size: 12.5px; color: var(--oranje); text-decoration: none; }
+    .detail-tools-links a:hover { text-decoration: underline; }
+
     .specs-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-bottom: 24px; }
     .spec-item { background: var(--grijs); border-radius: 8px; padding: 12px; text-align: center; }
     .spec-item .spec-icon { font-size: 20px; margin-bottom: 4px; }
@@ -2093,6 +2101,10 @@ function openDetail(id) {
         <div class="spec-item"><div class="spec-icon">📍</div><div class="spec-val" style="font-size:12px">${escHtml(a.locatie || 'Nederland')}</div><div class="spec-lbl">${(window.lang||'nl')==='en'?"Location":"Locatie"}</div></div>
         ${a.carrosserie ? `<div class="spec-item"><div class="spec-icon">🚗</div><div class="spec-val">${a.carrosserie}</div><div class="spec-lbl">${(window.lang||'nl')==='en'?"Body type":"Carrosserie"}</div></div>` : ''}
         ${(()=>{ var soh=/elektr|hybr/i.test(a.brandstof||'')?_parseSoh(a):null; return soh ? `<div class="spec-item"><div class="spec-icon">🔋</div><div class="spec-val">${soh.toLocaleString('nl-NL')}%</div><div class="spec-lbl">Accuconditie</div></div>` : ''; })()}
+      </div>
+      <div class="detail-tools-links">
+        <a href="/tco/${a.brandstof?'?brandstof='+encodeURIComponent(a.brandstof):''}" target="_blank" rel="noopener">⛽ Bereken de maandlasten van deze auto &rarr;</a>
+        <a href="/inruilwaarde/" target="_blank" rel="noopener">💰 Wat is mijn huidige auto waard? &rarr;</a>
       </div>
       ${genereerSamenvatting(a) ? `<div class="ai-samenvatting"><div class="ai-label">✦ Wat opvalt</div><p>${escHtml(genereerSamenvatting(a))}</p></div>` : ''}
       ${(()=>{

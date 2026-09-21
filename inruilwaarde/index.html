@@ -180,6 +180,15 @@
     margin-top: 8px;
     line-height: 1.5;
   }
+
+  .range-bar { position: relative; height: 10px; background: var(--border); border-radius: 5px; margin: 6px 0 8px; }
+  .range-bar-inruil { position: absolute; top: 0; bottom: 0; background: #fde68a; border-radius: 5px; }
+  .range-bar-marker {
+    position: absolute; top: -4px; width: 16px; height: 16px; border-radius: 50%;
+    background: var(--oranje); border: 2px solid #fff; box-shadow: 0 1px 4px rgba(0,0,0,.3);
+    transform: translateX(-50%);
+  }
+  .range-labels { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); }
   .warn-box {
     background: #fef3c7;
     border: 1px solid #fde68a;
@@ -307,6 +316,19 @@
     <div class="info-box">Geen officiële taxatie &mdash; de werkelijke waarde hangt ook af van onderhoudsstaat, schadeverleden en de lokale vraag. Gebruik dit als startpunt voor een onderhandeling.</div>
   </div>
 
+  <div class="card" id="rangeCard" style="display:none;">
+    <div class="card-title">Waar valt jouw auto binnen de groep?</div>
+    <div class="range-bar">
+      <div class="range-bar-inruil" id="rangeInruilSegment"></div>
+      <div class="range-bar-marker" id="rangeMarker" title="Geschatte marktwaarde"></div>
+    </div>
+    <div class="range-labels">
+      <span id="rangeMinLbl">€0</span>
+      <span style="color:#92400e">Inruilbereik</span>
+      <span id="rangeMaxLbl">€0</span>
+    </div>
+  </div>
+
   <div class="card" style="margin-top:8px;">
     <div class="card-title">Veelgestelde vragen</div>
     <div class="faq-item">
@@ -416,11 +438,13 @@ function bereken() {
   var r = CarkijkerCore.schatInruilwaarde(_autos, merk, model, km, jaar);
   var foutEl = document.getElementById('foutmelding');
   var resEl = document.getElementById('resultaten');
+  var rangeEl = document.getElementById('rangeCard');
 
   if (r.fout) {
     foutEl.textContent = r.fout;
     foutEl.style.display = '';
     resEl.style.display = 'none';
+    rangeEl.style.display = 'none';
     return;
   }
 
@@ -429,6 +453,20 @@ function bereken() {
   document.getElementById('resMarktwaarde').textContent = fmt(r.marktwaarde);
   document.getElementById('resInruil').textContent = fmt(r.inruilMin) + ' – ' + fmt(r.inruilMax);
   resEl.style.display = 'block';
+
+  // Visuele balk: waar valt de geschatte marktwaarde binnen de prijsspreiding
+  // van de vergelijkbare advertenties zelf (groepMin-groepMax), met het
+  // inruilbereik als gemarkeerd segment daarbinnen.
+  var span = Math.max(1, r.groepMax - r.groepMin);
+  var pct = function (bedrag) { return Math.min(100, Math.max(0, (bedrag - r.groepMin) / span * 100)); };
+  document.getElementById('rangeMarker').style.left = pct(r.marktwaarde) + '%';
+  var inruilMinPct = pct(r.inruilMin), inruilMaxPct = pct(r.inruilMax);
+  document.getElementById('rangeInruilSegment').style.left = inruilMinPct + '%';
+  document.getElementById('rangeInruilSegment').style.width = Math.max(0, inruilMaxPct - inruilMinPct) + '%';
+  document.getElementById('rangeMinLbl').textContent = fmt(r.groepMin);
+  document.getElementById('rangeMaxLbl').textContent = fmt(r.groepMax);
+  rangeEl.style.display = '';
+
   resEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
