@@ -13,6 +13,14 @@ const {
   resolveUrlParamNaam,
   URL_PARAM_NAAM,
   schatInruilwaarde,
+  berekenPrijsHistogram,
+  berekenJaarVerdeling,
+  berekenTopDeals,
+  berekenMerkenRanglijst,
+  modelMarktStats,
+  berekenAlleModelStats,
+  vindVergelijkbareModellen,
+  berekenRegionaleTop,
 } = require('../lib/carkijker-core');
 
 test('isDealer', async (t) => {
@@ -199,5 +207,170 @@ test('schatInruilwaarde', async (t) => {
 
   await t.test('lege lijst crasht niet', () => {
     assert.ok(schatInruilwaarde([], 'Volkswagen', 'Golf', 80000, 2019).fout);
+  });
+});
+
+test('berekenPrijsHistogram', async (t) => {
+  await t.test('lege lijst geeft null, geen crash', () => {
+    assert.equal(berekenPrijsHistogram([]), null);
+  });
+
+  await t.test('telt alle prijzen mee in de buckets als er geen uitschieters zijn', () => {
+    var prijzen = [10000, 12000, 14000, 16000, 18000, 20000];
+    var h = berekenPrijsHistogram(prijzen, 6);
+    var totaal = h.counts.reduce(function (s, c) { return s + c; }, 0);
+    assert.equal(totaal, prijzen.length);
+    assert.equal(h.buitenBereik, 0);
+  });
+
+  await t.test('een extreme uitschieter valt buiten het IQR-bereik en telt als buitenBereik', () => {
+    var prijzen = [9000, 9500, 10000, 10500, 11000, 10200, 9800, 400000];
+    var h = berekenPrijsHistogram(prijzen);
+    assert.ok(h.buitenBereik >= 1);
+    assert.ok(h.histMax < 400000);
+  });
+
+  await t.test('mediaan klopt met een simpele oneven reeks', () => {
+    var h = berekenPrijsHistogram([1000, 2000, 3000]);
+    assert.equal(h.mediaan, 2000);
+  });
+});
+
+test('berekenJaarVerdeling', async (t) => {
+  await t.test('groepeert per bouwjaar binnen 2008-huidig, telt oudere jaren niet mee', () => {
+    var lijst = [
+      { jaar: 2020 }, { jaar: 2020 }, { jaar: 2021 }, { jaar: 2005 },
+    ];
+    var v = berekenJaarVerdeling(lijst);
+    assert.deepEqual(v.jaren, [2020, 2021]);
+    assert.deepEqual(v.counts, [2, 1]);
+  });
+
+  await t.test('lege lijst crasht niet', () => {
+    var v = berekenJaarVerdeling([]);
+    assert.deepEqual(v.jaren, []);
+  });
+});
+
+test('berekenTopDeals', async (t) => {
+  function maakData() {
+    var lijst = [];
+    for (var i = 0; i < 10; i++) {
+      lijst.push({ prijs: 15000, jaar: 2018, km: 80000 });
+    }
+    // Een duidelijke uitschieter naar beneden qua prijs, verder vergelijkbaar.
+    lijst.push({ prijs: 8000, jaar: 2018, km: 80000 });
+    return lijst;
+  }
+
+  await t.test('zonder mediaan (0) geeft een lege lijst, geen crash', () => {
+    assert.deepEqual(berekenTopDeals(maakData(), 0), []);
+  });
+
+  await t.test('de opvallend goedkope advertentie komt bovenaan', () => {
+    var deals = berekenTopDeals(maakData(), 15000);
+    assert.ok(deals.length >= 1);
+    assert.equal(deals[0].advertentie.prijs, 8000);
+    assert.ok(deals[0].pct < 0);
+  });
+
+  await t.test('respecteert de limit-parameter', () => {
+    var lijst = [];
+    for (var i = 0; i < 20; i++) lijst.push({ prijs: 5000 + i * 10, jaar: 2018, km: 80000 });
+    var deals = berekenTopDeals(lijst, 15000, 3);
+    assert.equal(deals.length, 3);
+  });
+});
+
+test('berekenMerkenRanglijst', async (t) => {
+  function maakData() {
+    var lijst = [];
+    for (var i = 0; i < 25; i++) lijst.push({ merk: 'Volkswagen', prijs: 15000 });
+    for (var j = 0; j < 5; j++) lijst.push({ merk: 'Dacia', prijs: 8000 });
+    lijst.push({ merk: 'overig', prijs: 5000 }); // moet genegeerd worden
+    return lijst;
+  }
+
+  await t.test('topVolume sorteert op aantal advertenties', () => {
+    var r = berekenMerkenRanglijst(maakData());
+    assert.equal(r.topVolume[0].merk, 'Volkswagen');
+    assert.equal(r.topVolume[0].n, 25);
+  });
+
+  await t.test('"overig" telt niet mee als merk', () => {
+    var r = berekenMerkenRanglijst(maakData());
+    assert.ok(!r.topVolume.some(function (m) { return m.merk === 'overig'; }));
+  });
+
+  await t.test('topGoedkoop vereist minimaal 20 advertenties, Dacia (n=5) valt dus af', () => {
+    var r = berekenMerkenRanglijst(maakData());
+    assert.ok(!r.topGoedkoop.some(function (m) { return m.merk === 'Dacia'; }));
+    assert.ok(r.topGoedkoop.some(function (m) { return m.merk === 'Volkswagen'; }));
+  });
+});
+
+test('modelMarktStats en vindVergelijkbareModellen', async (t) => {
+  function maakData() {
+    var lijst = [];
+    for (var i = 0; i < 10; i++) lijst.push({ merk: 'Volkswagen', model: 'Golf', prijs: 15000, km: 80000 + i * 1000 });
+    for (var j = 0; j < 8; j++) lijst.push({ merk: 'Volkswagen', model: 'Polo', prijs: 12000, km: 70000 + j * 1000 });
+    for (var k = 0; k < 6; k++) lijst.push({ merk: 'Skoda', model: 'Octavia', prijs: 40000, km: 60000 + k * 1000 });
+    return lijst;
+  }
+
+  await t.test('modelMarktStats geeft null bij te weinig advertenties', () => {
+    assert.equal(modelMarktStats([{ merk: 'X', model: 'Y', prijs: 1000 }], 'X', 'Y'), null);
+  });
+
+  await t.test('modelMarktStats berekent een mediaan en n', () => {
+    var s = modelMarktStats(maakData(), 'Volkswagen', 'Golf');
+    assert.equal(s.mediaan, 15000);
+    assert.equal(s.n, 10);
+  });
+
+  await t.test('berekenAlleModelStats levert voor elk segment met n>=5 exact hetzelfde als modelMarktStats', () => {
+    var alle = berekenAlleModelStats(maakData());
+    var golf = alle.find(function (s) { return s.merk === 'Volkswagen' && s.model === 'Golf'; });
+    assert.deepEqual(golf, modelMarktStats(maakData(), 'Volkswagen', 'Golf'));
+  });
+
+  await t.test('vindVergelijkbareModellen kiest het model met de dichtstbijzijnde mediaanprijs, sluit zichzelf uit', () => {
+    var alle = berekenAlleModelStats(maakData());
+    var r = vindVergelijkbareModellen(alle, 'Volkswagen', 'Golf', 2);
+    assert.ok(r.vergelijkbaar.length >= 1);
+    assert.ok(!r.vergelijkbaar.some(function (s) { return s.merk === 'Volkswagen' && s.model === 'Golf'; }));
+    // Polo (€12.000) ligt dichter bij Golf (€15.000) dan Octavia (€40.000).
+    assert.equal(r.vergelijkbaar[0].model, 'Polo');
+  });
+
+  await t.test('geen basis-model geeft null', () => {
+    var alle = berekenAlleModelStats(maakData());
+    assert.equal(vindVergelijkbareModellen(alle, 'Onbekend', 'Merk', 2), null);
+  });
+});
+
+test('berekenRegionaleTop', async (t) => {
+  function maakData() {
+    var lijst = [];
+    for (var i = 0; i < 6; i++) lijst.push({ prijs: 15000, locatie: 'Utrecht' });
+    for (var j = 0; j < 4; j++) lijst.push({ prijs: 20000, locatie: 'Amsterdam' });
+    lijst.push({ prijs: 12000, locatie: 'Zwolle' }); // n=1, valt onder de drempel van 3
+    return lijst;
+  }
+
+  await t.test('te weinig advertenties met locatie geeft null', () => {
+    assert.equal(berekenRegionaleTop([{ prijs: 15000, locatie: 'Utrecht' }]), null);
+  });
+
+  await t.test('sorteert steden op advertentie-aantal, sluit steden onder de drempel uit', () => {
+    var r = berekenRegionaleTop(maakData());
+    assert.equal(r.steden[0].locatie, 'Utrecht');
+    assert.equal(r.steden[0].n, 6);
+    assert.ok(!r.steden.some(function (s) { return s.locatie === 'Zwolle'; }));
+  });
+
+  await t.test('landelijkMediaan wordt over de hele subset (met locatie) berekend', () => {
+    var r = berekenRegionaleTop(maakData());
+    assert.equal(r.landelijkN, 11);
   });
 });
