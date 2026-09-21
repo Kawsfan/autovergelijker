@@ -83,6 +83,16 @@ function dealBadgeHtml(score) {
   return '<span style="background:' + kleur.bg + ';color:' + kleur.fg + ';font-size:11px;font-weight:700;padding:2px 7px;border-radius:10px;white-space:nowrap">' + Math.round(score) + ' score</span>';
 }
 
+// Statische tegenhanger van de .auto-deal-pill-tooltip op de site (mail kan
+// geen hover/tap-toggle tonen, dus meteen de korte tekst zelf) -- juist hier
+// belangrijk: een lezer klikt vaak direct vanuit de mail door naar de bron,
+// zonder eerst de site (en dus de tooltip) te zien.
+function verdachtGoedkoopHtml(a) {
+  if (!a.verdachtGoedkoop) return '';
+  return '<div style="background:#fef3c7;color:#92400e;font-size:11.5px;font-weight:600;padding:4px 8px;border-radius:6px;margin-top:4px">' +
+    '&#9888; Prijs wijkt sterk af van vergelijkbare auto\'s -- controleer deze advertentie extra goed.</div>';
+}
+
 // isBeste: zet een "BESTE DEAL"-label op de eerste (dus na sortering de
 // hoogst scorende) rij van een sectie, zodat de klant niet zelf per rij
 // de dealScore hoeft te vergelijken.
@@ -103,6 +113,7 @@ function autoRijHtml(a, extra, isBeste) {
     '<a href="' + escHtml(a.url) + '" target="_blank" style="font-weight:600;color:#1a1a2e;text-decoration:none;display:block;margin-bottom:2px">' + escHtml(a.titel) + '</a>' +
     '<span style="color:#d14413;font-weight:700;font-size:15px">' + (a.prijs ? '&euro; ' + fmt(a.prijs) : 'Prijs op aanvraag') + '</span> ' + dealBadgeHtml(a.dealScore) +
     '<div style="color:#888;font-size:13px;margin-top:2px">' + (a.jaar || '') + (a.km != null ? ' &middot; ' + fmt(a.km) + ' km' : '') + (a.bron ? ' &middot; ' + escHtml(a.bron) : '') + '</div>' +
+    verdachtGoedkoopHtml(a) +
     (extra ? '<div style="margin-top:2px">' + extra + '</div>' : '') +
     '</td></tr>';
 }

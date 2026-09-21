@@ -232,6 +232,13 @@ function renderAutoCard(a, fallbackTitel) {
   const dealPill = (a.dealScore != null && a.dealScore > 0)
     ? '<button type="button" class="auto-deal-pill" onclick="_toggleDealTip(event)" data-tip="Dealscore: vergelijkt prijs met soortgelijke occasions' + (a.dealBasis === 'regressie' ? ', gecorrigeerd voor bouwjaar en km-stand' : '') + '. Groen (60+) = goede deal, rood (<35) = duur." style="background:' + dealKleur.bg + ';color:' + dealKleur.fg + '">' + Math.round(a.dealScore) + ' score</button>'
     : '';
+  // Zelfde "controleer extra goed"-badge als index.html (lib/dealscore.js
+  // zet verdachtGoedkoop al op het listing-object zelf, dus puur renderwerk
+  // hier) -- ook hier belangrijk, want bezoekers vanuit Google komen vaak
+  // hier als eerste binnen, niet via de homepage.
+  const verdachtPill = a.verdachtGoedkoop
+    ? '<button type="button" class="auto-deal-pill" onclick="_toggleDealTip(event)" data-tip="Prijs wijkt statistisch sterk af van vergelijkbare auto\'s. Vaak een unieke koopje-vondst, maar wees extra alert: nooit vooruitbetalen, auto altijd fysiek bekijken." style="background:#fef3c7;color:#92400e">⚠ Extra check</button>'
+    : '';
   return '<a href="' + escHtml(outUrl(a.url, a.bron)) + '" target="_blank" rel="noopener noreferrer" class="auto-card" itemscope itemtype="https://schema.org/Car"' +
     ' data-out data-bron="' + escHtml(a.bron || '') + '" data-merk="' + escHtml(a.merk || '') + '" data-prijs="' + (a.prijs || '') + '">' +
     '<div class="auto-foto">' +
@@ -242,7 +249,7 @@ function renderAutoCard(a, fallbackTitel) {
     '<h3 itemprop="name">' + escHtml(titel) + '</h3>' +
     '<div class="auto-prijs-groot" itemprop="offers" itemscope itemtype="https://schema.org/Offer"><span itemprop="price" content="' + (a.prijs || '') + '">' + (a.prijs ? '&euro; ' + fmt(a.prijs) : 'Prijs op aanvraag') + '</span><meta itemprop="priceCurrency" content="EUR"></div>' +
     '<div class="auto-specs-row">' + specs + '</div>' +
-    (a.bron || dealPill ? '<div class="auto-card-footer"><span class="auto-bron-tag" style="color:' + bronKleur + '">' + escHtml(a.bron || '') + '</span>' + dealPill + '</div>' : '') +
+    (a.bron || dealPill || verdachtPill ? '<div class="auto-card-footer"><span class="auto-bron-tag" style="color:' + bronKleur + '">' + escHtml(a.bron || '') + '</span>' + dealPill + verdachtPill + '</div>' : '') +
     '</div></a>';
 }
 function cap(s) { return s ? s.charAt(0).toUpperCase() + s.slice(1) : ''; }

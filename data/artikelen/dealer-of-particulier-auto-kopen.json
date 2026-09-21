@@ -8,11 +8,11 @@
   "bijgewerkt": "2026-09-17",
   "auteur": "Carkijker redactie",
   "leestijdMinuten": 6,
-  "intro": "Dezelfde auto kan bij een dealer en bij een particulier te koop staan voor een heel ander bedrag — en met een heel ander vangnet als er iets misgaat. Dit is het praktische verschil, zodat je zelf kunt bepalen wat voor jouw situatie zwaarder weegt: prijs of zekerheid.",
+  "intro": "Dezelfde auto kan bij een dealer en bij een particulier te koop staan voor een heel ander bedrag, met een heel ander vangnet als er iets misgaat. Dit is het praktische verschil, zodat je zelf kunt bepalen wat voor jouw situatie zwaarder weegt: prijs of zekerheid.",
   "secties": [
     {
       "kop": "Het belangrijkste verschil: wettelijke bescherming",
-      "html": "<p>Koop je van een handelaar (dealer, garage, autobedrijf), dan geldt de wettelijke regel dat een gebrek dat zich binnen de eerste 6 maanden na aflevering openbaart, wordt verondersteld er al bij aflevering te zijn geweest — de verkoper moet dan bewijzen dat dit niet zo was, niet jij. Koop je van een particulier, dan geldt deze bescherming niet: je koopt in beginsel 'zoals gezien', tenzij je zelf specifieke garantie-afspraken schriftelijk vastlegt.</p>"
+      "html": "<p>Koop je van een handelaar (dealer, garage, autobedrijf), dan geldt de wettelijke regel dat een gebrek dat zich binnen de eerste 6 maanden na aflevering openbaart, wordt verondersteld er al bij aflevering te zijn geweest: de verkoper moet dan bewijzen dat dit niet zo was, niet jij. Koop je van een particulier, dan geldt deze bescherming niet: je koopt in beginsel 'zoals gezien', tenzij je zelf specifieke garantie-afspraken schriftelijk vastlegt.</p>"
     },
     {
       "kop": "Prijsverschil: waar komt dat vandaan?",
@@ -20,11 +20,11 @@
     },
     {
       "kop": "BOVAG-garantie: wat houdt dat precies in?",
-      "html": "<p>Een BOVAG-lidbedrijf (op Carkijker herkenbaar aan de bron ViaBOVAG) is verplicht een minimale garantietermijn te bieden die afhangt van de leeftijd en km-stand van de auto — bij jongere, laag-kilometer occasions langer dan bij oudere. Deze garantie dekt in elk geval de belangrijkste mechanische onderdelen. Vraag bij een BOVAG-dealer altijd naar de exacte garantietermijn en wat er wel/niet onder valt voordat je tekent.</p>"
+      "html": "<p>Een BOVAG-lidbedrijf (op Carkijker herkenbaar aan de bron ViaBOVAG) is verplicht een minimale garantietermijn te bieden die afhangt van de leeftijd en km-stand van de auto: bij jongere, laag-kilometer occasions langer dan bij oudere. Deze garantie dekt in elk geval de belangrijkste mechanische onderdelen. Vraag bij een BOVAG-dealer altijd naar de exacte garantietermijn en wat er wel/niet onder valt voordat je tekent.</p>"
     },
     {
       "kop": "Hoe herken je dealer of particulier in een advertentie?",
-      "html": "<p>Carkijker toont waar mogelijk automatisch een <strong>DEALER</strong>- of <strong>PRIVÉ</strong>-badge op elke advertentiekaart. Advertenties van Gaspedaal, ViaBOVAG en AutoScout24 zijn altijd dealeraanbod; op Marktplaats — de enige bron met echte particuliere verkopers — wordt een advertentie als dealer herkend zodra de titel woorden als 'dealer', 'garage' of 'autobedrijf' bevat, en anders als particulier aangemerkt. Bij een enkele bron waar dit onderscheid niet met zekerheid te maken is, blijft de badge bewust weg in plaats van te gokken.</p>"
+      "html": "<p>Carkijker toont waar mogelijk automatisch een <strong>DEALER</strong>- of <strong>PRIVÉ</strong>-badge op elke advertentiekaart. Advertenties van Gaspedaal, ViaBOVAG en AutoScout24 zijn altijd dealeraanbod; op Marktplaats, de enige bron met echte particuliere verkopers, wordt een advertentie als dealer herkend zodra de titel woorden als 'dealer', 'garage' of 'autobedrijf' bevat, en anders als particulier aangemerkt. Bij een enkele bron waar dit onderscheid niet met zekerheid te maken is, blijft de badge bewust weg in plaats van te gokken.</p>"
     },
     {
       "kop": "Praktische tips per situatie",
@@ -32,13 +32,13 @@
     },
     {
       "kop": "Wat is voor jou de beste keuze?",
-      "html": "<p>Zoek je de laagste prijs en ben je bereid zelf het risico en de keuring te regelen, dan is een particuliere aankoop vaak voordeliger. Hecht je meer waarde aan zekerheid achteraf en een aanspreekpunt bij problemen, dan weegt de meerprijs van een dealer vaak op tegen het risico. Beide opties staan gewoon naast elkaar op Carkijker — gebruik de badge en het prijsverschil om zelf de afweging te maken.</p>"
+      "html": "<p>Zoek je de laagste prijs en ben je bereid zelf het risico en de keuring te regelen, dan is een particuliere aankoop vaak voordeliger. Hecht je meer waarde aan zekerheid achteraf en een aanspreekpunt bij problemen, dan weegt de meerprijs van een dealer vaak op tegen het risico. Beide opties staan gewoon naast elkaar op Carkijker: gebruik de badge en het prijsverschil om zelf de afweging te maken.</p>"
     }
   ],
   "faq": [
     { "vraag": "Heb ik garantie als ik een auto van een particulier koop?", "antwoord": "Niet automatisch. Bij een particuliere verkoop koop je in beginsel 'zoals gezien', tenzij je zelf schriftelijk afspraken maakt over garantie of het herstellen van specifieke gebreken. De wettelijke bescherming die bij een handelaar geldt (gebreken binnen 6 maanden worden verondersteld er al te zijn geweest) is hier niet van toepassing." },
-    { "vraag": "Is een auto bij een dealer altijd duurder dan bij een particulier?", "antwoord": "Vaak wel, omdat een dealer marge, keuringskosten en garantie moet doorberekenen. Het verschil hangt af van merk, model en de conditie van het specifieke exemplaar — vergelijk daarom altijd meerdere advertenties van hetzelfde model." },
-    { "vraag": "Wat betekent een BOVAG-garantie precies?", "antwoord": "Een BOVAG-lidbedrijf is verplicht een minimale garantietermijn te bieden die afhangt van de leeftijd en kilometerstand van de auto, en dekt in elk geval de belangrijkste mechanische onderdelen. De exacte duur en dekking verschillen per auto — vraag dit altijd na bij de dealer." },
+    { "vraag": "Is een auto bij een dealer altijd duurder dan bij een particulier?", "antwoord": "Vaak wel, omdat een dealer marge, keuringskosten en garantie moet doorberekenen. Het verschil hangt af van merk, model en de conditie van het specifieke exemplaar. Vergelijk daarom altijd meerdere advertenties van hetzelfde model." },
+    { "vraag": "Wat betekent een BOVAG-garantie precies?", "antwoord": "Een BOVAG-lidbedrijf is verplicht een minimale garantietermijn te bieden die afhangt van de leeftijd en kilometerstand van de auto, en dekt in elk geval de belangrijkste mechanische onderdelen. De exacte duur en dekking verschillen per auto. Vraag dit altijd na bij de dealer." },
     { "vraag": "Hoe weet ik of een advertentie op Carkijker van een dealer of particulier is?", "antwoord": "Carkijker toont waar mogelijk automatisch een DEALER- of PRIVÉ-badge op de advertentiekaart, gebaseerd op de bron van de advertentie en signaalwoorden in de titel. Bij een klein aantal bronnen is dit onderscheid niet met zekerheid te maken en blijft de badge weg." }
   ],
   "gerelateerd": [

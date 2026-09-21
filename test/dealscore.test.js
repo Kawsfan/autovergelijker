@@ -13,6 +13,8 @@ const {
   scoreVanZ,
   berekenGroepStatistieken,
   berekenRegressieCoef,
+  mediaan,
+  berekenRobuusteStatistieken,
   berekenDealScores,
 } = require('../lib/dealscore');
 
@@ -81,6 +83,35 @@ test('berekenGroepStatistieken', async (t) => {
   });
 });
 
+test('mediaan', async (t) => {
+  await t.test('oneven aantal: middelste waarde', () => {
+    assert.equal(mediaan([3, 1, 2]), 2);
+  });
+
+  await t.test('even aantal: gemiddelde van de twee middelste waarden', () => {
+    assert.equal(mediaan([1, 2, 3, 4]), 2.5);
+  });
+
+  await t.test('laat de invoer-array ongemoeid (geen mutatie)', () => {
+    const invoer = [3, 1, 2];
+    mediaan(invoer);
+    assert.deepEqual(invoer, [3, 1, 2]);
+  });
+});
+
+test('berekenRobuusteStatistieken', async (t) => {
+  await t.test('blijft stabiel bij één extreme uitschieter, i.t.t. gemiddelde/std', () => {
+    // 9 prijzen rond de 20.000-29.000, 1 extreme uitschieter (2.000).
+    const prijzen = [20000, 21000, 22000, 23000, 24000, 25000, 26000, 27000, 28000, 29000, 2000];
+    const { mediaan: m, mad } = berekenRobuusteStatistieken(prijzen);
+    assert.equal(m, 24000, 'mediaan moet ongevoelig zijn voor de uitschieter');
+    // De uitschieter zelf moet ver onder mediaan - 4*mad liggen (dat is
+    // precies het hele punt: mad blijft klein, ook al zit de uitschieter
+    // IN de invoerreeks).
+    assert.ok(2000 <= m - 4 * mad, 'de uitschieter moet ruim onder de drempel vallen, mad=' + mad);
+  });
+});
+
 test('berekenRegressieCoef', async (t) => {
   await t.test('herkent een perfect lineair prijsverband (jonger = duurder)', () => {
     // Synthetische, ruisvrije dataset: prijs daalt exact €1000 per jaar ouder.
@@ -146,6 +177,56 @@ test('berekenDealScores -- regressiepad (>=8 complete datapunten in de groep)', 
     const norm = items.find(l => l.id === 'norm-5');
     assert.ok(norm.afschrijvingJaar > 0, 'afschrijvingJaar moet positief zijn');
     assert.ok(Math.abs(norm.afschrijvingJaar - 1000) < 50, 'verwachtte ~1000, kreeg ' + norm.afschrijvingJaar);
+  });
+});
+
+test('berekenDealScores -- verdachtGoedkoop-badge', async (t) => {
+  // Zelfde basisgroep als hierboven, plus een extreme uitschieter die een
+  // fractie van de rest van de groep kost -- precies het "te mooi om waar te
+  // zijn"-scenario dat de badge moet opvangen.
+  function maakGroepMetUitschieter() {
+    const items = [];
+    for (let i = 0; i < 10; i++) {
+      const jaar = 2015 + i;
+      const km = 50000 + (i % 3) * 7000;
+      items.push({ id: 'norm-' + i, merk: 'Volkswagen', model: 'Golf', jaar, km, prijs: 30000 - (2025 - jaar) * 1000 });
+    }
+    items.push({ id: 'koopje', merk: 'Volkswagen', model: 'Golf', jaar: 2020, km: 57000, prijs: 15000 });
+    items.push({ id: 'extreem', merk: 'Volkswagen', model: 'Golf', jaar: 2020, km: 57000, prijs: 3000 });
+    items.push({ id: 'duur', merk: 'Volkswagen', model: 'Golf', jaar: 2020, km: 57000, prijs: 40000 });
+    return items;
+  }
+
+  await t.test('een extreme prijsuitschieter krijgt de verdachtGoedkoop-badge', () => {
+    const items = maakGroepMetUitschieter();
+    berekenDealScores(items);
+    const extreem = items.find(l => l.id === 'extreem');
+    assert.equal(extreem.verdachtGoedkoop, true);
+  });
+
+  await t.test('een gewoon goede deal (geen extreme uitschieter) krijgt de badge NIET', () => {
+    const items = maakGroepMetUitschieter();
+    berekenDealScores(items);
+    const koopje = items.find(l => l.id === 'koopje');
+    assert.ok(koopje.dealScore > 60, 'koopje moet alsnog een hoge dealscore krijgen');
+    assert.equal(koopje.verdachtGoedkoop, undefined);
+  });
+
+  await t.test('normale advertenties in de groep krijgen de badge niet', () => {
+    const items = maakGroepMetUitschieter();
+    berekenDealScores(items);
+    const normalen = items.filter(l => l.id.startsWith('norm-'));
+    for (const l of normalen) assert.equal(l.verdachtGoedkoop, undefined, l.id + ' had onterecht verdachtGoedkoop');
+  });
+
+  await t.test('een te kleine groep (<5 prijzen) krijgt nooit de badge, ook niet bij een lage prijs', () => {
+    const items = [
+      { id: 'a', merk: 'Lada', model: 'Niva', jaar: 2018, km: 80000, prijs: 8000 },
+      { id: 'b', merk: 'Lada', model: 'Niva', jaar: 2019, km: 70000, prijs: 9000 },
+      { id: 'c', merk: 'Lada', model: 'Niva', jaar: 2020, km: 60000, prijs: 500 }, // extreem goedkoop, maar te kleine groep
+    ];
+    berekenDealScores(items);
+    for (const l of items) assert.equal(l.verdachtGoedkoop, undefined, l.id + ' had onterecht verdachtGoedkoop');
   });
 });
 

@@ -1903,6 +1903,7 @@ function toonResultaten(lijst) {
         <div class="auto-card-footer">
           <span class="auto-bron-tag" style="color:${({'Marktplaats':'#0063D3','Gaspedaal':'#E87722','ViaBovag':'#003082','AutoScout24':'#FF6600','AutoTrack':'#1B5FA8'})[a.bron]||'#9ca3af'}">${a.bron||'—'}</span>
           ${(a.dealScore!=null&&a.dealScore>0)?'<button type="button" class="auto-deal-pill" onclick="_toggleDealTip(event)" data-tip="Dealscore: vergelijkt prijs met soortgelijke occasions'+(a.dealBasis==='regressie'?', gecorrigeerd voor bouwjaar en km-stand':'')+'. Groen (60+) = goede deal, rood (<35) = duur." style="background:'+CarkijkerCore.dealScoreKleur(a.dealScore).bg+';color:'+CarkijkerCore.dealScoreKleur(a.dealScore).fg+'">'+Math.round(a.dealScore)+' score</button>':''}
+          ${a.verdachtGoedkoop?'<button type="button" class="auto-deal-pill" onclick="_toggleDealTip(event)" data-tip="Prijs wijkt statistisch sterk af van vergelijkbare auto\'s. Vaak een unieke koopje-vondst, maar wees extra alert: nooit vooruitbetalen, auto altijd fysiek bekijken." style="background:#fef3c7;color:#92400e">⚠ Extra check</button>':''}
         </div></div>
     </div>`);
     // Tier 2: één rustige, gereserveerde advertentieplek na de 8e kaart op
@@ -2069,6 +2070,9 @@ function openDetail(id) {
           var dsBg = dsKleur.bg;
           var dsCol = dsKleur.fg;
           chips += '<button type="button" class="auto-deal-pill" onclick="_toggleDealTip(event)" data-tip="Dealscore: vergelijkt prijs met soortgelijke occasions'+(a.dealBasis==='regressie'?', gecorrigeerd voor bouwjaar en km-stand':'')+'. Groen (60+) = goede deal, rood (<35) = duur." style="background:'+dsBg+';color:'+dsCol+'">'+Math.round(a.dealScore)+' score</button>';
+        }
+        if (a.verdachtGoedkoop) {
+          chips += '<button type="button" class="auto-deal-pill" onclick="_toggleDealTip(event)" data-tip="Prijs wijkt statistisch sterk af van vergelijkbare auto\'s. Vaak een unieke koopje-vondst, maar wees extra alert: nooit vooruitbetalen, auto altijd fysiek bekijken." style="background:#fef3c7;color:#92400e">⚠ Extra check</button>';
         }
         if (a.eersteGezien) {
           var _d = Math.round((Date.now()-new Date(a.eersteGezien+'T12:00:00').getTime())/86400000);

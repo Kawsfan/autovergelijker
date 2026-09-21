@@ -12,7 +12,7 @@
   "secties": [
     {
       "kop": "Waarom is een checklist bij een occasion belangrijk?",
-      "html": "<p>Bij een tweedehands auto zie je alleen wat de verkoper laat zien. Een vaste volgorde van checks voorkomt dat je iets vergeet onder de druk van een leuke auto of een verkoper die staat te wachten. De meeste dure fouten &mdash; een gemanipuleerde kilometerteller, een verzwegen schadeverleden, een APK die over twee weken verloopt &mdash; zijn met vijf minuten controle vooraf te voorkomen.</p>"
+      "html": "<p>Bij een tweedehands auto zie je alleen wat de verkoper laat zien. Een vaste volgorde van checks voorkomt dat je iets vergeet onder de druk van een leuke auto of een verkoper die staat te wachten. De meeste dure fouten, zoals een gemanipuleerde kilometerteller, een verzwegen schadeverleden of een APK die over twee weken verloopt, zijn met vijf minuten controle vooraf te voorkomen.</p>"
     },
     {
       "kop": "1. Check de NAP-kilometerstand",
@@ -36,7 +36,7 @@
     },
     {
       "kop": "6. Vergelijk de vraagprijs met de markt",
-      "html": "<p>Een prijs die duidelijk onder vergelijkbare occasions ligt, is zelden toeval. Vergelijk merk, model, bouwjaar en km-stand met soortgelijke advertenties &mdash; bijvoorbeeld via de <a href=\"/\">marktanalyse op Carkijker</a> of het <a href=\"/occasions/\">volledige occasion-aanbod per merk</a> &mdash; om te zien of de vraagprijs realistisch is.</p>"
+      "html": "<p>Een prijs die duidelijk onder vergelijkbare occasions ligt, is zelden toeval. Vergelijk merk, model, bouwjaar en km-stand met soortgelijke advertenties (bijvoorbeeld via de <a href=\"/\">marktanalyse op Carkijker</a> of het <a href=\"/occasions/\">volledige occasion-aanbod per merk</a>) om te zien of de vraagprijs realistisch is.</p>"
     },
     {
       "kop": "7. Check of het een particuliere of zakelijke verkoop is",
