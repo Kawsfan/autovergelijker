@@ -62,10 +62,41 @@ create policy "zoekagenten_update_own" on public.zoekagenten
 create policy "zoekagenten_delete_own" on public.zoekagenten
   for delete using (auth.uid() = user_id);
 
--- Index voor de veelgebruikte "haal alle favorieten/agenten van deze
--- gebruiker op"-query.
+-- Browser-pushabonnementen (Web Push/VAPID) -- slaat op wat de browser bij
+-- PushManager.subscribe() teruggeeft (endpoint + p256dh/auth-sleutels), zodat
+-- scripts/send-notifications.js buiten een browsersessie om een melding kan
+-- sturen zodra er een prijsdaling op een favoriet of een nieuwe zoekagent-
+-- match is. Zie lib/webpush.js voor de dependency-vrije Web Push-encryptie.
+create table if not exists public.push_subscriptions (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  endpoint text not null,
+  p256dh text not null,
+  auth text not null,
+  created_at timestamptz not null default now(),
+  unique (user_id, endpoint)
+);
+
+alter table public.push_subscriptions enable row level security;
+
+create policy "push_subscriptions_select_own" on public.push_subscriptions
+  for select using (auth.uid() = user_id);
+create policy "push_subscriptions_insert_own" on public.push_subscriptions
+  for insert with check (auth.uid() = user_id);
+-- Zelfde reden als favorites_update_own hierboven: index.html doet een
+-- upsert(..., {onConflict:'user_id,endpoint'}) zodat opnieuw inschakelen op
+-- hetzelfde apparaat geen duplicaatrij aanmaakt -- dat raakt bij een
+-- bestaand abonnement het UPDATE-pad, niet INSERT.
+create policy "push_subscriptions_update_own" on public.push_subscriptions
+  for update using (auth.uid() = user_id) with check (auth.uid() = user_id);
+create policy "push_subscriptions_delete_own" on public.push_subscriptions
+  for delete using (auth.uid() = user_id);
+
+-- Index voor de veelgebruikte "haal alle favorieten/agenten/abonnementen van
+-- deze gebruiker op"-query.
 create index if not exists favorites_user_id_idx on public.favorites(user_id);
 create index if not exists zoekagenten_user_id_idx on public.zoekagenten(user_id);
+create index if not exists push_subscriptions_user_id_idx on public.push_subscriptions(user_id);
 
 -- Client-side foutmonitoring: index.html stuurt onafgevangen JS-fouten en
 -- unhandled promise rejections hierheen (rechtstreekse REST-call, los van

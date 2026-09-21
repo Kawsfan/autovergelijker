@@ -25,6 +25,13 @@
   <script>
     window.SUPABASE_URL = 'https://xbuznnkrkfdsjyjkarjo.supabase.co';
     window.SUPABASE_ANON_KEY = 'sb_publishable_e4kljbGegfh2jVD92MsDKA_XSGQf-sP';
+    // Publieke VAPID-sleutel voor browser-pushmeldingen (favorieten-
+    // prijsdalingen, nieuwe zoekagent-matches) -- net als de Supabase
+    // anon-key hierboven is dit bewust een PUBLIEKE sleutel, veilig in
+    // frontend-code. De bijbehorende privésleutel staat alleen als
+    // VAPID_PRIVATE_KEY GitHub Actions-secret, gebruikt door
+    // scripts/send-notifications.js (lib/webpush.js) om te versturen.
+    window.VAPID_PUBLIC_KEY = 'BIOmxYhz2WdlY9hRvFr2ExOWUOoeefPPbjH3iaNzqI5mSi-EZ6hilE_EpqZE0blE60gwyVie_HLp_OgterlWmLU';
   </script>
 
   <!-- Client-side foutmonitoring: was een blinde vlek (kritiek rapport-punt --
@@ -1000,7 +1007,7 @@
     <button class="lang-btn" data-lang="en" onclick="setLang('en')">EN</button>
   </div>
   
-  <button class="info-btn" id="accountNavBtn" onclick="gtag('event','account_modal_open');document.getElementById('accountModal').style.display='flex'" style="display:none">&#128100;<span class="nav-txt" id="accountNavTxt"> Inloggen</span></button>
+  <button class="info-btn" id="accountNavBtn" onclick="gtag('event','account_modal_open');document.getElementById('accountModal').style.display='flex';if(typeof accountPushStatusVerversen==='function')accountPushStatusVerversen()" style="display:none">&#128100;<span class="nav-txt" id="accountNavTxt"> Inloggen</span></button>
   <button class="info-btn" id="agentNavBtn" onclick="openAgent()">&#128276;<span class="nav-txt"> Zoekagent</span></button>
   <button class="info-btn" onclick="openMarkt()">&#128202;<span class="nav-txt"> Markt</span></button>
   <a href="/tco/" class="info-btn" style="text-decoration:none;">⛽<span class="nav-txt"> Kosten</span></a>
@@ -3742,6 +3749,7 @@ function sluitMarkt() {
 <div id="accountIngelogd" style="display:none">
   <p style="margin:0 0 6px;font-size:.9rem">Ingelogd als <strong id="accountEmailWeergave"></strong></p>
   <p style="margin:0 0 16px;color:var(--subtekst);font-size:.85rem">Je favorieten en zoekagenten worden gesynchroniseerd.</p>
+  <button id="accountPushBtn" class="btn" onclick="accountPushToggle()" style="width:100%;margin-bottom:10px">🔔 Pushmeldingen inschakelen</button>
   <button class="btn" onclick="accountUitloggen()" style="width:100%">Uitloggen</button>
 </div>
 <p id="accountMsg" style="margin:12px 0 0;font-size:.85rem;color:var(--accent)"></p>
@@ -4710,11 +4718,82 @@ function setMerkFilter(merk) {
       var emailEl = document.getElementById('accountEmailWeergave');
       if (emailEl) emailEl.textContent = _gebruiker.email;
       window.accountToonModus('ingelogd');
+      _updPushBtn();
     } else {
       if (navTxt) navTxt.textContent = ' Inloggen';
       window.accountToonModus('login');
     }
   }
+
+  // ── Pushmeldingen (favorieten-prijsdalingen, nieuwe zoekagent-matches) ──
+  // Volledig additief, net als de rest van deze accounts-laag: browsers
+  // zonder Push API (bv. Safari op iOS buiten een geïnstalleerde PWA) tonen
+  // gewoon geen werkende knop i.p.v. een fout. VAPID_PUBLIC_KEY (zie <head>)
+  // moet Uint8Array zijn voor pushManager.subscribe() -- de browser accepteert
+  // geen base64url-string rechtstreeks.
+  function _urlBase64ToUint8Array(base64String){
+    var padding = '='.repeat((4 - base64String.length % 4) % 4);
+    var base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+    var raw = atob(base64);
+    var out = new Uint8Array(raw.length);
+    for (var i = 0; i < raw.length; i++) out[i] = raw.charCodeAt(i);
+    return out;
+  }
+  function _pushOndersteund(){
+    return 'serviceWorker' in navigator && 'PushManager' in window
+      && typeof window.VAPID_PUBLIC_KEY === 'string' && window.VAPID_PUBLIC_KEY.length > 0;
+  }
+  function _updPushBtn(sub){
+    var btn = document.getElementById('accountPushBtn');
+    if (!btn) return;
+    if (!_pushOndersteund()) { btn.style.display = 'none'; return; }
+    btn.style.display = '';
+    if (sub !== undefined) { _huidigeSub = sub; }
+    btn.textContent = _huidigeSub ? '🔕 Pushmeldingen uitschakelen' : '🔔 Pushmeldingen inschakelen';
+  }
+  var _huidigeSub = null;
+  function _pushHuidigAbonnement(){
+    return navigator.serviceWorker.ready.then(function(reg){ return reg.pushManager.getSubscription(); });
+  }
+  // Ververst de knoptekst bij het openen van de modal (bv. na inschakelen op
+  // een ander apparaat) i.p.v. te vertrouwen op de state van dít bezoek alleen.
+  function _verversPushBtn(){
+    if (!_gebruiker || !_pushOndersteund()) return;
+    _pushHuidigAbonnement().then(_updPushBtn).catch(function(){});
+  }
+  window.accountPushStatusVerversen = _verversPushBtn;
+  window.accountPushToggle = function(){
+    if (!_gebruiker || !_pushOndersteund()) return;
+    var btn = document.getElementById('accountPushBtn');
+    if (btn) btn.disabled = true;
+    _pushHuidigAbonnement().then(function(sub){
+      if (sub) {
+        // Uitschakelen: eerst de cloud-rij verwijderen (endpoint is de sleutel,
+        // niet afhankelijk van of unsubscribe() lokaal slaagt), dan pas lokaal
+        // unsubscriben -- zo blijft er nooit een dode rij achter als de laatste
+        // stap om wat voor reden dan ook faalt.
+        return _sb.from('push_subscriptions').delete().eq('user_id', _gebruiker.id).eq('endpoint', sub.endpoint)
+          .then(function(){ return sub.unsubscribe(); })
+          .then(function(){ _updPushBtn(null); gtag('event', 'push_uitgeschakeld'); });
+      }
+      if (Notification.permission === 'denied') {
+        _accountMsg('Meldingen staan uitgeschakeld voor deze site in je browserinstellingen.');
+        return;
+      }
+      return Notification.requestPermission().then(function(permissie){
+        if (permissie !== 'granted') { gtag('event', 'push_toestemming_geweigerd'); return; }
+        return navigator.serviceWorker.ready.then(function(reg){
+          return reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: _urlBase64ToUint8Array(window.VAPID_PUBLIC_KEY) });
+        }).then(function(nieuweSub){
+          var json = nieuweSub.toJSON();
+          return _sb.from('push_subscriptions').upsert({
+            user_id: _gebruiker.id, endpoint: json.endpoint, p256dh: json.keys.p256dh, auth: json.keys.auth,
+          }, { onConflict: 'user_id,endpoint' }).then(function(){ _updPushBtn(nieuweSub); gtag('event', 'push_ingeschakeld'); });
+        });
+      });
+    }).catch(function(e){ console.warn('Pushmeldingen in-/uitschakelen mislukt:', e.message); _accountMsg('Pushmeldingen aanpassen is niet gelukt: ' + e.message); })
+      .then(function(){ if (btn) btn.disabled = false; });
+  };
 
   // ── Favorieten synchroniseren ──
   // Upload eerst wat lokaal staat maar nog niet in de cloud, haal daarna de
