@@ -5,7 +5,11 @@
 
 const fs   = require('fs');
 const path = require('path');
-const { isDealer, slugifyMerk, dealScoreKleur } = require('./lib/carkijker-core');
+const {
+  isDealer, slugifyMerk, dealScoreKleur,
+  berekenPrijsHistogram, berekenJaarVerdeling, berekenTopDeals,
+  berekenMerkenRanglijst, berekenAlleModelStats, vindVergelijkbareModellen, berekenRegionaleTop,
+} = require('./lib/carkijker-core');
 
 // Config
 const LISTINGS_PATH   = path.join(__dirname, 'data', 'listings.json');
@@ -875,6 +879,38 @@ function bouwPrijsChart(reeks) {
     '<text x="' + (W - PAD_R) + '" y="' + (H - 8) + '" font-size="11" fill="#888" text-anchor="end">' + fmtDatum(reeks[n - 1].datum) + '</text>' +
     '</svg>';
 }
+// Statische pendant van het histogram-SVG uit index.html's berekenMarkt() --
+// zelfde bucket-data (berekenPrijsHistogram, lib/carkijker-core.js), hier als
+// eigen renderfunctie omdat de modal rechtstreeks in DOM-elementen schrijft.
+function bouwHistogramChart(h) {
+  const W = 680, H = 100, buckets = h.counts.length;
+  const bw = Math.max(2, Math.floor((W - (buckets - 1) * 2) / buckets));
+  const maxCount = Math.max.apply(null, h.counts);
+  const range = h.histMax - h.histMin || 1;
+  const medI = Math.min(Math.floor((h.mediaan - h.histMin) / h.step), buckets - 1);
+  const bars = h.counts.map(function (c, i) {
+    const bh = maxCount ? Math.max(4, Math.round(c / maxCount * 66)) : 4;
+    return '<rect x="' + (i * (bw + 2)) + '" y="' + (74 - bh) + '" width="' + bw + '" height="' + bh + '" rx="2" fill="' + (i === medI ? '#d14413' : '#f2a074') + '" opacity="0.9"/>';
+  }).join('');
+  return '<svg viewBox="0 0 ' + W + ' 92" width="100%" height="92" role="img" aria-label="Prijsverdeling">' + bars + '</svg>' +
+    '<div style="display:flex;justify-content:space-between;font-size:11px;color:#888;margin-top:.2rem">' +
+    '<span>' + fmt(h.histMin) + '</span><span>Mediaan: ' + fmt(h.mediaan) + '</span><span>' + fmt(h.histMax) + '</span></div>' +
+    (h.buitenBereik ? '<p style="font-size:.78rem;color:#888;margin-top:.4rem">' + h.buitenBereik + ' uitschieter' + (h.buitenBereik === 1 ? '' : 's') + ' buiten dit bereik meegeteld in de buitenste balk.</p>' : '');
+}
+// Statische pendant van het bouwjaar-histogram uit index.html's berekenMarkt().
+function bouwJaarChart(v) {
+  if (!v.jaren.length) return '';
+  const W = 400, buckets = v.jaren.length;
+  const bw = Math.max(3, Math.floor((W - (buckets - 1) * 2) / buckets));
+  const maxCount = Math.max.apply(null, v.counts);
+  const bars = v.counts.map(function (c, i) {
+    const bh = maxCount ? Math.max(4, Math.round(c / maxCount * 66)) : 4;
+    return '<rect x="' + (i * (bw + 2)) + '" y="' + (74 - bh) + '" width="' + bw + '" height="' + bh + '" rx="2" fill="#a78bfa" opacity="0.85"/>';
+  }).join('');
+  return '<svg viewBox="0 0 ' + W + ' 92" width="100%" height="92" role="img" aria-label="Bouwjaarverdeling">' + bars + '</svg>' +
+    '<div style="display:flex;justify-content:space-between;font-size:11px;color:#888;margin-top:.2rem">' +
+    '<span>' + v.jaren[0] + '</span><span>' + v.jaren[v.jaren.length - 1] + '</span></div>';
+}
 const MARKT_DIR = path.join(__dirname, 'marktanalyse');
 const MARKT_STYLE =
   '*{box-sizing:border-box;margin:0;padding:0}body{font-family:"Segoe UI",Arial,sans-serif;background:#f5f5f0;color:#333;line-height:1.5}' +
@@ -890,8 +926,14 @@ const MARKT_STYLE =
   '.stat-lbl{display:block;font-size:.72rem;color:#888;margin-bottom:.15rem}.stat strong{font-size:.95rem;color:#1a1a2e}' +
   '.trend-groot{font-size:1.4rem;font-weight:800;margin-bottom:.4rem}.trend-groot.omlaag{color:#16a34a}.trend-groot.omhoog{color:#b91c1c}.trend-groot.stabiel{color:#6b7280}' +
   '.faq-item{margin-bottom:.9rem}.faq-item:last-child{margin-bottom:0}.faq-item h3{font-size:.9rem;color:#1a1a2e;margin-bottom:.2rem}.faq-item p{font-size:.875rem;color:#444}' +
-  '.back-link{display:inline-block;margin-top:.5rem;color:#d14413;font-size:.875rem;text-decoration:none;font-weight:600}';
-function buildMarktPage(merkSlug, modelSlug, merkName, modelName, filtered) {
+  '.back-link{display:inline-block;margin-top:.5rem;color:#d14413;font-size:.875rem;text-decoration:none;font-weight:600}' +
+  '.markt-tabel{width:100%;border-collapse:collapse;font-size:.83rem}' +
+  '.markt-tabel th{text-align:left;color:#888;font-weight:600;font-size:.72rem;padding:.3rem .4rem;border-bottom:1px solid rgba(0,0,0,.08)}' +
+  '.markt-tabel td{padding:.45rem .4rem;border-bottom:1px solid rgba(0,0,0,.06);color:#333}' +
+  '.markt-tabel a{color:#1a56db;text-decoration:none}.markt-tabel a:hover{text-decoration:underline}' +
+  '.markt-tabel .beter{color:#16a34a;font-weight:700}' +
+  '.deal-badge{display:inline-block;background:#dcfce7;color:#15803d;border-radius:20px;padding:.1rem .55rem;font-size:.75rem;font-weight:700}';
+function buildMarktPage(merkSlug, modelSlug, merkName, modelName, filtered, alleModelStats) {
   const naam = merkName + ' ' + modelName;
   const gemPrijs = filtered.length ? Math.round(filtered.reduce(function(s,l){return s+(l.prijs||0);},0)/filtered.length) : 0;
   const medPrijs = filtered.length ? [...filtered].sort(function(a,b){return (a.prijs||0)-(b.prijs||0);})[Math.floor(filtered.length/2)].prijs : 0;
@@ -924,6 +966,19 @@ function buildMarktPage(merkSlug, modelSlug, merkName, modelName, filtered) {
   // koop/verkoopaanbeveling gebaseerd op ruis is misleidend, ook mét caveat.
   const betrouw = betrouwbaarheidsTekst(filtered.length);
   const voldoendeVoorDuiding = filtered.length >= 30;
+
+  // Vier extra secties die tot nu toe alleen in de JS-gerenderde Marktanalyse-
+  // modal zaten (histogram, bouwjaarverdeling, top-deals, vergelijkbare
+  // modellen, regionaal aanbod) -- hier als echte, crawlbare content op basis
+  // van dezelfde, gedeelde berekeningen uit lib/carkijker-core.js. Regionaal
+  // toont bewust de steden met het meeste aanbod i.p.v. "vergelijk met mijn
+  // plaats" (dat heeft de bezoekerslocatie nodig, dus geen vaste content).
+  const prijzen = filtered.map(function(a){return a.prijs;}).filter(function(p){return p>=500;});
+  const histogram = berekenPrijsHistogram(prijzen);
+  const jaarVerdeling = berekenJaarVerdeling(filtered);
+  const topDeals = medPrijs ? berekenTopDeals(filtered, medPrijs, 5) : [];
+  const vergelijkbaar = alleModelStats ? vindVergelijkbareModellen(alleModelStats, filtered[0].merk, filtered[0].model, 2) : null;
+  const regionaleTop = berekenRegionaleTop(filtered, 5);
 
   const faqItems = [];
   if (trend) {
@@ -968,7 +1023,7 @@ function buildMarktPage(merkSlug, modelSlug, merkName, modelName, filtered) {
     '<script type="application/ld+json">' + safeJsonLd(bcSchema) + '<\/script>' +
     (faqSchema ? '<script type="application/ld+json">' + safeJsonLd(faqSchema) + '<\/script>' : '') +
     '<style>' + MARKT_STYLE + '</style></head><body>' +
-    '<nav><a href="/" class="logo">Car<span>kijker</span></a><a href="/occasions/">Occasions</a><a href="/occasions/' + merkSlug + '/">' + merkName + '</a><a href="/marktanalyse/' + merkSlug + '/' + modelSlug + '/">Marktanalyse</a></nav>' +
+    '<nav><a href="/" class="logo">Car<span>kijker</span></a><a href="/occasions/">Occasions</a><a href="/marktanalyse/">Marktanalyse</a><a href="/occasions/' + merkSlug + '/">' + merkName + '</a><a href="/marktanalyse/' + merkSlug + '/' + modelSlug + '/">' + naam + '</a></nav>' +
     '<div class="container">' +
     '<h1>Marktanalyse: tweedehands ' + naam + '</h1>' +
     '<p class="subtitle">Prijstrend en afschrijving op basis van ' + filtered.length + ' actuele advertenties, dagelijks bijgewerkt</p>' +
@@ -988,10 +1043,79 @@ function buildMarktPage(merkSlug, modelSlug, merkName, modelName, filtered) {
     (afschrijving
       ? '<div class="kaart"><h2>Afschrijving</h2><p style="font-size:.875rem;color:#444">Op basis van vergelijkbare advertenties (gecorrigeerd voor bouwjaar en kilometerstand) verliest een ' + naam + ' gemiddeld ongeveer <strong>&euro; ' + fmt(afschrijving.afschrijvingJaar) + ' per jaar</strong> en <strong>&euro; ' + fmt(afschrijving.afschrijvingKm) + '</strong> bij een verdubbeling van de kilometerstand.</p></div>'
       : '') +
+    (histogram
+      ? '<div class="kaart"><h2>Prijsverdeling</h2>' + bouwHistogramChart(histogram) + '</div>'
+      : '') +
+    (jaarVerdeling.jaren.length
+      ? '<div class="kaart"><h2>Aanbod per bouwjaar</h2>' + bouwJaarChart(jaarVerdeling) + '</div>'
+      : '') +
+    (topDeals.length
+      ? '<div class="kaart"><h2>Opvallende deals</h2><table class="markt-tabel"><thead><tr><th>Advertentie</th><th>Prijs</th><th>T.o.v. mediaan</th></tr></thead><tbody>' +
+        topDeals.map(function(d){
+          const a = d.advertentie;
+          const titelKort = escHtml((a.titel||naam).slice(0,40)+((a.titel||'').length>40?'…':''));
+          const link = a.url ? '<a href="'+escHtml(outUrl(a.url,a.bron))+'" target="_blank" rel="nofollow">'+titelKort+'</a>' : titelKort;
+          return '<tr><td>'+link+'</td><td>&euro; '+fmt(a.prijs)+'</td><td><span class="deal-badge">'+d.pct+'%</span></td></tr>';
+        }).join('') + '</tbody></table>' +
+        '<p style="font-size:.78rem;color:#888;margin-top:.5rem">Selectie op basis van prijs, kilometerstand en bouwjaar t.o.v. vergelijkbare advertenties. Altijd zelf de advertentie en verkoper controleren.</p></div>'
+      : '') +
+    (vergelijkbaar && vergelijkbaar.vergelijkbaar.length
+      ? '<div class="kaart"><h2>Vergelijkbare modellen</h2><table class="markt-tabel"><thead><tr><th></th><th>' + escHtml(naam) + '</th>' +
+        vergelijkbaar.vergelijkbaar.map(function(s){ return '<th>' + escHtml(s.merk+' '+s.model) + '</th>'; }).join('') + '</tr></thead><tbody>' +
+        '<tr><td>Mediaan prijs</td><td>&euro; ' + fmt(vergelijkbaar.basis.mediaan) + '</td>' +
+        vergelijkbaar.vergelijkbaar.map(function(s){ return '<td'+(s.mediaan<vergelijkbaar.basis.mediaan?' class="beter"':'')+'>&euro; '+fmt(s.mediaan)+'</td>'; }).join('') + '</tr>' +
+        '<tr><td>Prijsspreiding (p25&ndash;p75)</td><td>&euro; ' + fmt(vergelijkbaar.basis.p25) + ' &ndash; &euro; ' + fmt(vergelijkbaar.basis.p75) + '</td>' +
+        vergelijkbaar.vergelijkbaar.map(function(s){ return '<td>&euro; '+fmt(s.p25)+' &ndash; &euro; '+fmt(s.p75)+'</td>'; }).join('') + '</tr>' +
+        '<tr><td>Aanbod</td><td>' + vergelijkbaar.basis.n + ' adv.</td>' +
+        vergelijkbaar.vergelijkbaar.map(function(s){ return '<td'+(s.n>vergelijkbaar.basis.n?' class="beter"':'')+'>'+s.n+' adv.</td>'; }).join('') + '</tr>' +
+        '</tbody></table><p style="font-size:.78rem;color:#888;margin-top:.5rem">Gekozen op basis van de dichtstbijzijnde mediaanprijs -- handig om te bepalen wélk model je gaat zoeken.</p></div>'
+      : '') +
+    (regionaleTop
+      ? '<div class="kaart"><h2>Aanbod per regio</h2><table class="markt-tabel"><thead><tr><th>Plaats</th><th>Advertenties</th><th>Mediaanprijs</th></tr></thead><tbody>' +
+        regionaleTop.steden.map(function(s){ return '<tr><td>'+escHtml(s.locatie)+'</td><td>'+s.n+'</td><td>&euro; '+fmt(s.mediaan)+'</td></tr>'; }).join('') +
+        '</tbody></table><p style="font-size:.78rem;color:#888;margin-top:.5rem">Landelijke mediaanprijs: &euro; ' + fmt(regionaleTop.landelijkMediaan) + ' (' + regionaleTop.landelijkN + ' advertenties).</p></div>'
+      : '') +
     (faqItems.length
       ? '<div class="kaart"><h2>Veelgestelde vragen</h2>' + faqItems.map(function(f){ return '<div class="faq-item"><h3>' + f.q + '</h3><p>' + f.a + '</p></div>'; }).join('') + '</div>'
       : '') +
     '<a href="/occasions/' + merkSlug + '/' + modelSlug + '/" class="back-link">Bekijk alle ' + naam + '-occasions &rarr;</a>' +
+    '</div></body></html>';
+}
+
+// Landingspagina /marktanalyse/ -- de merkenranglijst (top-volume, top-
+// goedkoopste merken) die in de modal alleen zichtbaar is zonder merk-
+// selectie, hier als eigen crawlbare hub-pagina i.p.v. onbereikbare content.
+// Linkt door naar de bestaande /occasions/<merk>/-pagina's (er bestaat geen
+// merk-alleen /marktanalyse/<merk>/-pagina, alleen op merk+model-niveau).
+function buildMarktIndexPage(listings) {
+  const ranglijst = berekenMerkenRanglijst(listings, 10);
+  const bcSchema = { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Carkijker', item: SITE_ORIGIN + '/' },
+    { '@type': 'ListItem', position: 2, name: 'Marktanalyse', item: SITE_ORIGIN + '/marktanalyse/' },
+  ] };
+  const rijMerk = function(m, waarde){
+    const slug = slugifyMerk(m.merk);
+    return '<a href="/occasions/'+slug+'/" class="stat"><span class="stat-lbl">'+escHtml(m.merk)+'</span><strong>'+waarde+'</strong></a>';
+  };
+  return '<!doctype html><html lang="nl"><head>' +
+    '<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">' +
+    GA_SNIPPET + OUT_TRACK_SNIPPET +
+    '<title>Marktanalyse tweedehands auto\'s: prijzen per merk | Carkijker</title>' +
+    '<meta name="description" content="Vergelijk prijzen, aanbod en prijstrends van tweedehands auto\'s per merk en model. Gebaseerd op '+listings.length+' actuele advertenties, dagelijks bijgewerkt.">' +
+    '<link rel="canonical" href="' + SITE_ORIGIN + '/marktanalyse/">' +
+    '<script type="application/ld+json">' + safeJsonLd(bcSchema) + '<\/script>' +
+    '<style>' + MARKT_STYLE + '</style></head><body>' +
+    '<nav><a href="/" class="logo">Car<span>kijker</span></a><a href="/occasions/">Occasions</a><a href="/marktanalyse/">Marktanalyse</a></nav>' +
+    '<div class="container">' +
+    '<h1>Marktanalyse: tweedehands auto\'s per merk</h1>' +
+    '<p class="subtitle">Prijzen, aanbod en trends op basis van ' + listings.length + ' actuele advertenties, dagelijks bijgewerkt</p>' +
+    '<div class="kaart"><h2>Meeste aanbod</h2><div class="stats-grid">' +
+    ranglijst.topVolume.map(function(m){ return rijMerk(m, m.n+' adv.'); }).join('') +
+    '</div></div>' +
+    '<div class="kaart"><h2>Goedkoopste merken (mediaanprijs, min. 20 advertenties)</h2><div class="stats-grid">' +
+    ranglijst.topGoedkoop.map(function(m){ return rijMerk(m, '&euro; '+fmt(m.mediaan)); }).join('') +
+    '</div></div>' +
+    '<p style="font-size:.85rem;color:#666">Kies hierboven een merk voor het volledige aanbod, of bekijk de marktanalyse van een specifiek model via de merk- en modelpagina\'s.</p>' +
     '</div></body></html>';
 }
 
@@ -1001,6 +1125,11 @@ function main() {
   const listings = raw.listings || [];
   console.log('Geladen: ' + listings.length + ' listings');
   listings.forEach(function(a){ if(!a.merk) a.merk = extraheerMerk(a.titel||''); });
+  // Eén keer voor de hele dataset berekend (i.p.v. per marktanalyse-pagina
+  // opnieuw) -- zie de toelichting bij vindVergelijkbareModellen() in
+  // lib/carkijker-core.js: dat zou anders de volledige dataset net zo vaak
+  // opnieuw doorzoeken als er merk/model-pagina's zijn.
+  const alleModelStats = berekenAlleModelStats(listings);
   fs.mkdirSync(OUT_DIR, { recursive: true });
   let pageCount = 0;
 
@@ -1016,6 +1145,10 @@ function main() {
 
   fs.writeFileSync(path.join(OUT_DIR, 'index.html'), buildPage({ merkSlug: null, modelSlug: null, filtered: listings, listings: listings }), 'utf-8');
   pageCount++; console.log('  [OK] /occasions/');
+
+  fs.mkdirSync(MARKT_DIR, { recursive: true });
+  fs.writeFileSync(path.join(MARKT_DIR, 'index.html'), buildMarktIndexPage(listings), 'utf-8');
+  pageCount++; console.log('  [OK] /marktanalyse/');
 
   // Houdt bij welke top-level en merk/model-mappen dit run echt gegenereerd zijn,
   // zodat verweesde mappen van eerdere runs (merk/model dat onder de drempel is
@@ -1096,7 +1229,7 @@ function main() {
       // combinatie -- zie toelichting bij buildMarktPage() hierboven.
       const marktModelDir = path.join(MARKT_DIR, merkSlug, modelSlug);
       fs.mkdirSync(marktModelDir, { recursive: true });
-      fs.writeFileSync(path.join(marktModelDir, 'index.html'), buildMarktPage(merkSlug, modelSlug, slugToDisplay(merkSlug), cap(modelSlug), mf), 'utf-8');
+      fs.writeFileSync(path.join(marktModelDir, 'index.html'), buildMarktPage(merkSlug, modelSlug, slugToDisplay(merkSlug), cap(modelSlug), mf, alleModelStats), 'utf-8');
       pageCount++; console.log('      [OK] /marktanalyse/'+merkSlug+'/'+modelSlug+'/');
       validMarktDirs[merkSlug].add(modelSlug);
     });
@@ -1198,7 +1331,7 @@ function main() {
     let sitemap = fs.readFileSync(sitemapPath, 'utf-8');
     const today = new Date().toISOString().slice(0,10);
     const base = 'https://carkijker.nl/';
-    const vasteUrls = ['occasions/', 'tco/', 'inruilwaarde/', 'over-ons/'];
+    const vasteUrls = ['occasions/', 'tco/', 'inruilwaarde/', 'marktanalyse/', 'over-ons/'];
     const allUrls = [...vasteUrls, ...generatedMerkUrls, ...generatedStadUrls];
     let added = 0;
     for (const u of allUrls) {
