@@ -20,7 +20,7 @@
     },
     {
       "kop": "Waarom niet gewoon het gemiddelde van het merk en model?",
-      "html": "<p>Een simpele vergelijking met het platte gemiddelde van alle occasions van een model gaat mis zodra leeftijd en km-stand sterk uiteenlopen. Een auto die vooral goedkoop is omdát hij oud is en veel kilometers heeft gereden, zou dan als 'topdeal' naar voren komen &mdash; terwijl hij voor zijn leeftijd en km-stand helemaal niet goedkoop is. Door eerst te corrigeren voor bouwjaar en km-stand vergelijkt de dealscore appels met appels: een jonge, laag-kilometer auto wordt afgezet tegen andere jonge, laag-kilometer exemplaren van hetzelfde model, en een oudere hoog-kilometer auto tegen zijn eigen leeftijdsgenoten.</p>"
+      "html": "<p>Een simpele vergelijking met het platte gemiddelde van alle occasions van een model gaat mis zodra leeftijd en km-stand sterk uiteenlopen. Een auto die vooral goedkoop is omdát hij oud is en veel kilometers heeft gereden, zou dan als 'topdeal' naar voren komen, terwijl hij voor zijn leeftijd en km-stand helemaal niet goedkoop is. Door eerst te corrigeren voor bouwjaar en km-stand vergelijkt de dealscore appels met appels: een jonge, laag-kilometer auto wordt afgezet tegen andere jonge, laag-kilometer exemplaren van hetzelfde model, en een oudere hoog-kilometer auto tegen zijn eigen leeftijdsgenoten.</p>"
     },
     {
       "kop": "Wat betekenen de kleuren?",
@@ -28,18 +28,18 @@
     },
     {
       "kop": "Waarom heeft een auto geen score of staat er 'onbekend'?",
-      "html": "<p>Voor sommige merk/modelcombinaties staan er simpelweg te weinig vergelijkbare advertenties tegelijk op Carkijker om een betrouwbare verwachte prijs te berekenen &mdash; denk aan zeldzame merken of net binnengekomen modellen. In dat geval valt de score terug op een neutrale 50 in plaats van een gok. Dit staat los van de kwaliteit van de auto zelf: het betekent alleen dat er onvoldoende marktdata is om een uitspraak te doen.</p>"
+      "html": "<p>Voor sommige merk/modelcombinaties staan er simpelweg te weinig vergelijkbare advertenties tegelijk op Carkijker om een betrouwbare verwachte prijs te berekenen, denk aan zeldzame merken of net binnengekomen modellen. In dat geval valt de score terug op een neutrale 50 in plaats van een gok. Dit staat los van de kwaliteit van de auto zelf: het betekent alleen dat er onvoldoende marktdata is om een uitspraak te doen.</p>"
     },
     {
       "kop": "Waar de dealscore niets over zegt",
-      "html": "<p>De dealscore is een prijsvergelijking, geen keuringsrapport. Onderhoudsstaat, schadeverleden, NAP-registratie van de kilometerstand en de conditie bij bezichtiging zijn hierin niet meegenomen &mdash; een auto met een hoge dealscore kan alsnog verborgen gebreken hebben, en een auto met een lage score kan júist heel goed onderhouden zijn en dat in de vraagprijs weerspiegeld zien. Gebruik de dealscore om snel te filteren op prijs, maar loop bij een serieuze kandidaat altijd de <a href=\"/artikelen/tweedehands-auto-kopen-checklist/\">volledige aankoopchecklist</a> langs voordat je koopt.</p>"
+      "html": "<p>De dealscore is een prijsvergelijking, geen keuringsrapport. Onderhoudsstaat, schadeverleden, NAP-registratie van de kilometerstand en de conditie bij bezichtiging zijn hierin niet meegenomen. Een auto met een hoge dealscore kan alsnog verborgen gebreken hebben, en een auto met een lage score kan júist heel goed onderhouden zijn en dat in de vraagprijs weerspiegeld zien. Gebruik de dealscore om snel te filteren op prijs, maar loop bij een serieuze kandidaat altijd de <a href=\"/artikelen/tweedehands-auto-kopen-checklist/\">volledige aankoopchecklist</a> langs voordat je koopt.</p>"
     }
   ],
   "faq": [
-    { "vraag": "Wat betekent een dealscore van 80?", "antwoord": "Een score van 80 betekent dat de vraagprijs duidelijk onder de verwachte prijs ligt voor een auto van dat merk, model, bouwjaar en kilometerstand — relatief gezien een goede deal ten opzichte van vergelijkbare advertenties." },
+    { "vraag": "Wat betekent een dealscore van 80?", "antwoord": "Een score van 80 betekent dat de vraagprijs duidelijk onder de verwachte prijs ligt voor een auto van dat merk, model, bouwjaar en kilometerstand: relatief gezien een goede deal ten opzichte van vergelijkbare advertenties." },
     { "vraag": "Is de auto met de hoogste dealscore altijd de beste keuze?", "antwoord": "Niet per se. De dealscore zegt alleen iets over de prijs ten opzichte van vergelijkbare auto's, niet over onderhoudsstaat, schadeverleden of conditie. Combineer een hoge dealscore altijd met een eigen check van de advertentie en, bij een bezichtiging, de auto zelf." },
     { "vraag": "Waarom staat er bij sommige auto's 'onbekend' bij de dealscore?", "antwoord": "Dat gebeurt wanneer er te weinig vergelijkbare advertenties van hetzelfde merk en model tegelijk beschikbaar zijn om een betrouwbare verwachte prijs te berekenen, of wanneer de vraagprijs van de advertentie zelf ontbreekt. De score valt dan terug op een neutrale 50 in plaats van te gokken." },
-    { "vraag": "Verandert de dealscore van een advertentie in de tijd?", "antwoord": "Ja. De dealscore wordt bij elke automatische update (meerdere keren per dag) opnieuw berekend op basis van de dan actuele markt — verandert de vraagprijs van vergelijkbare auto's, dan kan de score van een advertentie meebewegen ook als de vraagprijs zelf gelijk blijft." }
+    { "vraag": "Verandert de dealscore van een advertentie in de tijd?", "antwoord": "Ja. De dealscore wordt bij elke automatische update (meerdere keren per dag) opnieuw berekend op basis van de dan actuele markt. Verandert de vraagprijs van vergelijkbare auto's, dan kan de score van een advertentie meebewegen, ook als de vraagprijs zelf gelijk blijft." }
   ],
   "gerelateerd": [
     { "label": "De complete checklist voor het kopen van een tweedehands auto", "url": "/artikelen/tweedehands-auto-kopen-checklist/" },
