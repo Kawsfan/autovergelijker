@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wat is mijn auto waard? – Gratis inruilwaarde berekenen | Carkijker</title>
+<meta name="description" content="Bereken gratis een indicatie van de markt- en inruilwaarde van jouw auto, op basis van duizenden actuele advertenties van hetzelfde merk en model.">
+<link rel="canonical" href="https://www.carkijker.nl/inruilwaarde/">
+<meta property="og:title" content="Wat is mijn auto waard? | Carkijker">
+<meta property="og:description" content="Bereken gratis een indicatie van de markt- en inruilwaarde van jouw auto, op basis van actuele advertenties.">
+<meta property="og:url" content="https://www.carkijker.nl/inruilwaarde/">
+<meta name="robots" content="index, follow">
+<script src="/lib/carkijker-core.js"></script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "Wat is mijn auto waard?",
+  "description": "Bereken gratis een indicatie van de markt- en inruilwaarde van jouw auto op basis van actuele advertenties",
+  "url": "https://www.carkijker.nl/inruilwaarde/",
+  "applicationCategory": "FinanceApplication",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "EUR" },
+  "publisher": { "@type": "Organization", "name": "Carkijker", "url": "https://www.carkijker.nl" }
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Hoe wordt mijn inruilwaarde berekend?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Carkijker vergelijkt duizenden actuele advertenties van hetzelfde merk en model, en berekent met een regressie op bouwjaar en kilometerstand een geschatte marktwaarde (de vraagprijs die vergelijkbare auto's nu hebben). De indicatieve inruilwaarde is 70 tot 85% van die marktwaarde, wat ongeveer overeenkomt met de marge die dealers gemiddeld rekenen tussen inkoop en verkoop." }
+    },
+    {
+      "@type": "Question",
+      "name": "Is dit een officiele taxatie?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Nee. Dit is een statistische schatting op basis van vraagprijzen van vergelijkbare auto's, geen taxatie van jouw specifieke auto. De werkelijke waarde hangt ook af van onderhoudsstaat, schadeverleden, kleur, opties en de lokale vraag. Gebruik deze schatting als startpunt voor een onderhandeling, niet als eindoordeel." }
+    },
+    {
+      "@type": "Question",
+      "name": "Wat is het verschil tussen marktwaarde en inruilwaarde?",
+      "acceptedAnswer": { "@type": "Answer", "text": "De marktwaarde is de prijs waarvoor vergelijkbare auto's nu te koop staan (de vraagprijs bij verkoop aan een particulier). De inruilwaarde is lager, omdat een dealer die van jou inkoopt ook weer eigen kosten (opknappen, garantie, marge) moet dekken voordat hij de auto doorverkoopt." }
+    },
+    {
+      "@type": "Question",
+      "name": "Waarom krijg ik geen schatting voor mijn auto?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Voor een betrouwbare schatting zijn minstens 5 actuele advertenties van hetzelfde merk en model nodig. Bij zeldzame merken, modellen of net binnengekomen types staat er simpelweg te weinig vergelijkbaar aanbod op Carkijker om een uitspraak te doen." }
+    }
+  ]
+}
+</script>
+<style>
+  :root {
+    --oranje: #d14413;
+    --oranje-dark: #c43d10;
+    --bg: #f5f5f0;
+    --card: #ffffff;
+    --border: #e2e2da;
+    --text: #1a1a18;
+    --muted: #6b6b60;
+    --green: #16a34a;
+    --radius: 14px;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  nav {
+    background: #fff;
+    border-bottom: 1px solid var(--border);
+    padding: 0 24px;
+    height: 58px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .logo { font-size: 1.3rem; font-weight: 800; text-decoration: none; color: var(--oranje); letter-spacing: -.5px; }
+  .logo span { color: var(--text); }
+  .nav-back { font-size: 13px; color: var(--muted); text-decoration: none; display: flex; align-items: center; gap: 5px; }
+  .nav-back:hover { color: var(--oranje); }
+
+  .hero {
+    background: linear-gradient(135deg, #1a1a18 0%, #2d2d2a 100%);
+    color: white;
+    padding: 40px 24px 36px;
+    text-align: center;
+  }
+  .hero h1 { font-size: clamp(1.5rem, 4vw, 2rem); font-weight: 800; letter-spacing: -.5px; margin-bottom: 8px; }
+  .hero p { color: rgba(255,255,255,.65); font-size: 15px; max-width: 480px; margin: 0 auto; }
+
+  .page { max-width: 720px; margin: 0 auto; padding: 24px 16px 60px; }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 22px 20px;
+    margin-bottom: 16px;
+  }
+  .card-title {
+    font-size: 14px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    color: var(--muted);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .card-title .icon { font-size: 16px; }
+
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media(max-width: 500px){ .form-grid { grid-template-columns: 1fr; } }
+
+  .field { display: flex; flex-direction: column; gap: 5px; }
+  .field label { font-size: 13px; font-weight: 600; color: var(--text); }
+  .field small { font-size: 11px; color: var(--muted); }
+  .field-unit { position: relative; }
+  .field-unit input { padding-right: 48px; }
+  .unit-badge {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 12px;
+    color: var(--muted);
+    font-weight: 600;
+    pointer-events: none;
+  }
+
+  input[type="number"], select {
+    width: 100%;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 12px;
+    font-size: 15px;
+    font-family: inherit;
+    color: var(--text);
+    background: #fafaf8;
+    transition: border-color .15s;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+  input:focus, select:focus { outline: none; border-color: var(--oranje); background: #fff; }
+  input:disabled, select:disabled { opacity: .5; cursor: not-allowed; }
+  select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b6b60' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 32px; }
+
+  .results {
+    background: linear-gradient(135deg, var(--oranje) 0%, var(--oranje-dark) 100%);
+    border-radius: var(--radius);
+    padding: 24px 20px;
+    color: white;
+    margin-bottom: 16px;
+  }
+  .results-title { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; opacity: .75; margin-bottom: 16px; }
+  .results-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media(max-width: 500px){ .results-grid { grid-template-columns: 1fr; } }
+  .result-item { background: rgba(255,255,255,.15); border-radius: 10px; padding: 14px 16px; }
+  .result-label { font-size: 12px; opacity: .8; margin-bottom: 4px; }
+  .result-amount { font-size: 1.6rem; font-weight: 800; line-height: 1.1; }
+  .result-sub { font-size: 11px; opacity: .65; margin-top: 2px; }
+
+  .info-box {
+    background: #f0f9ff;
+    border: 1px solid #bae6fd;
+    border-radius: 10px;
+    padding: 14px 16px;
+    font-size: 13px;
+    color: #0369a1;
+    margin-top: 8px;
+    line-height: 1.5;
+  }
+  .warn-box {
+    background: #fef3c7;
+    border: 1px solid #fde68a;
+    border-radius: 10px;
+    padding: 14px 16px;
+    font-size: 13px;
+    color: #92400e;
+    line-height: 1.5;
+  }
+
+  .calc-btn {
+    width: 100%;
+    background: var(--oranje);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 15px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background .15s, transform .1s;
+    margin-top: 4px;
+  }
+  .calc-btn:active { background: var(--oranje-dark); transform: scale(.98); }
+  .calc-btn:disabled { background: var(--border); color: var(--muted); cursor: not-allowed; }
+
+  .disclaimer {
+    font-size: 12px;
+    color: var(--muted);
+    text-align: center;
+    line-height: 1.6;
+    margin-top: 24px;
+  }
+
+  .faq-item { border-top: 1px solid var(--border); padding: 16px 0; }
+  .faq-item:last-child { border-bottom: 1px solid var(--border); }
+  .faq-q { font-size: 14px; font-weight: 700; cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+  .faq-icon { font-size: 18px; color: var(--muted); flex-shrink: 0; transition: transform .2s; }
+  .faq-item.open .faq-icon { transform: rotate(45deg); }
+  .faq-a { font-size: 13px; color: var(--muted); line-height: 1.6; margin-top: 10px; display: none; }
+  .faq-item.open .faq-a { display: block; }
+
+  .cta-link {
+    display: block;
+    text-align: center;
+    background: var(--text);
+    color: white;
+    text-decoration: none;
+    border-radius: 12px;
+    padding: 15px;
+    font-size: 15px;
+    font-weight: 700;
+    margin-top: 16px;
+    transition: background .15s;
+  }
+  .cta-link:hover { background: #333; }
+  .cta-link.secundair { background: transparent; color: var(--text); border: 1.5px solid var(--border); }
+  .cta-link.secundair:hover { background: var(--border); }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="logo">Car<span>kijker</span></a>
+  <a href="/" class="nav-back">← Terug naar zoeken</a>
+</nav>
+
+<div class="hero">
+  <h1>Wat is mijn auto waard?</h1>
+  <p>Gratis indicatie van de markt- en inruilwaarde, op basis van actuele advertenties van hetzelfde merk en model.</p>
+</div>
+
+<div class="page">
+
+  <div class="card">
+    <div class="card-title"><span class="icon">🚗</span> Jouw auto</div>
+    <div class="form-grid">
+      <div class="field">
+        <label for="merkSelect">Merk</label>
+        <select id="merkSelect" disabled onchange="onMerkChange()">
+          <option value="">Data wordt geladen&hellip;</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="modelSelect">Model</label>
+        <select id="modelSelect" disabled>
+          <option value="">Kies eerst een merk</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="kmInput">Kilometerstand</label>
+        <div class="field-unit">
+          <input type="number" id="kmInput" value="80000" min="0" max="500000" step="1000">
+          <span class="unit-badge">km</span>
+        </div>
+      </div>
+      <div class="field">
+        <label for="jaarInput">Bouwjaar</label>
+        <input type="number" id="jaarInput" value="2019" min="1980" max="2027" step="1">
+      </div>
+    </div>
+  </div>
+
+  <button class="calc-btn" id="berekenBtn" onclick="bereken()" disabled>Data wordt geladen&hellip;</button>
+
+  <div id="foutmelding" class="warn-box" style="display:none; margin-top:16px;"></div>
+
+  <div id="resultaten" style="display:none; margin-top:20px;">
+    <div class="results">
+      <div class="results-title">Indicatie op basis van <span id="resAantal">0</span> vergelijkbare advertenties</div>
+      <div class="results-grid">
+        <div class="result-item">
+          <div class="result-label">Geschatte marktwaarde</div>
+          <div class="result-amount" id="resMarktwaarde">€0</div>
+          <div class="result-sub">vraagprijs vergelijkbare auto's</div>
+        </div>
+        <div class="result-item">
+          <div class="result-label">Indicatieve inruilwaarde</div>
+          <div class="result-amount" id="resInruil">€0</div>
+          <div class="result-sub">bij inruil bij een dealer</div>
+        </div>
+      </div>
+    </div>
+    <div class="info-box">Geen officiële taxatie &mdash; de werkelijke waarde hangt ook af van onderhoudsstaat, schadeverleden en de lokale vraag. Gebruik dit als startpunt voor een onderhandeling.</div>
+  </div>
+
+  <div class="card" style="margin-top:8px;">
+    <div class="card-title">Veelgestelde vragen</div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">Hoe wordt mijn inruilwaarde berekend? <span class="faq-icon">+</span></div>
+      <div class="faq-a">Carkijker vergelijkt duizenden actuele advertenties van hetzelfde merk en model, en berekent met een regressie op bouwjaar en kilometerstand een geschatte marktwaarde. De indicatieve inruilwaarde is 70 tot 85% van die marktwaarde &mdash; ongeveer de marge die dealers gemiddeld rekenen tussen inkoop en verkoop.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">Is dit een officiële taxatie? <span class="faq-icon">+</span></div>
+      <div class="faq-a">Nee. Dit is een statistische schatting op basis van vraagprijzen van vergelijkbare auto's, geen taxatie van jouw specifieke auto. De werkelijke waarde hangt ook af van onderhoudsstaat, schadeverleden, kleur, opties en de lokale vraag. Gebruik deze schatting als startpunt voor een onderhandeling, niet als eindoordeel.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">Wat is het verschil tussen marktwaarde en inruilwaarde? <span class="faq-icon">+</span></div>
+      <div class="faq-a">De marktwaarde is de prijs waarvoor vergelijkbare auto's nu te koop staan (vraagprijs bij verkoop aan een particulier). De inruilwaarde is lager: een dealer die van jou inkoopt moet eigen kosten (opknappen, garantie, marge) dekken voordat hij de auto doorverkoopt.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">Waarom krijg ik geen schatting voor mijn auto? <span class="faq-icon">+</span></div>
+      <div class="faq-a">Voor een betrouwbare schatting zijn minstens 5 actuele advertenties van hetzelfde merk en model nodig. Bij zeldzame merken, modellen of net binnengekomen types staat er simpelweg te weinig vergelijkbaar aanbod op Carkijker om een uitspraak te doen.</div>
+    </div>
+  </div>
+
+  <a href="/" class="cta-link">🔍 Zoek occasions op Carkijker →</a>
+  <a href="/tco/" class="cta-link secundair">⛽ Bereken ook de maandelijkse kosten van je (nieuwe) auto →</a>
+
+  <p class="disclaimer">
+    Schatting op basis van live advertenties op Carkijker, geen officiële taxatie.<br>
+    De werkelijke inruilwaarde hangt af van staat, onderhoudshistorie en dealer.
+  </p>
+
+</div>
+
+<script>
+// Volledige, live dataset ophalen (dezelfde kolomvorm-chunks als de
+// homepage, zie window._laadVolledig in index.html) -- puur voor merk/
+// model-dropdowns en de regressie, geen fotogalerij nodig. Bewust GEEN
+// cross-source-dedup hier (in tegenstelling tot de homepage): voor een
+// prijsregressie is een klein beetje overlap tussen bronnen verwaarloosbaar,
+// en dedupAutos() zelf is een grotere, DOM/state-gebonden functie die niet
+// de moeite waard is om hierheen te dupliceren voor deze losse pagina.
+var _autos = [];
+var _perMerk = {};
+
+function _reconstrueerLean(chunk) {
+  return chunk.rows.map(function(row){
+    var o = {};
+    for (var i=0;i<chunk.fields.length;i++){ if (row[i] !== null) o[chunk.fields[i]] = row[i]; }
+    return o;
+  });
+}
+
+function fmt(n) { return '€' + Math.round(n).toLocaleString('nl-NL'); }
+
+function laadData() {
+  fetch('/data/listings-lean-0.json').then(function(r){return r.json();}).then(function(eersteChunk){
+    var totalChunks = eersteChunk.totalChunks || 1;
+    var overigeFetches = [];
+    for (var i=1;i<totalChunks;i++) overigeFetches.push(fetch('/data/listings-lean-'+i+'.json').then(function(r){return r.json();}));
+    return Promise.all(overigeFetches).then(function(overigeChunks){
+      var alleRows = _reconstrueerLean(eersteChunk);
+      overigeChunks.forEach(function(c){ alleRows = alleRows.concat(_reconstrueerLean(c)); });
+      return alleRows;
+    });
+  }).then(function(alleRows){
+    _autos = alleRows.filter(function(a){ return a.merk && a.model && a.prijs >= 500; });
+    _perMerk = {};
+    _autos.forEach(function(a){
+      (_perMerk[a.merk] = _perMerk[a.merk] || {})[a.model] = true;
+    });
+    _vulMerkSelect();
+  }).catch(function(){
+    document.getElementById('foutmelding').style.display = '';
+    document.getElementById('foutmelding').textContent = 'De occasion-data kon niet geladen worden. Probeer het later opnieuw, of ga naar de homepage om te zoeken.';
+  });
+}
+
+function _vulMerkSelect() {
+  var sel = document.getElementById('merkSelect');
+  var merken = Object.keys(_perMerk).sort();
+  sel.innerHTML = '<option value="">Kies een merk</option>' + merken.map(function(m){
+    return '<option value="' + m.replace(/"/g,'&quot;') + '">' + m + '</option>';
+  }).join('');
+  sel.disabled = false;
+  document.getElementById('berekenBtn').disabled = false;
+  document.getElementById('berekenBtn').textContent = 'Bereken mijn inruilwaarde →';
+}
+
+function onMerkChange() {
+  var merk = document.getElementById('merkSelect').value;
+  var modelSel = document.getElementById('modelSelect');
+  if (!merk || !_perMerk[merk]) {
+    modelSel.innerHTML = '<option value="">Kies eerst een merk</option>';
+    modelSel.disabled = true;
+    return;
+  }
+  var modellen = Object.keys(_perMerk[merk]).sort();
+  modelSel.innerHTML = '<option value="">Kies een model</option>' + modellen.map(function(m){
+    return '<option value="' + m.replace(/"/g,'&quot;') + '">' + m + '</option>';
+  }).join('');
+  modelSel.disabled = false;
+}
+
+function bereken() {
+  var merk = document.getElementById('merkSelect').value;
+  var model = document.getElementById('modelSelect').value;
+  var km = parseInt(document.getElementById('kmInput').value) || 0;
+  var jaar = parseInt(document.getElementById('jaarInput').value) || 0;
+
+  var r = CarkijkerCore.schatInruilwaarde(_autos, merk, model, km, jaar);
+  var foutEl = document.getElementById('foutmelding');
+  var resEl = document.getElementById('resultaten');
+
+  if (r.fout) {
+    foutEl.textContent = r.fout;
+    foutEl.style.display = '';
+    resEl.style.display = 'none';
+    return;
+  }
+
+  foutEl.style.display = 'none';
+  document.getElementById('resAantal').textContent = r.n;
+  document.getElementById('resMarktwaarde').textContent = fmt(r.marktwaarde);
+  document.getElementById('resInruil').textContent = fmt(r.inruilMin) + ' – ' + fmt(r.inruilMax);
+  resEl.style.display = 'block';
+  resEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function toggleFaq(el) {
+  var item = el.closest('.faq-item');
+  item.classList.toggle('open');
+}
+
+laadData();
+</script>
+</body>
+</html>
