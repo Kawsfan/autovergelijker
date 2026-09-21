@@ -1,14 +1,23 @@
 #!/usr/bin/env node
 // scripts/send-notifications.js
-// Verstuurt e-mailmeldingen voor twee dingen (Supabase-tabellen "zoekagenten"
-// en "favorites"), gecombineerd in ÉÉN digest-mail per gebruiker per run:
+// Verstuurt meldingen voor twee dingen (Supabase-tabellen "zoekagenten" en
+// "favorites"), gecombineerd in ÉÉN digest per gebruiker per run:
 //   1. Nieuwe advertenties die matchen met een opgeslagen zoekagent.
 //   2. Prijsdalingen op favoriete advertenties sinds de vorige controle.
 // Draait als losse stap ná scrape.js in de scrape-workflow, dus 3x/dag --
 // niet "één dagelijkse digest", maar een melding zo snel als de eerstvolgende
 // scrape-run iets nieuws oplevert.
 //
-// Vereist drie secrets (GitHub Actions repo-secrets, nooit in code/chat):
+// Twee kanalen: e-mail (Resend, altijd de "leidende" melding -- de
+// gezien_ids/laatst_gemelde_prijs-boekhouding hieronder is uitsluitend aan
+// e-mailsucces gekoppeld, zie __3. Versturen__) en browser-pushmeldingen
+// (Web Push/VAPID, via lib/webpush.js) als losse, best-effort extra kanaal
+// voor gebruikers die dat hebben ingeschakeld (index.html, tabel
+// push_subscriptions) -- een mislukte pushmelding houdt de e-maildigest
+// (en de boekhouding daarachter) nooit tegen.
+//
+// Vereist drie secrets voor e-mail (GitHub Actions repo-secrets, nooit in
+// code/chat):
 //   SUPABASE_URL               -- bv. https://xxxx.supabase.co
 //   SUPABASE_SERVICE_ROLE_KEY  -- Supabase dashboard > Settings > API >
 //                                  secret key. NIET de publishable-key die
@@ -18,13 +27,18 @@
 //                                  de secret key wel, en is dus alleen
 //                                  server-side te gebruiken.
 //   RESEND_API_KEY              -- Resend dashboard > API keys.
-// Ontbreekt een van de drie (bv. nog niet geconfigureerd), dan slaat dit
+// Ontbreekt een van deze drie (bv. nog niet geconfigureerd), dan slaat dit
 // script zichzelf stilletjes over (exit 0) i.p.v. de hele scrape-workflow te
 // laten falen.
-
+//
+// Voor pushmeldingen zijn twee EXTRA secrets nodig (VAPID_PUBLIC_KEY /
+// VAPID_PRIVATE_KEY, gegenereerd met scripts/generate-vapid-keys.js) --
+// ontbreken die, dan blijft alleen het e-mailkanaal actief (geen harde eis,
+// in lijn met "volledig additief" elders in de accounts-laag).
 const fs = require('fs');
 const path = require('path');
 const { dealScoreKleur } = require('../lib/carkijker-core');
+const { sendWebPush } = require('../lib/webpush');
 
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -34,9 +48,17 @@ const FROM_ADDRESS = process.env.NOTIFICATIONS_FROM || 'Carkijker <info@carkijke
 const SITE_ORIGIN = 'https://carkijker.nl';
 const LISTINGS_PATH = path.join(process.cwd(), 'data', 'listings.json');
 
+const VAPID_PUBLIC_KEY = process.env.VAPID_PUBLIC_KEY;
+const VAPID_PRIVATE_KEY = process.env.VAPID_PRIVATE_KEY;
+const VAPID_SUBJECT = process.env.VAPID_SUBJECT || 'mailto:info@carkijker.nl';
+const PUSH_AAN = !!(VAPID_PUBLIC_KEY && VAPID_PRIVATE_KEY);
+
 if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY || !RESEND_API_KEY) {
   console.log('E-mailnotificaties overgeslagen: SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY / RESEND_API_KEY nog niet (volledig) geconfigureerd als secret.');
   process.exit(0);
+}
+if (!PUSH_AAN) {
+  console.log('Pushmeldingen overgeslagen: VAPID_PUBLIC_KEY / VAPID_PRIVATE_KEY nog niet geconfigureerd als secret (e-mail werkt gewoon door).');
 }
 
 function sleep(ms) { return new Promise(function(r){ setTimeout(r, ms); }); }
@@ -186,6 +208,47 @@ async function verstuurMail(to, subject, html) {
   return res.json();
 }
 
+// Korte samenvatting voor de pushmelding zelf (geen HTML-digest zoals de
+// mail -- een OS-notificatie toont doorgaans maar 1-2 regels). Bij een
+// prijsdaling de beste (hoogste dealScore) erin, per zoekagent alleen het
+// aantal -- voor de volledige lijst linkt de melding gewoon door naar de site.
+function pushBodyVoor(secties) {
+  const delen = [];
+  if (secties.prijsdalingen.length) {
+    const beste = secties.prijsdalingen.slice().sort(function(a, b) { return dealScoreVan(b.listing) - dealScoreVan(a.listing); })[0];
+    delen.push((beste.listing.titel || 'Favoriet').slice(0, 36) + ': was €' + fmt(beste.vorige) + ', nu €' + fmt(beste.listing.prijs));
+  }
+  secties.zoekagenten.forEach(function(za) {
+    delen.push(za.matches.length + ' nieuw bij "' + za.agent.label + '"');
+  });
+  return delen.join(' · ').slice(0, 180);
+}
+
+// Stuurt de pushmelding naar alle abonnementen van één gebruiker. Best-effort
+// per abonnement: een falend abonnement (verlopen/ingetrokken, browser geeft
+// dan 404 of 410 terug) wordt verwijderd zodat een volgende run niet
+// opnieuw tegen dezelfde dode endpoint aanloopt; andere fouten (tijdelijke
+// storing bij de push-service) worden alleen gelogd, niet als reden om de
+// rij te verwijderen.
+async function verstuurPushVoorGebruiker(userId, subs, payload) {
+  const vapidKeys = { publicKey: VAPID_PUBLIC_KEY, privateKey: VAPID_PRIVATE_KEY };
+  for (const sub of subs) {
+    try {
+      const res = await sendWebPush(sub, payload, vapidKeys, VAPID_SUBJECT);
+      if (!res.ok) {
+        if (res.status === 404 || res.status === 410) {
+          await supabaseFetch('/rest/v1/push_subscriptions?id=eq.' + sub.id, { method: 'DELETE', headers: { Prefer: 'return=minimal' } })
+            .catch(function(e) { console.warn('  [FOUT] push_subscriptions-opruiming ' + sub.id + ': ' + e.message); });
+        } else {
+          console.warn('  [FOUT] pushmelding ' + userId + '/' + sub.id + ': HTTP ' + res.status);
+        }
+      }
+    } catch (e) {
+      console.warn('  [FOUT] pushmelding ' + userId + '/' + sub.id + ': ' + e.message);
+    }
+  }
+}
+
 async function main() {
   if (!fs.existsSync(LISTINGS_PATH)) { console.error('listings.json niet gevonden -- sla notificaties over.'); process.exit(0); }
   const raw = JSON.parse(fs.readFileSync(LISTINGS_PATH, 'utf-8'));
@@ -258,7 +321,18 @@ async function main() {
     }).catch(function(e){ console.warn('  [FOUT] favorites-init PATCH ' + p.user_id + '/' + p.listing_id + ': ' + e.message); });
   }
 
-  // ── 3. Versturen + pas dan de bijbehorende rijen bijwerken ──
+  // ── 3. Pushabonnementen (best-effort extra kanaal, zie bovenaan dit bestand) ──
+  const subsPerUser = {};
+  if (PUSH_AAN) {
+    const subs = await supabaseFetch('/rest/v1/push_subscriptions?select=*');
+    console.log('Pushabonnementen geladen: ' + (subs ? subs.length : 0));
+    (subs || []).forEach(function(s) {
+      if (!subsPerUser[s.user_id]) subsPerUser[s.user_id] = [];
+      subsPerUser[s.user_id].push(s);
+    });
+  }
+
+  // ── 4. Versturen + pas dan de bijbehorende rijen bijwerken ──
   let verstuurd = 0, fouten = 0, overgeslagen = 0;
   for (const [userId, secties] of Object.entries(perUser)) {
     if (!secties.zoekagenten.length && !secties.prijsdalingen.length) continue;
@@ -283,6 +357,14 @@ async function main() {
     } catch (e) {
       fouten++;
       console.warn('  [FOUT] ' + email + ': ' + e.message);
+    }
+    // Pushmelding is bewust NIET gekoppeld aan het succes/falen van de mail
+    // hierboven -- een mislukte pushmelding mag nooit de e-mailboekhouding
+    // (agentPatches/favPatches) beïnvloeden, en andersom hoeft een gebruiker
+    // zonder pushabonnement dit niet te missen.
+    const subs = subsPerUser[userId];
+    if (subs && subs.length) {
+      await verstuurPushVoorGebruiker(userId, subs, { title: onderwerpVoor(secties), body: pushBodyVoor(secties), url: SITE_ORIGIN + '/' });
     }
     await sleep(300); // lichte throttle, ruim binnen Resend's rate limit
   }
