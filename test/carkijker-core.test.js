@@ -173,6 +173,15 @@ test('schatInruilwaarde', async (t) => {
     assert.equal(r.n, 10);
   });
 
+  await t.test('geeft ook groepMin/groepMax van de vergelijkbare advertenties, voor de visuele balk', () => {
+    var lijst = maakAdvertenties();
+    var r = schatInruilwaarde(lijst, 'Volkswagen', 'Golf', 80000, 2019);
+    var prijzen = lijst.map(function (a) { return a.prijs; });
+    assert.equal(r.groepMin, Math.min.apply(null, prijzen));
+    assert.equal(r.groepMax, Math.max.apply(null, prijzen));
+    assert.ok(r.groepMin <= r.groepMax);
+  });
+
   await t.test('een jongere auto met minder km krijgt een hogere schatting dan een oudere met meer km', () => {
     var lijst = maakAdvertenties();
     var jong = schatInruilwaarde(lijst, 'Volkswagen', 'Golf', 40000, 2023);
