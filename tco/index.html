@@ -70,7 +70,9 @@
     min-height: 100vh;
   }
 
-  /* NAV */
+  /* NAV -- zelfde kruimelpad-opzet als /over-ons/ en /artikelen/: logo
+     gevolgd door de huidige pagina, links uitgelijnd met een "›"-scheiding
+     i.p.v. een losstaande "Terug naar zoeken"-link rechts. */
   nav {
     background: #fff;
     border-bottom: 1px solid var(--border);
@@ -78,15 +80,16 @@
     height: 58px;
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    gap: .6rem;
     position: sticky;
     top: 0;
     z-index: 100;
   }
-  .logo { font-size: 1.3rem; font-weight: 800; text-decoration: none; color: var(--oranje); letter-spacing: -.5px; }
+  .logo { font-size: 22px; font-weight: 800; text-decoration: none; color: var(--oranje); letter-spacing: -.5px; }
   .logo span { color: var(--text); }
-  .nav-back { font-size: 13px; color: var(--muted); text-decoration: none; display: flex; align-items: center; gap: 5px; }
-  .nav-back:hover { color: var(--oranje); }
+  nav a:not(.logo) { font-size: 13.5px; color: var(--muted); text-decoration: none; }
+  nav a:not(.logo):hover { color: var(--oranje); }
+  nav a+a::before { content: " \203a "; color: #aaa; margin: 0 .3rem; }
 
   /* HERO */
   .hero {
@@ -296,7 +299,7 @@
 
 <nav>
   <a href="/" class="logo">Car<span>kijker</span></a>
-  <a href="/" class="nav-back">← Terug naar zoeken</a>
+  <a href="/tco/">Autokosten</a>
 </nav>
 
 <div class="hero">
