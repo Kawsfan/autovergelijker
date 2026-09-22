@@ -2825,7 +2825,20 @@ function openVergelijk(){
 function closeVergelijk(){document.getElementById("vglModal").style.display="none";}
 function resetVergelijk(){_vgl=[];updateVglBar();document.querySelectorAll("[data-vgl]").forEach(function(b){b.classList.remove("vgl-actief");});}
 function filtersNaarURL(){var p=new URLSearchParams();var g=function(id){var e=document.getElementById(id);return e?e.value:"";};var sv=function(k,v){if(v)p.set(k,v);};sv("q",g("zoekInput"));sv("merk",g("merkFilter"));sv("model",g("modelInput"));sv("brandstof",g("brandstofFilter"));sv("jaarMin",g("jaarMin"));sv("jaarMax",g("jaarMax"));sv("prijsMin",g("prijsMin"));sv("prijsMax",g("prijsMax"));sv("kmMin",g("kmMin"));sv("kmMax",g("kmMax"));sv("carrosserie",g("carrosserieFilter"));if(window._actieveTrans)sv("trans",window._actieveTrans);history.replaceState(null,"",p.toString()?"?"+p.toString():location.pathname);}
-function urlNaarFilters(){var p=new URLSearchParams(location.search);if(!p.toString())return;var set=function(id,val){var e=document.getElementById(id);if(e&&val)e.value=val;};set("zoekInput",p.get("q"));set("merkFilter",p.get("merk"));set("modelInput",p.get("model"));set("brandstofFilter",p.get("brandstof"));set("jaarMin",p.get("jaarMin"));set("jaarMax",p.get("jaarMax"));set("prijsMin",p.get("prijsMin"));set("prijsMax",p.get("prijsMax"));set("kmMin",p.get("kmMin"));set("kmMax",p.get("kmMax"));set("carrosserieFilter",p.get("carrosserie"));if(p.get("trans")){var tb=document.querySelector("[data-val=\""+p.get("trans")+"\"]");if(tb)setTransmissie(tb);}zoekNu();}
+// setCI (case-insensitief) i.p.v. een kale e.value=val voor de vier
+// <select>-velden (merk/model/brandstof/carrosserie): hun <option value>'s
+// zijn exact zo gecast als de data zelf (bv. "Audi"), maar oudere/externe
+// links naar deze URL's staan vaak in lowercase (bv. ?merk=audi -- door
+// Google zelf ontdekt via oude interne links van vóór de /occasions/<merk>/-
+// pagina's). Een kale .value="audi" matcht dan geen enkele <option> en de
+// select valt terug op "Alle merken", waarna filtersNaarURL() de URL
+// vlak daarna herschrijft naar een versie ZONDER merk -- dat ziet Google's
+// renderer als een pagina die zichzelf omleidt (69 van zulke URL's onder
+// "Page with redirect" in Search Console, sep '26, vrijwel allemaal deze
+// exacte ?merk=<lowercase>-vorm). updateModelDropdown() moet vóór het model
+// gezet wordt draaien, anders bestaat de matchende <option> voor het model
+// nog niet (die opties worden pas gevuld ná een merk-selectie).
+function urlNaarFilters(){var p=new URLSearchParams(location.search);if(!p.toString())return;var set=function(id,val){var e=document.getElementById(id);if(e&&val)e.value=val;};var setCI=function(id,val){var e=document.getElementById(id);if(!e||!val)return;var opt=Array.from(e.options).find(function(o){return o.value.toLowerCase()===String(val).toLowerCase();});if(opt)e.value=opt.value;};set("zoekInput",p.get("q"));setCI("merkFilter",p.get("merk"));if(document.getElementById("merkFilter").value&&typeof updateModelDropdown==="function")updateModelDropdown();setCI("modelInput",p.get("model"));setCI("brandstofFilter",p.get("brandstof"));set("jaarMin",p.get("jaarMin"));set("jaarMax",p.get("jaarMax"));set("prijsMin",p.get("prijsMin"));set("prijsMax",p.get("prijsMax"));set("kmMin",p.get("kmMin"));set("kmMax",p.get("kmMax"));setCI("carrosserieFilter",p.get("carrosserie"));if(p.get("trans")){var tb=document.querySelector("[data-val=\""+p.get("trans")+"\"]");if(tb)setTransmissie(tb);}zoekNu();}
 document.addEventListener("DOMContentLoaded",urlNaarFilters);
 
 </script><script>
