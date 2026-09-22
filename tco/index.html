@@ -122,6 +122,15 @@
   }
   .card-title .icon { font-size: 16px; }
 
+  /* TYPE-PICKER (chips i.p.v. kale dropdown) */
+  .type-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+  @media(max-width: 560px){ .type-grid { grid-template-columns: repeat(3, 1fr); } }
+  .type-chip { border: 1.5px solid var(--border); background: #fafaf8; border-radius: 12px; padding: 12px 6px; text-align: center; cursor: pointer; transition: border-color .15s, background .15s; font-family: inherit; }
+  .type-chip:hover { border-color: var(--oranje); }
+  .type-chip.actief { border-color: var(--oranje); background: #fff3ed; }
+  .type-chip .em { font-size: 22px; display: block; margin-bottom: 4px; }
+  .type-chip .lbl { font-size: 10.5px; font-weight: 600; color: var(--text); line-height: 1.3; }
+
   /* FORM GRID */
   .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
   @media(max-width: 500px){ .form-grid { grid-template-columns: 1fr; } }
@@ -167,37 +176,24 @@
     margin-bottom: 16px;
   }
   .results-title { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; opacity: .75; margin-bottom: 16px; }
-  .results-total {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-end;
-    margin-bottom: 20px;
-  }
   .total-label { font-size: 15px; opacity: .85; }
   .total-amount { font-size: 2.4rem; font-weight: 800; line-height: 1; }
-  .total-sub { font-size: 13px; opacity: .7; }
-  .results-breakdown { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
-  .breakdown-item {
-    background: rgba(255,255,255,.15);
-    border-radius: 10px;
-    padding: 12px 10px;
-    text-align: center;
-  }
-  .breakdown-label { font-size: 11px; opacity: .8; margin-bottom: 4px; }
-  .breakdown-amount { font-size: 1.1rem; font-weight: 700; }
-  .breakdown-sub { font-size: 10px; opacity: .65; }
+  .total-sub { font-size: 13px; opacity: .7; margin-bottom: 20px; }
 
-  /* BARS */
-  .bar-section { margin-top: 20px; }
-  .bar-row { margin-bottom: 12px; }
-  .bar-header { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 5px; }
-  .bar-label { font-weight: 600; }
-  .bar-value { color: var(--muted); }
-  .bar-bg { background: var(--border); border-radius: 6px; height: 8px; overflow: hidden; }
-  .bar-fill { height: 100%; border-radius: 6px; transition: width .5s ease; }
-  .bar-brandstof { background: #e84c15; }
-  .bar-wegenbelasting { background: #6366f1; }
-  .bar-verzekering { background: #16a34a; }
+  /* DONUT (kostenverdeling) i.p.v. platte balken -- zelfde 3 posten
+     (brandstof/MRB/verzekering), maar als SVG-ring met legenda i.p.v.
+     los-van-elkaar staande voortgangsbalken. */
+  .donut-row { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
+  .donut-wrap { position: relative; flex-shrink: 0; width: 128px; height: 128px; }
+  .donut-wrap svg circle { transition: stroke-dasharray .5s ease, stroke-dashoffset .5s ease; }
+  .donut-center { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; flex-direction: column; text-align: center; }
+  .donut-center .pct { font-size: 1.3rem; font-weight: 800; }
+  .donut-center .lbl { font-size: 9px; opacity: .75; text-transform: uppercase; letter-spacing: .3px; }
+  .legend { flex: 1; min-width: 160px; display: flex; flex-direction: column; gap: 10px; }
+  .legend-item { display: flex; align-items: center; gap: 8px; font-size: 12.5px; }
+  .legend-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+  .legend-lbl { flex: 1; opacity: .9; }
+  .legend-val { font-weight: 700; }
 
   /* KMBAR */
   .km-result {
@@ -256,8 +252,8 @@
   .faq-item { border-top: 1px solid var(--border); padding: 16px 0; }
   .faq-item:last-child { border-bottom: 1px solid var(--border); }
   .faq-q { font-size: 14px; font-weight: 700; cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 12px; }
-  .faq-icon { font-size: 18px; color: var(--muted); flex-shrink: 0; transition: transform .2s; }
-  .faq-item.open .faq-icon { transform: rotate(45deg); }
+  .faq-chevron { flex-shrink: 0; color: var(--muted); transition: transform .2s ease; }
+  .faq-item.open .faq-chevron { transform: rotate(180deg); color: var(--oranje); }
   .faq-a { font-size: 13px; color: var(--muted); line-height: 1.6; margin-top: 10px; display: none; }
   .faq-item.open .faq-a { display: block; }
 
@@ -297,21 +293,18 @@
   <!-- AUTO TYPE PRESETS -->
   <div class="card">
     <div class="card-title"><span class="icon">🚗</span> Type auto</div>
-    <div class="field">
-      <label for="autoType">Selecteer je auto type (vult waarden automatisch in)</label>
-      <select id="autoType" onchange="applyPreset()">
-        <option value="">— Kies een type of vul zelf in —</option>
-        <option value="stadsauto">Stadsauto (bijv. VW Polo, Opel Corsa)</option>
-        <option value="gezinsauto">Gezinsauto (bijv. VW Golf, Ford Focus)</option>
-        <option value="grote-gezinsauto">Grote gezinsauto (bijv. Skoda Octavia, Passat)</option>
-        <option value="suv-compact">Compacte SUV (bijv. VW T-Roc, Toyota C-HR)</option>
-        <option value="suv-groot">Grote SUV (bijv. VW Tiguan, Volvo XC60)</option>
-        <option value="elektrisch-compact">Elektrisch compact (bijv. VW ID.3, Renault Zoe)</option>
-        <option value="elektrisch-groot">Elektrisch groot (bijv. Tesla Model 3, Kia EV6)</option>
-        <option value="hybride">Hybride (bijv. Toyota Yaris, Peugeot 208)</option>
-        <option value="diesel">Diesel gezinsauto (bijv. Skoda Superb, BMW 3)</option>
-        <option value="bestelwagen">Bestelwagen (bijv. VW Transporter, Mercedes Sprinter)</option>
-      </select>
+    <p style="font-size:12.5px;color:var(--muted);margin-bottom:12px">Kies een type om de velden hieronder automatisch in te vullen, of vul zelf alles handmatig in.</p>
+    <div class="type-grid" id="typeGrid" role="group" aria-label="Type auto">
+      <button type="button" class="type-chip" data-type="stadsauto" onclick="kiesType(this)" title="Bijv. VW Polo, Opel Corsa"><span class="em">🚙</span><span class="lbl">Stadsauto</span></button>
+      <button type="button" class="type-chip" data-type="gezinsauto" onclick="kiesType(this)" title="Bijv. VW Golf, Ford Focus"><span class="em">🚗</span><span class="lbl">Gezinsauto</span></button>
+      <button type="button" class="type-chip" data-type="grote-gezinsauto" onclick="kiesType(this)" title="Bijv. Skoda Octavia, Passat"><span class="em">🚐</span><span class="lbl">Grote gezinsauto</span></button>
+      <button type="button" class="type-chip" data-type="suv-compact" onclick="kiesType(this)" title="Bijv. VW T-Roc, Toyota C-HR"><span class="em">🚘</span><span class="lbl">Compacte SUV</span></button>
+      <button type="button" class="type-chip" data-type="suv-groot" onclick="kiesType(this)" title="Bijv. VW Tiguan, Volvo XC60"><span class="em">🛻</span><span class="lbl">Grote SUV</span></button>
+      <button type="button" class="type-chip" data-type="elektrisch-compact" onclick="kiesType(this)" title="Bijv. VW ID.3, Renault Zoe"><span class="em">🔋</span><span class="lbl">Elektrisch compact</span></button>
+      <button type="button" class="type-chip" data-type="elektrisch-groot" onclick="kiesType(this)" title="Bijv. Tesla Model 3, Kia EV6"><span class="em">⚡</span><span class="lbl">Elektrisch groot</span></button>
+      <button type="button" class="type-chip" data-type="hybride" onclick="kiesType(this)" title="Bijv. Toyota Yaris, Peugeot 208"><span class="em">🔀</span><span class="lbl">Hybride</span></button>
+      <button type="button" class="type-chip" data-type="diesel" onclick="kiesType(this)" title="Bijv. Skoda Superb, BMW 3"><span class="em">⛽</span><span class="lbl">Diesel</span></button>
+      <button type="button" class="type-chip" data-type="bestelwagen" onclick="kiesType(this)" title="Bijv. VW Transporter, Mercedes Sprinter"><span class="em">📦</span><span class="lbl">Bestelwagen</span></button>
     </div>
   </div>
 
@@ -428,28 +421,24 @@
 
     <div class="results">
       <div class="results-title">Totale kosten per jaar</div>
-      <div class="results-total">
-        <div>
-          <div class="total-label">Totaal TCO</div>
-          <div class="total-amount" id="totaalJaar">€0</div>
-          <div class="total-sub" id="totaalMaand">€0 per maand</div>
+      <div class="total-label">Totaal TCO</div>
+      <div class="total-amount" id="totaalJaar">€0</div>
+      <div class="total-sub" id="totaalMaand">€0 per maand</div>
+
+      <div class="donut-row">
+        <div class="donut-wrap">
+          <svg width="128" height="128" viewBox="0 0 128 128">
+            <circle cx="64" cy="64" r="52" fill="none" stroke="rgba(255,255,255,.15)" stroke-width="16"/>
+            <circle id="donutBrandstof" cx="64" cy="64" r="52" fill="none" stroke="#fff" stroke-width="16" stroke-dasharray="0 327" transform="rotate(-90 64 64)" stroke-linecap="round"/>
+            <circle id="donutMRB" cx="64" cy="64" r="52" fill="none" stroke="rgba(255,255,255,.55)" stroke-width="16" stroke-dasharray="0 327" transform="rotate(-90 64 64)" stroke-linecap="round"/>
+            <circle id="donutVerzekering" cx="64" cy="64" r="52" fill="none" stroke="rgba(255,255,255,.3)" stroke-width="16" stroke-dasharray="0 327" transform="rotate(-90 64 64)" stroke-linecap="round"/>
+          </svg>
+          <div class="donut-center"><span class="pct" id="donutPct">0%</span><span class="lbl" id="donutLbl">brandstof</span></div>
         </div>
-      </div>
-      <div class="results-breakdown">
-        <div class="breakdown-item">
-          <div class="breakdown-label">⛽ Brandstof</div>
-          <div class="breakdown-amount" id="resBrandstof">€0</div>
-          <div class="breakdown-sub">per jaar</div>
-        </div>
-        <div class="breakdown-item">
-          <div class="breakdown-label">🛣️ Wegenbelasting</div>
-          <div class="breakdown-amount" id="resMRB">€0</div>
-          <div class="breakdown-sub">per jaar</div>
-        </div>
-        <div class="breakdown-item">
-          <div class="breakdown-label">🛡️ Verzekering</div>
-          <div class="breakdown-amount" id="resVerzekering">€0</div>
-          <div class="breakdown-sub">per jaar</div>
+        <div class="legend">
+          <div class="legend-item"><span class="legend-dot" style="background:#fff"></span><span class="legend-lbl">⛽ Brandstof</span><span class="legend-val" id="resBrandstof">€0</span></div>
+          <div class="legend-item"><span class="legend-dot" style="background:rgba(255,255,255,.55)"></span><span class="legend-lbl">🛣️ Wegenbelasting</span><span class="legend-val" id="resMRB">€0</span></div>
+          <div class="legend-item"><span class="legend-dot" style="background:rgba(255,255,255,.3)"></span><span class="legend-lbl">🛡️ Verzekering</span><span class="legend-val" id="resVerzekering">€0</span></div>
         </div>
       </div>
     </div>
@@ -459,43 +448,25 @@
       <div class="km-value" id="resKm">€0,00/km</div>
     </div>
 
-    <div class="card">
-      <div class="card-title">Verdeling kosten</div>
-      <div class="bar-section">
-        <div class="bar-row">
-          <div class="bar-header"><span class="bar-label">⛽ Brandstof</span><span class="bar-value" id="barBrandstofVal"></span></div>
-          <div class="bar-bg"><div class="bar-fill bar-brandstof" id="barBrandstof" style="width:0%"></div></div>
-        </div>
-        <div class="bar-row">
-          <div class="bar-header"><span class="bar-label">🛣️ Wegenbelasting</span><span class="bar-value" id="barMRBVal"></span></div>
-          <div class="bar-bg"><div class="bar-fill bar-wegenbelasting" id="barMRB" style="width:0%"></div></div>
-        </div>
-        <div class="bar-row">
-          <div class="bar-header"><span class="bar-label">🛡️ Verzekering</span><span class="bar-value" id="barVerzekeringVal"></span></div>
-          <div class="bar-bg"><div class="bar-fill bar-verzekering" id="barVerzekering" style="width:0%"></div></div>
-        </div>
-      </div>
-    </div>
-
   </div>
 
   <!-- FAQ -->
   <div class="card" style="margin-top:8px;">
     <div class="card-title">Veelgestelde vragen</div>
     <div class="faq-item">
-      <div class="faq-q" onclick="toggleFaq(this)">Wat is TCO? <span class="faq-icon">+</span></div>
+      <div class="faq-q" onclick="toggleFaq(this)"><span>Wat is TCO?</span><svg class="faq-chevron" width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
       <div class="faq-a">TCO staat voor Total Cost of Ownership — de totale eigendomskosten van een auto. Deze calculator richt zich op de drie grootste terugkerende kostenposten: brandstof, wegenbelasting en verzekering.</div>
     </div>
     <div class="faq-item">
-      <div class="faq-q" onclick="toggleFaq(this)">Hoe nauwkeurig is de wegenbelasting? <span class="faq-icon">+</span></div>
+      <div class="faq-q" onclick="toggleFaq(this)"><span>Hoe nauwkeurig is de wegenbelasting?</span><svg class="faq-chevron" width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
       <div class="faq-a">De berekening is een schatting voor 2026: de 2024/2025-tarieven van de Belastingdienst, opgehoogd met de bekende inflatiecorrectie van 2,9%. Ook is de gewichtsbasis per 1 juli 2026 gewijzigd naar massa rijklaar (circa 100 kg meer dan voorheen) &ndash; zie het veld hierboven. Het uiteindelijke bedrag kan afwijken afhankelijk van je exacte gewichtsklasse en provincie. Check daarom altijd de <a href="https://www.belastingdienst.nl/wps/wcm/connect/bldcontentnl/belastingdienst/auto_en_vervoer/belastingen_op_auto_en_motor/motorrijtuigenbelasting/tarief_mrb/" target="_blank" rel="noopener" style="color:#0369a1">Belastingdienst website</a> voor het definitieve bedrag.</div>
     </div>
     <div class="faq-item">
-      <div class="faq-q" onclick="toggleFaq(this)">Wat zit er NIET in deze calculator? <span class="faq-icon">+</span></div>
+      <div class="faq-q" onclick="toggleFaq(this)"><span>Wat zit er NIET in deze calculator?</span><svg class="faq-chevron" width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
       <div class="faq-a">Afschrijving, onderhoud, APK, banden, parkeergeld en rekeningrijden zijn niet meegenomen. Dit zijn wél relevante kostenposten, maar ze zijn sterk afhankelijk van rijgedrag en voertuig. Een vuistregel: tel €0,05–€0,10 per km extra voor onderhoud en afschrijving.</div>
     </div>
     <div class="faq-item">
-      <div class="faq-q" onclick="toggleFaq(this)">Elektrisch goedkoper dan benzine? <span class="faq-icon">+</span></div>
+      <div class="faq-q" onclick="toggleFaq(this)"><span>Elektrisch goedkoper dan benzine?</span><svg class="faq-chevron" width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
       <div class="faq-a">Bij elektrisch rijd je met een korting van 30% op de wegenbelasting (2026-2028; een volledige vrijstelling gold alleen t/m 2024). Energiekosten (thuis laden) zijn doorgaans €0,02–€0,04 per km. Bij meer dan ~15.000 km/jaar is elektrisch vaak goedkoper in gebruik, maar de aanschafprijs ligt hoger.</div>
     </div>
   </div>
@@ -642,17 +613,36 @@ function bereken() {
   document.getElementById('resVerzekering').textContent = fmt(verzekeringJaar);
   document.getElementById('resKm').textContent = '€' + perKm.toFixed(2).replace('.', ',') + '/km';
 
-  // Bars
-  var maxVal = Math.max(brandstofJaar, mrbJaar, verzekeringJaar, 1);
-  document.getElementById('barBrandstof').style.width = (brandstofJaar / totaal * 100) + '%';
-  document.getElementById('barMRB').style.width = (mrbJaar / totaal * 100) + '%';
-  document.getElementById('barVerzekering').style.width = (verzekeringJaar / totaal * 100) + '%';
-  document.getElementById('barBrandstofVal').textContent = fmt(brandstofJaar) + ' (' + Math.round(brandstofJaar/totaal*100) + '%)';
-  document.getElementById('barMRBVal').textContent = fmt(mrbJaar) + ' (' + Math.round(mrbJaar/totaal*100) + '%)';
-  document.getElementById('barVerzekeringVal').textContent = fmt(verzekeringJaar) + ' (' + Math.round(verzekeringJaar/totaal*100) + '%)';
+  updateDonut([
+    { id: 'donutBrandstof', bedrag: brandstofJaar, label: 'brandstof' },
+    { id: 'donutMRB', bedrag: mrbJaar, label: 'wegenbelasting' },
+    { id: 'donutVerzekering', bedrag: verzekeringJaar, label: 'verzekering' },
+  ], totaal);
 
   // Scroll to results
   document.getElementById('resultaten').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// Tekent de kostenverdeling als donut-ring (3 gestapelde <circle>-segmenten
+// met stroke-dasharray/-offset, vanaf 12 uur via rotate(-90deg) op elke
+// cirkel) i.p.v. losse voortgangsbalken -- zelfde 3 posten, alleen visueel
+// als één geheel i.p.v. drie aparte balken. Middencijfer toont de grootste
+// van de drie posten, want dat is meestal de post waar een bezoeker het
+// eerst naar kijkt ("waar gaat mijn geld vooral naartoe").
+function updateDonut(posten, totaal) {
+  var C = 2 * Math.PI * 52; // omtrek van de r=52-cirkel in de SVG
+  var offset = 0;
+  posten.forEach(function (p) {
+    var frac = totaal > 0 ? p.bedrag / totaal : 0;
+    var arc = frac * C;
+    var el = document.getElementById(p.id);
+    el.setAttribute('stroke-dasharray', arc.toFixed(1) + ' ' + Math.max(0, C - arc).toFixed(1));
+    el.setAttribute('stroke-dashoffset', (-offset).toFixed(1));
+    offset += arc;
+  });
+  var grootste = posten.reduce(function (a, b) { return b.bedrag > a.bedrag ? b : a; });
+  document.getElementById('donutPct').textContent = (totaal > 0 ? Math.round(grootste.bedrag / totaal * 100) : 0) + '%';
+  document.getElementById('donutLbl').textContent = grootste.label;
 }
 
 function toggleFaq(el) {
@@ -674,9 +664,14 @@ var PRESETS = {
   'bestelwagen':      ['diesel',  9.0,  1900, 'wa',      15000]
 };
 
-function applyPreset() {
-  var type = document.getElementById('autoType').value;
+// Vervangt de vroegere <select id="autoType">: elke chip is nu een eigen
+// <button data-type="...">, dit zet 'm op actief (visuele .actief-rand) en
+// vult de rest van het formulier met dezelfde PRESETS-waarden als voorheen.
+function kiesType(el) {
+  var type = el.dataset.type;
   if (!type || !PRESETS[type]) return;
+  document.querySelectorAll('#typeGrid .type-chip').forEach(function (c) { c.classList.remove('actief'); });
+  el.classList.add('actief');
   var p = PRESETS[type];
   document.getElementById('brandstof').value = p[0];
   updatePrijs();
