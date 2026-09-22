@@ -138,6 +138,20 @@
   .field { display: flex; flex-direction: column; gap: 5px; }
   .field label { font-size: 13px; font-weight: 600; color: var(--text); }
   .field small { font-size: 11px; color: var(--muted); }
+
+  /* INFO-TOOLTIP (bv. bij "Dagwaarde auto") -- tap-toggle i.p.v. alleen
+     hover, anders onbereikbaar op een touchscreen (zelfde afweging als
+     .auto-deal-pill in index.html). */
+  .info-tip { position: relative; display: inline-block; margin-left: 2px; }
+  .info-tip-btn { background: none; border: none; padding: 0; margin: 0; font-size: 13px; font-weight: 400; color: var(--muted); cursor: pointer; line-height: 1; vertical-align: -1px; }
+  .info-tip-btn:hover { color: var(--oranje); }
+  .info-tip-bubble {
+    position: absolute; bottom: calc(100% + 8px); left: 0; transform: none;
+    background: var(--text); color: #fff; font-size: 11.5px; font-weight: 400; line-height: 1.5;
+    padding: 10px 12px; border-radius: 8px; width: 220px; max-width: 70vw; text-align: left;
+    z-index: 20; box-shadow: 0 4px 12px rgba(0,0,0,.2); display: none;
+  }
+  .info-tip.open .info-tip-bubble { display: block; }
   .field-unit { position: relative; }
   .field-unit input { padding-right: 48px; }
   .unit-badge {
@@ -202,13 +216,15 @@
     border-radius: var(--radius);
     padding: 18px 20px;
     margin-bottom: 16px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
   }
+  .km-result-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
   .km-label { font-size: 14px; color: var(--muted); }
   .km-value { font-size: 1.4rem; font-weight: 800; color: var(--green); }
+  .km-duiding { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border); font-size: 12.5px; color: var(--muted); line-height: 1.6; }
+  .km-duiding .badge { display: inline-block; font-size: 10.5px; font-weight: 700; padding: 2px 8px; border-radius: 20px; margin-right: 6px; vertical-align: 1px; }
+  .km-duiding .badge.laag { background: #dcfce7; color: #15803d; }
+  .km-duiding .badge.gemiddeld { background: #fef9c3; color: #854d0e; }
+  .km-duiding .badge.hoog { background: #fee2e2; color: #b91c1c; }
 
   /* INFO BOX */
   .info-box {
@@ -396,7 +412,12 @@
         </select>
       </div>
       <div class="field">
-        <label for="autoWaarde">Dagwaarde auto (€)</label>
+        <label for="autoWaarde">Dagwaarde auto (€)
+          <span class="info-tip">
+            <button type="button" class="info-tip-btn" onclick="toggleInfoTip(event,this)" aria-label="Wat is dagwaarde?">&#9432;</button>
+            <span class="info-tip-bubble">De huidige marktwaarde van je auto (niet de nieuwprijs) &mdash; hier gebruikt om een indicatie van de verzekeringspremie te berekenen. Vergelijk bijvoorbeeld de vraagprijs van gelijkaardige occasions op Carkijker.</span>
+          </span>
+        </label>
         <div class="field-unit">
           <input type="number" id="autoWaarde" value="15000" min="500" max="200000" step="500" onchange="updateVerzekering()">
           <span class="unit-badge">€</span>
@@ -444,8 +465,11 @@
     </div>
 
     <div class="km-result">
-      <div class="km-label">Kosten per kilometer</div>
-      <div class="km-value" id="resKm">€0,00/km</div>
+      <div class="km-result-top">
+        <div class="km-label">Kosten per kilometer</div>
+        <div class="km-value" id="resKm">€0,00/km</div>
+      </div>
+      <div class="km-duiding" id="kmDuiding" style="display:none"></div>
     </div>
 
   </div>
@@ -612,6 +636,7 @@ function bereken() {
   document.getElementById('resMRB').textContent = fmt(mrbJaar);
   document.getElementById('resVerzekering').textContent = fmt(verzekeringJaar);
   document.getElementById('resKm').textContent = '€' + perKm.toFixed(2).replace('.', ',') + '/km';
+  toonKmDuiding(perKm);
 
   updateDonut([
     { id: 'donutBrandstof', bedrag: brandstofJaar, label: 'brandstof' },
@@ -645,10 +670,50 @@ function updateDonut(posten, totaal) {
   document.getElementById('donutLbl').textContent = grootste.label;
 }
 
+// "€0,47/km" zegt een bezoeker die geen autokosten-achtergrond heeft weinig
+// zonder referentiepunt (vraag hierover binnengekregen). Grenzen hieronder
+// zijn niet uit de lucht gegrepen: berekend met dezelfde formule als deze
+// calculator zelf, over alle 10 PRESETS bij 15.000 km/jaar -- die lopen van
+// €0,18/km (elektrisch compact) tot €0,47/km (grote SUV). Drempels op de
+// natuurlijke breuk tussen die 10 uitkomsten gelegd (zie ontwikkelnotities),
+// dus "laag/gemiddeld/hoog" is relatief t.o.v. wat deze calculator zelf als
+// bandbreedte laat zien, geen extern/officieel gemiddelde.
+function toonKmDuiding(perKm) {
+  var el = document.getElementById('kmDuiding');
+  var tier = perKm < 0.24 ? 'laag' : perKm < 0.32 ? 'gemiddeld' : 'hoog';
+  var label = tier === 'laag' ? 'Laag' : tier === 'gemiddeld' ? 'Gemiddeld' : 'Hoog';
+  var duiding = tier === 'laag'
+    ? 'vergelijkbaar met een zuinige stadsauto, hybride of elektrische auto.'
+    : tier === 'gemiddeld'
+      ? 'vergelijkbaar met een gemiddelde gezinsauto of compacte SUV.'
+      : 'vergelijkbaar met een grote SUV of bestelwagen -- kijk of een zuiniger model, minder brandstofverbruik of een andere verzekeringsvorm iets kan schelen.';
+  el.innerHTML = '<span class="badge ' + tier + '">' + label + '</span>Dit is ' + duiding +
+    ' Let op: exclusief afschrijving en onderhoud (circa &euro;0,05&ndash;0,10/km extra, zie de FAQ hieronder).';
+  el.style.display = '';
+}
+
 function toggleFaq(el) {
   var item = el.closest('.faq-item');
   item.classList.toggle('open');
 }
+
+// Info-tooltip bij "Dagwaarde auto" (en eventuele toekomstige velden) --
+// tap-toggle i.p.v. alleen :hover, anders onbereikbaar op een touchscreen.
+// Sluit ook bij een klik buiten de tooltip, zelfde patroon als
+// _toggleDealTip() in index.html.
+function toggleInfoTip(e, btn) {
+  e.preventDefault();
+  e.stopPropagation();
+  var wrap = btn.closest('.info-tip');
+  var was = wrap.classList.contains('open');
+  document.querySelectorAll('.info-tip.open').forEach(function (t) { t.classList.remove('open'); });
+  if (!was) wrap.classList.add('open');
+}
+document.addEventListener('click', function (e) {
+  if (!e.target.closest('.info-tip')) {
+    document.querySelectorAll('.info-tip.open').forEach(function (t) { t.classList.remove('open'); });
+  }
+});
 
 // Auto type presets: [brandstofType, verbruik, gewicht, verzekeringType, autoWaarde]
 var PRESETS = {
