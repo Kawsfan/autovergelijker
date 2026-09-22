@@ -105,7 +105,7 @@ const OCC_STYLE =
   'nav{background:rgba(255,255,255,.96);border-bottom:1px solid rgba(0,0,0,.08);padding:0 1.1rem;height:56px;' +
   'display:flex;align-items:center;gap:.9rem;position:sticky;top:0;z-index:200;box-shadow:0 1px 0 rgba(0,0,0,.04);' +
   'backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);font-size:.875rem;overflow-x:auto;white-space:nowrap}' +
-  '.logo{font-size:1.15rem;font-weight:800;color:#d14413;letter-spacing:-.5px;text-decoration:none;flex-shrink:0}' +
+  '.logo{font-size:22px;font-weight:800;color:#d14413;letter-spacing:-.5px;text-decoration:none;flex-shrink:0}' +
   '.logo span{color:#1a1a2e}' +
   'nav a{color:#d14413;text-decoration:none}nav a+a::before{content:" \\203a ";color:#aaa;margin:0 .3rem}' +
   '.container{max-width:960px;margin:0 auto;padding:1rem 1rem 3rem}' +
@@ -773,7 +773,7 @@ function buildStadPage(stadSlug, stad, filtered, listings, landelijkeStats) {
     '<style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:"Segoe UI",Arial,sans-serif;background:#f5f5f0;color:#333;line-height:1.5}'+
     'nav{background:rgba(255,255,255,.96);border-bottom:1px solid rgba(0,0,0,.08);padding:0 1.1rem;height:56px;display:flex;align-items:center;gap:.9rem;'+
     'position:sticky;top:0;z-index:200;box-shadow:0 1px 0 rgba(0,0,0,.04);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);font-size:.875rem;overflow-x:auto;white-space:nowrap}'+
-    '.logo{font-size:1.15rem;font-weight:800;color:#d14413;letter-spacing:-.5px;text-decoration:none;flex-shrink:0}.logo span{color:#1a1a2e}'+
+    '.logo{font-size:22px;font-weight:800;color:#d14413;letter-spacing:-.5px;text-decoration:none;flex-shrink:0}.logo span{color:#1a1a2e}'+
     'nav a{color:#d14413;text-decoration:none}nav a+a::before{content:" \\203a ";color:#aaa;margin:0 .3rem}'+
     '.container{max-width:960px;margin:0 auto;padding:1rem}h1{font-size:1.5rem;font-weight:700;margin:1.5rem 0 .3rem;color:#1a1a2e}'+
     '.subtitle{color:#666;font-size:.9rem;margin-bottom:1rem}.geo-blok{background:#fff3e0;border-left:4px solid #d14413;padding:.75rem 1rem;margin-bottom:1rem;border-radius:0 8px 8px 0}'+
@@ -922,7 +922,7 @@ const MARKT_STYLE =
   '*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}' +
   'body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}' +
   'nav{background:#fff;border-bottom:1px solid var(--border);padding:0 16px;height:56px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:200;font-size:13px;overflow-x:auto;white-space:nowrap}' +
-  '.logo{font-size:1.2rem;font-weight:800;color:var(--oranje);letter-spacing:-.5px;text-decoration:none;flex-shrink:0}.logo span{color:var(--text)}' +
+  '.logo{font-size:22px;font-weight:800;color:var(--oranje);letter-spacing:-.5px;text-decoration:none;flex-shrink:0}.logo span{color:var(--text)}' +
   'nav a.crumb{color:var(--oranje);text-decoration:none}nav a.crumb+a.crumb::before{content:"\\203a";color:#bbb;margin:0 6px}' +
   '.hero{background:linear-gradient(135deg,#1a1a18 0%,#2d2d2a 100%);color:#fff;padding:36px 20px 32px;text-align:center}' +
   '.hero h1{font-size:clamp(1.3rem,4vw,1.8rem);font-weight:800;letter-spacing:-.5px;margin-bottom:6px}' +
