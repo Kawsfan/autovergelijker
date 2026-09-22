@@ -857,45 +857,47 @@ function betrouwbaarheidsTekst(n) {
   if (n >= 30) return 'Gebaseerd op ' + n + ' advertenties: redelijk betrouwbaar.';
   return 'Gebaseerd op slechts ' + n + ' advertenties: kleine steekproef, interpreteer met voorzichtigheid.';
 }
+// Retourneert alleen het <svg>-element (area+lijn), geen ingebakken
+// tekstlabels -- de aanroeper zet de datumrange daaronder als losse
+// .chart-labels-div, zelfde patroon als bouwHistogramChart/bouwJaarChart
+// hieronder, en consistent met hoe /inruilwaarde/ en /tco/ hun labels buiten
+// de SVG houden i.p.v. <text>-elementen (scherper op elk scherm/font).
 function bouwPrijsChart(reeks) {
-  const W = 680, H = 220, PAD_L = 66, PAD_R = 16, PAD_T = 16, PAD_B = 28;
-  const innerW = W - PAD_L - PAD_R, innerH = H - PAD_T - PAD_B;
+  const W = 680, H = 160, PAD = 4;
+  const innerW = W, innerH = H - PAD;
   const n = reeks.length;
   const prijzen = reeks.map(function(r){ return r.seg.med; });
   const min = Math.min.apply(null, prijzen), max = Math.max.apply(null, prijzen);
   const span = (max - min) || 1;
-  function xAt(i) { return PAD_L + (n <= 1 ? 0 : (i / (n - 1)) * innerW); }
-  function yAt(p) { return PAD_T + innerH - ((p - min) / span) * innerH; }
-  const pathD = reeks.map(function(r, i){ return (i === 0 ? 'M' : 'L') + xAt(i).toFixed(1) + ' ' + yAt(r.seg.med).toFixed(1); }).join(' ');
-  const areaD = pathD + ' L' + xAt(n - 1).toFixed(1) + ' ' + (PAD_T + innerH) + ' L' + xAt(0).toFixed(1) + ' ' + (PAD_T + innerH) + ' Z';
-  const MAANDEN = ['jan','feb','mrt','apr','mei','jun','jul','aug','sep','okt','nov','dec'];
-  function fmtDatum(d) { const dt = new Date(d + 'T12:00:00'); return dt.getDate() + ' ' + MAANDEN[dt.getMonth()]; }
-  return '<svg viewBox="0 0 ' + W + ' ' + H + '" width="100%" height="220" role="img" aria-label="Prijstrend">' +
+  function xAt(i) { return n <= 1 ? 0 : (i / (n - 1)) * innerW; }
+  function yAt(p) { return PAD + innerH - ((p - min) / span) * innerH; }
+  const pathD = reeks.map(function(r, i){ return (i === 0 ? 'M' : 'L') + xAt(i).toFixed(1) + ',' + yAt(r.seg.med).toFixed(1); }).join(' ');
+  const areaD = pathD + ' L' + xAt(n - 1).toFixed(1) + ',' + H + ' L' + xAt(0).toFixed(1) + ',' + H + ' Z';
+  return '<svg class="chart-svg" viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="none" role="img" aria-label="Prijstrend">' +
     '<path d="' + areaD + '" fill="rgba(209,68,19,.08)" stroke="none"/>' +
-    '<path d="' + pathD + '" fill="none" stroke="#d14413" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>' +
-    '<text x="4" y="' + (PAD_T + 8) + '" font-size="11" fill="#888">&euro; ' + fmt(max) + '</text>' +
-    '<text x="4" y="' + (PAD_T + innerH) + '" font-size="11" fill="#888">&euro; ' + fmt(min) + '</text>' +
-    '<text x="' + PAD_L + '" y="' + (H - 8) + '" font-size="11" fill="#888">' + fmtDatum(reeks[0].datum) + '</text>' +
-    '<text x="' + (W - PAD_R) + '" y="' + (H - 8) + '" font-size="11" fill="#888" text-anchor="end">' + fmtDatum(reeks[n - 1].datum) + '</text>' +
+    '<path d="' + pathD + '" fill="none" stroke="#d14413" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>' +
     '</svg>';
+}
+function fmtDatumKort(d) {
+  const MAANDEN = ['jan','feb','mrt','apr','mei','jun','jul','aug','sep','okt','nov','dec'];
+  const dt = new Date(d + 'T12:00:00');
+  return dt.getDate() + ' ' + MAANDEN[dt.getMonth()];
 }
 // Statische pendant van het histogram-SVG uit index.html's berekenMarkt() --
 // zelfde bucket-data (berekenPrijsHistogram, lib/carkijker-core.js), hier als
 // eigen renderfunctie omdat de modal rechtstreeks in DOM-elementen schrijft.
 function bouwHistogramChart(h) {
-  const W = 680, H = 100, buckets = h.counts.length;
+  const W = 680, buckets = h.counts.length;
   const bw = Math.max(2, Math.floor((W - (buckets - 1) * 2) / buckets));
   const maxCount = Math.max.apply(null, h.counts);
-  const range = h.histMax - h.histMin || 1;
   const medI = Math.min(Math.floor((h.mediaan - h.histMin) / h.step), buckets - 1);
   const bars = h.counts.map(function (c, i) {
     const bh = maxCount ? Math.max(4, Math.round(c / maxCount * 66)) : 4;
-    return '<rect x="' + (i * (bw + 2)) + '" y="' + (74 - bh) + '" width="' + bw + '" height="' + bh + '" rx="2" fill="' + (i === medI ? '#d14413' : '#f2a074') + '" opacity="0.9"/>';
+    return '<rect x="' + (i * (bw + 2)) + '" y="' + (74 - bh) + '" width="' + bw + '" height="' + bh + '" rx="3" fill="' + (i === medI ? '#d14413' : '#f2a074') + '"/>';
   }).join('');
-  return '<svg viewBox="0 0 ' + W + ' 92" width="100%" height="92" role="img" aria-label="Prijsverdeling">' + bars + '</svg>' +
-    '<div style="display:flex;justify-content:space-between;font-size:11px;color:#888;margin-top:.2rem">' +
-    '<span>' + fmt(h.histMin) + '</span><span>Mediaan: ' + fmt(h.mediaan) + '</span><span>' + fmt(h.histMax) + '</span></div>' +
-    (h.buitenBereik ? '<p style="font-size:.78rem;color:#888;margin-top:.4rem">' + h.buitenBereik + ' uitschieter' + (h.buitenBereik === 1 ? '' : 's') + ' buiten dit bereik meegeteld in de buitenste balk.</p>' : '');
+  return '<svg class="chart-svg" viewBox="0 0 ' + W + ' 100" preserveAspectRatio="none" role="img" aria-label="Prijsverdeling">' + bars + '</svg>' +
+    '<div class="chart-labels"><span>' + fmt(h.histMin) + '</span><span>Mediaan: ' + fmt(h.mediaan) + '</span><span>' + fmt(h.histMax) + '</span></div>' +
+    (h.buitenBereik ? '<p style="font-size:11.5px;color:var(--muted);margin-top:8px">' + h.buitenBereik + ' uitschieter' + (h.buitenBereik === 1 ? '' : 's') + ' buiten dit bereik meegeteld in de buitenste balk.</p>' : '');
 }
 // Statische pendant van het bouwjaar-histogram uit index.html's berekenMarkt().
 function bouwJaarChart(v) {
@@ -905,34 +907,56 @@ function bouwJaarChart(v) {
   const maxCount = Math.max.apply(null, v.counts);
   const bars = v.counts.map(function (c, i) {
     const bh = maxCount ? Math.max(4, Math.round(c / maxCount * 66)) : 4;
-    return '<rect x="' + (i * (bw + 2)) + '" y="' + (74 - bh) + '" width="' + bw + '" height="' + bh + '" rx="2" fill="#a78bfa" opacity="0.85"/>';
+    return '<rect x="' + (i * (bw + 2)) + '" y="' + (74 - bh) + '" width="' + bw + '" height="' + bh + '" rx="3" fill="#a78bfa"/>';
   }).join('');
-  return '<svg viewBox="0 0 ' + W + ' 92" width="100%" height="92" role="img" aria-label="Bouwjaarverdeling">' + bars + '</svg>' +
-    '<div style="display:flex;justify-content:space-between;font-size:11px;color:#888;margin-top:.2rem">' +
-    '<span>' + v.jaren[0] + '</span><span>' + v.jaren[v.jaren.length - 1] + '</span></div>';
+  return '<svg class="chart-svg" viewBox="0 0 ' + W + ' 100" preserveAspectRatio="none" role="img" aria-label="Bouwjaarverdeling">' + bars + '</svg>' +
+    '<div class="chart-labels"><span>' + v.jaren[0] + '</span><span>' + v.jaren[v.jaren.length - 1] + '</span></div>';
 }
 const MARKT_DIR = path.join(__dirname, 'marktanalyse');
+// Zelfde design-systeem (kleurtokens, kaarten, hero) als /tco/ en
+// /inruilwaarde/ -- de Marktanalyse-pagina's stamden nog uit #121 (2021-
+// stijl, losstaand van de rest van de site) en waren daarmee visueel het
+// enige overgebleven inconsistente paginatype.
 const MARKT_STYLE =
-  '*{box-sizing:border-box;margin:0;padding:0}body{font-family:"Segoe UI",Arial,sans-serif;background:#f5f5f0;color:#333;line-height:1.5}' +
-  'nav{background:rgba(255,255,255,.96);border-bottom:1px solid rgba(0,0,0,.08);padding:0 1.1rem;height:56px;display:flex;align-items:center;gap:.9rem;position:sticky;top:0;z-index:200;box-shadow:0 1px 0 rgba(0,0,0,.04);font-size:.875rem;overflow-x:auto;white-space:nowrap}' +
-  '.logo{font-size:1.15rem;font-weight:800;color:#d14413;letter-spacing:-.5px;text-decoration:none;flex-shrink:0}.logo span{color:#1a1a2e}' +
-  'nav a{color:#d14413;text-decoration:none}nav a+a::before{content:" \\203a ";color:#aaa;margin:0 .3rem}' +
-  '.container{max-width:760px;margin:0 auto;padding:1rem}h1{font-size:1.5rem;font-weight:700;margin:1.5rem 0 .3rem;color:#1a1a2e}' +
-  '.subtitle{color:#666;font-size:.9rem;margin-bottom:1.25rem}' +
-  '.kaart{background:#fff;border-radius:14px;padding:1.25rem;margin-bottom:1.25rem;border:1px solid rgba(0,0,0,.07);box-shadow:0 1px 4px rgba(0,0,0,.06)}' +
-  '.kaart h2{font-size:1rem;margin-bottom:.75rem;color:#1a1a2e}' +
-  '.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:.6rem;margin-bottom:1.25rem}' +
-  '.stat{background:#fff;border-radius:12px;padding:.7rem 1rem;border:1px solid rgba(0,0,0,.07);box-shadow:0 1px 4px rgba(0,0,0,.05);text-decoration:none;color:inherit}' +
-  '.stat-lbl{display:block;font-size:.72rem;color:#888;margin-bottom:.15rem}.stat strong{font-size:.95rem;color:#1a1a2e}' +
-  '.trend-groot{font-size:1.4rem;font-weight:800;margin-bottom:.4rem}.trend-groot.omlaag{color:#16a34a}.trend-groot.omhoog{color:#b91c1c}.trend-groot.stabiel{color:#6b7280}' +
-  '.faq-item{margin-bottom:.9rem}.faq-item:last-child{margin-bottom:0}.faq-item h3{font-size:.9rem;color:#1a1a2e;margin-bottom:.2rem}.faq-item p{font-size:.875rem;color:#444}' +
-  '.back-link{display:inline-block;margin-top:.5rem;color:#d14413;font-size:.875rem;text-decoration:none;font-weight:600}' +
-  '.markt-tabel{width:100%;border-collapse:collapse;font-size:.83rem}' +
-  '.markt-tabel th{text-align:left;color:#888;font-weight:600;font-size:.72rem;padding:.3rem .4rem;border-bottom:1px solid rgba(0,0,0,.08)}' +
-  '.markt-tabel td{padding:.45rem .4rem;border-bottom:1px solid rgba(0,0,0,.06);color:#333}' +
-  '.markt-tabel a{color:#1a56db;text-decoration:none}.markt-tabel a:hover{text-decoration:underline}' +
-  '.markt-tabel .beter{color:#16a34a;font-weight:700}' +
-  '.deal-badge{display:inline-block;background:#dcfce7;color:#15803d;border-radius:20px;padding:.1rem .55rem;font-size:.75rem;font-weight:700}';
+  ':root{--oranje:#d14413;--oranje-dark:#c43d10;--bg:#f5f5f0;--card:#fff;--border:#e2e2da;--text:#1a1a18;--muted:#6b6b60;--green:#16a34a;--red:#dc2626;--radius:14px}' +
+  '*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}' +
+  'body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}' +
+  'nav{background:#fff;border-bottom:1px solid var(--border);padding:0 16px;height:56px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:200;font-size:13px;overflow-x:auto;white-space:nowrap}' +
+  '.logo{font-size:1.2rem;font-weight:800;color:var(--oranje);letter-spacing:-.5px;text-decoration:none;flex-shrink:0}.logo span{color:var(--text)}' +
+  'nav a.crumb{color:var(--oranje);text-decoration:none}nav a.crumb+a.crumb::before{content:"\\203a";color:#bbb;margin:0 6px}' +
+  '.hero{background:linear-gradient(135deg,#1a1a18 0%,#2d2d2a 100%);color:#fff;padding:36px 20px 32px;text-align:center}' +
+  '.hero h1{font-size:clamp(1.3rem,4vw,1.8rem);font-weight:800;letter-spacing:-.5px;margin-bottom:6px}' +
+  '.hero p{color:rgba(255,255,255,.65);font-size:14px;max-width:480px;margin:0 auto}' +
+  '.page{max-width:720px;margin:0 auto;padding:20px 16px 48px}' +
+  '.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:20px 18px;margin-bottom:14px}' +
+  '.card-title{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);margin-bottom:14px;display:flex;align-items:center;gap:7px}' +
+  '.results{background:linear-gradient(135deg,var(--oranje) 0%,var(--oranje-dark) 100%);border-radius:var(--radius);padding:22px 18px;color:#fff;margin-bottom:14px}' +
+  '.results-title{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;opacity:.75;margin-bottom:14px}' +
+  '.results-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}' +
+  '.result-item{background:rgba(255,255,255,.15);border-radius:10px;padding:12px 14px;text-decoration:none;color:inherit;display:block}' +
+  '.result-label{font-size:11.5px;opacity:.8;margin-bottom:3px}.result-amount{font-size:1.3rem;font-weight:800;line-height:1.1}.result-sub{font-size:10.5px;opacity:.65;margin-top:2px}' +
+  '.schaarste-badge{display:inline-block;font-size:10.5px;font-weight:700;padding:3px 9px;border-radius:20px;margin-top:12px}' +
+  '.schaarste-badge.ruim{background:rgba(255,255,255,.22)}.schaarste-badge.normaal{background:rgba(255,255,255,.16)}.schaarste-badge.beperkt{background:rgba(255,255,255,.12)}' +
+  '.trend-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px}' +
+  '.trend-badge{font-size:1.2rem;font-weight:800}.trend-badge.omlaag{color:var(--green)}.trend-badge.omhoog{color:var(--red)}.trend-badge.stabiel{color:var(--muted)}' +
+  '.trend-sub{font-size:12px;color:var(--muted)}' +
+  '.chart-svg{width:100%;height:auto;display:block}' +
+  '.chart-labels{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-top:6px}' +
+  '.info-box{background:#f0f9ff;border:1px solid #bae6fd;border-radius:10px;padding:12px 14px;font-size:12.5px;color:#0369a1;margin-top:12px;line-height:1.5}' +
+  '.faq-item{border-top:1px solid var(--border);padding:14px 0}.faq-item:last-child{border-bottom:1px solid var(--border)}' +
+  '.faq-q{font-size:13.5px;font-weight:700}.faq-a{font-size:12.5px;color:var(--muted);line-height:1.6;margin-top:8px}' +
+  '.cta-link{display:block;text-align:center;background:var(--text);color:#fff;text-decoration:none;border-radius:12px;padding:14px;font-size:14.5px;font-weight:700;margin-top:4px}' +
+  '.cta-link.secundair{background:transparent;color:var(--text);border:1.5px solid var(--border);margin-top:10px}' +
+  '.data-tabel{width:100%;border-collapse:collapse;font-size:13px}' +
+  '.data-tabel th{text-align:left;color:var(--muted);font-weight:600;font-size:10.5px;text-transform:uppercase;letter-spacing:.3px;padding:5px 6px;border-bottom:1.5px solid var(--border)}' +
+  '.data-tabel td{padding:9px 6px;border-bottom:1px solid var(--border);color:var(--text)}.data-tabel tr:last-child td{border-bottom:none}' +
+  '.data-tabel a{color:var(--text);text-decoration:none;font-weight:600}.data-tabel a:hover{color:var(--oranje)}' +
+  '.data-tabel .beter{color:var(--green);font-weight:700}' +
+  '.deal-badge{display:inline-block;background:#dcfce7;color:#15803d;border-radius:20px;padding:2px 9px;font-size:11.5px;font-weight:700}' +
+  '.tile-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px}' +
+  '.tile{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:10px 12px;text-decoration:none;color:inherit;display:block}' +
+  '.tile-lbl{display:block;font-size:11.5px;color:var(--muted);margin-bottom:2px}.tile strong{font-size:14px;color:var(--text)}' +
+  '@media(max-width:480px){.results-grid{grid-template-columns:1fr 1fr}}';
 function buildMarktPage(merkSlug, modelSlug, merkName, modelName, filtered, alleModelStats) {
   const naam = merkName + ' ' + modelName;
   const gemPrijs = filtered.length ? Math.round(filtered.reduce(function(s,l){return s+(l.prijs||0);},0)/filtered.length) : 0;
@@ -966,6 +990,12 @@ function buildMarktPage(merkSlug, modelSlug, merkName, modelName, filtered, alle
   // koop/verkoopaanbeveling gebaseerd op ruis is misleidend, ook mét caveat.
   const betrouw = betrouwbaarheidsTekst(filtered.length);
   const voldoendeVoorDuiding = filtered.length >= 30;
+  // Zelfde aanbod-schaarste-drempels als de Marktanalyse-modal (index.html) --
+  // filtered ÍS hier al het merk+model-segment (deze pagina's hebben geen
+  // extra jaar/brandstof-subfilter), dus filtered.length is direct de
+  // segmentgrootte, geen aparte berekening nodig zoals in de modal.
+  const schaarsteCls = filtered.length >= 150 ? 'ruim' : filtered.length >= 40 ? 'normaal' : 'beperkt';
+  const schaarsteLbl = filtered.length >= 150 ? 'Ruim aanbod' : filtered.length >= 40 ? 'Normaal aanbod' : 'Beperkt aanbod';
 
   // Vier extra secties die tot nu toe alleen in de JS-gerenderde Marktanalyse-
   // modal zaten (histogram, bouwjaarverdeling, top-deals, vergelijkbare
@@ -1023,44 +1053,45 @@ function buildMarktPage(merkSlug, modelSlug, merkName, modelName, filtered, alle
     '<script type="application/ld+json">' + safeJsonLd(bcSchema) + '<\/script>' +
     (faqSchema ? '<script type="application/ld+json">' + safeJsonLd(faqSchema) + '<\/script>' : '') +
     '<style>' + MARKT_STYLE + '</style></head><body>' +
-    '<nav><a href="/" class="logo">Car<span>kijker</span></a><a href="/occasions/">Occasions</a><a href="/marktanalyse/">Marktanalyse</a><a href="/occasions/' + merkSlug + '/">' + merkName + '</a><a href="/marktanalyse/' + merkSlug + '/' + modelSlug + '/">' + naam + '</a></nav>' +
-    '<div class="container">' +
-    '<h1>Marktanalyse: tweedehands ' + naam + '</h1>' +
-    '<p class="subtitle">Prijstrend en afschrijving op basis van ' + filtered.length + ' actuele advertenties, dagelijks bijgewerkt</p>' +
-    '<div class="stats-grid">' +
-    '<a href="/occasions/' + merkSlug + '/' + modelSlug + '/" class="stat"><span class="stat-lbl">Aanbod</span><strong>' + filtered.length + ' occasions</strong></a>' +
-    (gemPrijs ? '<a href="/occasions/' + merkSlug + '/' + modelSlug + '/" class="stat"><span class="stat-lbl">Gem. vraagprijs</span><strong>&euro; ' + fmt(gemPrijs) + '</strong></a>' : '') +
-    (medPrijs ? '<a href="/occasions/' + merkSlug + '/' + modelSlug + '/" class="stat"><span class="stat-lbl">Mediaanprijs</span><strong>&euro; ' + fmt(medPrijs) + '</strong></a>' : '') +
-    (medKm ? '<a href="/occasions/' + merkSlug + '/' + modelSlug + '/" class="stat"><span class="stat-lbl">Mediaan km</span><strong>' + fmt(medKm) + ' km</strong></a>' : '') +
-    '</div>' +
+    '<nav><a href="/" class="logo">Car<span>kijker</span></a><a href="/occasions/" class="crumb">Occasions</a><a href="/marktanalyse/" class="crumb">Marktanalyse</a><a href="/occasions/' + merkSlug + '/" class="crumb">' + merkName + '</a></nav>' +
+    '<div class="hero"><h1>Marktanalyse: tweedehands ' + naam + '</h1><p>Prijstrend, afschrijving en marktdata op basis van ' + filtered.length + ' actuele advertenties, dagelijks bijgewerkt</p></div>' +
+    '<div class="page">' +
+    '<div class="results"><div class="results-title">Op dit moment</div><div class="results-grid">' +
+    '<a href="/occasions/' + merkSlug + '/' + modelSlug + '/" class="result-item"><div class="result-label">Aanbod</div><div class="result-amount">' + filtered.length + '</div><div class="result-sub">occasions</div></a>' +
+    (medPrijs ? '<a href="/occasions/' + merkSlug + '/' + modelSlug + '/" class="result-item"><div class="result-label">Mediaanprijs</div><div class="result-amount">&euro; ' + fmt(medPrijs) + '</div></a>' : '') +
+    (gemPrijs ? '<a href="/occasions/' + merkSlug + '/' + modelSlug + '/" class="result-item"><div class="result-label">Gem. vraagprijs</div><div class="result-amount">&euro; ' + fmt(gemPrijs) + '</div></a>' : '') +
+    (medKm ? '<a href="/occasions/' + merkSlug + '/' + modelSlug + '/" class="result-item"><div class="result-label">Mediaan km-stand</div><div class="result-amount">' + Math.round(medKm/1000) + 'k km</div></a>' : '') +
+    '</div><span class="schaarste-badge ' + schaarsteCls + '">' + schaarsteLbl + '</span></div>' +
     (trend
-      ? '<div class="kaart"><h2>Prijsontwikkeling (mediaan, laatste ' + trend.nDagen + ' dagen)</h2>' +
-        '<div class="trend-groot ' + richting + '">' + (richting === 'omlaag' ? '&#8600; ' : richting === 'omhoog' ? '&#8599; ' : '&#8594; ') + (trend.delta < 0 ? '-' : trend.delta > 0 ? '+' : '') + Math.abs(trend.pct) + '%</div>' +
+      ? '<div class="card"><div class="card-title"><span class="icon">&#128200;</span> Prijsontwikkeling (laatste ' + trend.nDagen + ' dagen)</div>' +
+        '<div class="trend-row"><span class="trend-badge ' + richting + '">' + (richting === 'omlaag' ? '&#8600;' : richting === 'omhoog' ? '&#8599;' : '&#8594;') + ' ' + (trend.delta < 0 ? '-' : trend.delta > 0 ? '+' : '') + Math.abs(trend.pct) + '%</span>' +
+        '<span class="trend-sub">mediaanprijs ' + trendTekst + ', nu &euro; ' + fmt(trend.huidig) + '</span></div>' +
         bouwPrijsChart(reeks) +
-        (betrouw ? '<p style="font-size:.8rem;color:#888;margin-top:.5rem">' + betrouw + '</p>' : '') +
+        '<div class="chart-labels"><span>' + fmtDatumKort(reeks[0].datum) + '</span><span>' + fmtDatumKort(reeks[reeks.length-1].datum) + '</span></div>' +
+        (betrouw ? '<p style="font-size:11.5px;color:var(--muted);margin-top:10px">' + betrouw + '</p>' : '') +
         '</div>'
-      : '<div class="kaart"><h2>Prijsontwikkeling</h2><p style="font-size:.875rem;color:#666">Nog onvoldoende historische data voor een betrouwbare trend van deze specifieke combinatie. Kom later terug, dit wordt dagelijks bijgewerkt.</p></div>') +
-    (afschrijving
-      ? '<div class="kaart"><h2>Afschrijving</h2><p style="font-size:.875rem;color:#444">Op basis van vergelijkbare advertenties (gecorrigeerd voor bouwjaar en kilometerstand) verliest een ' + naam + ' gemiddeld ongeveer <strong>&euro; ' + fmt(afschrijving.afschrijvingJaar) + ' per jaar</strong> en <strong>&euro; ' + fmt(afschrijving.afschrijvingKm) + '</strong> bij een verdubbeling van de kilometerstand.</p></div>'
-      : '') +
+      : '<div class="card"><div class="card-title"><span class="icon">&#128200;</span> Prijsontwikkeling</div><p style="font-size:13px;color:var(--muted)">Nog onvoldoende historische data voor een betrouwbare trend van deze specifieke combinatie. Kom later terug, dit wordt dagelijks bijgewerkt.</p></div>') +
     (histogram
-      ? '<div class="kaart"><h2>Prijsverdeling</h2>' + bouwHistogramChart(histogram) + '</div>'
+      ? '<div class="card"><div class="card-title"><span class="icon">&#128202;</span> Prijsverdeling</div>' + bouwHistogramChart(histogram) + '</div>'
       : '') +
     (jaarVerdeling.jaren.length
-      ? '<div class="kaart"><h2>Aanbod per bouwjaar</h2>' + bouwJaarChart(jaarVerdeling) + '</div>'
+      ? '<div class="card"><div class="card-title"><span class="icon">&#128197;</span> Aanbod per bouwjaar</div>' + bouwJaarChart(jaarVerdeling) + '</div>'
+      : '') +
+    (afschrijving
+      ? '<div class="card"><div class="card-title"><span class="icon">&#128295;</span> Afschrijving</div><p style="font-size:13.5px;color:var(--muted);line-height:1.6">Op basis van vergelijkbare advertenties (gecorrigeerd voor bouwjaar en kilometerstand) verliest een ' + naam + ' gemiddeld ongeveer <strong style="color:var(--text)">&euro; ' + fmt(afschrijving.afschrijvingJaar) + ' per jaar</strong> en <strong style="color:var(--text)">&euro; ' + fmt(afschrijving.afschrijvingKm) + '</strong> bij een verdubbeling van de kilometerstand.</p></div>'
       : '') +
     (topDeals.length
-      ? '<div class="kaart"><h2>Opvallende deals</h2><table class="markt-tabel"><thead><tr><th>Advertentie</th><th>Prijs</th><th>T.o.v. mediaan</th></tr></thead><tbody>' +
+      ? '<div class="card"><div class="card-title"><span class="icon">&#127942;</span> Opvallende deals</div><table class="data-tabel"><thead><tr><th>Advertentie</th><th>Prijs</th><th>T.o.v. mediaan</th></tr></thead><tbody>' +
         topDeals.map(function(d){
           const a = d.advertentie;
           const titelKort = escHtml((a.titel||naam).slice(0,40)+((a.titel||'').length>40?'…':''));
           const link = a.url ? '<a href="'+escHtml(outUrl(a.url,a.bron))+'" target="_blank" rel="nofollow">'+titelKort+'</a>' : titelKort;
           return '<tr><td>'+link+'</td><td>&euro; '+fmt(a.prijs)+'</td><td><span class="deal-badge">'+d.pct+'%</span></td></tr>';
         }).join('') + '</tbody></table>' +
-        '<p style="font-size:.78rem;color:#888;margin-top:.5rem">Selectie op basis van prijs, kilometerstand en bouwjaar t.o.v. vergelijkbare advertenties. Altijd zelf de advertentie en verkoper controleren.</p></div>'
+        '<div class="info-box">Selectie op basis van prijs, kilometerstand en bouwjaar t.o.v. vergelijkbare advertenties. Altijd zelf de advertentie en verkoper controleren.</div></div>'
       : '') +
     (vergelijkbaar && vergelijkbaar.vergelijkbaar.length
-      ? '<div class="kaart"><h2>Vergelijkbare modellen</h2><table class="markt-tabel"><thead><tr><th></th><th>' + escHtml(naam) + '</th>' +
+      ? '<div class="card"><div class="card-title"><span class="icon">&#9878;&#65039;</span> Vergelijkbare modellen</div><table class="data-tabel"><thead><tr><th></th><th>' + escHtml(naam) + '</th>' +
         vergelijkbaar.vergelijkbaar.map(function(s){ return '<th>' + escHtml(s.merk+' '+s.model) + '</th>'; }).join('') + '</tr></thead><tbody>' +
         '<tr><td>Mediaan prijs</td><td>&euro; ' + fmt(vergelijkbaar.basis.mediaan) + '</td>' +
         vergelijkbaar.vergelijkbaar.map(function(s){ return '<td'+(s.mediaan<vergelijkbaar.basis.mediaan?' class="beter"':'')+'>&euro; '+fmt(s.mediaan)+'</td>'; }).join('') + '</tr>' +
@@ -1068,17 +1099,18 @@ function buildMarktPage(merkSlug, modelSlug, merkName, modelName, filtered, alle
         vergelijkbaar.vergelijkbaar.map(function(s){ return '<td>&euro; '+fmt(s.p25)+' &ndash; &euro; '+fmt(s.p75)+'</td>'; }).join('') + '</tr>' +
         '<tr><td>Aanbod</td><td>' + vergelijkbaar.basis.n + ' adv.</td>' +
         vergelijkbaar.vergelijkbaar.map(function(s){ return '<td'+(s.n>vergelijkbaar.basis.n?' class="beter"':'')+'>'+s.n+' adv.</td>'; }).join('') + '</tr>' +
-        '</tbody></table><p style="font-size:.78rem;color:#888;margin-top:.5rem">Gekozen op basis van de dichtstbijzijnde mediaanprijs -- handig om te bepalen wélk model je gaat zoeken.</p></div>'
+        '</tbody></table><div class="info-box">Gekozen op basis van de dichtstbijzijnde mediaanprijs -- handig om te bepalen wélk model je gaat zoeken.</div></div>'
       : '') +
     (regionaleTop
-      ? '<div class="kaart"><h2>Aanbod per regio</h2><table class="markt-tabel"><thead><tr><th>Plaats</th><th>Advertenties</th><th>Mediaanprijs</th></tr></thead><tbody>' +
+      ? '<div class="card"><div class="card-title"><span class="icon">&#128205;</span> Aanbod per regio</div><table class="data-tabel"><thead><tr><th>Plaats</th><th>Advertenties</th><th>Mediaanprijs</th></tr></thead><tbody>' +
         regionaleTop.steden.map(function(s){ return '<tr><td>'+escHtml(s.locatie)+'</td><td>'+s.n+'</td><td>&euro; '+fmt(s.mediaan)+'</td></tr>'; }).join('') +
-        '</tbody></table><p style="font-size:.78rem;color:#888;margin-top:.5rem">Landelijke mediaanprijs: &euro; ' + fmt(regionaleTop.landelijkMediaan) + ' (' + regionaleTop.landelijkN + ' advertenties).</p></div>'
+        '</tbody></table><div class="info-box">Landelijke mediaanprijs: &euro; ' + fmt(regionaleTop.landelijkMediaan) + ' (' + regionaleTop.landelijkN + ' advertenties).</div></div>'
       : '') +
     (faqItems.length
-      ? '<div class="kaart"><h2>Veelgestelde vragen</h2>' + faqItems.map(function(f){ return '<div class="faq-item"><h3>' + f.q + '</h3><p>' + f.a + '</p></div>'; }).join('') + '</div>'
+      ? '<div class="card"><div class="card-title"><span class="icon">&#10067;</span> Veelgestelde vragen</div>' + faqItems.map(function(f){ return '<div class="faq-item"><div class="faq-q">' + f.q + '</div><div class="faq-a">' + f.a + '</div></div>'; }).join('') + '</div>'
       : '') +
-    '<a href="/occasions/' + merkSlug + '/' + modelSlug + '/" class="back-link">Bekijk alle ' + naam + '-occasions &rarr;</a>' +
+    '<a href="/occasions/' + merkSlug + '/' + modelSlug + '/" class="cta-link">Bekijk alle ' + naam + '-occasions &rarr;</a>' +
+    '<a href="/inruilwaarde/" class="cta-link secundair">&#128176; Wat is jouw huidige auto waard? &rarr;</a>' +
     '</div></body></html>';
 }
 
@@ -1095,7 +1127,7 @@ function buildMarktIndexPage(listings) {
   ] };
   const rijMerk = function(m, waarde){
     const slug = slugifyMerk(m.merk);
-    return '<a href="/occasions/'+slug+'/" class="stat"><span class="stat-lbl">'+escHtml(m.merk)+'</span><strong>'+waarde+'</strong></a>';
+    return '<a href="/occasions/'+slug+'/" class="tile"><span class="tile-lbl">'+escHtml(m.merk)+'</span><strong>'+waarde+'</strong></a>';
   };
   return '<!doctype html><html lang="nl"><head>' +
     '<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">' +
@@ -1105,17 +1137,16 @@ function buildMarktIndexPage(listings) {
     '<link rel="canonical" href="' + SITE_ORIGIN + '/marktanalyse/">' +
     '<script type="application/ld+json">' + safeJsonLd(bcSchema) + '<\/script>' +
     '<style>' + MARKT_STYLE + '</style></head><body>' +
-    '<nav><a href="/" class="logo">Car<span>kijker</span></a><a href="/occasions/">Occasions</a><a href="/marktanalyse/">Marktanalyse</a></nav>' +
-    '<div class="container">' +
-    '<h1>Marktanalyse: tweedehands auto\'s per merk</h1>' +
-    '<p class="subtitle">Prijzen, aanbod en trends op basis van ' + listings.length + ' actuele advertenties, dagelijks bijgewerkt</p>' +
-    '<div class="kaart"><h2>Meeste aanbod</h2><div class="stats-grid">' +
+    '<nav><a href="/" class="logo">Car<span>kijker</span></a><a href="/occasions/" class="crumb">Occasions</a><a href="/marktanalyse/" class="crumb">Marktanalyse</a></nav>' +
+    '<div class="hero"><h1>Marktanalyse: tweedehands auto\'s per merk</h1><p>Prijzen, aanbod en trends op basis van ' + listings.length + ' actuele advertenties, dagelijks bijgewerkt</p></div>' +
+    '<div class="page">' +
+    '<div class="card"><div class="card-title"><span class="icon">&#128200;</span> Meeste aanbod</div><div class="tile-grid">' +
     ranglijst.topVolume.map(function(m){ return rijMerk(m, m.n+' adv.'); }).join('') +
     '</div></div>' +
-    '<div class="kaart"><h2>Goedkoopste merken (mediaanprijs, min. 20 advertenties)</h2><div class="stats-grid">' +
+    '<div class="card"><div class="card-title"><span class="icon">&#128176;</span> Goedkoopste merken (mediaanprijs, min. 20 advertenties)</div><div class="tile-grid">' +
     ranglijst.topGoedkoop.map(function(m){ return rijMerk(m, '&euro; '+fmt(m.mediaan)); }).join('') +
     '</div></div>' +
-    '<p style="font-size:.85rem;color:#666">Kies hierboven een merk voor het volledige aanbod, of bekijk de marktanalyse van een specifiek model via de merk- en modelpagina\'s.</p>' +
+    '<p style="font-size:12.5px;color:var(--muted);text-align:center;margin-top:8px">Kies hierboven een merk voor het volledige aanbod, of bekijk de marktanalyse van een specifiek model via de merk- en modelpagina\'s.</p>' +
     '</div></body></html>';
 }
 
