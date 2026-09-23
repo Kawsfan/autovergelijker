@@ -193,6 +193,9 @@
       --shadow: 0 2px 12px rgba(0,0,0,0.09);
       --mp-oranje: #b36200;
       --blauw: #1a56db;
+      --achtergrond: #f5f5f0;
+      --rand: #e2e2da;
+      --radius: 14px;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     /* Voorkomt dat de mobiele layout-viewport (window.innerWidth) breder wordt
@@ -722,72 +725,78 @@
   .vgl-row-diff .vgl-val-td { background:rgba(249,115,22,.08); color:#c2410c; font-weight:600; }
   .vgl-row-diff .vgl-lbl-td { background:rgba(249,115,22,.04); }
     #marktOverlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:900;overflow-y:auto;padding:24px 16px}
-  .markt-modal{background:var(--kaart);border-radius:16px;max-width:880px;margin:0 auto;overflow:hidden}
-  .markt-topbar{display:flex;justify-content:space-between;align-items:center;padding:18px 24px;border-bottom:1px solid var(--rand)}
-  .markt-topbar h2{margin:0;font-size:19px;font-weight:600}
-  .markt-filters{display:flex;gap:10px;flex-wrap:wrap;padding:14px 24px;background:var(--achtergrond);border-bottom:1px solid var(--rand)}
-  .markt-filters select{flex:1;min-width:120px;padding:8px 10px;border-radius:8px;border:1px solid var(--rand);background:var(--kaart);color:var(--tekst);font-size:13px}
-  .markt-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px;padding:18px 24px 8px}
-  .markt-stat{background:var(--achtergrond);border-radius:10px;padding:12px;text-align:center}
-  .markt-stat-val{font-size:17px;font-weight:700;color:var(--oranje)}
-  .markt-stat-lbl{font-size:11px;color:var(--subtekst);margin-top:3px}
-  .markt-section{padding:8px 24px 14px}
-  .markt-section-title{font-size:12px;font-weight:600;color:var(--subtekst);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px}
+  .markt-modal{background:var(--kaart);border-radius:16px;max-width:880px;margin:0 auto;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+  .markt-topbar{background:linear-gradient(135deg,#1a1a18 0%,#2d2d2a 100%);color:#fff;display:flex;justify-content:space-between;align-items:flex-start;padding:22px 24px 20px;gap:12px}
+  .markt-topbar h2{margin:0;font-size:19px;font-weight:800;letter-spacing:-.3px}
+  .markt-sub{color:rgba(255,255,255,.6);font-size:12.5px;margin-top:4px}
+  .sluit-btn{background:rgba(255,255,255,.12);border:none;color:#fff;border-radius:8px;padding:7px 12px;font-size:12.5px;font-weight:600;cursor:pointer;flex-shrink:0}
+  .sluit-btn:hover{background:rgba(255,255,255,.2)}
+  .markt-filters{display:flex;gap:10px;flex-wrap:wrap;padding:16px 24px;background:var(--achtergrond);border-bottom:1px solid var(--rand)}
+  .markt-filters select{flex:1;min-width:120px;padding:9px 10px;border-radius:9px;border:1px solid var(--rand);background:var(--kaart);color:var(--tekst);font-size:13px}
+  .markt-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:12px;margin:18px 24px 14px;padding:22px 20px;background:linear-gradient(135deg,var(--oranje) 0%,var(--oranje-hover) 100%);border-radius:var(--radius)}
+  .markt-stat{background:rgba(255,255,255,.15);border-radius:10px;padding:12px;text-align:center}
+  .markt-stat-val{font-size:17px;font-weight:800;color:#fff}
+  .markt-stat-lbl{font-size:11px;color:rgba(255,255,255,.8);margin-top:3px}
+  .markt-section{margin:0 24px 14px;padding:18px 16px;background:var(--kaart);border:1px solid var(--rand);border-radius:var(--radius)}
+  .markt-section-title{font-size:12.5px;font-weight:700;color:var(--subtekst);text-transform:uppercase;letter-spacing:.4px;margin-bottom:12px;display:flex;align-items:center;gap:6px}
   .markt-svg-wrap{background:var(--achtergrond);border-radius:10px;padding:12px;overflow:hidden}
   .markt-hist-labels{display:flex;justify-content:space-between;font-size:10px;color:var(--subtekst);margin-top:4px}
-  .markt-two-col{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px;padding:0 24px 22px}
+  .markt-two-col{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px;margin:0 24px 14px}
+  .markt-two-col>div{background:var(--kaart);border:1px solid var(--rand);border-radius:var(--radius);padding:16px 14px}
   .markt-deals-table{width:100%;border-collapse:collapse;font-size:13px}
-  .markt-deals-table th{font-size:11px;font-weight:600;color:var(--subtekst);text-align:left;padding:6px 8px;border-bottom:1px solid var(--rand)}
-  .markt-deals-table td{padding:7px 8px;border-bottom:1px solid var(--rand)}
+  .markt-deals-table th{font-size:10.5px;font-weight:600;color:var(--subtekst);text-transform:uppercase;letter-spacing:.3px;text-align:left;padding:5px 6px;border-bottom:1.5px solid var(--rand)}
+  .markt-deals-table td{padding:9px 6px;border-bottom:1px solid var(--rand)}
   .markt-deal-badge{display:inline-block;font-size:11px;padding:2px 8px;border-radius:10px;font-weight:600}
   .markt-deal-hot{background:#fee2e2;color:#b91c1c}
   .markt-deal-ok{background:#fef3c7;color:#92400e}
   .markt-leeg{text-align:center;padding:40px;color:var(--subtekst);font-size:15px}
-  .markt-ranglijst-cols{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px}
-  .markt-ranglijst-kop{font-size:12px;font-weight:600;color:var(--tekst);margin-bottom:6px}
-  .markt-ranglijst-kop small{color:var(--subtekst);text-transform:none;letter-spacing:0}
-  .markt-outlier-note{font-size:11px;color:var(--subtekst);margin:6px 2px 0}
+  .markt-ranglijst-cols{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px}
+  .markt-ranglijst-kop{font-size:12px;font-weight:700;color:var(--tekst);margin-bottom:8px}
+  .markt-ranglijst-kop small{color:var(--subtekst);text-transform:none;letter-spacing:0;font-weight:400}
+  .markt-outlier-note{font-size:11.5px;color:var(--subtekst);margin:8px 2px 0}
   .markt-schaarste-badge{display:inline-block;font-size:9.5px;padding:1px 6px;border-radius:8px;font-weight:700;margin-top:4px;letter-spacing:.02em}
   .markt-schaarste-ruim{background:#dcfce7;color:#15803d}
   .markt-schaarste-normaal{background:#fef9c3;color:#854d0e}
   .markt-schaarste-beperkt{background:#fee2e2;color:#b91c1c}
-  .markt-regio-invoer input{width:100%;padding:8px 10px;border-radius:8px;border:1px solid var(--rand);background:var(--kaart);color:var(--tekst);font-size:13px}
+  .markt-regio-invoer input{width:100%;padding:9px 10px;border-radius:9px;border:1px solid var(--rand);background:var(--kaart);color:var(--tekst);font-size:13px}
   .markt-regio-vergelijk{display:flex;gap:10px;flex-wrap:wrap}
   .markt-regio-vergelijk .markt-inruil-card{flex:1;min-width:130px}
-  .markt-toolbar{display:flex;gap:8px;flex-wrap:wrap;margin:0 24px 14px}
-  .markt-toolbar-btn{background:var(--kaart);border:1px solid var(--rand);border-radius:8px;padding:8px 12px;font-size:12.5px;font-weight:600;color:var(--tekst);cursor:pointer}
+  .markt-toolbar{display:flex;gap:8px;flex-wrap:wrap;margin:16px 24px 0}
+  .markt-toolbar-btn{background:var(--kaart);border:1.5px solid var(--rand);border-radius:9px;padding:9px 13px;font-size:12.5px;font-weight:700;color:var(--tekst);cursor:pointer}
   .markt-toolbar-btn:hover{border-color:var(--oranje);color:var(--oranje)}
   .markt-toolbar-btn:disabled{opacity:.7;cursor:default}
-  .markt-info-ic{display:inline-block;font-size:11px;color:var(--subtekst);cursor:help;border:1px solid var(--subtekst);border-radius:50%;width:14px;height:14px;text-align:center;line-height:13px;margin-left:4px;font-style:normal}
-  .markt-betrouwbaarheid{font-size:11px;color:var(--subtekst);margin-top:4px}
-  .markt-vgl{margin:0 24px;padding:14px 18px;background:var(--kaart);border:1.5px solid var(--rand);border-radius:12px}
-  .markt-vgl-toggle{background:none;border:none;padding:0;font-size:13px;font-weight:600;color:var(--tekst);cursor:pointer;display:flex;align-items:center;gap:6px}
-  .markt-vgl-row-input select{flex:1;min-width:120px;padding:8px 10px;border-radius:8px;border:1px solid var(--rand);background:var(--achtergrond);color:var(--tekst);font-size:13px}
+  .markt-info-ic{display:inline-block;font-size:10.5px;color:var(--subtekst);cursor:help;border:1px solid var(--subtekst);border-radius:50%;width:14px;height:14px;text-align:center;line-height:13px;margin-left:4px;font-style:normal}
+  .markt-betrouwbaarheid{font-size:11.5px;color:var(--subtekst);margin-top:8px}
+  .markt-vgl{margin:14px 24px 0;padding:18px 16px;background:var(--kaart);border:1px solid var(--rand);border-radius:var(--radius)}
+  .markt-vgl-toggle{background:none;border:none;padding:0;font-size:13.5px;font-weight:700;color:var(--tekst);cursor:pointer;display:flex;align-items:center;gap:6px}
+  .markt-vgl-row-input select{flex:1;min-width:120px;padding:9px 10px;border-radius:9px;border:1px solid var(--rand);background:var(--achtergrond);color:var(--tekst);font-size:13px}
   .markt-vgl-tabel{width:100%;border-collapse:collapse;font-size:13px}
-  .markt-vgl-tabel th{font-size:11px;font-weight:600;color:var(--subtekst);text-align:right;padding:6px 8px;border-bottom:1px solid var(--rand)}
+  .markt-vgl-tabel th{font-size:10.5px;font-weight:600;color:var(--subtekst);text-transform:uppercase;letter-spacing:.3px;text-align:right;padding:5px 6px;border-bottom:1.5px solid var(--rand)}
   .markt-vgl-tabel th:first-child{text-align:left}
-  .markt-vgl-tabel td{padding:8px;border-bottom:1px solid var(--rand);text-align:right}
+  .markt-vgl-tabel td{padding:9px 6px;border-bottom:1px solid var(--rand);text-align:right}
   .markt-vgl-tabel td:first-child{text-align:left;color:var(--subtekst);font-size:12px}
   .markt-vgl-tabel td.markt-vgl-beter{color:#16a34a;font-weight:700}
   .markt-vgl-cta{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
-  .markt-vgl-cta a{flex:1;min-width:140px;text-align:center;padding:9px 12px;border-radius:8px;font-size:12.5px;font-weight:600;text-decoration:none;background:var(--achtergrond);color:var(--tekst);border:1px solid var(--rand)}
-  .markt-inruil{margin:14px 24px 4px;padding:16px 18px;background:linear-gradient(135deg,#fff7f2,var(--achtergrond));border:1.5px solid var(--oranje);border-radius:12px}
-  .markt-inruil-title{font-size:14px;font-weight:700;margin-bottom:10px}
-  .markt-inruil-row-input{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  .markt-vgl-cta a{flex:1;min-width:140px;text-align:center;padding:9px 12px;border-radius:9px;font-size:12.5px;font-weight:600;text-decoration:none;background:var(--achtergrond);color:var(--tekst);border:1px solid var(--rand)}
+  .markt-inruil{margin:14px 24px 0;padding:18px 16px;border:1.5px solid var(--oranje);border-radius:var(--radius)}
+  .markt-inruil-title{font-size:14.5px;font-weight:800;margin-bottom:4px}
+  .markt-inruil-row-input{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:10px}
   .markt-inruil-row-input label{font-size:12px;color:var(--subtekst);white-space:nowrap}
-  .markt-inruil-row-input input,.markt-inruil-row-input select{flex:1;min-width:120px;padding:8px 10px;border-radius:8px;border:1px solid var(--rand);background:var(--kaart);color:var(--tekst);font-size:13px}
+  .markt-inruil-row-input input,.markt-inruil-row-input select{flex:1;min-width:120px;padding:9px 10px;border-radius:9px;border:1px solid var(--rand);background:var(--kaart);color:var(--tekst);font-size:13px}
   .detail-inruil{margin:16px 0}
-  .markt-inruil-uitkomst{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
-  .markt-inruil-card{flex:1;min-width:150px;background:var(--kaart);border-radius:10px;padding:10px 12px}
+  .markt-inruil-uitkomst{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+  .markt-inruil-card{flex:1;min-width:150px;background:var(--achtergrond);border-radius:10px;padding:12px 14px}
   .markt-inruil-card .lbl{font-size:11px;color:var(--subtekst)}
-  .markt-inruil-card .val{font-size:17px;font-weight:700;color:var(--tekst)}
-  .markt-inruil-card.hoofd .val{color:var(--oranje);font-size:19px}
-  .markt-inruil-disclaimer{font-size:11px;color:var(--subtekst);margin-top:10px;line-height:1.4}
-  .markt-inruil-suggestie{margin-top:14px;padding-top:14px;border-top:1px dashed var(--oranje)}
-  .markt-inruil-suggestie p{font-size:13px;color:var(--tekst);line-height:1.5;margin:0}
-  .markt-inruil-marge-lbl{display:block;font-size:11px;color:var(--subtekst);margin-bottom:4px}
-  .markt-inruil-suggestie select{width:100%;padding:7px 9px;border-radius:8px;border:1px solid var(--rand);background:var(--kaart);color:var(--tekst);font-size:13px;margin-bottom:10px}
-  @media(max-width:600px){.markt-two-col{grid-template-columns:1fr}.markt-ranglijst-cols{grid-template-columns:1fr}}
+  .markt-inruil-card .val{font-size:1.05rem;font-weight:800;color:var(--tekst)}
+  .markt-inruil-card.hoofd{background:linear-gradient(135deg,var(--oranje) 0%,var(--oranje-hover) 100%)}
+  .markt-inruil-card.hoofd .lbl{color:rgba(255,255,255,.8)}
+  .markt-inruil-card.hoofd .val{color:#fff;font-size:1.2rem}
+  .markt-inruil-disclaimer{font-size:11.5px;color:var(--subtekst);margin-top:12px;line-height:1.5}
+  .markt-inruil-suggestie{margin-top:16px;padding-top:16px;border-top:1px dashed var(--oranje)}
+  .markt-inruil-suggestie p{font-size:13px;color:var(--tekst);line-height:1.55;margin:0}
+  .markt-inruil-marge-lbl{display:block;font-size:11px;color:var(--subtekst);margin-bottom:5px}
+  .markt-inruil-suggestie select{width:100%;padding:8px 9px;border-radius:9px;border:1px solid var(--rand);background:var(--kaart);color:var(--tekst);font-size:13px;margin-bottom:12px}
+  @media(max-width:600px){.markt-two-col{grid-template-columns:1fr}.markt-ranglijst-cols{grid-template-columns:1fr}.markt-stats{grid-template-columns:1fr 1fr}}
 
 .afstand-rij { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
 .afstand-rij #locInput { flex:1; min-width:140px; height:38px; border:1.5px solid #ddd; border-radius:8px; padding:0 12px; font-size:.9rem; background:#fff; }
@@ -3123,12 +3132,14 @@ function sluitMarkt() {
     // zelf misleidend (ze mengen compleet verschillende prijsklassen -- een
     // Sandero "dealscore" t.o.v. de mediaan van de HELE markt zegt niets zinnigs).
     // Dan alleen de ranglijst tonen i.p.v. deze sectie.
-    if (!merk) { leeg.style.display='none'; res.style.display='none'; return; }
-    if (!data.length) { leeg.style.display=''; res.style.display='none'; return; }
+    var subEl = document.getElementById('mTopbarSub');
+    if (!merk) { leeg.style.display='none'; res.style.display='none'; if (subEl) subEl.textContent = 'Vind de actuele marktprijs voor elk merk en model'; return; }
+    if (!data.length) { leeg.style.display=''; res.style.display='none'; if (subEl) subEl.textContent = merk + (model?' '+model:'') + ' — geen advertenties'; return; }
     leeg.style.display='none'; res.style.display='';
 
     var prijzen = data.map(function(a){return a.prijs;}).sort(function(a,b){return a-b;});
     var n = prijzen.length;
+    if (subEl) subEl.textContent = merk + (model?' '+model:'') + ' — ' + n + ' advertentie' + (n===1?'':'s');
     var avg = Math.round(prijzen.reduce(function(s,p){return s+p;},0)/n);
     var mediaan = n%2===0 ? Math.round((prijzen[n/2-1]+prijzen[n/2])/2) : prijzen[Math.floor(n/2)];
     var minP = prijzen[0], maxP = prijzen[n-1];
@@ -3874,7 +3885,10 @@ function _injectCarSchema(cars) {
 <div id="marktOverlay" onclick="if(event.target===this)sluitMarkt()">
   <div class="markt-modal">
     <div class="markt-topbar">
-      <h2>&#128202; Marktanalyse</h2>
+      <div>
+        <h2>&#128202; Marktanalyse</h2>
+        <div class="markt-sub" id="mTopbarSub">Vind de actuele marktprijs voor elk merk en model</div>
+      </div>
       <button class="sluit-btn" onclick="sluitMarkt()">&#10005; Sluiten</button>
     </div>
     <div class="markt-filters">
