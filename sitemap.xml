@@ -59,8 +59,8 @@
   <url><loc>https://carkijker.nl/occasions/peugeot/partner/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/occasions/peugeot/expert/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/occasions/peugeot/e-208/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
-  <url><loc>https://carkijker.nl/occasions/peugeot/e-2008/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/occasions/peugeot/boxer/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://carkijker.nl/occasions/peugeot/e-2008/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/occasions/peugeot/rcz/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/occasions/peugeot/rifter/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/occasions/peugeot/e-expert/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
@@ -103,12 +103,12 @@
   <url><loc>https://carkijker.nl/occasions/opel/corsa/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/occasions/opel/astra/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/occasions/opel/grandland/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
-  <url><loc>https://carkijker.nl/occasions/opel/meriva/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/occasions/opel/crossland/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
-  <url><loc>https://carkijker.nl/occasions/opel/karl/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://carkijker.nl/occasions/opel/meriva/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/occasions/opel/vivaro/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
-  <url><loc>https://carkijker.nl/occasions/opel/mokka/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://carkijker.nl/occasions/opel/karl/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/occasions/opel/agila/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://carkijker.nl/occasions/opel/mokka/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/occasions/opel/zafira/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/occasions/renault/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://carkijker.nl/occasions/renault/clio/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
@@ -173,9 +173,20 @@
   <url><loc>https://carkijker.nl/occasions/suzuki/s-cross/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/occasions/suzuki/splash/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/occasions/suzuki/sx4/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
-  <url><loc>https://carkijker.nl/occasions/suzuki/celerio/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/occasions/suzuki/wagon/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/occasions/suzuki/jimny/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://carkijker.nl/occasions/suzuki/celerio/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://carkijker.nl/occasions/hyundai/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://carkijker.nl/occasions/hyundai/i10/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://carkijker.nl/occasions/hyundai/tucson/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://carkijker.nl/occasions/hyundai/kona/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://carkijker.nl/occasions/hyundai/i20/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://carkijker.nl/occasions/hyundai/i30/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://carkijker.nl/occasions/hyundai/ix35/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://carkijker.nl/occasions/hyundai/ix20/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://carkijker.nl/occasions/hyundai/ioniq/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://carkijker.nl/occasions/hyundai/santa/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://carkijker.nl/occasions/hyundai/getz/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/occasions/mini/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://carkijker.nl/occasions/mini/mini/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/occasions/mini/countryman/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
@@ -187,17 +198,6 @@
   <url><loc>https://carkijker.nl/occasions/mini/one/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/occasions/mini/hatchback/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/occasions/mini/5-deurs/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
-  <url><loc>https://carkijker.nl/occasions/hyundai/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://carkijker.nl/occasions/hyundai/i10/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
-  <url><loc>https://carkijker.nl/occasions/hyundai/tucson/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
-  <url><loc>https://carkijker.nl/occasions/hyundai/kona/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
-  <url><loc>https://carkijker.nl/occasions/hyundai/i20/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
-  <url><loc>https://carkijker.nl/occasions/hyundai/i30/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
-  <url><loc>https://carkijker.nl/occasions/hyundai/ix20/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
-  <url><loc>https://carkijker.nl/occasions/hyundai/ix35/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
-  <url><loc>https://carkijker.nl/occasions/hyundai/ioniq/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
-  <url><loc>https://carkijker.nl/occasions/hyundai/santa/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
-  <url><loc>https://carkijker.nl/occasions/hyundai/getz/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/occasions/mazda/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://carkijker.nl/occasions/mazda/cx-5/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/occasions/mazda/mx-5/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
@@ -236,8 +236,8 @@
   <url><loc>https://carkijker.nl/occasions/mitsubishi/asx/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/occasions/mitsubishi/eclipse/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/occasions/mitsubishi/pajero/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
-  <url><loc>https://carkijker.nl/occasions/mitsubishi/lancer/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/occasions/mitsubishi/grandis/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://carkijker.nl/occasions/mitsubishi/lancer/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/occasions/mitsubishi/carisma/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/occasions/mitsubishi/canter/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/occasions/land-rover/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
@@ -307,6 +307,10 @@
   <url><loc>https://carkijker.nl/occasions/cupra/ateca/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/occasions/cupra/tavascan/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/occasions/cupra/raval/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://carkijker.nl/occasions/tesla/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://carkijker.nl/occasions/tesla/model/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://carkijker.nl/occasions/tesla/roadster/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://carkijker.nl/occasions/tesla/motors/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/occasions/jaguar/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://carkijker.nl/occasions/jaguar/xj/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/occasions/jaguar/xf/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
@@ -318,10 +322,6 @@
   <url><loc>https://carkijker.nl/occasions/jaguar/f-type/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/occasions/jaguar/xk/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/occasions/jaguar/xkr/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
-  <url><loc>https://carkijker.nl/occasions/tesla/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://carkijker.nl/occasions/tesla/model/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
-  <url><loc>https://carkijker.nl/occasions/tesla/roadster/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
-  <url><loc>https://carkijker.nl/occasions/tesla/motors/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/occasions/lexus/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://carkijker.nl/occasions/lexus/rx/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/occasions/lexus/nx/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
@@ -404,6 +404,7 @@
   <url><loc>https://carkijker.nl/occasions/chevrolet/kalos/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/occasions/chevrolet/silverado/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/occasions/chevrolet/matiz/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://carkijker.nl/occasions/chevrolet/cruze/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/occasions/daihatsu/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://carkijker.nl/occasions/daihatsu/sirion/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/occasions/daihatsu/cuore/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
@@ -419,11 +420,12 @@
   <url><loc>https://carkijker.nl/occasions/maxus/edeliver/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/occasions/abarth/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://carkijker.nl/occasions/abarth/punto/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://carkijker.nl/occasions/chrysler/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://carkijker.nl/occasions/chrysler/grand/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://carkijker.nl/occasions/chrysler/300c/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/occasions/maserati/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://carkijker.nl/occasions/maserati/levante/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/occasions/maserati/ghibli/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
-  <url><loc>https://carkijker.nl/occasions/chrysler/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://carkijker.nl/occasions/chrysler/grand/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/occasions/lancia/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://carkijker.nl/occasions/lancia/ypsilon/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/occasions/bentley/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
@@ -478,8 +480,8 @@
   <url><loc>https://carkijker.nl/marktanalyse/peugeot/partner/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/marktanalyse/peugeot/expert/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/marktanalyse/peugeot/e-208/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
-  <url><loc>https://carkijker.nl/marktanalyse/peugeot/e-2008/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/marktanalyse/peugeot/boxer/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://carkijker.nl/marktanalyse/peugeot/e-2008/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/marktanalyse/peugeot/rcz/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/marktanalyse/peugeot/rifter/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/marktanalyse/peugeot/e-expert/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
@@ -518,12 +520,12 @@
   <url><loc>https://carkijker.nl/marktanalyse/opel/corsa/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/marktanalyse/opel/astra/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/marktanalyse/opel/grandland/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
-  <url><loc>https://carkijker.nl/marktanalyse/opel/meriva/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/marktanalyse/opel/crossland/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
-  <url><loc>https://carkijker.nl/marktanalyse/opel/karl/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://carkijker.nl/marktanalyse/opel/meriva/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/marktanalyse/opel/vivaro/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
-  <url><loc>https://carkijker.nl/marktanalyse/opel/mokka/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://carkijker.nl/marktanalyse/opel/karl/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/marktanalyse/opel/agila/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://carkijker.nl/marktanalyse/opel/mokka/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/marktanalyse/opel/zafira/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/marktanalyse/renault/clio/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/marktanalyse/renault/captur/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
@@ -582,9 +584,19 @@
   <url><loc>https://carkijker.nl/marktanalyse/suzuki/s-cross/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/marktanalyse/suzuki/splash/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/marktanalyse/suzuki/sx4/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
-  <url><loc>https://carkijker.nl/marktanalyse/suzuki/celerio/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/marktanalyse/suzuki/wagon/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/marktanalyse/suzuki/jimny/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://carkijker.nl/marktanalyse/suzuki/celerio/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://carkijker.nl/marktanalyse/hyundai/i10/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://carkijker.nl/marktanalyse/hyundai/tucson/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://carkijker.nl/marktanalyse/hyundai/kona/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://carkijker.nl/marktanalyse/hyundai/i20/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://carkijker.nl/marktanalyse/hyundai/i30/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://carkijker.nl/marktanalyse/hyundai/ix35/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://carkijker.nl/marktanalyse/hyundai/ix20/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://carkijker.nl/marktanalyse/hyundai/ioniq/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://carkijker.nl/marktanalyse/hyundai/santa/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://carkijker.nl/marktanalyse/hyundai/getz/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/marktanalyse/mini/mini/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/marktanalyse/mini/countryman/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/marktanalyse/mini/cooper/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
@@ -595,16 +607,6 @@
   <url><loc>https://carkijker.nl/marktanalyse/mini/one/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/marktanalyse/mini/hatchback/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/marktanalyse/mini/5-deurs/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
-  <url><loc>https://carkijker.nl/marktanalyse/hyundai/i10/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
-  <url><loc>https://carkijker.nl/marktanalyse/hyundai/tucson/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
-  <url><loc>https://carkijker.nl/marktanalyse/hyundai/kona/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
-  <url><loc>https://carkijker.nl/marktanalyse/hyundai/i20/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
-  <url><loc>https://carkijker.nl/marktanalyse/hyundai/i30/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
-  <url><loc>https://carkijker.nl/marktanalyse/hyundai/ix20/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
-  <url><loc>https://carkijker.nl/marktanalyse/hyundai/ix35/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
-  <url><loc>https://carkijker.nl/marktanalyse/hyundai/ioniq/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
-  <url><loc>https://carkijker.nl/marktanalyse/hyundai/santa/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
-  <url><loc>https://carkijker.nl/marktanalyse/hyundai/getz/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/marktanalyse/mazda/cx-5/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/marktanalyse/mazda/mx-5/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/marktanalyse/mazda/cx-3/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
@@ -639,8 +641,8 @@
   <url><loc>https://carkijker.nl/marktanalyse/mitsubishi/asx/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/marktanalyse/mitsubishi/eclipse/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/marktanalyse/mitsubishi/pajero/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
-  <url><loc>https://carkijker.nl/marktanalyse/mitsubishi/lancer/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/marktanalyse/mitsubishi/grandis/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://carkijker.nl/marktanalyse/mitsubishi/lancer/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/marktanalyse/mitsubishi/carisma/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/marktanalyse/mitsubishi/canter/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/marktanalyse/land-rover/range/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
@@ -703,6 +705,9 @@
   <url><loc>https://carkijker.nl/marktanalyse/cupra/ateca/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/marktanalyse/cupra/tavascan/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/marktanalyse/cupra/raval/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://carkijker.nl/marktanalyse/tesla/model/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://carkijker.nl/marktanalyse/tesla/roadster/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://carkijker.nl/marktanalyse/tesla/motors/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/marktanalyse/jaguar/xj/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/marktanalyse/jaguar/xf/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/marktanalyse/jaguar/f-pace/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
@@ -713,9 +718,6 @@
   <url><loc>https://carkijker.nl/marktanalyse/jaguar/f-type/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/marktanalyse/jaguar/xk/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/marktanalyse/jaguar/xkr/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
-  <url><loc>https://carkijker.nl/marktanalyse/tesla/model/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
-  <url><loc>https://carkijker.nl/marktanalyse/tesla/roadster/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
-  <url><loc>https://carkijker.nl/marktanalyse/tesla/motors/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/marktanalyse/lexus/rx/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/marktanalyse/lexus/nx/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/marktanalyse/lexus/is/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
@@ -786,6 +788,7 @@
   <url><loc>https://carkijker.nl/marktanalyse/chevrolet/kalos/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/marktanalyse/chevrolet/silverado/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/marktanalyse/chevrolet/matiz/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://carkijker.nl/marktanalyse/chevrolet/cruze/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/marktanalyse/daihatsu/sirion/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/marktanalyse/daihatsu/cuore/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/marktanalyse/daihatsu/terios/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
@@ -796,9 +799,10 @@
   <url><loc>https://carkijker.nl/marktanalyse/zeekr/7x/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/marktanalyse/maxus/edeliver/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/marktanalyse/abarth/punto/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://carkijker.nl/marktanalyse/chrysler/grand/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://carkijker.nl/marktanalyse/chrysler/300c/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/marktanalyse/maserati/levante/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/marktanalyse/maserati/ghibli/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
-  <url><loc>https://carkijker.nl/marktanalyse/chrysler/grand/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/marktanalyse/lancia/ypsilon/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/marktanalyse/bentley/flying/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://carkijker.nl/marktanalyse/aiways/u5/</loc><lastmod>2026-09-23</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url>
