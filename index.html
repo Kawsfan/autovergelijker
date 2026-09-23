@@ -798,6 +798,40 @@
   .markt-inruil-suggestie select{width:100%;padding:8px 9px;border-radius:9px;border:1px solid var(--rand);background:var(--kaart);color:var(--tekst);font-size:13px;margin-bottom:12px}
   @media(max-width:600px){.markt-two-col{grid-template-columns:1fr}.markt-ranglijst-cols{grid-template-columns:1fr}.markt-stats{grid-template-columns:1fr 1fr}}
 
+  /* ── Zoekagent-modal (zelfde kaarttaal als de Markt-modal) ── */
+  #agentOverlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:3000;overflow-y:auto;padding:24px 16px}
+  .agent-modal{background:var(--kaart);border-radius:16px;max-width:560px;margin:0 auto;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.25)}
+  .agent-topbar{background:linear-gradient(135deg,#1a1a18 0%,#2d2d2a 100%);color:#fff;padding:22px 24px 20px;display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+  .agent-topbar h2{margin:0;font-size:19px;font-weight:800;letter-spacing:-.3px}
+  .agent-topbar p{color:rgba(255,255,255,.65);font-size:12.5px;margin-top:5px;max-width:380px}
+  .agent-body{padding:18px 24px 24px}
+  .agent-lijst{display:flex;flex-direction:column;gap:10px;margin-bottom:16px;max-height:340px;overflow-y:auto}
+  .agent-card{background:var(--achtergrond);border:1px solid var(--rand);border-radius:12px;padding:14px 16px}
+  .agent-card-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:8px}
+  .agent-titel{font-size:14.5px;font-weight:700;color:var(--tekst)}
+  .agent-acties{display:flex;gap:4px;flex-shrink:0}
+  .agent-actie-btn{background:var(--kaart);border:1px solid var(--rand);border-radius:7px;width:30px;height:30px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:13px;padding:0}
+  .agent-actie-btn:hover{border-color:var(--oranje)}
+  .agent-chips{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px}
+  .agent-chip{display:inline-block;background:var(--kaart);border:1px solid var(--rand);border-radius:20px;padding:3px 10px;font-size:11.5px;font-weight:600;color:var(--tekst)}
+  .agent-meta{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:11.5px;color:var(--subtekst)}
+  .agent-nieuw-badge{background:var(--oranje);color:#fff;border-radius:20px;padding:2px 9px;font-size:11px;font-weight:700;white-space:nowrap}
+  .agent-leeg{text-align:center;padding:30px 16px;color:var(--subtekst);font-size:13.5px}
+  .agent-leeg .ic{font-size:28px;display:block;margin-bottom:8px}
+  .agent-cta-rij{display:flex;gap:8px;flex-wrap:wrap}
+  .agent-btn{flex:1;min-width:160px;padding:12px;border-radius:10px;font-size:13.5px;font-weight:700;cursor:pointer;border:none;text-align:center;font-family:inherit}
+  .agent-btn.primair{background:var(--tekst);color:#fff}
+  .agent-btn.secundair{background:var(--kaart);border:1.5px solid var(--rand);color:var(--tekst)}
+  .agent-notitie{margin-top:14px;padding:10px 12px;background:#f0f9ff;border:1px solid #bae6fd;border-radius:10px;font-size:12px;color:#0369a1;line-height:1.5}
+  .agent-notitie a{color:#0369a1;font-weight:700}
+  .agent-msg{margin-top:10px;font-size:12.5px;color:var(--green,#16a34a);font-weight:600;text-align:center;min-height:16px}
+  /* Bewerk-banner op de homepage zelf terwijl de filters worden aangepast --
+     de zoekagent-modal is dan dicht, dus zonder dit zou een gebruiker geen
+     enkel visueel spoor hebben dat er nog een opslag-actie openstaat. */
+  #agentBewerkBanner{display:none;position:sticky;top:62px;z-index:190;background:#1a1a18;color:#fff;padding:10px 20px;font-size:13px;text-align:center}
+  #agentBewerkBanner b{font-weight:700}
+  #agentBewerkBanner a{color:#fbbf24;font-weight:700;text-decoration:none;margin-left:10px;cursor:pointer}
+
 .afstand-rij { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
 .afstand-rij #locInput { flex:1; min-width:140px; height:38px; border:1.5px solid #ddd; border-radius:8px; padding:0 12px; font-size:.9rem; background:#fff; }
 .afstand-rij #locInput:focus { outline:none; border-color:var(--oranje); }
@@ -1023,6 +1057,8 @@
   <a href="/artikelen/" class="info-btn" style="text-decoration:none;">📰<span class="nav-txt"> Artikelen</span></a>
   <a href="/over-ons/" class="info-btn" style="text-decoration:none;">ℹ️<span class="nav-txt"> Over ons</span></a>
 </nav>
+
+<div id="agentBewerkBanner">✏️ Je past "<b id="agentBewerkNaam"></b>" aan — stel de filters hieronder in en open dan opnieuw de Zoekagent om op te slaan.<a onclick="annuleerAgentBewerken()">Annuleren</a></div>
 
 <main id="hoofdinhoud">
 <div class="hero">
@@ -1395,7 +1431,11 @@ document.addEventListener('click', function(e){
 });
 let alleResultaten = [];
 let huidigDetailId = null;
-let transmissieActief = '';
+// var i.p.v. let: moet ook als window.transmissieActief leesbaar/schrijfbaar
+// zijn vanuit de zoekagent-code verderop, die in een latere, aparte
+// <script>-tag staat -- een let-binding stopt bij de grens van zijn eigen
+// <script>-element, var (top-level) wordt een echte window-property.
+var transmissieActief = '';
 const VANDAAG = new Date().toISOString().split('T')[0];
 // Tier 2 groei-prioriteit: plek voor één advertentie tussen de resultaten is
 // gereserveerd (zie .ad-slot / renderAutoResultaten), maar nog niet actief --
@@ -2919,13 +2959,231 @@ function _herhaalZoekMetAfstand(){
   var _rs=document.getElementById('radiusSelect');
   if(_rs&&_rs.value&&typeof zoekNu==='function')zoekNu();
 }
-function openAgent(){renderAgentList();document.getElementById("agentModal").style.display="flex";}
+function openAgent(){
+  renderAgentList();
+  document.getElementById('agentOverlay').style.display='block';
+  document.body.style.overflow='hidden';
+  // De badges zijn nu getoond -- als "gelezen" markeren voor de volgende keer
+  // (geen tweede render hier, anders verdwijnen de net getoonde badges meteen).
+  var list=_agenten(); var gewijzigd=false;
+  list.forEach(function(a){ if(a.nieuwOngezien){ a.nieuwOngezien=0; gewijzigd=true; } });
+  if(gewijzigd){ localStorage.setItem('zoekagenten',JSON.stringify(list)); _bijwerkAgentNavBadge(); }
+}
+function sluitAgent(){document.getElementById('agentOverlay').style.display='none';document.body.style.overflow='';}
 function _agenten(){try{return JSON.parse(localStorage.getItem("zoekagenten")||"[]");}catch(e){return[];}}
-function renderAgentList(){var el=document.getElementById("agentList");var list=_agenten();if(!list.length){el.innerHTML='<p style="color:var(--subtekst);font-size:.9rem;margin:0">'+((window.lang||'nl')==='en'?"No saved alerts.":"Geen zoekagenten opgeslagen.")+'</p>';return;}el.innerHTML=list.map(function(a,i){return'<div style="display:flex;align-items:center;gap:8px;background:var(--achtergrond);border-radius:8px;padding:8px 12px"><span style="flex:1;font-size:.85rem">'+a.label+'</span><button onclick="verwijderAgent('+i+')" style="background:none;border:none;cursor:pointer;color:var(--subtekst);font-size:1.1rem">&#x2715;</button></div>';}).join("");}
-function verwijderAgent(i){var list=_agenten();list.splice(i,1);localStorage.setItem("zoekagenten",JSON.stringify(list));renderAgentList();}
-function slaZoekagentOp(){var merk=(document.getElementById("merkFilter")||{}).value||"";var qry=(document.getElementById("zoekveld")||{}).value||"";var minP=(document.getElementById("minPrijs")||{}).value||"";var maxP=(document.getElementById("maxPrijs")||{}).value||"";var label=[merk,qry,minP&&("min €"+minP),maxP&&("max €"+maxP)].filter(Boolean).join(", ")||"Alle auto's";var agent={label:label,merk:merk,q:qry,minPrijs:minP?+minP:null,maxPrijs:maxP?+maxP:null,opgeslagenOp:new Date().toISOString().slice(0,10),gezieneIds:[]};var list=_agenten();list.push(agent);localStorage.setItem("zoekagenten",JSON.stringify(list));renderAgentList();var msg=document.getElementById("agentMsg");if(msg){msg.textContent="Zoekagent opgeslagen!";setTimeout(function(){msg.textContent="";},2500);}}
-function controleerZoekagenten(handmatig){if(!window._alleAutos||!window._alleAutos.length)return;var vandaag=new Date().toISOString().slice(0,10);var list=_agenten();var totaalNieuw=0;list=list.map(function(agent){var matches=window._alleAutos.filter(function(a){if(agent.merk&&!(_getMerk(a.titel)||"").toLowerCase().includes(agent.merk.toLowerCase()))return false;if(agent.q&&!(((a.titel||"")+" "+(_getMerk(a.titel)||"")).toLowerCase().includes(agent.q.toLowerCase())))return false;if(agent.minPrijs!=null&&a.prijs!=null&&a.prijs<agent.minPrijs)return false;if(agent.maxPrijs!=null&&a.prijs!=null&&a.prijs>agent.maxPrijs)return false;return true;});var nieuw=matches.filter(function(a){return a.eersteGezien===vandaag&&!(agent.gezieneIds||[]).includes(a.id);});if(nieuw.length){totaalNieuw+=nieuw.length;agent.gezieneIds=(agent.gezieneIds||[]).concat(nieuw.map(function(a){return a.id;}));if(typeof Notification!=="undefined"&&Notification.permission==="granted"){new Notification("Zoekagent: "+agent.label,{body:nieuw.length+" nieuwe auto's gevonden!",icon:"/icons/icon-192.png"});}}return agent;});localStorage.setItem("zoekagenten",JSON.stringify(list));if(handmatig){var msg=document.getElementById("agentMsg");if(msg){msg.textContent=totaalNieuw?"Gevonden: "+totaalNieuw+" nieuwe auto('s)!":"Geen nieuwe auto's.";setTimeout(function(){if(msg)msg.textContent="";},3000);}}
-var btn=document.getElementById("agentNavBtn");if(btn&&totaalNieuw>0)btn.innerHTML="&#128276;("+totaalNieuw+") Zoekagent";}
+
+var AGENT_BRANDSTOF_LABELS={benzine:'Benzine',diesel:'Diesel',elektrisch:'Elektrisch',hybride:'Hybride'};
+var AGENT_CARROSSERIE_LABELS={hatchback:'Hatchback',sedan:'Sedan',suv:'SUV',stationwagon:'Stationwagon',cabriolet:'Cabrio',coupe:'Coupé',mpv:'MPV',bestelwagen:'Bestelwagen'};
+
+// Leest ALLE actieve filters op de zoekpagina (niet alleen merk+prijs zoals
+// voorheen) -- was de kern van de bug: zoekveld/minPrijs/maxPrijs bestaan als
+// element-ID al een tijd niet meer (hernoemd naar zoekInput/prijsMin/
+// prijsMax), dus sla*Zoekagent* las stilzwijgend altijd lege waarden. Zelfde
+// resolutie voor de "custom"-select-optie als zoekNu() hierboven.
+function _leesHuidigeFilters(){
+  var zoek=(document.getElementById('zoekInput')||{}).value||'';
+  var merk=(document.getElementById('merkFilter')||{}).value||'';
+  var model=(document.getElementById('modelInput')||{}).value||'';
+  var jaarMin=parseInt((document.getElementById('jaarMin')||{}).value)||null;
+  var jaarMax=parseInt((document.getElementById('jaarMax')||{}).value)||null;
+  var pMnV=(document.getElementById('prijsMin')||{}).value||'';
+  var prijsMin=pMnV==='custom'?(parseInt((document.getElementById('prijsMinCustom')||{}).value)||null):(parseInt(pMnV)||null);
+  var pMxV=(document.getElementById('prijsMax')||{}).value||'';
+  var prijsMax=pMxV==='custom'?(parseInt((document.getElementById('prijsMaxCustom')||{}).value)||null):(parseInt(pMxV)||null);
+  var kMnV=(document.getElementById('kmMin')||{}).value||'';
+  var kmMin=kMnV==='custom'?(parseInt((document.getElementById('kmMinCustom')||{}).value)||null):(parseInt(kMnV)||null);
+  var kMxV=(document.getElementById('kmMax')||{}).value||'';
+  var kmMax=kMxV==='custom'?(parseInt((document.getElementById('kmMaxCustom')||{}).value)||null):(parseInt(kMxV)||null);
+  var brandstof=(document.getElementById('brandstofFilter')||{}).value||'';
+  var carrosserie=(document.getElementById('carrosserieFilter')||{}).value||'';
+  var transmissie=window.transmissieActief||'';
+  return {zoek:zoek,merk:merk,model:model,jaarMin:jaarMin,jaarMax:jaarMax,prijsMin:prijsMin,prijsMax:prijsMax,kmMin:kmMin,kmMax:kmMax,brandstof:brandstof,carrosserie:carrosserie,transmissie:transmissie};
+}
+function _agentLabel(f){return [f.merk,f.model].filter(Boolean).join(' ')||f.zoek||(((window.lang||'nl')==='en')?"All cars":"Alle auto's");}
+function _agentChips(a){
+  var chips=[];
+  if(a.jaarMin)chips.push('Bouwjaar '+a.jaarMin+'+');
+  if(a.jaarMax)chips.push('Tot bouwjaar '+a.jaarMax);
+  if(a.minPrijs)chips.push('Min €'+Number(a.minPrijs).toLocaleString('nl-NL'));
+  if(a.maxPrijs)chips.push('Max €'+Number(a.maxPrijs).toLocaleString('nl-NL'));
+  if(a.brandstof)chips.push(AGENT_BRANDSTOF_LABELS[a.brandstof]||a.brandstof);
+  if(a.carrosserie)chips.push(AGENT_CARROSSERIE_LABELS[a.carrosserie]||a.carrosserie);
+  if(a.transmissie)chips.push(a.transmissie==='automaat'?'Automaat':'Handgeschakeld');
+  if(a.kmMin)chips.push('Min '+Number(a.kmMin).toLocaleString('nl-NL')+' km');
+  if(a.kmMax)chips.push('Max '+Number(a.kmMax).toLocaleString('nl-NL')+' km');
+  if(a.q)chips.push('"'+a.q+'"');
+  return chips;
+}
+function renderAgentList(){
+  var el=document.getElementById('agentList');
+  var list=_agenten();
+  if(!list.length){
+    el.innerHTML='<div class="agent-leeg"><span class="ic">🔔</span>'+((window.lang||'nl')==='en'?"No saved alerts yet.":"Nog geen zoekagenten opgeslagen.")+'</div>';
+    return;
+  }
+  el.innerHTML=list.map(function(a,i){
+    var chips=_agentChips(a);
+    var chipsHtml=chips.length?('<div class="agent-chips">'+chips.map(function(c){return '<span class="agent-chip">'+escHtml(c)+'</span>';}).join('')+'</div>'):'';
+    var nieuwBadge=a.nieuwOngezien?('<span class="agent-nieuw-badge">'+a.nieuwOngezien+' nieuw</span>'):'';
+    return '<div class="agent-card">'+
+      '<div class="agent-card-top"><div class="agent-titel">'+escHtml(a.label||_agentLabel(a))+'</div>'+
+      '<div class="agent-acties">'+
+      '<button class="agent-actie-btn" title="Bewerken" onclick="bewerkAgent('+i+')">✏️</button>'+
+      '<button class="agent-actie-btn" title="Verwijderen" onclick="verwijderAgent('+i+')">🗑️</button>'+
+      '</div></div>'+
+      chipsHtml+
+      '<div class="agent-meta"><span>Opgeslagen op '+escHtml(a.opgeslagenOp||'')+'</span>'+nieuwBadge+'</div>'+
+      '</div>';
+  }).join('');
+}
+function verwijderAgent(i){
+  var list=_agenten();
+  list.splice(i,1);
+  localStorage.setItem("zoekagenten",JSON.stringify(list));
+  if(_agentBewerkIndex===i)annuleerAgentBewerken();
+  renderAgentList();
+}
+// Bewerken vult de ECHTE zoekfilters op de homepage met de opgeslagen criteria
+// van deze agent (i.p.v. een los formulier in de modal na te bouwen) -- de
+// gebruiker past ze daar aan en overschrijft deze agent zodra "Wijzigingen
+// opslaan" wordt geklikt. Niets gaat verloren als de bewerking wordt
+// afgebroken: de agent zelf wordt pas aangepast bij een echte opslag-actie.
+var _agentBewerkIndex=null;
+function bewerkAgent(i){
+  var a=_agenten()[i];
+  if(!a)return;
+  _agentBewerkIndex=i;
+  var zet=function(id,val){var el=document.getElementById(id);if(el)el.value=val;};
+  zet('zoekInput',a.q||'');
+  zet('merkFilter',a.merk||'');
+  if(typeof updateModelDropdown==='function')updateModelDropdown();
+  zet('modelInput',a.model||'');
+  zet('jaarMin',a.jaarMin||'');
+  zet('jaarMax',a.jaarMax||'');
+  zet('prijsMin',a.minPrijs||'');
+  zet('prijsMax',a.maxPrijs||'');
+  zet('kmMin',a.kmMin||'');
+  zet('kmMax',a.kmMax||'');
+  zet('brandstofFilter',a.brandstof||'');
+  zet('carrosserieFilter',a.carrosserie||'');
+  var trWaarde=a.transmissie||'';
+  document.querySelectorAll('.toggle-btns button').forEach(function(b){b.classList.toggle('actief',(b.dataset.val||'')===trWaarde);});
+  window.transmissieActief=trWaarde;
+  sluitAgent();
+  if(typeof zoekNu==='function')zoekNu();
+  var banner=document.getElementById('agentBewerkBanner');
+  var naamEl=document.getElementById('agentBewerkNaam');
+  if(naamEl)naamEl.textContent=a.label||_agentLabel(a);
+  if(banner)banner.style.display='block';
+  var opslaanBtn=document.getElementById('agentOpslaanBtn');
+  if(opslaanBtn)opslaanBtn.innerHTML='💾 Wijzigingen opslaan';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function annuleerAgentBewerken(){
+  _agentBewerkIndex=null;
+  var banner=document.getElementById('agentBewerkBanner');
+  if(banner)banner.style.display='none';
+  var opslaanBtn=document.getElementById('agentOpslaanBtn');
+  if(opslaanBtn)opslaanBtn.innerHTML='💾 Huidige filters opslaan';
+}
+function slaZoekagentOp(){
+  var f=_leesHuidigeFilters();
+  var list=_agenten();
+  var bewerkIdx=_agentBewerkIndex;
+  var bestaand=(bewerkIdx!=null)?list[bewerkIdx]:null;
+  var agent={
+    label:_agentLabel(f), merk:f.merk||null, model:f.model||null, q:f.zoek||null,
+    jaarMin:f.jaarMin, jaarMax:f.jaarMax,
+    minPrijs:f.prijsMin, maxPrijs:f.prijsMax,
+    kmMin:f.kmMin, kmMax:f.kmMax,
+    brandstof:f.brandstof||null, carrosserie:f.carrosserie||null, transmissie:f.transmissie||null,
+    opgeslagenOp:new Date().toISOString().slice(0,10),
+    gezieneIds:bestaand?(bestaand.gezieneIds||[]):[],
+    nieuwOngezien:0
+  };
+  if(bestaand&&bestaand._cloudId)agent._cloudId=bestaand._cloudId;
+  var isBewerken=bewerkIdx!=null&&bestaand;
+  var schrijfIndex;
+  if(isBewerken){list[bewerkIdx]=agent;schrijfIndex=bewerkIdx;}else{list.push(agent);schrijfIndex=list.length-1;}
+  localStorage.setItem("zoekagenten",JSON.stringify(list));
+  window._laatstOpgeslagenAgentIndex=schrijfIndex;
+  annuleerAgentBewerken();
+  renderAgentList();
+  var msg=document.getElementById("agentMsg");
+  if(msg){msg.textContent=isBewerken?"Wijzigingen opgeslagen!":"Zoekagent opgeslagen!";setTimeout(function(){msg.textContent="";},2500);}
+}
+function _bijwerkAgentNavBadge(){
+  var btn=document.getElementById('agentNavBtn');
+  if(!btn)return;
+  var totaal=_agenten().reduce(function(s,a){return s+(a.nieuwOngezien||0);},0);
+  btn.innerHTML=totaal>0?('&#128276;('+totaal+')<span class="nav-txt"> Zoekagent</span>'):'&#128276;<span class="nav-txt"> Zoekagent</span>';
+}
+// Meteen bij laden al een eventueel vanuit een vorige sessie opgebouwde
+// "nieuwOngezien"-badge tonen, zonder te wachten op de 3s-vertraagde eerste
+// controleerZoekagenten()-check (die pas draait zodra window._alleAutos er is).
+_bijwerkAgentNavBadge();
+// Zelfde matchlogica als zoekNu() hierboven, hier los herhaald omdat
+// controleerZoekagenten() buiten de DOM-context van de zoekpagina matcht
+// (elke agent kan andere criteria hebben dan de filters die nu op het scherm
+// staan) -- bewust op dezelfde manier geïmplementeerd (substring-matching bij
+// brandstof/carrosserie/transmissie) zodat een agent precies dezelfde auto's
+// oplevert als wanneer je die filters zelf zou instellen.
+function _matchtAgentFilters(a,agent){
+  if(agent.merk){
+    var merkLower=String(agent.merk).toLowerCase();
+    if((a.merk||'').toLowerCase()!==merkLower&&!((a.titel||'').toLowerCase().includes(merkLower)))return false;
+  }
+  if(agent.model&&!((a.titel||'').toLowerCase().includes(String(agent.model).toLowerCase())))return false;
+  if(agent.q){
+    var q=String(agent.q).toLowerCase();
+    if(!((a.titel||'').toLowerCase().includes(q))&&!((a.locatie||'').toLowerCase().includes(q)))return false;
+  }
+  if(agent.jaarMin!=null&&(a.jaar||0)<agent.jaarMin)return false;
+  if(agent.jaarMax!=null&&(a.jaar||9999)>agent.jaarMax)return false;
+  if(agent.minPrijs!=null&&a.prijs!=null&&a.prijs<agent.minPrijs)return false;
+  if(agent.maxPrijs!=null&&a.prijs!=null&&a.prijs>agent.maxPrijs)return false;
+  if(agent.kmMin!=null&&(a.km||0)<agent.kmMin)return false;
+  if(agent.kmMax!=null&&(a.km||0)>agent.kmMax)return false;
+  if(agent.carrosserie&&!((a.carrosserie||'').toLowerCase().includes(String(agent.carrosserie).toLowerCase())))return false;
+  if(agent.brandstof){
+    var bf=(a.brandstof||'').toLowerCase();
+    var bsVal=String(agent.brandstof).toLowerCase();
+    var bsMatch=bsVal==='hybride'?bf.includes('hybride'):bsVal==='elektrisch'?bf.includes('elektr'):bf.includes(bsVal);
+    if(!bsMatch)return false;
+  }
+  if(agent.transmissie){
+    var tr=(a.transmissie||'').toLowerCase();
+    var trMatch=agent.transmissie==='automaat'?(tr.includes('automat')||tr==='automaat'):agent.transmissie==='handgeschakeld'?(tr.includes('handm')||tr.includes('manueel')||tr.includes('handgesch')):tr.includes(agent.transmissie);
+    if(!trMatch)return false;
+  }
+  return true;
+}
+function controleerZoekagenten(handmatig){
+  if(!window._alleAutos||!window._alleAutos.length)return;
+  var vandaag=new Date().toISOString().slice(0,10);
+  var list=_agenten();
+  var totaalNieuw=0;
+  list=list.map(function(agent){
+    var matches=window._alleAutos.filter(function(a){return _matchtAgentFilters(a,agent);});
+    var nieuw=matches.filter(function(a){return a.eersteGezien===vandaag&&!(agent.gezieneIds||[]).includes(a.id);});
+    if(nieuw.length){
+      totaalNieuw+=nieuw.length;
+      agent.gezieneIds=(agent.gezieneIds||[]).concat(nieuw.map(function(a){return a.id;}));
+      agent.nieuwOngezien=(agent.nieuwOngezien||0)+nieuw.length;
+      if(typeof Notification!=="undefined"&&Notification.permission==="granted"){
+        new Notification("Zoekagent: "+(agent.label||_agentLabel(agent)),{body:nieuw.length+" nieuwe auto's gevonden!",icon:"/icons/icon-192.png"});
+      }
+    }
+    return agent;
+  });
+  localStorage.setItem("zoekagenten",JSON.stringify(list));
+  _bijwerkAgentNavBadge();
+  if(handmatig){
+    var msg=document.getElementById("agentMsg");
+    if(msg){msg.textContent=totaalNieuw?"Gevonden: "+totaalNieuw+" nieuwe auto('s)!":"Geen nieuwe auto's.";setTimeout(function(){if(msg)msg.textContent="";},3000);}
+    renderAgentList();
+  }
+}
 // Snelle eerste check, 3s na laden -- draait op dat moment meestal nog tegen de
 // kleine top-300-subset (listings-top.json), dus kan nieuwe advertenties buiten
 // die subset missen. window._laadVolledig() roept controleerZoekagenten() daarom
@@ -3715,17 +3973,25 @@ function sluitMarkt() {
   }
 </script>
 
-<div id="agentModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:3000;align-items:center;justify-content:center">
-<div style="background:var(--kaart);border-radius:14px;padding:28px;max-width:480px;width:90%;position:relative;box-shadow:0 8px 40px rgba(0,0,0,.3)">
-<button onclick="document.getElementById('agentModal').style.display='none'" style="position:absolute;top:12px;right:16px;background:none;border:none;font-size:22px;cursor:pointer;color:var(--tekst)">&#x2715;</button>
-<h2 style="margin:0 0 6px;font-size:1.3rem">&#128276; Zoekagent</h2>
-<p style="margin:0 0 18px;color:var(--subtekst);font-size:.9rem">Sla je zoekcriteria op en ontvang een melding als er nieuwe auto's verschijnen.</p>
-<div id="agentList" style="margin-bottom:16px;display:flex;flex-direction:column;gap:8px;max-height:200px;overflow-y:auto"></div>
-<div style="display:flex;gap:8px;flex-wrap:wrap">
-<button class="btn" onclick="slaZoekagentOp()" style="flex:1;min-width:140px">&#128190; Huidige filters opslaan</button>
-<button class="btn" onclick="controleerZoekagenten(true)" style="flex:1;min-width:140px;background:var(--oranje);color:#fff">&#128269; Nu controleren</button>
-</div>
-<p id="agentMsg" style="margin:10px 0 0;font-size:.85rem;color:var(--accent)"></p>
+<div id="agentOverlay" onclick="if(event.target===this)sluitAgent()">
+  <div class="agent-modal">
+    <div class="agent-topbar">
+      <div>
+        <h2>&#128276; Zoekagent</h2>
+        <p>Sla je zoekcriteria op en ontvang een melding zodra er nieuwe auto's verschijnen die eraan voldoen.</p>
+      </div>
+      <button class="sluit-btn" onclick="sluitAgent()">&#10005; Sluiten</button>
+    </div>
+    <div class="agent-body">
+      <div id="agentList" class="agent-lijst"></div>
+      <div class="agent-cta-rij">
+        <button class="agent-btn primair" id="agentOpslaanBtn" onclick="slaZoekagentOp()">&#128190; Huidige filters opslaan</button>
+        <button class="agent-btn secundair" onclick="controleerZoekagenten(true)">&#128269; Nu controleren</button>
+      </div>
+      <p id="agentMsg" class="agent-msg"></p>
+      <div class="agent-notitie">&#128161; Wil je ook een melding per e-mail of push-notificatie? Beheer dat via je <a href="#" onclick="document.getElementById('agentOverlay').style.display='none';document.getElementById('accountModal').style.display='flex';return false">account</a>.</div>
+    </div>
+  </div>
 </div>
 
 <!-- Marktanalyse Modal -->
@@ -4849,6 +5115,8 @@ function setMerkFilter(merk) {
   // de database raakt.
   function _syncZoekagenten(){
     var lokaal = _agenten();
+    var lokaalPerCloudId = {};
+    lokaal.forEach(function(a){ if (a._cloudId) lokaalPerCloudId[a._cloudId] = a; });
     var nieuwe = lokaal.filter(function(a){ return !a._cloudId; });
     var inserts = nieuwe.map(function(a){
       return _sb.from('zoekagenten').insert({
@@ -4863,8 +5131,17 @@ function setMerkFilter(merk) {
     }).then(function(res){
       if (!res || !res.data) return;
       var lijst = res.data.map(function(r){
-        return { label: r.label, merk: r.merk, q: r.q, minPrijs: r.min_prijs, maxPrijs: r.max_prijs,
-          opgeslagenOp: r.opgeslagen_op, gezieneIds: r.gezien_ids || [], _cloudId: r.id };
+        // De cloud-rij kent nog alleen het oude schema (label/merk/q/prijzen,
+        // zie supabase/schema.sql) -- als deze agent hier al lokaal stond met
+        // rijkere, alleen-lokale criteria (jaar/km/brandstof/carrosserie/
+        // transmissie/nieuwOngezien), die behouden i.p.v. ze bij elke
+        // login/sync weg te gooien door de cloud-rij zonder meer te vervangen.
+        var basis = lokaalPerCloudId[r.id] ? Object.assign({}, lokaalPerCloudId[r.id]) : {};
+        basis.label = r.label; basis.merk = r.merk; basis.q = r.q;
+        basis.minPrijs = r.min_prijs; basis.maxPrijs = r.max_prijs;
+        basis.opgeslagenOp = r.opgeslagen_op; basis.gezieneIds = r.gezien_ids || [];
+        basis._cloudId = r.id;
+        return basis;
       });
       localStorage.setItem('zoekagenten', JSON.stringify(lijst));
       if (typeof renderAgentList === 'function') renderAgentList();
@@ -4986,14 +5263,28 @@ function setMerkFilter(merk) {
     var r = _origSlaZoekagentOp.apply(this, arguments);
     if (_gebruiker) {
       var lijst = _agenten();
-      var laatste = lijst[lijst.length - 1];
-      if (laatste && !laatste._cloudId) {
-        _sb.from('zoekagenten').insert({
-          user_id: _gebruiker.id, label: laatste.label, merk: laatste.merk || null, q: laatste.q || null,
-          min_prijs: laatste.minPrijs, max_prijs: laatste.maxPrijs, opgeslagen_op: laatste.opgeslagenOp || null
-        }).select().then(function(res){
-          if (res && res.data && res.data[0]) { laatste._cloudId = res.data[0].id; localStorage.setItem('zoekagenten', JSON.stringify(lijst)); }
-        }).catch(function(e){ console.warn('Zoekagent synchroniseren mislukt:', e.message); });
+      // slaZoekagentOp() kan nu ook een bestaande agent OP DE PLEK overschrijven
+      // (bewerken), niet alleen aan het eind toevoegen -- window._laatstOpgeslagenAgentIndex
+      // wijst naar de daadwerkelijk geschreven rij i.p.v. altijd lijst[lijst.length-1]
+      // aan te nemen (dat zou bij het bewerken van een oudere agent de verkeerde,
+      // laatste agent in de cloud bijwerken).
+      var idx = (typeof window._laatstOpgeslagenAgentIndex === 'number') ? window._laatstOpgeslagenAgentIndex : lijst.length - 1;
+      var target = lijst[idx];
+      if (target) {
+        // De Supabase-tabel kent nog alleen label/merk/q/min_prijs/max_prijs/
+        // opgeslagen_op (zie supabase/schema.sql) -- de nieuwe criteria
+        // (jaar/km/brandstof/carrosserie/transmissie) blijven daarom voorlopig
+        // alleen lokaal bewaard, cloud-sync blijft draaien op de bestaande kolommen
+        // i.p.v. te breken op onbekende kolomnamen. Uit te breiden zodra de tabel
+        // is gemigreerd.
+        var payload = { label: target.label, merk: target.merk || null, q: target.q || null, min_prijs: target.minPrijs, max_prijs: target.maxPrijs, opgeslagen_op: target.opgeslagenOp || null };
+        if (target._cloudId) {
+          _sb.from('zoekagenten').update(payload).eq('id', target._cloudId).catch(function(e){ console.warn('Zoekagent bijwerken mislukt in cloud:', e.message); });
+        } else {
+          _sb.from('zoekagenten').insert(Object.assign({ user_id: _gebruiker.id }, payload)).select().then(function(res){
+            if (res && res.data && res.data[0]) { target._cloudId = res.data[0].id; localStorage.setItem('zoekagenten', JSON.stringify(lijst)); }
+          }).catch(function(e){ console.warn('Zoekagent synchroniseren mislukt:', e.message); });
+        }
       }
     }
     return r;
