@@ -27,3 +27,12 @@ data/listings.json
 # allemaal ruim binnen de limiet). .git hoort sowieso nooit een gedeployed
 # asset te zijn.
 .git
+
+# mcp-server/ is een LOS Cloudflare Worker-project (eigen wrangler.toml,
+# eigen deploy, zie mcp-server/README.md) -- geen onderdeel van de statische
+# site. Zonder deze regel zou dit project's eigen Worker-broncode (incl.
+# straks node_modules/ na een lokale `npm install`) gewoon publiek
+# downloadbaar worden onder carkijker.nl/mcp-server/*, omdat dit project bij
+# gebrek aan een eigen wrangler-config de hele repo-checkout als asset-
+# directory gebruikt (zie de .git-uitleg hierboven).
+mcp-server/

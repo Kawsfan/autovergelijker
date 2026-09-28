@@ -1,0 +1,13 @@
+{
+  "name": "carkijker-mcp",
+  "private": true,
+  "version": "1.0.0",
+  "description": "MCP-server voor Carkijker: laat AI-agents (Claude, ChatGPT, ...) rechtstreeks zoeken in het actuele occasion-aanbod i.p.v. losse JSON-bestanden te moeten parsen.",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy"
+  },
+  "devDependencies": {
+    "wrangler": "^3.90.0"
+  }
+}

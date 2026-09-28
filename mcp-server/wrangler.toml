@@ -1,0 +1,11 @@
+name = "carkijker-mcp"
+main = "src/index.mjs"
+compatibility_date = "2024-09-23"
+
+# Puur compute, geen static assets en geen KV/D1/etc. nodig -- de Worker haalt
+# bij elke tool-call de actuele (al publieke) JSON-databestanden van
+# carkijker.nl zelf op (zie SITE_ORIGIN in src/index.js), dus geen eigen
+# opslag of build-stap.
+
+[observability]
+enabled = true
