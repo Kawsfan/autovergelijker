@@ -24,6 +24,14 @@ self.addEventListener("activate",function(e){
 });
 
 self.addEventListener("fetch",function(e){
+  // Alleen GET-requests onderscheppen/cachen. De Cache API ondersteunt geen
+  // POST/PUT/etc. (cache.put() gooit een TypeError), en dit werd niet
+  // uitgesloten -- elke POST naar een pad dat op "/" of ".html" eindigt (ook
+  // cross-origin, bv. een MCP-/API-endpoint op het path "/") liep hierdoor
+  // stuk met "Failed to execute 'put' on 'Cache': Request method 'POST' is
+  // unsupported" i.p.v. gewoon de fetch door te laten gaan.
+  if(e.request.method!=="GET") return;
+
   var url=new URL(e.request.url);
   var path=url.pathname;
 
