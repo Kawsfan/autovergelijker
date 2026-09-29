@@ -14,6 +14,7 @@ Carkijker vergelijkt het volledige auto-aanbod van Nederland — zowel tweedehan
 - [Sitemap](https://carkijker.nl/sitemap.xml): volledige lijst van geïndexeerde pagina's
 - [Over Carkijker](https://carkijker.nl/over-ons/): missie, hoe de site werkt (favorieten, vergelijken, marktanalyse, dealscore, TCO-tool) en contactgegevens (info@carkijker.nl)
 - [Voor developers en AI-agents](https://carkijker.nl/voor-agents/): databestanden (JSON), veldbeschrijving en spelregels voor geautomatiseerd/programmatisch gebruik van de occasion-data
+- MCP-server (`POST https://carkijker-mcp.fergusknies.workers.dev/`): Model Context Protocol-endpoint voor AI-agents, met tools om direct te zoeken/filteren (search_listings), marktstatistieken per merk op te vragen (get_market_stats) en de dealscore-methodiek uit te leggen (get_dealscore_uitleg) — zie /voor-agents/ voor details
 
 ## Occasions per merk
 
