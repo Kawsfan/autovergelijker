@@ -45,13 +45,27 @@ deployen -- zie `.assetsignore`, die deze map daar nu expliciet van uitsluit).
 
 1. Cloudflare-dashboard → Workers & Pages → **Create** → Workers → verbind met
    deze GitHub-repo (`Kawsfan/autovergelijker`).
-2. Zet de **root directory** van dat project op `mcp-server`.
-3. Build command: leeg laten (geen build-stap nodig, `wrangler.toml` +
-   `src/index.js` is alles). Deploy command: `npx wrangler deploy`.
-4. Na de eerste deploy krijg je een `*.workers.dev`-URL. Optioneel: koppel er
+2. Projectnaam: alleen kleine letters/cijfers/streepjes (bijv. `carkijker-mcp`).
+3. Build command: leeg laten. Deploy command:
+   `npx wrangler deploy --config mcp-server/wrangler.toml`
+   (root directory kan op `/` blijven staan -- de `--config`-vlag wijst
+   wrangler direct naar de juiste map, ongeacht vanuit welke directory
+   Cloudflare het commando uitvoert).
+4. **Let op de aparte "Previews Base"-tab in Settings → Builds.** Cloudflare
+   gebruikt voor PR-/preview-branches een *ander* commando dan voor
+   production, met als default het verouderde `npx wrangler preview`
+   (vereist een `previews`-blok dat wij niet hebben en levert een falende
+   "Workers Builds"-check op elke PR op). Zet daar het **Preview command**
+   op:
+   ```
+   npx wrangler versions upload --config mcp-server/wrangler.toml
+   ```
+   (`versions upload` i.p.v. `deploy`: maakt een preview-versie aan zonder
+   het live verkeer op productie te verplaatsen.)
+5. Na de eerste deploy krijg je een `*.workers.dev`-URL. Optioneel: koppel er
    een custom domain aan (bijv. `mcp.carkijker.nl`) via **Settings → Domains
    & Routes** op het nieuwe Worker-project.
-5. Test de live endpoint, bijv.:
+6. Test de live endpoint, bijv.:
    ```bash
    curl -X POST https://<jouw-worker-url>/ \
      -H 'Content-Type: application/json' \
