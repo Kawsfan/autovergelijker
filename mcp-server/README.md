@@ -45,13 +45,31 @@ deployen -- zie `.assetsignore`, die deze map daar nu expliciet van uitsluit).
 
 1. Cloudflare-dashboard → Workers & Pages → **Create** → Workers → verbind met
    deze GitHub-repo (`Kawsfan/autovergelijker`).
-2. Zet de **root directory** van dat project op `mcp-server`.
-3. Build command: leeg laten (geen build-stap nodig, `wrangler.toml` +
-   `src/index.js` is alles). Deploy command: `npx wrangler deploy`.
-4. Na de eerste deploy krijg je een `*.workers.dev`-URL. Optioneel: koppel er
+2. Projectnaam: alleen kleine letters/cijfers/streepjes (bijv. `carkijker-mcp`).
+3. Build command: leeg laten. Deploy command:
+   `npx wrangler deploy --config mcp-server/wrangler.toml`
+   (root directory kan op `/` blijven staan -- de `--config`-vlag wijst
+   wrangler direct naar de juiste map, ongeacht vanuit welke directory
+   Cloudflare het commando uitvoert).
+4. **Zet preview-builds uit.** Er is een aparte "Previews Base"-tab in
+   Settings → Builds met een eigen "Preview command", die Cloudflare
+   voor PR-/niet-productie-branches gebruikt i.p.v. het production
+   deploy-commando. De default daarvan is het verouderde `npx wrangler
+   preview` (vereist een `previews`-blok dat wij niet hebben), en dat
+   veld overschrijven bleek niet te werken: zelfs na aanpassen en
+   meerdere verse builds bleef Cloudflare het oude commando draaien --
+   dus een echte fix van dat veld lukte niet vanuit deze sessie. Omdat
+   deze Worker geen zinvolle per-PR-preview nodig heeft (stateless API,
+   geen UI om te bekijken), is de pragmatische oplossing: zet de toggle
+   **"Builds for Preview branches"** (bovenaan diezelfde "Previews
+   Base"-tab) gewoon **uit**. Dan probeert Cloudflare niet meer te
+   bouwen bij een PR-push, en verdwijnt de storende "Workers Builds:
+   carkijker-mcp"-check op elke PR in deze repo -- productie-deploys via
+   `main` (stap 3 hierboven) blijven onveranderd werken.
+5. Na de eerste deploy krijg je een `*.workers.dev`-URL. Optioneel: koppel er
    een custom domain aan (bijv. `mcp.carkijker.nl`) via **Settings → Domains
    & Routes** op het nieuwe Worker-project.
-5. Test de live endpoint, bijv.:
+6. Test de live endpoint, bijv.:
    ```bash
    curl -X POST https://<jouw-worker-url>/ \
      -H 'Content-Type: application/json' \
