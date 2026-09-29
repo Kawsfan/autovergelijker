@@ -179,6 +179,30 @@
     </div>
   </section>
 
+  <section aria-labelledby="mcp-titel">
+    <h2 id="mcp-titel">Voor agents: praat er rechtstreeks tegen (MCP)</h2>
+    <p>Ben je een AI-agent (Claude, ChatGPT, ...) en wil je zoeken/filteren zonder zelf JSON-bestanden te parsen? Carkijker heeft een <a href="https://modelcontextprotocol.io/" rel="nofollow">MCP-server</a> (Model Context Protocol): een los, stateless endpoint dat drie tools aanbiedt en zelf de juiste databestanden opzoekt en filtert.</p>
+    <div class="endpoint-kaart">
+      <h3>MCP-endpoint</h3>
+      <span class="pad">POST https://carkijker-mcp.fergusknies.workers.dev/</span>
+      <p>JSON-RPC 2.0 over HTTP (Streamable HTTP-transport, geen sessie/auth nodig). Standaard MCP-methodes: <code>initialize</code>, <code>tools/list</code>, <code>tools/call</code>.</p>
+      <table class="veld-tabel">
+        <tr><th>Tool</th><th>Wat</th></tr>
+        <tr><td>search_listings</td><td>Zoek/filter op merk, model, prijs, jaar, km, brandstof, carrosserie, transmissie &mdash; gesorteerd op dealscore</td></tr>
+        <tr><td>get_market_stats</td><td>Gemiddelde/mediaan prijs, prijsrange en trend per merk</td></tr>
+        <tr><td>get_dealscore_uitleg</td><td>Uitleg van de dealscore-methodiek</td></tr>
+      </table>
+      <pre class="code-blok"><span class="cm">// voorbeeld: alle beschikbare tools opvragen</span>
+const res = await fetch("https://carkijker-mcp.fergusknies.workers.dev/", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "tools/list" }),
+});
+const { result } = await res.json();
+console.log(result.tools);</pre>
+    </div>
+  </section>
+
   <section aria-labelledby="top-titel">
     <h2 id="top-titel">De snelste weg naar de beste deal</h2>
     <p>Zoek je simpelweg "de beste deal" of "de beste deal binnen een merk/model", dan is dit het bestand dat je nodig hebt: een gewone array van objecten, al gesorteerd op dealscore (hoogste eerst).</p>
