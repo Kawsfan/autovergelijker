@@ -51,17 +51,21 @@ deployen -- zie `.assetsignore`, die deze map daar nu expliciet van uitsluit).
    (root directory kan op `/` blijven staan -- de `--config`-vlag wijst
    wrangler direct naar de juiste map, ongeacht vanuit welke directory
    Cloudflare het commando uitvoert).
-4. **Let op de aparte "Previews Base"-tab in Settings → Builds.** Cloudflare
-   gebruikt voor PR-/preview-branches een *ander* commando dan voor
-   production, met als default het verouderde `npx wrangler preview`
-   (vereist een `previews`-blok dat wij niet hebben en levert een falende
-   "Workers Builds"-check op elke PR op). Zet daar het **Preview command**
-   op:
-   ```
-   npx wrangler versions upload --config mcp-server/wrangler.toml
-   ```
-   (`versions upload` i.p.v. `deploy`: maakt een preview-versie aan zonder
-   het live verkeer op productie te verplaatsen.)
+4. **Zet preview-builds uit.** Er is een aparte "Previews Base"-tab in
+   Settings → Builds met een eigen "Preview command", die Cloudflare
+   voor PR-/niet-productie-branches gebruikt i.p.v. het production
+   deploy-commando. De default daarvan is het verouderde `npx wrangler
+   preview` (vereist een `previews`-blok dat wij niet hebben), en dat
+   veld overschrijven bleek niet te werken: zelfs na aanpassen en
+   meerdere verse builds bleef Cloudflare het oude commando draaien --
+   dus een echte fix van dat veld lukte niet vanuit deze sessie. Omdat
+   deze Worker geen zinvolle per-PR-preview nodig heeft (stateless API,
+   geen UI om te bekijken), is de pragmatische oplossing: zet de toggle
+   **"Builds for Preview branches"** (bovenaan diezelfde "Previews
+   Base"-tab) gewoon **uit**. Dan probeert Cloudflare niet meer te
+   bouwen bij een PR-push, en verdwijnt de storende "Workers Builds:
+   carkijker-mcp"-check op elke PR in deze repo -- productie-deploys via
+   `main` (stap 3 hierboven) blijven onveranderd werken.
 5. Na de eerste deploy krijg je een `*.workers.dev`-URL. Optioneel: koppel er
    een custom domain aan (bijv. `mcp.carkijker.nl`) via **Settings → Domains
    & Routes** op het nieuwe Worker-project.
