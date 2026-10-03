@@ -77,16 +77,47 @@ async function supabaseFetch(pathAndQuery, options) {
   return tekst ? JSON.parse(tekst) : null;
 }
 
-// Zelfde matchlogica als controleerZoekagenten() in index.html (client-side)
-// -- bewust hier gedupliceerd (net als isDealer()/slugifyMerk() elders in de
-// codebase) zodat de e-mailmelding exact dezelfde advertenties telt als de
-// browser-melding, i.p.v. twee losse implementaties die uiteen kunnen lopen.
+// Zelfde matchlogica als _matchtAgentFilters()/controleerZoekagenten() in
+// js/08-zoeken-interactie.js (client-side) -- bewust hier gedupliceerd (net
+// als isDealer()/slugifyMerk() elders in de codebase) zodat de e-mailmelding
+// exact dezelfde advertenties telt als de browser-melding, i.p.v. twee losse
+// implementaties die uiteen kunnen lopen. Let op: agent hier is de rauwe
+// Supabase-rij (snake_case kolomnamen: jaar_min/km_min/min_prijs/...), de
+// client-side versie werkt met het camelCase localStorage-schema (jaarMin/
+// kmMin/minPrijs/...) -- zelfde velden, andere naamgeving per kant.
+// Voorheen matchte dit alleen op merk/q/prijs omdat de zoekagenten-tabel de
+// overige kolommen nog niet had (zie de migratie in supabase/schema.sql) --
+// een agent met bijv. een brandstof- of transmissie-filter kreeg daardoor
+// meldingen voor auto's die daar niet aan voldeden.
 function vindNieuweMatches(agent, listings, vandaag) {
   return listings.filter(function(a) {
-    if (agent.merk && !(a.merk || '').toLowerCase().includes(String(agent.merk).toLowerCase())) return false;
-    if (agent.q && !(((a.titel || '') + ' ' + (a.merk || '')).toLowerCase().includes(String(agent.q).toLowerCase()))) return false;
+    if (agent.merk) {
+      var merkLower = String(agent.merk).toLowerCase();
+      if ((a.merk || '').toLowerCase() !== merkLower && !(a.titel || '').toLowerCase().includes(merkLower)) return false;
+    }
+    if (agent.model && !(a.titel || '').toLowerCase().includes(String(agent.model).toLowerCase())) return false;
+    if (agent.q) {
+      var q = String(agent.q).toLowerCase();
+      if (!(a.titel || '').toLowerCase().includes(q) && !(a.locatie || '').toLowerCase().includes(q)) return false;
+    }
+    if (agent.jaar_min != null && (a.jaar || 0) < agent.jaar_min) return false;
+    if (agent.jaar_max != null && (a.jaar || 9999) > agent.jaar_max) return false;
     if (agent.min_prijs != null && a.prijs != null && a.prijs < agent.min_prijs) return false;
     if (agent.max_prijs != null && a.prijs != null && a.prijs > agent.max_prijs) return false;
+    if (agent.km_min != null && (a.km || 0) < agent.km_min) return false;
+    if (agent.km_max != null && (a.km || 0) > agent.km_max) return false;
+    if (agent.carrosserie && !(a.carrosserie || '').toLowerCase().includes(String(agent.carrosserie).toLowerCase())) return false;
+    if (agent.brandstof) {
+      var bf = (a.brandstof || '').toLowerCase();
+      var bsVal = String(agent.brandstof).toLowerCase();
+      var bsMatch = bsVal === 'hybride' ? bf.includes('hybride') : bsVal === 'elektrisch' ? bf.includes('elektr') : bf.includes(bsVal);
+      if (!bsMatch) return false;
+    }
+    if (agent.transmissie) {
+      var tr = (a.transmissie || '').toLowerCase();
+      var trMatch = agent.transmissie === 'automaat' ? (tr.includes('automat') || tr === 'automaat') : agent.transmissie === 'handgeschakeld' ? (tr.includes('handm') || tr.includes('manueel') || tr.includes('handgesch')) : tr.includes(agent.transmissie);
+      if (!trMatch) return false;
+    }
     return true;
   }).filter(function(a) {
     return a.eersteGezien === vandaag && !(agent.gezien_ids || []).includes(a.id);
