@@ -166,8 +166,12 @@
     var nieuwe = lokaal.filter(function(a){ return !a._cloudId; });
     var inserts = nieuwe.map(function(a){
       return _sb.from('zoekagenten').insert({
-        user_id: _gebruiker.id, label: a.label, merk: a.merk || null, q: a.q || null,
-        min_prijs: a.minPrijs, max_prijs: a.maxPrijs, opgeslagen_op: a.opgeslagenOp || null
+        user_id: _gebruiker.id, label: a.label, merk: a.merk || null, model: a.model || null, q: a.q || null,
+        jaar_min: a.jaarMin || null, jaar_max: a.jaarMax || null,
+        min_prijs: a.minPrijs, max_prijs: a.maxPrijs,
+        km_min: a.kmMin || null, km_max: a.kmMax || null,
+        brandstof: a.brandstof || null, carrosserie: a.carrosserie || null, transmissie: a.transmissie || null,
+        opgeslagen_op: a.opgeslagenOp || null
       }).select().then(function(res){
         if (res && res.data && res.data[0]) a._cloudId = res.data[0].id;
       });
@@ -177,14 +181,18 @@
     }).then(function(res){
       if (!res || !res.data) return;
       var lijst = res.data.map(function(r){
-        // De cloud-rij kent nog alleen het oude schema (label/merk/q/prijzen,
-        // zie supabase/schema.sql) -- als deze agent hier al lokaal stond met
-        // rijkere, alleen-lokale criteria (jaar/km/brandstof/carrosserie/
-        // transmissie/nieuwOngezien), die behouden i.p.v. ze bij elke
-        // login/sync weg te gooien door de cloud-rij zonder meer te vervangen.
+        // De cloud-rij draagt sinds de zoekagenten-kolommenmigratie (okt '26,
+        // zie supabase/schema.sql) ook model/jaar/km/brandstof/carrosserie/
+        // transmissie -- cloud is hierna de bron van waarheid voor alle
+        // filtercriteria, net als merk/q/prijzen dat al waren. nieuwOngezien
+        // blijft bewust lokaal/afgeleid (badge-teller, geen filtercriterium);
+        // Object.assign hieronder behoudt 'm gewoon als die al lokaal stond.
         var basis = lokaalPerCloudId[r.id] ? Object.assign({}, lokaalPerCloudId[r.id]) : {};
-        basis.label = r.label; basis.merk = r.merk; basis.q = r.q;
+        basis.label = r.label; basis.merk = r.merk; basis.model = r.model; basis.q = r.q;
+        basis.jaarMin = r.jaar_min; basis.jaarMax = r.jaar_max;
         basis.minPrijs = r.min_prijs; basis.maxPrijs = r.max_prijs;
+        basis.kmMin = r.km_min; basis.kmMax = r.km_max;
+        basis.brandstof = r.brandstof; basis.carrosserie = r.carrosserie; basis.transmissie = r.transmissie;
         basis.opgeslagenOp = r.opgeslagen_op; basis.gezieneIds = r.gezien_ids || [];
         basis._cloudId = r.id;
         return basis;
@@ -317,13 +325,14 @@
       var idx = (typeof window._laatstOpgeslagenAgentIndex === 'number') ? window._laatstOpgeslagenAgentIndex : lijst.length - 1;
       var target = lijst[idx];
       if (target) {
-        // De Supabase-tabel kent nog alleen label/merk/q/min_prijs/max_prijs/
-        // opgeslagen_op (zie supabase/schema.sql) -- de nieuwe criteria
-        // (jaar/km/brandstof/carrosserie/transmissie) blijven daarom voorlopig
-        // alleen lokaal bewaard, cloud-sync blijft draaien op de bestaande kolommen
-        // i.p.v. te breken op onbekende kolomnamen. Uit te breiden zodra de tabel
-        // is gemigreerd.
-        var payload = { label: target.label, merk: target.merk || null, q: target.q || null, min_prijs: target.minPrijs, max_prijs: target.maxPrijs, opgeslagen_op: target.opgeslagenOp || null };
+        var payload = {
+          label: target.label, merk: target.merk || null, model: target.model || null, q: target.q || null,
+          jaar_min: target.jaarMin || null, jaar_max: target.jaarMax || null,
+          min_prijs: target.minPrijs, max_prijs: target.maxPrijs,
+          km_min: target.kmMin || null, km_max: target.kmMax || null,
+          brandstof: target.brandstof || null, carrosserie: target.carrosserie || null, transmissie: target.transmissie || null,
+          opgeslagen_op: target.opgeslagenOp || null
+        };
         if (target._cloudId) {
           _sb.from('zoekagenten').update(payload).eq('id', target._cloudId).catch(function(e){ console.warn('Zoekagent bijwerken mislukt in cloud:', e.message); });
         } else {

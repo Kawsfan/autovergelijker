@@ -43,13 +43,41 @@ create table if not exists public.zoekagenten (
   user_id uuid not null references auth.users(id) on delete cascade,
   label text not null,
   merk text,
+  model text,
   q text,
+  jaar_min integer,
+  jaar_max integer,
   min_prijs integer,
   max_prijs integer,
+  km_min integer,
+  km_max integer,
+  brandstof text,
+  carrosserie text,
+  transmissie text,
   gezien_ids jsonb not null default '[]'::jsonb,
   opgeslagen_op date not null default current_date,
   created_at timestamptz not null default now()
 );
+
+-- Migratie voor een zoekagenten-tabel die al bestond vóór deze kolommen
+-- (model/jaar_min/jaar_max/km_min/km_max/brandstof/carrosserie/transmissie)
+-- werden toegevoegd: "create table if not exists" hierboven slaat in dat
+-- geval de hele CREATE over, dus die kolommen komen er zonder deze losse
+-- ALTER's nooit bij. Zelfde les als favorites_update_own verderop in dit
+-- bestand: dit script draait niet vanzelf, je moet het (opnieuw) in de
+-- Supabase SQL Editor uitvoeren. Vóór deze migratie werden deze rijkere
+-- zoekcriteria wél lokaal bewaard (localStorage) maar nooit naar de cloud
+-- gesynct -- bij een nieuw apparaat of browser ging die verrijking dus
+-- verloren. "add column if not exists" is idempotent, dus dit stuk nogmaals
+-- draaien op een tabel die de kolommen al heeft is onschadelijk.
+alter table public.zoekagenten add column if not exists model text;
+alter table public.zoekagenten add column if not exists jaar_min integer;
+alter table public.zoekagenten add column if not exists jaar_max integer;
+alter table public.zoekagenten add column if not exists km_min integer;
+alter table public.zoekagenten add column if not exists km_max integer;
+alter table public.zoekagenten add column if not exists brandstof text;
+alter table public.zoekagenten add column if not exists carrosserie text;
+alter table public.zoekagenten add column if not exists transmissie text;
 
 alter table public.zoekagenten enable row level security;
 
