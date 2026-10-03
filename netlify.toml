@@ -16,3 +16,15 @@
   for = "/occasions/*"
   [headers.values]
     Cache-Control = "public, max-age=1800, stale-while-revalidate=3600"
+
+[[headers]]
+  for = "/js/*"
+  [headers.values]
+    # index.html's inline <script>-blokken staan sinds de index.html-split
+    # (okt '26) hier als losse bestanden -- de globale "/*"-regel hierboven
+    # zet no-cache voor alles, wat precies het voordeel van losknippen (JS
+    # los van de vaak wijzigende HTML cachen) teniet zou doen. Zelfde
+    # cache-policy als /occasions/* hierboven: kort genoeg om een update
+    # snel door te laten komen, lang genoeg om herhaalde downloads te
+    # schelen.
+    Cache-Control = "public, max-age=1800, stale-while-revalidate=3600"
