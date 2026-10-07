@@ -40,7 +40,7 @@
     {
       "@type": "Question",
       "name": "Zitten terugroepacties (recalls) in deze check?",
-      "acceptedAnswer": { "@type": "Answer", "text": "Nog niet. Check die apart via rdw.nl totdat we dit hebben toegevoegd." }
+      "acceptedAnswer": { "@type": "Answer", "text": "Ja. We tonen openstaande terugroepacties die de fabrikant bij de RDW heeft gemeld en nog niet als hersteld staan geregistreerd. Check bij twijfel altijd ook zelf rdw.nl, vlak voor aankoop." }
     }
   ]
 }
@@ -211,6 +211,12 @@
       <div id="apkRijen"></div>
     </div>
 
+    <div class="card" id="terugroepCard" style="display:none">
+      <div class="card-title">🔔 Terugroepacties (recalls)</div>
+      <div id="terugroepWaarschuwing"></div>
+      <div id="terugroepRijen"></div>
+    </div>
+
     <div class="card">
       <div class="card-title">📋 Eigenaarshistorie</div>
       <table class="data-tabel"><tbody id="historieBody"></tbody></table>
@@ -240,7 +246,7 @@
     </div>
     <div class="faq-item">
       <div class="faq-q" onclick="toggleFaq(this)"><span>Zitten terugroepacties (recalls) in deze check?</span><svg class="faq-chevron" width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-      <div class="faq-a">Nog niet. Check die apart via <a href="https://www.rdw.nl" target="_blank" rel="noopener" style="color:var(--oranje)">rdw.nl</a> totdat we dit hebben toegevoegd.</div>
+      <div class="faq-a">Ja. We tonen openstaande terugroepacties die de fabrikant bij de RDW heeft gemeld en nog niet als hersteld staan geregistreerd. Check bij twijfel altijd ook zelf <a href="https://www.rdw.nl" target="_blank" rel="noopener" style="color:var(--oranje)">rdw.nl</a>, vlak voor aankoop.</div>
     </div>
   </div>
 
@@ -252,17 +258,26 @@
 </div>
 
 <script>
-// RDW open data (Socrata). Twee datasets nodig: de hoofdset met de meeste
-// kenmerken, en een aparte brandstof-set (brandstof zit relationeel, niet op
-// het hoofdrecord). Kon dit endpoint niet live testen vanuit deze omgeving
-// (netwerkrestrictie op deze sandbox) -- veldnamen zijn gebaseerd op de al
-// jarenlang stabiele, publiek gedocumenteerde structuur van deze dataset.
-// Terugroepacties (recalls) zijn bewust NIET meegenomen: zonder live toegang
-// kon het exacte dataset-endpoint niet worden geverifieerd, en een foutief
-// "geen recalls" tonen terwijl de call eigenlijk faalde zou actief misleidend
-// zijn. Zie FAQ voor een doorverwijzing naar rdw.nl in plaats daarvan.
+// RDW open data (Socrata). Vier datasets: de hoofdset met de meeste
+// kenmerken, een aparte brandstof-set (brandstof zit relationeel, niet op
+// het hoofdrecord), en sinds kort ook terugroepacties (recalls) in twee
+// delen -- RDW splitst dat net als brandstof relationeel op:
+//   - Terugroep_actie_status (t49b-isb7): per kenteken, welke referentiecode_rdw
+//     er openstaat, met status "Openstaande terugroepactie" of "Producent
+//     heeft herstel gemeld".
+//   - Terugroep_actie (af5r-44mf): per referentiecode_rdw de details van de
+//     actie zelf (merk/omschrijving/etc.).
+// Kon dit endpoint niet live testen vanuit deze sandbox (netwerkrestrictie) --
+// resource-id's en veldnamen zijn geverifieerd via een bestaande, publieke
+// RDW-API-wrapper op GitHub (eelcohn/pypi-rdw), niet gegokt. De exacte
+// overige velden van Terugroep_actie zijn daarbij niet 100% bevestigd, dus
+// renderDetailsTerugroep() hieronder toont bewust elk veld dat de RDW
+// teruggeeft i.p.v. een paar hardgecodede veldnamen te verzinnen die
+// mogelijk niet kloppen.
 var RDW_VOERTUIGEN = 'https://opendata.rdw.nl/resource/m9d7-ebf2.json';
 var RDW_BRANDSTOF = 'https://opendata.rdw.nl/resource/8ys7-d773.json';
+var RDW_TERUGROEP_STATUS = 'https://opendata.rdw.nl/resource/t49b-isb7.json';
+var RDW_TERUGROEP_ACTIE = 'https://opendata.rdw.nl/resource/af5r-44mf.json';
 
 function toggleFaq(el) {
   var item = el.closest('.faq-item');
@@ -315,23 +330,72 @@ function checkKenteken() {
 
   var urlVoertuig = RDW_VOERTUIGEN + '?kenteken=' + encodeURIComponent(kenteken);
   var urlBrandstof = RDW_BRANDSTOF + '?kenteken=' + encodeURIComponent(kenteken);
+  var urlTerugroepStatus = RDW_TERUGROEP_STATUS + '?kenteken=' + encodeURIComponent(kenteken);
 
   Promise.all([
     fetch(urlVoertuig).then(function (r) { return r.ok ? r.json() : Promise.reject(new Error('http ' + r.status)); }),
-    fetch(urlBrandstof).then(function (r) { return r.ok ? r.json() : []; }).catch(function () { return []; })
+    fetch(urlBrandstof).then(function (r) { return r.ok ? r.json() : []; }).catch(function () { return []; }),
+    // Terugroepacties zijn best-effort: een mislukte call toont hieronder
+    // gewoon geen recall-kaart i.p.v. een foutief "geen recalls" te claimen
+    // (zie haalTerugroepacties()).
+    haalTerugroepacties(kenteken)
   ]).then(function (res) {
     btn.disabled = false;
     var voertuig = res[0] && res[0][0];
     var brandstoffen = res[1] || [];
+    var terugroep = res[2];
     if (!voertuig) { setView('nietGevonden'); return; }
-    renderResultaat(voertuig, brandstoffen, kenteken);
+    renderResultaat(voertuig, brandstoffen, kenteken, terugroep);
   }).catch(function () {
     btn.disabled = false;
     setView('foutState');
   });
 }
 
-function renderResultaat(v, brandstoffen, kenteken) {
+// Haalt openstaande terugroepacties op voor dit kenteken. Geeft bij succes
+// {gelukt:true, openstaand:[...referentiecode_rdw+details]} terug, bij een
+// mislukte call {gelukt:false} -- dat onderscheid is nodig om in de UI een
+// geruststellend "geen recalls" alleen te tonen als de RDW dat ook echt zo
+// teruggaf, niet wanneer de call simpelweg faalde.
+function haalTerugroepacties(kenteken) {
+  return fetch(RDW_TERUGROEP_STATUS + '?kenteken=' + encodeURIComponent(kenteken))
+    .then(function (r) { return r.ok ? r.json() : Promise.reject(new Error('http ' + r.status)); })
+    .then(function (statusRijen) {
+      var openstaandeCodes = (statusRijen || [])
+        .filter(function (s) { return /openstaande/i.test(s.status || ''); })
+        .map(function (s) { return s.referentiecode_rdw; })
+        .filter(function (code, i, arr) { return code && arr.indexOf(code) === i; }); // uniek
+      if (!openstaandeCodes.length) return { gelukt: true, openstaand: [] };
+      return Promise.all(openstaandeCodes.map(function (code) {
+        return fetch(RDW_TERUGROEP_ACTIE + '?referentiecode_rdw=' + encodeURIComponent(code))
+          .then(function (r) { return r.ok ? r.json() : []; })
+          .then(function (rijen) { return (rijen && rijen[0]) || { referentiecode_rdw: code }; })
+          .catch(function () { return { referentiecode_rdw: code }; });
+      })).then(function (details) { return { gelukt: true, openstaand: details }; });
+    })
+    .catch(function () { return { gelukt: false, openstaand: [] }; });
+}
+
+// Toont elk veld dat de RDW voor deze terugroepactie teruggeeft, behalve de
+// join-sleutel en Socrata-systeemvelden (beginnen met ":") -- zie de comment
+// bij RDW_TERUGROEP_ACTIE hierboven voor waarom hier bewust niet een paar
+// hardgecodede veldnamen getoond worden.
+function renderDetailsTerugroep(actie) {
+  var rijen = Object.keys(actie)
+    .filter(function (k) { return k !== 'referentiecode_rdw' && k.indexOf(':') !== 0 && actie[k]; })
+    .map(function (k) {
+      var ruw = String(actie[k]);
+      var datum = parseRdwDatum(ruw);
+      var weergave = datum ? fmtDatum(datum) : ruw;
+      return '<div class="status-rij"><span class="status-lbl">' + titleCase(k.replace(/_/g, ' ')) + '</span><span class="status-val grijs">' + escHtmlTerugroep(weergave) + '</span></div>';
+    });
+  return rijen.join('');
+}
+function escHtmlTerugroep(s) {
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+function renderResultaat(v, brandstoffen, kenteken, terugroep) {
   var primaireBrandstof = brandstoffen.filter(function (b) { return String(b.brandstof_volgnummer) === '1'; })[0] || brandstoffen[0] || {};
 
   var kentekenTonen = kenteken.length === 6
@@ -385,6 +449,24 @@ function renderResultaat(v, brandstoffen, kenteken) {
   document.getElementById('apkRijen').innerHTML = apkRijen.map(function (r) {
     return '<div class="status-rij"><span class="status-lbl">' + r[0] + '</span><span class="status-val ' + r[2] + '"><span class="dot ' + r[2] + '"></span>' + r[1] + '</span></div>';
   }).join('');
+
+  // Terugroepacties (recalls) -- alleen een kaart tonen als de call ook
+  // echt gelukt is, zie haalTerugroepacties() hierboven.
+  var terugroepCard = document.getElementById('terugroepCard');
+  if (terugroep && terugroep.gelukt) {
+    terugroepCard.style.display = '';
+    if (terugroep.openstaand.length) {
+      document.getElementById('terugroepWaarschuwing').innerHTML = '<div class="waarschuwing"><span class="ic">🔔</span><div class="txt"><b>' + terugroep.openstaand.length + ' openstaande terugroepactie' + (terugroep.openstaand.length === 1 ? '' : 's') + '</b>De fabrikant heeft bij de RDW gemeld dat dit kenteken nog niet is hersteld. Vraag de verkoper of dit al is opgelost, of check het kenteken zelf nog eens op <a href="https://www.rdw.nl" target="_blank" rel="noopener" style="color:#991b1b;text-decoration:underline">rdw.nl</a> vlak voor aankoop.</div></div>';
+      document.getElementById('terugroepRijen').innerHTML = terugroep.openstaand.map(function (actie) {
+        return '<div style="margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid var(--border)"><div style="font-size:12px;font-weight:700;color:var(--muted);margin-bottom:4px">Referentie ' + escHtmlTerugroep(String(actie.referentiecode_rdw || '')) + '</div>' + renderDetailsTerugroep(actie) + '</div>';
+      }).join('');
+    } else {
+      document.getElementById('terugroepWaarschuwing').innerHTML = '';
+      document.getElementById('terugroepRijen').innerHTML = '<div class="status-rij"><span class="status-lbl">Status</span><span class="status-val groen"><span class="dot groen"></span>Geen openstaande terugroepacties bekend</span></div>';
+    }
+  } else {
+    terugroepCard.style.display = 'none';
+  }
 
   // Eigenaarshistorie
   var historieRijen = [];
