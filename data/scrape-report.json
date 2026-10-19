@@ -1,12 +1,12 @@
 {
-  "timestamp": "2026-10-18T21:08:58.949Z",
-  "totaalNieuw": 36441,
+  "timestamp": "2026-10-19T12:47:18.696Z",
+  "totaalNieuw": 36452,
   "bronnen": {
-    "Marktplaats": 29483,
-    "Gaspedaal": 3713,
-    "ViaBovag": 24,
-    "AutoTrack": 1489,
-    "AutoScout24": 1596,
-    "AutoTrader": 136
+    "Marktplaats": 29401,
+    "Gaspedaal": 3711,
+    "ViaBovag": 25,
+    "AutoTrack": 1577,
+    "AutoScout24": 1600,
+    "AutoTrader": 138
   }
 }
