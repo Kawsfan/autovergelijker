@@ -21,10 +21,14 @@
 // probleemloos -- standaardgedrag, zelfde patroon als elke CJS npm-package
 // die in een Workers-project geïmporteerd wordt.
 import tools from './tools.js';
+import ask from './ask-logica.js';
 
 var SITE_ORIGIN = 'https://carkijker.nl';
 var PROTOCOL_VERSIONS = ['2025-06-18', '2025-03-26', '2024-11-05'];
 var FETCH_TIMEOUT_MS = 8000;
+var ANTHROPIC_MODEL = 'claude-haiku-5-5';
+var ANTHROPIC_VERSION = '2023-06-01';
+var ANTHROPIC_MAX_TOKENS = 1024;
 
 var CORS_HEADERS = {
   'Access-Control-Allow-Origin': '*',
@@ -126,6 +130,75 @@ async function callTool(name, args) {
   return { ok: false, error: 'Onbekende tool: ' + name, notFound: true };
 }
 
+// ===== AI-zoekassistent (Route B): POST /ask, los van het MCP-protocol
+// hierboven. Zelfde tool-definities en callTool() als de MCP-tools, maar
+// hier is Claude zelf de client -- de Worker voert de agentic tool-use-loop
+// uit (zie ask-logica.js) i.p.v. dat aan een externe MCP-client over te
+// laten. Gebruikt op /ai-zoeken/ zodat gewone sitebezoekers (geen
+// AI-agents) in gewone taal kunnen zoeken.
+async function anthropicCall(env, berichten, toolDefs) {
+  var res = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': env.ANTHROPIC_API_KEY,
+      'anthropic-version': ANTHROPIC_VERSION,
+    },
+    body: JSON.stringify({
+      model: ANTHROPIC_MODEL,
+      max_tokens: ANTHROPIC_MAX_TOKENS,
+      system: ask.SYSTEEM_PROMPT,
+      tools: toolDefs.map(function (t) {
+        return { name: t.name, description: t.description, input_schema: t.inputSchema };
+      }),
+      messages: berichten,
+    }),
+  });
+  if (!res.ok) throw new Error('Anthropic API-fout: ' + res.status);
+  return await res.json();
+}
+
+function jsonResponse(obj, status) {
+  return new Response(JSON.stringify(obj), {
+    status: status,
+    headers: Object.assign({ 'Content-Type': 'application/json' }, CORS_HEADERS),
+  });
+}
+
+async function handleAsk(request, env) {
+  if (request.method !== 'POST') {
+    return new Response('Method Not Allowed -- gebruik POST.', { status: 405, headers: CORS_HEADERS });
+  }
+  // Geen secret geconfigureerd (bv. net na deploy, vóór handmatige setup in
+  // het Cloudflare-dashboard): netjes 503 i.p.v. een kale 500 op een
+  // ontbrekende env.ANTHROPIC_API_KEY.
+  if (!env || !env.ANTHROPIC_API_KEY) {
+    return jsonResponse({ error: 'AI-zoeken is momenteel niet beschikbaar.' }, 503);
+  }
+
+  var body;
+  try {
+    body = await request.json();
+  } catch (e) {
+    return jsonResponse({ error: 'Ongeldige JSON in request-body.' }, 400);
+  }
+
+  var validatie = ask.valideerVraag(body && body.vraag);
+  if (!validatie.ok) return jsonResponse({ error: validatie.error }, 400);
+
+  try {
+    var resultaat = await ask.voerAskLoop(
+      validatie.vraag,
+      function (berichten, toolDefs) { return anthropicCall(env, berichten, toolDefs); },
+      callTool,
+      TOOL_DEFS
+    );
+    return jsonResponse(resultaat, 200);
+  } catch (e) {
+    return jsonResponse({ error: 'Er ging iets mis bij het verwerken van je vraag, probeer het later opnieuw.' }, 502);
+  }
+}
+
 function jsonRpcResult(id, result) {
   return { jsonrpc: '2.0', id: id, result: result };
 }
@@ -189,10 +262,16 @@ async function handleRpc(body) {
 }
 
 export default {
-  async fetch(request) {
+  async fetch(request, env) {
     if (request.method === 'OPTIONS') {
       return new Response(null, { status: 204, headers: CORS_HEADERS });
     }
+
+    var url = new URL(request.url);
+    if (url.pathname === '/ask') {
+      return handleAsk(request, env);
+    }
+
     if (request.method !== 'POST') {
       return new Response('Method Not Allowed -- gebruik POST met een JSON-RPC 2.0-body.', {
         status: 405,

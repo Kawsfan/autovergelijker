@@ -9,3 +9,11 @@ compatibility_date = "2024-09-23"
 
 [observability]
 enabled = true
+
+# ANTHROPIC_API_KEY: vereist voor de publieke AI-zoekassistent (POST /ask,
+# gebruikt op /ai-zoeken/). De MCP-tools (POST /, voor AI-agents) werken
+# zonder deze secret -- /ask geeft zonder secret netjes een 503 i.p.v. een
+# kapotte call. Eenmalig instellen, NIET hier in de repo (wrangler.toml komt
+# in git): via het Cloudflare-dashboard -> Workers & Pages -> carkijker-mcp
+# -> Settings -> Variables and Secrets -> "Add" (type: Secret), of lokaal
+# met `npx wrangler secret put ANTHROPIC_API_KEY --config mcp-server/wrangler.toml`.
