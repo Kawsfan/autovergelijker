@@ -9,6 +9,7 @@ Carkijker vergelijkt het volledige auto-aanbod van Nederland — zowel tweedehan
 ## Zoeken
 
 - [Zoekmachine](https://carkijker.nl/): live doorzoekbaar aanbod met filters op merk, model, prijs, km-stand, bouwjaar, brandstof, transmissie en carrosserie
+- [AI-zoekassistent](https://carkijker.nl/ai-zoeken/): zoek in gewone taal ("zuinige SUV onder 20.000 euro") en krijg live resultaten uit het actuele aanbod, toegelicht door AI
 - [Wat is mijn auto waard?](https://carkijker.nl/inruilwaarde/): gratis indicatie van markt- en inruilwaarde per merk/model, op basis van actuele advertenties
 - [Autokosten berekenen](https://carkijker.nl/tco/): gratis calculator voor brandstof, wegenbelasting en verzekeringskosten per maand
 - [Sitemap](https://carkijker.nl/sitemap.xml): volledige lijst van geïndexeerde pagina's

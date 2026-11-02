@@ -10,13 +10,36 @@ JSON-bestanden van carkijker.nl zelf op (`/data/merken/<merk>.json`,
 `/data/listings-top.json`, `/data/markt-history.json`) en filtert/sorteert
 server-side in de Worker.
 
-## Tools
+## Tools (MCP, voor AI-agents)
 
 | Tool | Wat |
 |---|---|
 | `search_listings` | Zoek/filter in het actuele aanbod (merk, model, prijs, jaar, km, brandstof, carrosserie, transmissie), gesorteerd op dealscore. |
 | `get_market_stats` | Marktstatistieken per merk: gemiddelde/mediaan prijs, prijsrange, trend t.o.v. ~30 dagen terug. |
 | `get_dealscore_uitleg` | Uitleg van de dealscore-methodiek. |
+
+## AI-zoekassistent voor sitebezoekers (`POST /ask`)
+
+Naast het MCP-protocol hierboven (bedoeld voor AI-agents) heeft deze Worker een
+tweede, eenvoudigere route voor gewone sitebezoekers: `POST /ask` met body
+`{"vraag": "zuinige SUV onder 20000 euro"}`. Gebruikt op
+[`/ai-zoeken/`](https://carkijker.nl/ai-zoeken/). De Worker voert zelf een
+"agentic tool-use"-loop uit tegen de Anthropic Messages API (model
+`claude-haiku-5-5`), met dezelfde `TOOL_DEFS`/`callTool()` als de MCP-tools
+hierboven (zie `src/ask-logica.js` voor de los-testbare orchestratie-logica,
+`src/index.mjs` voor de echte Anthropic-call). Response:
+`{"antwoord": "...", "resultaten": [...] | null}`.
+
+**Vereist de secret `ANTHROPIC_API_KEY`** (zie wrangler.toml). Zonder die
+secret geeft `/ask` netjes een `503` i.p.v. te crashen -- de MCP-tools
+(`POST /`) blijven zonder deze secret gewoon werken.
+
+> Geen rate limiting op dit endpoint vanuit de Worker zelf (geen KV/Durable
+> Object-binding in dit project). Dit is een publiek endpoint dat per vraag
+> een betaalde Anthropic-call doet -- overweeg een Cloudflare **Rate
+> Limiting rule** op `/ask` in het dashboard (Security → WAF →
+> Rate limiting rules) als misbruik/kosten een zorg worden. Kon dat niet
+> vanuit deze sandbox instellen (geen dashboard-toegang).
 
 ## Lokaal draaien / testen
 
