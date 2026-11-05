@@ -17,6 +17,9 @@
     var had=_favs.has(id);
     had?_favs.delete(id):_favs.add(id);
     localStorage.setItem('_av_favs',JSON.stringify([..._favs]));
+    // Alleen bij toevoegen loggen (niet bij verwijderen) -- dit is het
+    // engagement-signaal dat we als GA4 key event willen kunnen aanmerken.
+    if(!had&&typeof gtag==='function')gtag('event','favoriet_toegevoegd');
     document.querySelectorAll('[data-fav="'+id+'"]').forEach(function(b){
       b.classList.toggle('fav-actief',!had);
       b.textContent=!had?'♥':'♡';
