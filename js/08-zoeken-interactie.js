@@ -219,6 +219,9 @@ function slaZoekagentOp(){
   renderAgentList();
   var msg=document.getElementById("agentMsg");
   if(msg){msg.textContent=isBewerken?"Wijzigingen opgeslagen!":"Zoekagent opgeslagen!";setTimeout(function(){msg.textContent="";},2500);}
+  // Alleen bij nieuw aanmaken loggen (niet bij bewerken) -- dit is het
+  // engagement-signaal dat we als GA4 key event willen kunnen aanmerken.
+  if(!isBewerken&&typeof gtag==='function')gtag('event','zoekagent_aangemaakt');
 }
 function _bijwerkAgentNavBadge(){
   var btn=document.getElementById('agentNavBtn');

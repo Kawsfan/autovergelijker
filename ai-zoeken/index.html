@@ -10,6 +10,14 @@
 <meta property="og:description" content="Beschrijf in gewone taal welke auto je zoekt en Carkijker AI zoekt live in het actuele aanbod.">
 <meta property="og:url" content="https://www.carkijker.nl/ai-zoeken/">
 <meta name="robots" content="index, follow">
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-TD2KWCXTV3"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-TD2KWCXTV3');
+</script>
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -187,6 +195,7 @@ function stelVraag() {
   document.getElementById('leeg').style.display = 'none';
   var btn = document.getElementById('vraagBtn');
   btn.disabled = true;
+  if (typeof gtag === 'function') gtag('event', 'ai_zoeken_vraag_gesteld');
 
   var gesprek = document.getElementById('gesprek');
   var beurt = document.createElement('div');
