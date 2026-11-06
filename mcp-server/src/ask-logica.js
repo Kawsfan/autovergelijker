@@ -63,7 +63,10 @@ async function voerAskLoop(vraag, anthropicCall, toolCall, toolDefs) {
       var tu = toolUses[j];
       var uitkomst = await toolCall(tu.name, tu.input);
       if (tu.name === 'search_listings' && uitkomst.ok) {
-        laatsteZoekresultaat = uitkomst.data.resultaten;
+        // dataVoorFrontend (optioneel, bevat o.a. imgSrc) gaat NIET naar het
+        // taalmodel -- alleen uitkomst.data (zonder imgSrc) komt in het
+        // tool_result hieronder terecht. Zie tools.js: compacteListing().
+        laatsteZoekresultaat = (uitkomst.dataVoorFrontend || uitkomst.data).resultaten;
       }
       toolResults.push({
         type: 'tool_result',

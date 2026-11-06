@@ -49,6 +49,29 @@ test('voerAskLoop -- een tool-call ronde (search_listings), dan eindantwoord', a
   assert.deepEqual(r.resultaten, [{ titel: 'VW Golf 1.4 TSI' }]);
 });
 
+test('voerAskLoop -- dataVoorFrontend (met imgSrc) gaat naar resultaten, niet naar het taalmodel', async () => {
+  var call = 0;
+  var naarModel = null;
+  var anthropicCall = async (berichten) => {
+    call++;
+    if (call === 1) {
+      return { content: [{ type: 'tool_use', id: 'tu_1', name: 'search_listings', input: { merk: 'Mazda' } }] };
+    }
+    // Wat het model als tool_result te zien krijgt -- mag geen imgSrc bevatten.
+    naarModel = JSON.parse(berichten[2].content[0].content);
+    return { content: [{ type: 'text', text: 'Hier een Mazda.' }] };
+  };
+  var toolCall = async () => ({
+    ok: true,
+    data: { totaalGevonden: 1, resultaten: [{ titel: 'Mazda CX-5' }] },
+    dataVoorFrontend: { totaalGevonden: 1, resultaten: [{ titel: 'Mazda CX-5', imgSrc: 'https://example.com/foto.jpg' }] },
+  });
+
+  var r = await ask.voerAskLoop('mazda graag', anthropicCall, toolCall, []);
+  assert.deepEqual(r.resultaten, [{ titel: 'Mazda CX-5', imgSrc: 'https://example.com/foto.jpg' }]);
+  assert.equal('imgSrc' in naarModel.resultaten[0], false);
+});
+
 test('voerAskLoop -- mislukte tool-call wordt als is_error teruggegeven, geen crash', async () => {
   var call = 0;
   var anthropicCall = async () => {
