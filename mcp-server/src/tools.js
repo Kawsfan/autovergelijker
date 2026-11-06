@@ -51,23 +51,34 @@ function sorteerOpDealscore(listings) {
   });
 }
 
-function compacteListing(a) {
-  return {
+// opts.metImg: standaard false -- de MCP-tool search_listings (voor
+// AI-agents) laat imgSrc bewust weg (zie tools.test.js: "geen imgs/imgSrc-
+// ruis"), dat is alleen ruis in een tekst-gesprek. De /ask-route (de
+// AI-zoekassistent voor sitebezoekers, zie mcp-server/src/index.mjs) heeft
+// 'm wel nodig om resultaatkaarten met foto te tonen -- die vraagt 'm apart
+// op met metImg:true, LOS van wat er naar het taalmodel zelf gestuurd wordt
+// (zie ask-logica.js: dataVoorFrontend), zodat een plaatje-URL geen extra
+// tokens kost in de AI-call.
+function compacteListing(a, opts) {
+  opts = opts || {};
+  var basis = {
     titel: a.titel, merk: a.merk, model: a.model, prijs: a.prijs, jaar: a.jaar, km: a.km,
     brandstof: a.brandstof, carrosserie: a.carrosserie, transmissie: a.transmissie,
     dealScore: a.dealScore, bron: a.bron, locatie: a.locatie, url: a.url,
     bijgewerkt: a.bijgewerkt,
   };
+  if (opts.metImg) basis.imgSrc = a.imgSrc || null;
+  return basis;
 }
 
-function zoekListings(listings, ruweFilters) {
+function zoekListings(listings, ruweFilters, opts) {
   ruweFilters = ruweFilters || {};
   var limiet = Math.min(Math.max(parseInt(ruweFilters.limiet, 10) || DEFAULT_LIMIET, 1), MAX_LIMIET);
   var gefilterd = filterListings(listings, ruweFilters);
   var gesorteerd = sorteerOpDealscore(gefilterd);
   return {
     totaalGevonden: gefilterd.length,
-    resultaten: gesorteerd.slice(0, limiet).map(compacteListing),
+    resultaten: gesorteerd.slice(0, limiet).map(function (a) { return compacteListing(a, opts); }),
   };
 }
 

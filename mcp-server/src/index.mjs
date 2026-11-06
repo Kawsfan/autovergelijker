@@ -130,6 +130,22 @@ async function callTool(name, args) {
   return { ok: false, error: 'Onbekende tool: ' + name, notFound: true };
 }
 
+// callToolMetImg: wrapper om callTool() die specifiek voor search_listings
+// óók de imgSrc-variant ophaalt (tools.zoekListings met metImg:true) voor
+// het frontend-gebruik van /ask -- haalt de merk-/top-data een tweede keer
+// op, bewust: zo blijft callTool() zelf ongewijzigd voor het MCP-protocol
+// (agents krijgen nooit imgSrc, zie tools.js), en kost de AI-call zelf geen
+// extra tokens aan beeld-URL's (zie ask-logica.js: dataVoorFrontend).
+async function callToolMetImg(name, args) {
+  var uitkomst = await callTool(name, args);
+  if (name === 'search_listings' && uitkomst.ok) {
+    var listings = await listingsVoorMerk(args && args.merk);
+    var metImg = tools.zoekListings(listings, args || {}, { metImg: true });
+    return Object.assign({}, uitkomst, { dataVoorFrontend: metImg });
+  }
+  return uitkomst;
+}
+
 // ===== AI-zoekassistent (Route B): POST /ask, los van het MCP-protocol
 // hierboven. Zelfde tool-definities en callTool() als de MCP-tools, maar
 // hier is Claude zelf de client -- de Worker voert de agentic tool-use-loop
@@ -190,7 +206,7 @@ async function handleAsk(request, env) {
     var resultaat = await ask.voerAskLoop(
       validatie.vraag,
       function (berichten, toolDefs) { return anthropicCall(env, berichten, toolDefs); },
-      callTool,
+      callToolMetImg,
       TOOL_DEFS
     );
     return jsonResponse(resultaat, 200);

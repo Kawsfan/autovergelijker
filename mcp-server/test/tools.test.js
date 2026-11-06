@@ -113,11 +113,21 @@ test('zoekListings', async (t) => {
     assert.equal(r.resultaten.length, Math.min(4, DEFAULT_LIMIET));
   });
 
-  await t.test('compacte resultaten bevatten geen imgs/imgSrc-ruis', () => {
+  await t.test('compacte resultaten bevatten geen imgs/imgSrc-ruis (standaard, voor MCP-agents)', () => {
     const r = zoekListings([{ ...fixtureListings()[0], imgs: ['a', 'b'], imgSrc: 'x' }], {});
     assert.equal('imgs' in r.resultaten[0], false);
     assert.equal('imgSrc' in r.resultaten[0], false);
     assert.ok('url' in r.resultaten[0]);
+  });
+
+  await t.test('opts.metImg:true geeft imgSrc terug (voor /ask-frontend)', () => {
+    const r = zoekListings([{ ...fixtureListings()[0], imgSrc: 'https://example.com/foto.jpg' }], {}, { metImg: true });
+    assert.equal(r.resultaten[0].imgSrc, 'https://example.com/foto.jpg');
+  });
+
+  await t.test('opts.metImg:true zonder imgSrc op de bron geeft null, geen crash', () => {
+    const r = zoekListings([{ ...fixtureListings()[0] }], {}, { metImg: true });
+    assert.equal(r.resultaten[0].imgSrc, null);
   });
 });
 
