@@ -66,6 +66,15 @@ function compacteListing(a, opts) {
     brandstof: a.brandstof, carrosserie: a.carrosserie, transmissie: a.transmissie,
     dealScore: a.dealScore, bron: a.bron, locatie: a.locatie, url: a.url,
     bijgewerkt: a.bijgewerkt,
+    // dealScore is PUUR prijs-t.o.v.-verwacht (zie lib/dealscore.js) en heeft
+    // geen enkel besef van "beschadigd"/"defect" -- een total-loss-auto die
+    // daarom spotgoedkoop staat scoort dus even hoog als een echte koopje.
+    // verdachtGoedkoop (statistische uitschieter-detectie, zelfde badge als
+    // "⚠ Extra check" op de hoofdsite) is het enige signaal dat dat compenseert,
+    // en moet daarom ALTIJD meegaan -- ook naar AI-agents via de MCP-tool, niet
+    // pas sinds opts.metImg-achtig gated, anders mist een agent precies het
+    // signaal dat voorkomt dat 'ie een total loss als beste deal aanprijst.
+    verdachtGoedkoop: !!a.verdachtGoedkoop,
   };
   if (opts.metImg) basis.imgSrc = a.imgSrc || null;
   return basis;

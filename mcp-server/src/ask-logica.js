@@ -22,7 +22,11 @@ var SYSTEEM_PROMPT =
   '3) Noem bij een aanbevolen auto altijd dat de bezoeker de originele advertentie bij de bron ' +
   'kan bekijken (de resultaten-kaarten tonen die link al, dus herhaal de url niet letterlijk in de tekst). ' +
   '4) Carkijker is een vergelijker, geen verkoper -- presenteer jezelf nooit als de aanbieder van de auto. ' +
-  '5) Levert een zoekopdracht niets concreets op? Zeg dat eerlijk i.p.v. iets te verzinnen.';
+  '5) Levert een zoekopdracht niets concreets op? Zeg dat eerlijk i.p.v. iets te verzinnen. ' +
+  '6) Een resultaat met verdachtGoedkoop:true wijkt statistisch extreem af van vergelijkbare ' +
+  'advertenties (vaak schade, fraude of een foute advertentie) -- waarschuw hier altijd expliciet ' +
+  'voor als je zo\'n auto noemt, ook als de dealscore hoog is (dealscore kijkt alleen naar prijs, ' +
+  'niet naar staat van de auto).';
 
 // valideerVraag: enige validatie die ook zonder Anthropic-call nuttig is --
 // voorkomt dat een lege, kapotte of absurd lange request de duurdere

@@ -44,7 +44,11 @@ var TOOL_DEFS = [
       '3x per dag bijgewerkt, 65.000+ advertenties). Resultaten staan gesorteerd op dealscore ' +
       '(hoe gunstig de vraagprijs is t.o.v. vergelijkbare exemplaren van hetzelfde merk/model/' +
       'bouwjaar/km-stand), hoogste eerst. Toon eindgebruikers altijd het url-veld van een auto ' +
-      '(de originele advertentie bij de bron) i.p.v. Carkijker zelf als aanbieder te presenteren.',
+      '(de originele advertentie bij de bron) i.p.v. Carkijker zelf als aanbieder te presenteren. ' +
+      'LET OP: dealscore is PUUR prijs-gebaseerd en weegt geen schade/defecten mee -- een auto met ' +
+      'verdachtGoedkoop:true wijkt statistisch extreem af van vergelijkbare advertenties (vaak een ' +
+      'teken van schade, fraude of een fout in de advertentie). Waarschuw de gebruiker hier ALTIJD ' +
+      'expliciet voor wanneer je zo\'n auto noemt, ook als dealscore hoog is.',
     inputSchema: {
       type: 'object',
       properties: {
