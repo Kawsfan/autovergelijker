@@ -129,6 +129,13 @@ test('zoekListings', async (t) => {
     const r = zoekListings([{ ...fixtureListings()[0] }], {}, { metImg: true });
     assert.equal(r.resultaten[0].imgSrc, null);
   });
+
+  await t.test('verdachtGoedkoop gaat ALTIJD mee (ook zonder opts), ongeacht dealscore', () => {
+    const met = zoekListings([{ ...fixtureListings()[0], verdachtGoedkoop: true }], {});
+    assert.equal(met.resultaten[0].verdachtGoedkoop, true);
+    const zonder = zoekListings([{ ...fixtureListings()[0] }], {});
+    assert.equal(zonder.resultaten[0].verdachtGoedkoop, false);
+  });
 });
 
 test('DEALSCORE_UITLEG', async (t) => {
