@@ -491,12 +491,24 @@ function parseerGaspedaal(html, gezien, label) {
     return [];
   }
 
-  const portaalMatches = [...html.matchAll(/\\"portalen\\":\[/g)];
-  const klikUrls = portaalMatches.map(m => {
-    const chunk = html.substring(m.index, m.index + 800);
-    const match = chunk.match(/https:\/\/api\.gaspedaal\.nl\/redirect\/vehicle\/(\d+)/);
-    return match ? 'https://api.gaspedaal.nl/redirect/vehicle/' + match[1] : null;
-  }).filter(Boolean);
+  // Was: zoek eerst naar \"portalen\":[ en kijk dan in de 800 tekens erna naar
+  // een redirect-url. Brak stil op 8/9 nov -- Gaspedaal wijzigde kennelijk de
+  // pagina-structuur rond die "portalen"-sleutel (JSON-LD bleef intact, dus
+  // ${items.length} items hierboven klopte nog gewoon, maar klikUrls viel
+  // naar 0 op elke pagina -- gevonden via de GitHub Actions-run-logs van
+  // 8 nov, "0 klikUrls gevonden" op alle 44 pagina's). Simpeler en
+  // robuuster: zoek het redirect-url-patroon direct over de hele pagina,
+  // zonder aanname over WAAR in de JSON het staat -- dedupliceer op
+  // voertuig-id (zelfde auto kan 2x voorkomen, bv. nav + data-blob) en
+  // behoud volgorde van eerste voorkomen (zelfde paarings-aanname als
+  // voorheen: klikUrls[i] hoort bij items[i]).
+  const klikUrls = [];
+  const gezienVoertuigIds = new Set();
+  for (const m of html.matchAll(/https:\/\/api\.gaspedaal\.nl\/redirect\/vehicle\/(\d+)/g)) {
+    if (gezienVoertuigIds.has(m[1])) continue;
+    gezienVoertuigIds.add(m[1]);
+    klikUrls.push(m[0]);
+  }
 
   console.log(` ${label}: ${klikUrls.length} klikUrls gevonden`);
 
