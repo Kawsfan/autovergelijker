@@ -1,0 +1,124 @@
+name: Artikelconcept (SEO/GEO)
+
+# Schrijft 3x per week één artikelconcept volgens docs/seo-geo-artikel-template.md
+# en zet het als PR klaar voor de eindredactie. Er wordt hier NIETS
+# gepubliceerd: pas een merge van de PR zet het artikel live (zie
+# artikel-publiceren.yml). Achtergrond en werkwijze: docs/artikel-pipeline.md.
+#
+# Vereist:
+#   - repo-secret ANTHROPIC_API_KEY
+#   - Settings > Actions > General > "Allow GitHub Actions to create and
+#     approve pull requests" aan (anders faalt `gh pr create` met 403)
+
+on:
+  schedule:
+    # ma/wo/vr 05:17 UTC: concept staat klaar vóór de werkdag begint. Bewust
+    # niet op :00 (drukte op GitHub's scheduler) en niet tegelijk met de
+    # scrape-run van 06:00.
+    - cron: '17 5 * * 1,3,5'
+  workflow_dispatch:
+    inputs:
+      slug:
+        description: 'Optioneel: specifieke slug uit docs/artikel-planning.json (her)genereren'
+        required: false
+        default: ''
+
+concurrency:
+  group: artikel-concept
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  pull-requests: write
+
+env:
+  # Rem op de wachtrij: staan er al zoveel concepten onbeoordeeld open, dan
+  # slaat de geplande run over i.p.v. de eindredactie te bedelven. Handmatig
+  # starten met een slug negeert deze rem.
+  MAX_OPEN_CONCEPTEN: '3'
+
+jobs:
+  concept:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Wachtrij controleren
+        id: wachtrij
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SLUG: ${{ inputs.slug }}
+        run: |
+          open=$(gh pr list --label artikel-concept --state open --json number --jq length 2>/dev/null || echo 0)
+          # Elke bestaande artikel/<slug>-branch (open PR, of afgewezen en
+          # gesloten) telt als "al opgepakt" -- zo komt een afgewezen
+          # onderwerp niet elke week terug.
+          overslaan=$(git ls-remote --heads origin 'artikel/*' | sed 's#.*refs/heads/artikel/##' | paste -sd, -)
+          echo "overslaan=$overslaan" >> "$GITHUB_OUTPUT"
+          echo "Open concepten: $open (max $MAX_OPEN_CONCEPTEN)"
+          if [ -z "$SLUG" ] && [ "$open" -ge "$MAX_OPEN_CONCEPTEN" ]; then
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            echo "::notice::$open concepten wachten nog op review; deze run slaat over."
+          fi
+
+      - name: Anthropic SDK installeren
+        if: steps.wachtrij.outputs.skip != 'true'
+        # --no-save: de site zelf blijft dependency-vrij (geen package.json in
+        # de root), de SDK is alleen nodig voor deze ene stap.
+        run: npm install --no-save --no-package-lock @anthropic-ai/sdk
+
+      - name: Concept genereren
+        if: steps.wachtrij.outputs.skip != 'true'
+        id: concept
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          SLUG: ${{ inputs.slug }}
+          OVERSLAAN: ${{ steps.wachtrij.outputs.overslaan }}
+        run: |
+          if [ -n "$SLUG" ]; then
+            node scripts/artikelen/genereer-concept.js --slug "$SLUG" --pr-body "$RUNNER_TEMP/pr-body.md"
+          else
+            node scripts/artikelen/genereer-concept.js --overslaan "$OVERSLAAN" --pr-body "$RUNNER_TEMP/pr-body.md"
+          fi
+
+      - name: HTML renderen voor de deploy-preview
+        if: steps.concept.outputs.slug != ''
+        run: node generate-artikelen.js
+
+      - name: Branch + PR aanmaken
+        if: steps.concept.outputs.slug != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SLUG: ${{ steps.concept.outputs.slug }}
+          TITEL: ${{ steps.concept.outputs.titel }}
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          branch="artikel/$SLUG"
+          git checkout -b "$branch"
+          # Alleen het artikel zelf + z'n gerenderde pagina. artikelen/index.html,
+          # sitemap.xml en llms.txt worden pas bij publicatie bijgewerkt
+          # (artikel-publiceren.yml) -- anders conflicteren meerdere open
+          # concept-PR's met elkaar en met de 3x-daagse scrape-commits.
+          git add "data/artikelen/$SLUG.json" "artikelen/$SLUG/"
+          git commit -m "Artikelconcept: $TITEL"
+          git push --force origin "$branch"
+          gh label create artikel-concept --color D14413 --description "Door de pipeline gegenereerd artikelconcept, wacht op eindredactie" 2>/dev/null || true
+          if gh pr view "$branch" --json state --jq .state 2>/dev/null | grep -q OPEN; then
+            gh pr edit "$branch" --body-file "$RUNNER_TEMP/pr-body.md"
+          else
+            gh pr create --base main --head "$branch" --title "Artikelconcept: $TITEL" \
+              --body-file "$RUNNER_TEMP/pr-body.md" --label artikel-concept
+          fi
+
+      - name: Stuur alert bij failure
+        if: failure()
+        run: node scripts/send-failure-alert.js
+        env:
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          ALERT_EMAIL: ${{ secrets.ALERT_EMAIL }}

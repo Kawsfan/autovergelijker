@@ -1,0 +1,149 @@
+{
+  "_uitleg": "Onderwerpenwachtrij voor de artikel-concept-workflow (.github/workflows/artikel-concept.yml). De workflow pakt het eerste item waarvoor nog geen data/artikelen/<slug>.json en geen artikel/<slug>-branch bestaat. Volgorde = prioriteit. Ervaringsverhalen (template §4) horen hier NIET in: die schrijft een mens, want een AI-concept zou een ervaring verzinnen. Velden: type = modelgids | segmentlijst | informatief; modellen = [{merk, model}] (exacte spelling uit de data, bv. '3-serie'); filters = minPrijs/maxPrijs/minJaar/maxJaar/maxKm/brandstof[Benzine|Diesel|Hybride|Elektrisch|LPG]/carrosserie[Hatchback|SUV|Stationwagon|Sedan|MPV|Cabriolet|Coupé]/transmissie[Automaat|Handgeschakeld]; zonder modellen kiest marktdata.js zelf de meest aangeboden modellen binnen de filters.",
+  "onderwerpen": [
+    {
+      "slug": "tweedehands-volkswagen-golf-kopen",
+      "werktitel": "Tweedehands Volkswagen Golf kopen: prijzen per bouwjaar en aandachtspunten",
+      "hoofdzoekwoord": "tweedehands volkswagen golf",
+      "nevenzoekwoorden": ["volkswagen golf occasion", "golf 7 kopen", "golf 8 tweedehands", "golf dsg problemen"],
+      "zoekintentie": "commercieel onderzoek: koper wil weten wat een Golf kost en welke generatie/motor verstandig is",
+      "categorie": "Kopen",
+      "type": "modelgids",
+      "modellen": [{ "merk": "Volkswagen", "model": "Golf" }],
+      "invalshoek": "Prijs per bouwjaar uit het eigen aanbod laten zien waar de prijssprong tussen Golf 7 (2012-2019) en Golf 8 (2020+) zit; aandachtspunten per generatie (DSG-bak, 1.4 TSI, software Golf 8).",
+      "vragen": ["Wat kost een tweedehands Volkswagen Golf?", "Golf 7 of Golf 8 kopen?", "Welke Golf-motor is het betrouwbaarst?"]
+    },
+    {
+      "slug": "beste-elektrische-autos-onder-20000-euro",
+      "werktitel": "Beste tweedehands elektrische auto's onder €20.000",
+      "hoofdzoekwoord": "tweedehands elektrische auto onder 20000",
+      "nevenzoekwoorden": ["goedkope elektrische occasion", "elektrische auto kopen budget", "accu tweedehands ev"],
+      "zoekintentie": "commercieel onderzoek: budgetkoper wil een shortlist met reële prijzen en actieradius",
+      "categorie": "Elektrisch rijden",
+      "type": "segmentlijst",
+      "filters": { "maxPrijs": 20000, "brandstof": ["Elektrisch"] },
+      "invalshoek": "Shortlist op basis van wat er écht te koop staat onder €20.000, met mediaanprijs en aantal per model; per model de WLTP-actieradius en waar je op de accu (SoH) moet letten.",
+      "vragen": ["Welke elektrische auto is goedkoop tweedehands?", "Hoe controleer je de accu van een tweedehands EV?", "Bestaat er nog subsidie op een tweedehands elektrische auto?"]
+    },
+    {
+      "slug": "tweedehands-toyota-yaris-kopen",
+      "werktitel": "Tweedehands Toyota Yaris kopen: hybride of benzine, en wat het kost",
+      "hoofdzoekwoord": "tweedehands toyota yaris",
+      "nevenzoekwoorden": ["toyota yaris hybrid occasion", "yaris hybride accu", "toyota yaris prijs"],
+      "zoekintentie": "commercieel onderzoek",
+      "categorie": "Kopen",
+      "type": "modelgids",
+      "modellen": [{ "merk": "Toyota", "model": "Yaris" }],
+      "invalshoek": "Prijsverschil hybride vs. benzine in het eigen aanbod; levensduur van de hybride-accu en wat dat betekent voor exemplaren met 150.000+ km.",
+      "vragen": ["Wat kost een tweedehands Toyota Yaris Hybrid?", "Hoe lang gaat de hybride-accu van een Yaris mee?", "Yaris hybride of benzine?"]
+    },
+    {
+      "slug": "goedkope-automaat-occasion-onder-10000-euro",
+      "werktitel": "Goedkope automaat occasion onder €10.000: welke modellen zijn er en waar let je op",
+      "hoofdzoekwoord": "automaat occasion onder 10000",
+      "nevenzoekwoorden": ["goedkope automaat auto", "tweedehands automaat kopen", "cvt of dsg"],
+      "zoekintentie": "commercieel onderzoek",
+      "categorie": "Kopen",
+      "type": "segmentlijst",
+      "filters": { "maxPrijs": 10000, "transmissie": "Automaat" },
+      "invalshoek": "Welke modellen het meest als automaat onder €10.000 worden aangeboden; verschil tussen klassieke automaat, CVT, DSG en geautomatiseerde handbak (die laatste wordt vaak als 'automaat' verkocht).",
+      "vragen": ["Welke automaat is betrouwbaar en goedkoop?", "Wat is het verschil tussen CVT en DSG?", "Is een automaat duurder in onderhoud?"]
+    },
+    {
+      "slug": "tweedehands-bmw-3-serie-kopen",
+      "werktitel": "Tweedehands BMW 3 Serie kopen: prijzen en aandachtspunten",
+      "hoofdzoekwoord": "tweedehands bmw 3 serie",
+      "nevenzoekwoorden": ["bmw 3 serie occasion", "bmw 320i kopen", "bmw f30 problemen", "bmw g20 tweedehands"],
+      "zoekintentie": "commercieel onderzoek",
+      "categorie": "Kopen",
+      "type": "modelgids",
+      "modellen": [{ "merk": "BMW", "model": "3-serie" }],
+      "invalshoek": "F30 (2012-2019) vs. G20 (2019+) in prijs per bouwjaar; bekende aandachtspunten per generatie (distributieketting N47-diesel, N20-benzine).",
+      "vragen": ["Wat kost een tweedehands BMW 3 Serie?", "Welke BMW 3 Serie-motor moet je vermijden?", "F30 of G20 kopen?"]
+    },
+    {
+      "slug": "tweedehands-tesla-model-3-kopen",
+      "werktitel": "Tweedehands Tesla Model 3 kopen: prijzen, accu en uitvoeringen",
+      "hoofdzoekwoord": "tweedehands tesla model 3",
+      "nevenzoekwoorden": ["tesla model 3 occasion", "tesla model 3 accu degradatie", "model 3 long range tweedehands"],
+      "zoekintentie": "commercieel onderzoek",
+      "categorie": "Elektrisch rijden",
+      "type": "modelgids",
+      "modellen": [{ "merk": "Tesla", "model": "Model 3" }],
+      "invalshoek": "Prijs per bouwjaar (veel ex-lease uit 2019-2021); verschil Standard Range/Long Range/Performance; accu-degradatie en hoe je SoH uitleest.",
+      "vragen": ["Wat kost een tweedehands Tesla Model 3?", "Hoeveel accucapaciteit verliest een Model 3?", "Welke Model 3-uitvoering is de beste koop?"]
+    },
+    {
+      "slug": "beste-gezinsauto-suv-onder-15000-euro",
+      "werktitel": "Beste tweedehands gezins-SUV onder €15.000",
+      "hoofdzoekwoord": "tweedehands suv onder 15000",
+      "nevenzoekwoorden": ["gezinsauto occasion", "betaalbare suv tweedehands", "ruime auto gezin"],
+      "zoekintentie": "commercieel onderzoek",
+      "categorie": "Kopen",
+      "type": "segmentlijst",
+      "filters": { "maxPrijs": 15000, "carrosserie": ["SUV"] },
+      "invalshoek": "Shortlist op basis van het eigen aanbod; kofferruimte en Isofix-punten als gezinscriteria; kanttekening dat een stationwagon vaak meer ruimte per euro geeft (link naar het stationwagon-artikel).",
+      "vragen": ["Welke SUV is betrouwbaar en goedkoop?", "SUV of stationwagon voor een gezin?", "Hoeveel kilometer mag een tweedehands SUV hebben?"]
+    },
+    {
+      "slug": "tweedehands-kia-niro-kopen",
+      "werktitel": "Tweedehands Kia Niro kopen: hybride, plug-in of elektrisch",
+      "hoofdzoekwoord": "tweedehands kia niro",
+      "nevenzoekwoorden": ["kia niro occasion", "kia e-niro tweedehands", "niro hybride ervaringen"],
+      "zoekintentie": "commercieel onderzoek",
+      "categorie": "Kopen",
+      "type": "modelgids",
+      "modellen": [{ "merk": "Kia", "model": "Niro" }],
+      "invalshoek": "Prijsverschil tussen de drie aandrijvingen in het eigen aanbod; resterende fabrieksgarantie (7 jaar) als koopargument bij jonge exemplaren.",
+      "vragen": ["Wat kost een tweedehands Kia Niro?", "Geldt de Kia-garantie ook voor een tweedehands auto?", "Niro hybride of elektrisch?"]
+    },
+    {
+      "slug": "goedkope-eerste-auto-onder-5000-euro",
+      "werktitel": "Goedkope eerste auto onder €5.000: welke modellen en wat je ervoor krijgt",
+      "hoofdzoekwoord": "eerste auto onder 5000 euro",
+      "nevenzoekwoorden": ["goedkope occasion", "beginnersauto", "auto voor jongeren"],
+      "zoekintentie": "commercieel onderzoek",
+      "categorie": "Kopen",
+      "type": "segmentlijst",
+      "filters": { "maxPrijs": 5000 },
+      "invalshoek": "Welke modellen het meest onder €5.000 staan en met welke kilometerstand; verzekering en wegenbelasting als verborgen kostenpost voor jonge bestuurders (link naar de TCO-tool).",
+      "vragen": ["Wat is een goede eerste auto onder €5.000?", "Hoeveel kilometer mag een goedkope occasion hebben?", "Wat kost een eerste auto per maand?"]
+    },
+    {
+      "slug": "tweedehands-nissan-qashqai-kopen",
+      "werktitel": "Tweedehands Nissan Qashqai kopen: prijzen per bouwjaar en aandachtspunten",
+      "hoofdzoekwoord": "tweedehands nissan qashqai",
+      "nevenzoekwoorden": ["nissan qashqai occasion", "qashqai cvt problemen", "qashqai e-power tweedehands"],
+      "zoekintentie": "commercieel onderzoek",
+      "categorie": "Kopen",
+      "type": "modelgids",
+      "modellen": [{ "merk": "Nissan", "model": "Qashqai" }],
+      "invalshoek": "Grootste modelaanbod in de SUV-hoek op Carkijker; prijs per bouwjaar per generatie (J11 2014-2021, J12 2021+); bekende aandachtspunten CVT en 1.2 DIG-T.",
+      "vragen": ["Wat kost een tweedehands Nissan Qashqai?", "Welke Qashqai-motor moet je vermijden?", "Is de Qashqai CVT betrouwbaar?"]
+    },
+    {
+      "slug": "kilometerstand-tweedehands-auto-hoeveel-is-te-veel",
+      "werktitel": "Hoeveel kilometer is te veel voor een tweedehands auto?",
+      "hoofdzoekwoord": "kilometerstand tweedehands auto",
+      "nevenzoekwoorden": ["hoeveel km auto kopen", "auto met veel kilometers", "km per jaar normaal"],
+      "zoekintentie": "informatief",
+      "categorie": "Kopen",
+      "type": "informatief",
+      "filters": {},
+      "invalshoek": "Mediane kilometerstand per bouwjaar in het hele Carkijker-aanbod als referentie ('normaal' voor een auto van X jaar oud); waarom onderhoudshistorie en NAP zwaarder wegen dan het getal zelf (link naar checklist).",
+      "vragen": ["Hoeveel kilometer rijdt een auto gemiddeld per jaar?", "Is 200.000 km te veel voor een occasion?", "Wat is een NAP-check?"]
+    },
+    {
+      "slug": "tweedehands-skoda-octavia-kopen",
+      "werktitel": "Tweedehands Škoda Octavia kopen: prijzen, motoren en aandachtspunten",
+      "hoofdzoekwoord": "tweedehands skoda octavia",
+      "nevenzoekwoorden": ["skoda octavia combi occasion", "octavia 1.5 tsi", "octavia dsg"],
+      "zoekintentie": "commercieel onderzoek",
+      "categorie": "Kopen",
+      "type": "modelgids",
+      "modellen": [{ "merk": "Skoda", "model": "Octavia" }],
+      "invalshoek": "Octavia vs. Golf-platformgenoot: prijsverschil bij gelijk bouwjaar uit het eigen aanbod; veel ex-taxi/lease, dus kilometerstand en onderhoudshistorie extra checken.",
+      "vragen": ["Wat kost een tweedehands Škoda Octavia?", "Octavia of Golf kopen?", "Welke Octavia-motor is het beste?"]
+    }
+  ]
+}

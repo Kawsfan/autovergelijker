@@ -35,7 +35,7 @@ if (!RESEND_API_KEY || !ALERT_EMAIL) {
 }
 
 async function main() {
-  const onderwerp = '⚠️ Carkijker: scrape-workflow #' + RUN_NUMBER + ' gefaald';
+  const onderwerp = '⚠️ Carkijker: ' + WORKFLOW + ' #' + RUN_NUMBER + ' gefaald';
   const html =
     '<p>De workflow <strong>' + WORKFLOW + '</strong> (run #' + RUN_NUMBER + ') op <code>' + REPO + '</code> is zojuist als <strong>mislukt</strong> afgerond.</p>' +
     (RUN_URL ? '<p><a href="' + RUN_URL + '">Bekijk de volledige run-log op GitHub &rarr;</a></p>' : '') +
