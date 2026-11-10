@@ -48,6 +48,22 @@ for (const f of jsonBestanden) {
   }
 }
 
+// Artikelen: SEO/GEO-template + huisstijl (scripts/artikelen/check-artikel.js).
+// Alleen gewijzigde artikelen, zodat oudere artikelen die nog niet aan elke
+// regel voldoen een PR niet blokkeren; waarschuwingen blokkeren nooit.
+const { checkArtikel } = require('./artikelen/check-artikel');
+for (const f of jsonBestanden.filter(f => /^data\/artikelen\/[^/]+\.json$/.test(f))) {
+  let r;
+  try { r = checkArtikel(JSON.parse(fs.readFileSync(f, 'utf8')), { bestandsnaam: f }); } catch (e) { continue; }
+  r.waarschuwingen.forEach(w => console.log(`  ! ${f}: ${w}`));
+  if (r.fouten.length) {
+    fout = true;
+    console.error(`FOUT ${f} (artikel-template):\n` + r.fouten.map(x => '  ✗ ' + x).join('\n'));
+  } else {
+    console.log(`OK  ${f} (artikel-template)`);
+  }
+}
+
 // Inline <script>-blokken in index.html
 if (check('index.html') && fs.existsSync('index.html')) {
   const html = fs.readFileSync('index.html', 'utf8');

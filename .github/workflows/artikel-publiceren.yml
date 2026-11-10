@@ -1,0 +1,89 @@
+name: Artikel publiceren
+
+# Draait zodra een artikel(concept) op main landt, meestal door het mergen van
+# een PR uit artikel-concept.yml. Mergen = akkoord van de eindredactie; deze
+# workflow maakt de publicatie af:
+#   1. publicatiedatum van nieuw toegevoegde artikelen op vandaag zetten
+#   2. alle artikelpagina's + /artikelen/-index, sitemap.xml en llms.txt
+#      opnieuw genereren (anders wacht dat tot de volgende scrape-run, tot 6 uur)
+#   3. IndexNow pingen zodat Bing/Copilot de nieuwe URL direct ziet
+# Commits van GITHUB_TOKEN triggeren geen nieuwe workflows, dus dit kan zichzelf
+# niet in een lus zetten.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'data/artikelen/*.json'
+
+# Zelfde groep als scrape.yml: beide committen naar sitemap.xml/llms.txt/
+# artikelen/ op main, en tegelijk draaien gaf daar eerder echte
+# mergeconflicten (zie de concurrency-uitleg in scrape.yml).
+concurrency:
+  group: scrape-workflow
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  publiceer:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Nieuw toegevoegde artikelen bepalen
+        id: nieuw
+        env:
+          VOOR: ${{ github.event.before }}
+        run: |
+          git fetch --depth=1 origin "$VOOR" 2>/dev/null || true
+          nieuw=$(git diff --name-only --diff-filter=A "$VOOR" HEAD -- 'data/artikelen/*.json' 2>/dev/null | paste -sd' ' -)
+          echo "bestanden=$nieuw" >> "$GITHUB_OUTPUT"
+          echo "Nieuw: ${nieuw:-geen}"
+
+      - name: Formatcheck (vangnet)
+        # PR-validatie draait niet op PR's die door GITHUB_TOKEN zijn
+        # aangemaakt, dus hier nogmaals -- een kapotte link mag niet live.
+        if: steps.nieuw.outputs.bestanden != ''
+        run: node scripts/artikelen/check-artikel.js ${{ steps.nieuw.outputs.bestanden }}
+
+      - name: Publicatiedatum zetten
+        if: steps.nieuw.outputs.bestanden != ''
+        run: node scripts/artikelen/publiceer.js ${{ steps.nieuw.outputs.bestanden }}
+
+      - name: Artikelpagina's, index, sitemap en llms.txt genereren
+        run: node generate-artikelen.js
+
+      - name: Commit
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add data/artikelen/ artikelen/ sitemap.xml llms.txt
+          if git diff --staged --quiet; then
+            echo "Niets te committen."
+            exit 0
+          fi
+          git commit -m "Auto: artikel gepubliceerd (index, sitemap, llms.txt bijgewerkt)"
+          for i in 1 2 3; do
+            git pull --rebase origin main && git push && exit 0
+            echo "Push poging $i mislukt, retry in 10s..."
+            sleep 10
+          done
+          exit 1
+
+      - name: Meld bij IndexNow
+        run: node scripts/ping-indexnow.js
+        continue-on-error: true
+
+      - name: Stuur alert bij failure
+        if: failure()
+        run: node scripts/send-failure-alert.js
+        env:
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          ALERT_EMAIL: ${{ secrets.ALERT_EMAIL }}

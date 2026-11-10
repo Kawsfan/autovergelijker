@@ -12,7 +12,7 @@
   "secties": [
     {
       "kop": "Van huurauto-verrassing tot elektrische roadtrip",
-      "html": "<p>Als je in de binnenstad woont en werkt, is de kans groot dat een auto voor het dagelijks gebruik overbodig is, totdat de zomervakantie eraan komt en je er eentje huurt. De geboekte auto bleek echter niet beschikbaar, en in plaats daarvan kregen we een veel duurder model mee: de <a href=\"/occasions/peugeot/e-5008/\">Peugeot 5008 e</a>, een volledig elektrische auto. Het bleek een openbaring.</p>"
+      "html": "<p>Als je in de binnenstad woont en werkt, is de kans groot dat een auto voor het dagelijks gebruik overbodig is, totdat de zomervakantie eraan komt en je er eentje huurt. De geboekte auto bleek echter niet beschikbaar, en in plaats daarvan kregen we een veel duurder model mee: de <a href=\"/occasions/peugeot/\">Peugeot 5008 e</a>, een volledig elektrische auto. Het bleek een openbaring.</p>"
     },
     {
       "kop": "Laden onderweg: minder gedoe dan verwacht",
@@ -45,7 +45,7 @@
     { "vraag": "Wat is de actieradius van de Peugeot 5008 e?", "antwoord": "Afhankelijk van de uitvoering ligt de actieradius tussen de 500 en 660 &agrave; 668 kilometer op een volle accu." }
   ],
   "gerelateerd": [
-    { "label": "Bekijk Peugeot 5008 e occasions", "url": "/occasions/peugeot/e-5008/" },
+    { "label": "Bekijk Peugeot occasions", "url": "/occasions/peugeot/" },
     { "label": "Bekijk Peugeot 2008 e occasions", "url": "/occasions/peugeot/e-2008/" }
   ]
 }
