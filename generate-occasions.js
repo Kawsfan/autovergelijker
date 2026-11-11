@@ -12,9 +12,16 @@ const {
 } = require('./lib/carkijker-core');
 
 // Config
-const LISTINGS_PATH   = path.join(__dirname, 'data', 'listings.json');
-const MARKT_HIST_PATH = path.join(__dirname, 'data', 'markt-history.json');
-const OUT_DIR         = path.join(__dirname, 'occasions');
+// ROOT is standaard de repo-map; CARKIJKER_ROOT laat de tests (zie
+// test/occasions-uitval.test.js) de generator op een tijdelijke map met eigen
+// listings/sitemap draaien zonder de echte site-bestanden aan te raken.
+const ROOT            = process.env.CARKIJKER_ROOT ? path.resolve(process.env.CARKIJKER_ROOT) : __dirname;
+const LISTINGS_PATH   = path.join(ROOT, 'data', 'listings.json');
+const MARKT_HIST_PATH = path.join(ROOT, 'data', 'markt-history.json');
+const OUT_DIR         = path.join(ROOT, 'occasions');
+// Register van alle merk/model-pagina's die ooit gegenereerd zijn -- zie
+// laadPaginaRegister() en buildGeenAanbodPage() voor waarom.
+const REGISTER_PATH   = path.join(ROOT, 'data', 'model-paginas.json');
 const SITE_ORIGIN     = 'https://carkijker.nl';
 
 // Marktgeschiedenis (dagelijkse mediaan per merk+model, zie scrape.js) --
@@ -269,7 +276,7 @@ function slugToDisplay(slug) { return MERKEN_DISPLAY[slug.toLowerCase()] || cap(
 // client-side versie), die bij een live bezoek gewoon door de JS-render wordt
 // overschreven zodra de actuele listings binnen zijn.
 function updateHomepageMerkenLinks(merkCounts) {
-  const indexPath = path.join(process.cwd(), 'index.html');
+  const indexPath = path.join(ROOT, 'index.html');
   if (!fs.existsSync(indexPath)) return;
   let html = fs.readFileSync(indexPath, 'utf-8');
   // Geen slice meer -- voorheen bleven hier hardcoded maar 16 van de 63
@@ -303,7 +310,7 @@ function updateHomepageMerkenLinks(merkCounts) {
 // hardcoded lijst i.p.v. data-afgeleid -- dus geen aparte client-side
 // her-render nodig zoals bij de merken (die wél per scrape kunnen wisselen).
 function updateHomepageStedenLinks(steden) {
-  const indexPath = path.join(process.cwd(), 'index.html');
+  const indexPath = path.join(ROOT, 'index.html');
   if (!fs.existsSync(indexPath)) return;
   let html = fs.readFileSync(indexPath, 'utf-8');
   const entries = Object.entries(steden);
@@ -329,7 +336,7 @@ function updateHomepageStedenLinks(steden) {
 // eromheen (niet op "42.000" zelf), zodat dit ook op de 2e, 3e, ... run nog
 // werkt i.p.v. alleen de allereerste keer dat het cijfer klopte.
 function updateHomepageStats(totaal) {
-  const indexPath = path.join(process.cwd(), 'index.html');
+  const indexPath = path.join(ROOT, 'index.html');
   if (!fs.existsSync(indexPath) || !totaal) return;
   let html = fs.readFileSync(indexPath, 'utf-8');
   const afgerond = (Math.floor(totaal / 1000) * 1000).toLocaleString('nl-NL');
@@ -912,7 +919,7 @@ function bouwJaarChart(v) {
   return '<svg class="chart-svg" viewBox="0 0 ' + W + ' 100" preserveAspectRatio="none" role="img" aria-label="Bouwjaarverdeling">' + bars + '</svg>' +
     '<div class="chart-labels"><span>' + v.jaren[0] + '</span><span>' + v.jaren[v.jaren.length - 1] + '</span></div>';
 }
-const MARKT_DIR = path.join(__dirname, 'marktanalyse');
+const MARKT_DIR = path.join(ROOT, 'marktanalyse');
 // Zelfde design-systeem (kleurtokens, kaarten, hero) als /tco/ en
 // /inruilwaarde/ -- de Marktanalyse-pagina's stamden nog uit #121 (2021-
 // stijl, losstaand van de rest van de site) en waren daarmee visueel het
@@ -1150,6 +1157,173 @@ function buildMarktIndexPage(listings) {
     '</div></body></html>';
 }
 
+// ── Register van ooit gegenereerde merk/model-pagina's ──
+// Modelpagina's bestaan alleen zolang een model boven MIN_MODEL_COUNT en in de
+// top-MAX_MODELS van zijn merk zit. Zakt het aanbod weg, dan verdween de map
+// tot nu toe bij de opruimronde en gaf de URL een 404 -- terwijl artikelen
+// (data/artikelen/), Google's index en externe backlinks er nog naar wezen
+// (nov '26: /occasions/peugeot/e-5008/ en /occasions/ford/mondeo/).
+// Dit register onthoudt elke merk/model-URL die ooit live stond, zodat main()
+// er een "tijdelijk geen aanbod"-pagina (noindex,follow) voor kan blijven
+// bouwen i.p.v. hem te laten verdwijnen. Vorm:
+//   { merken: { <merkSlug>: { laatstActief, modellen: { <modelSlug>:
+//     { eersteKeer, laatstActief, laatsteAantal, laatsteMediaanprijs } } } } }
+// Datums zijn YYYY-MM-DD; laatstActief = laatste run met een volwaardige pagina.
+function laadPaginaRegister() {
+  try {
+    const r = JSON.parse(fs.readFileSync(REGISTER_PATH, 'utf-8'));
+    if (r && typeof r.merken === 'object' && r.merken) return r;
+  } catch (e) { /* nog geen register: begint leeg */ }
+  return { merken: {} };
+}
+
+function registreerPagina(register, merkSlug, modelSlug, info) {
+  const today = new Date().toISOString().slice(0, 10);
+  const merk = register.merken[merkSlug] || (register.merken[merkSlug] = { laatstActief: null, modellen: {} });
+  if (!merk.modellen) merk.modellen = {};
+  if (!modelSlug) { merk.laatstActief = today; return; }
+  const oud = merk.modellen[modelSlug] || {};
+  merk.modellen[modelSlug] = {
+    eersteKeer: oud.eersteKeer || today,
+    laatstActief: today,
+    laatsteAantal: info.aantal,
+    laatsteMediaanprijs: info.mediaanprijs != null ? info.mediaanprijs : (oud.laatsteMediaanprijs != null ? oud.laatsteMediaanprijs : null),
+  };
+}
+
+function schrijfPaginaRegister(register) {
+  // Gesorteerd wegschrijven, zodat de dagelijkse commit alleen echte
+  // wijzigingen laat zien i.p.v. willekeurig verschoven sleutels.
+  const merken = {};
+  Object.keys(register.merken).sort().forEach(function(m) {
+    const src = register.merken[m];
+    const modellen = {};
+    Object.keys(src.modellen || {}).sort().forEach(function(k) { modellen[k] = src.modellen[k]; });
+    merken[m] = { laatstActief: src.laatstActief || null, modellen: modellen };
+  });
+  fs.mkdirSync(path.dirname(REGISTER_PATH), { recursive: true });
+  fs.writeFileSync(REGISTER_PATH, JSON.stringify({ merken: merken }, null, 2) + '\n', 'utf-8');
+}
+
+function fmtDatumLang(iso) {
+  if (!iso) return '';
+  const d = new Date(iso + 'T12:00:00Z');
+  if (isNaN(d)) return '';
+  return d.toLocaleDateString('nl-NL', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Europe/Amsterdam' });
+}
+
+// "Tijdelijk geen aanbod"-pagina voor een merk of merk/model dat ooit een
+// eigen pagina had maar nu onder de drempel zit. Bewust:
+//  - noindex,follow: geen dunne pagina in de index, maar de linkwaarde van
+//    backlinks/artikelen stroomt via de links hieronder door naar pagina's
+//    mét aanbod. Geen canonical (een canonical op een noindex-pagina geeft
+//    Google tegenstrijdige signalen) en niet in sitemap.xml (zie main()).
+//  - Information gain i.p.v. een kale foutmelding: wanneer er voor het laatst
+//    aanbod was, hoeveel en tegen welke mediaanprijs (uit het register), plus
+//    de advertenties die er nu nog wél zijn.
+//  - Doorverwijzingen: merkpagina (of /occasions/ als het merk zelf ook
+//    weg is), andere modellen van hetzelfde merk en modellen in hetzelfde
+//    prijssegment.
+// sectie is 'occasions' of 'marktanalyse' -- beide boomstructuren hebben
+// dezelfde merk/model-URL's en verdwenen tot nu toe op hetzelfde moment.
+function buildGeenAanbodPage(opts) {
+  const sectie = opts.sectie || 'occasions';
+  const merkSlug = opts.merkSlug, modelSlug = opts.modelSlug || null;
+  const mf = opts.listings || [];
+  const info = opts.info || {};
+  const merkName = slugToDisplay(merkSlug);
+  const modelName = modelSlug ? cap(modelSlug) : null;
+  const naam = merkName + (modelName ? ' ' + modelName : '');
+  const isMarkt = sectie === 'marktanalyse';
+  const ownPath = '/' + sectie + '/' + merkSlug + '/' + (modelSlug ? modelSlug + '/' : '');
+  const merkHref = opts.merkActief ? '/occasions/' + merkSlug + '/' : '/occasions/';
+  const merkLabel = opts.merkActief ? 'Alle ' + merkName + ' occasions' : 'Alle occasions';
+
+  const h1 = isMarkt ? 'Marktanalyse ' + naam : naam + ' occasions';
+  const pageTitle = h1 + ' - tijdelijk geen aanbod | Carkijker';
+  const aantalTekst = mf.length === 0
+    ? 'Er staan op dit moment geen tweedehands ' + naam + ' in ons aanbod.'
+    : 'Er ' + (mf.length === 1 ? 'staat' : 'staan') + ' op dit moment ' + mf.length + ' tweedehands ' + naam + ' in ons aanbod' +
+      (isMarkt ? ' &mdash; te weinig voor een betrouwbare prijstrend of afschrijvingscurve.' : ' &mdash; te weinig voor een volledige overzichtspagina.');
+  const metaDesc = (mf.length === 0 ? 'Op dit moment geen tweedehands ' + naam + ' te koop op Carkijker.' : mf.length + ' tweedehands ' + naam + ' te koop.') +
+    ' Bekijk vergelijkbare occasions uit Marktplaats, AutoScout24, Gaspedaal en ViaBOVAG.';
+
+  let historie = '';
+  if (info.laatstActief) {
+    historie = 'Laatst met een volledig overzicht op ' + fmtDatumLang(info.laatstActief);
+    if (info.laatsteAantal) historie += ': ' + info.laatsteAantal + ' advertenties';
+    if (info.laatsteMediaanprijs) historie += ', mediaanprijs &euro;&nbsp;' + fmt(info.laatsteMediaanprijs);
+    historie += '.';
+  }
+
+  const linkChip = function(href, label, n) {
+    return '<a href="' + href + '" class="model-link">' + escHtml(label) + (n ? ' <span>(' + n + ')</span>' : '') + '</a>';
+  };
+  const zelfdeMerk = (opts.zelfdeMerk || []).slice(0, 8).map(function(m) {
+    return linkChip('/' + sectie + '/' + m.merkSlug + '/' + m.modelSlug + '/', cap(m.modelSlug), m.aantal);
+  }).join('');
+  const vergelijkbaar = (opts.vergelijkbaar || []).slice(0, 6).map(function(m) {
+    return linkChip('/' + sectie + '/' + m.merkSlug + '/' + m.modelSlug + '/', slugToDisplay(m.merkSlug) + ' ' + cap(m.modelSlug) +
+      (m.mediaanprijs ? ' \u00b7 \u20ac\u00a0' + fmt(m.mediaanprijs) : ''), null);
+  }).join('');
+
+  const bcItems = [
+    { '@type': 'ListItem', position: 1, name: 'Carkijker', item: SITE_ORIGIN + '/' },
+    { '@type': 'ListItem', position: 2, name: isMarkt ? 'Marktanalyse' : 'Occasions', item: SITE_ORIGIN + '/' + sectie + '/' },
+  ];
+  if (!isMarkt || opts.merkActief) bcItems.push({ '@type': 'ListItem', position: 3, name: merkName, item: SITE_ORIGIN + merkHref });
+  if (modelSlug) bcItems.push({ '@type': 'ListItem', position: bcItems.length + 1, name: modelName, item: SITE_ORIGIN + ownPath });
+  const bcSchema = { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: bcItems };
+
+  const cards = mf.slice(0, 24).map(function(a) { return renderAutoCard(a, merkName); }).join('');
+
+  return '<!DOCTYPE html>\n<html lang="nl">\n<head>\n' +
+    '  <meta charset="UTF-8">\n' +
+    '  <meta name="viewport" content="width=device-width,initial-scale=1">\n' +
+    '  <meta name="robots" content="noindex,follow">\n' +
+    '  ' + GA_SNIPPET + '\n' +
+    '  ' + OUT_TRACK_SNIPPET + '\n' +
+    '  ' + FOTO_FOUT_SCRIPT + '\n' +
+    '  ' + DEAL_TIP_SCRIPT + '\n' +
+    '  <title>' + pageTitle + '</title>\n' +
+    '  <meta name="description" content="' + metaDesc + '">\n' +
+    '  <script type="application/ld+json">' + safeJsonLd(bcSchema) + '<\/script>\n' +
+    '  <style>' + OCC_STYLE + '.geen-aanbod{background:#fff;border:1px solid rgba(0,0,0,.07);border-left:4px solid #d14413;border-radius:0 14px 14px 0;padding:1rem 1.25rem;margin-bottom:1.25rem;font-size:.9rem;color:#444}' +
+    '.geen-aanbod p+p{margin-top:.4rem}.geen-aanbod .historie{color:#666;font-size:.85rem}.geen-aanbod a{color:#d14413;font-weight:600}' +
+    '.sectie-kop{font-size:.95rem;font-weight:700;color:#1a1a2e;margin:1.25rem 0 .5rem}<\/style>\n' +
+    '</head>\n<body>\n' +
+    '  <nav><a href="/" class="logo">Car<span>kijker</span></a><a href="/' + sectie + '/">' + (isMarkt ? 'Marktanalyse' : 'Occasions') + '</a>' +
+    ((!isMarkt || opts.merkActief) ? '<a href="' + merkHref + '">' + merkName + '</a>' : '') +
+    (modelSlug ? '<a href="' + ownPath + '">' + modelName + '</a>' : '') +
+    '</nav>\n  <div class="container">\n' +
+    '  <h1>' + h1 + '</h1>\n' +
+    '  <p class="subtitle">Tijdelijk geen ' + (isMarkt ? 'marktanalyse' : 'overzicht') + ' &mdash; het aanbod is te klein</p>\n' +
+    '  <div class="geen-aanbod" data-aanbod-status="leeg">' +
+    '<p>' + aantalTekst + '</p>' +
+    (historie ? '<p class="historie">' + historie + '</p>' : '') +
+    '<p>Carkijker haalt drie keer per dag het aanbod op van Marktplaats, AutoScout24, Gaspedaal en ViaBOVAG. Komt er weer genoeg aanbod bij, dan staat het overzicht hier automatisch terug.</p>' +
+    '<p><a href="' + merkHref + '">' + merkLabel + ' &rarr;</a></p>' +
+    '</div>\n' +
+    (cards ? '  <h2 class="sectie-kop" id="aanbod">Nu beschikbaar</h2>\n  <div class="auto-grid">' + cards + '</div>\n' : '') +
+    (zelfdeMerk ? '  <h2 class="sectie-kop">Andere ' + merkName + ' modellen' + (isMarkt ? ' met marktanalyse' : ' met aanbod') + '</h2>\n  <div class="model-nav">' + zelfdeMerk + '</div>\n' : '') +
+    (vergelijkbaar ? '  <h2 class="sectie-kop">' + (modelSlug ? 'Modellen in hetzelfde prijssegment' : 'Populaire modellen') + '</h2>\n  <div class="model-nav">' + vergelijkbaar + '</div>\n' : '') +
+    '  <a href="/" class="back-link">&larr; Terug naar live zoeken</a>\n' +
+    '  </div>\n</body>\n</html>';
+}
+
+// Kiest actieve modelpagina's met een mediaanprijs zo dicht mogelijk bij
+// 'mediaanprijs' (uit het register) -- uitgezonderd het model zelf. Zonder
+// bekende prijs: de modellen met het meeste aanbod.
+function kiesVergelijkbareActieve(actief, merkSlug, modelSlug, mediaanprijs, limit) {
+  const kandidaten = actief.filter(function(m) { return !(m.merkSlug === merkSlug && m.modelSlug === modelSlug); });
+  if (mediaanprijs) {
+    return kandidaten.filter(function(m) { return m.mediaanprijs; })
+      .sort(function(a, b) { return Math.abs(a.mediaanprijs - mediaanprijs) - Math.abs(b.mediaanprijs - mediaanprijs) || b.aantal - a.aantal; })
+      .slice(0, limit);
+  }
+  return kandidaten.slice().sort(function(a, b) { return b.aantal - a.aantal; }).slice(0, limit);
+}
+
 function main() {
   if (!fs.existsSync(LISTINGS_PATH)) { console.error('listings.json niet gevonden'); process.exit(1); }
   const raw = JSON.parse(fs.readFileSync(LISTINGS_PATH, 'utf-8'));
@@ -1187,6 +1361,33 @@ function main() {
   const validTopDirs = new Set();
   const validModelDirs = {};
   const validMarktDirs = {}; // orphan-cleanup voor /marktanalyse/<merk>/<model>/, zie buildMarktPage()
+  const register = laadPaginaRegister();
+  const merkListings = {};     // merkSlug -> advertenties van dat merk (actieve merken)
+  const actieveModellen = [];  // { merkSlug, modelSlug, aantal, mediaanprijs } -- voor doorverwijzingen
+  const noindexUrls = new Set(); // "tijdelijk geen aanbod"-pagina's: niet in sitemap.xml
+
+  // Volwaardige model- + marktanalysepagina voor één merk/model (gedeeld door
+  // de top-MAX_MODELS-lus en de register-ronde verderop).
+  function bouwModelPaginas(merkSlug, modelSlug, mf) {
+    const merkDir = path.join(OUT_DIR, merkSlug);
+    const mDir=path.join(merkDir,modelSlug);
+    fs.mkdirSync(mDir,{recursive:true});
+    fs.writeFileSync(path.join(mDir,'index.html'),buildPage({merkSlug:merkSlug,modelSlug:modelSlug,filtered:mf,listings:listings}),'utf-8');
+    pageCount++; console.log('    [OK] /occasions/'+merkSlug+'/'+modelSlug+'/ ('+mf.length+')');
+    validModelDirs[merkSlug].add(modelSlug);
+
+    // Marktanalyse-pagina (prijstrend + afschrijving) voor dezelfde merk/model-
+    // combinatie -- zie toelichting bij buildMarktPage() hierboven.
+    const marktModelDir = path.join(MARKT_DIR, merkSlug, modelSlug);
+    fs.mkdirSync(marktModelDir, { recursive: true });
+    fs.writeFileSync(path.join(marktModelDir, 'index.html'), buildMarktPage(merkSlug, modelSlug, slugToDisplay(merkSlug), cap(modelSlug), mf, alleModelStats), 'utf-8');
+    pageCount++; console.log('      [OK] /marktanalyse/'+merkSlug+'/'+modelSlug+'/');
+    validMarktDirs[merkSlug].add(modelSlug);
+
+    const mediaanprijs = getStats(mf).medPrijs;
+    registreerPagina(register, merkSlug, modelSlug, { aantal: mf.length, mediaanprijs: mediaanprijs });
+    actieveModellen.push({ merkSlug: merkSlug, modelSlug: modelSlug, aantal: mf.length, mediaanprijs: mediaanprijs });
+  }
 
   const merkCounts = {};
   listings.forEach(function(a){ const m=(a.merk||'').toLowerCase().trim(); if(m) merkCounts[m]=(merkCounts[m]||0)+1; });
@@ -1212,6 +1413,8 @@ function main() {
     validTopDirs.add(merkSlug);
     validModelDirs[merkSlug] = new Set();
     validMarktDirs[merkSlug] = new Set();
+    merkListings[merkSlug] = filtered;
+    registreerPagina(register, merkSlug, null);
 
     const mc = {};
     // Sla de volledige merknaam over, ook als die uit meerdere woorden bestaat
@@ -1250,21 +1453,66 @@ function main() {
       const modelSlug=me[0];
       const mf=filtered.filter(function(a){return (a.titel||'').toLowerCase().includes(modelSlug);});
       if(mf.length<MIN_MODEL_COUNT) return;
-      const mDir=path.join(merkDir,modelSlug);
-      fs.mkdirSync(mDir,{recursive:true});
-      fs.writeFileSync(path.join(mDir,'index.html'),buildPage({merkSlug:merkSlug,modelSlug:modelSlug,filtered:mf,listings:listings}),'utf-8');
-      pageCount++; console.log('    [OK] /occasions/'+merkSlug+'/'+modelSlug+'/ ('+mf.length+')');
-      validModelDirs[merkSlug].add(modelSlug);
-
-      // Marktanalyse-pagina (prijstrend + afschrijving) voor dezelfde merk/model-
-      // combinatie -- zie toelichting bij buildMarktPage() hierboven.
-      const marktModelDir = path.join(MARKT_DIR, merkSlug, modelSlug);
-      fs.mkdirSync(marktModelDir, { recursive: true });
-      fs.writeFileSync(path.join(marktModelDir, 'index.html'), buildMarktPage(merkSlug, modelSlug, slugToDisplay(merkSlug), cap(modelSlug), mf, alleModelStats), 'utf-8');
-      pageCount++; console.log('      [OK] /marktanalyse/'+merkSlug+'/'+modelSlug+'/');
-      validMarktDirs[merkSlug].add(modelSlug);
+      bouwModelPaginas(merkSlug, modelSlug, mf);
     });
   });
+
+  // ── Ooit bestaande merk/model-pagina's die deze run niet meer gebouwd zijn ──
+  // Zie laadPaginaRegister(): zo'n URL mag nooit stilletjes een 404 worden.
+  //  - Model met nog >= MIN_MODEL_COUNT advertenties dat alleen uit de
+  //    top-MAX_MODELS van zijn merk is gezakt: gewoon de volwaardige,
+  //    indexeerbare pagina houden (er ís aanbod, alleen geen plek in de
+  //    merk-navigatie).
+  //  - Anders (aanbod weg of onder de drempel, of het hele merk is onder
+  //    MIN_MERK_COUNT gezakt): "tijdelijk geen aanbod"-pagina met noindex.
+  let leegCount = 0;
+  Object.keys(register.merken).forEach(function(merkSlug) {
+    const entry = register.merken[merkSlug];
+    const merkActief = !!merkListings[merkSlug];
+    const merkFiltered = merkActief ? merkListings[merkSlug]
+      : listings.filter(function(a){ return slugifyMerk((a.merk||'').toLowerCase().trim()) === merkSlug; });
+    if (!merkActief) {
+      // Hele merk onder de drempel: ook de merkpagina zelf blijft bestaan.
+      // Een merknaam die (ooit) gelijk is aan een stad-slug laten we met rust.
+      if (STEDEN[merkSlug]) return;
+      const merkDir = path.join(OUT_DIR, merkSlug);
+      fs.mkdirSync(merkDir, { recursive: true });
+      fs.writeFileSync(path.join(merkDir, 'index.html'), buildGeenAanbodPage({
+        sectie: 'occasions', merkSlug: merkSlug, listings: merkFiltered, merkActief: false,
+        info: { laatstActief: entry.laatstActief },
+        vergelijkbaar: kiesVergelijkbareActieve(actieveModellen, merkSlug, null, null, 6),
+      }), 'utf-8');
+      validTopDirs.add(merkSlug);
+      validModelDirs[merkSlug] = new Set();
+      validMarktDirs[merkSlug] = new Set();
+      noindexUrls.add('occasions/' + encodeURIComponent(merkSlug) + '/');
+      leegCount++; console.log('  [GEEN AANBOD] /occasions/'+merkSlug+'/ (noindex)');
+    }
+    Object.keys(entry.modellen || {}).forEach(function(modelSlug) {
+      if (validModelDirs[merkSlug].has(modelSlug)) return;
+      const mf = merkFiltered.filter(function(a){ return (a.titel||'').toLowerCase().includes(modelSlug); });
+      if (merkActief && mf.length >= MIN_MODEL_COUNT) { bouwModelPaginas(merkSlug, modelSlug, mf); return; }
+      const info = entry.modellen[modelSlug] || {};
+      const opts = {
+        merkSlug: merkSlug, modelSlug: modelSlug, listings: mf, merkActief: merkActief, info: info,
+        zelfdeMerk: actieveModellen.filter(function(m){ return m.merkSlug === merkSlug; }).sort(function(a,b){ return b.aantal - a.aantal; }),
+        vergelijkbaar: kiesVergelijkbareActieve(actieveModellen.filter(function(m){ return m.merkSlug !== merkSlug; }), merkSlug, modelSlug, info.laatsteMediaanprijs, 6),
+      };
+      const mDir = path.join(OUT_DIR, merkSlug, modelSlug);
+      fs.mkdirSync(mDir, { recursive: true });
+      fs.writeFileSync(path.join(mDir, 'index.html'), buildGeenAanbodPage(Object.assign({ sectie: 'occasions' }, opts)), 'utf-8');
+      validModelDirs[merkSlug].add(modelSlug);
+      noindexUrls.add('occasions/' + encodeURIComponent(merkSlug) + '/' + encodeURIComponent(modelSlug) + '/');
+      const marktModelDir = path.join(MARKT_DIR, merkSlug, modelSlug);
+      fs.mkdirSync(marktModelDir, { recursive: true });
+      fs.writeFileSync(path.join(marktModelDir, 'index.html'), buildGeenAanbodPage(Object.assign({ sectie: 'marktanalyse' }, opts)), 'utf-8');
+      validMarktDirs[merkSlug].add(modelSlug);
+      noindexUrls.add('marktanalyse/' + encodeURIComponent(merkSlug) + '/' + encodeURIComponent(modelSlug) + '/');
+      leegCount++; console.log('    [GEEN AANBOD] /occasions/'+merkSlug+'/'+modelSlug+'/ + /marktanalyse/ ('+mf.length+', noindex)');
+    });
+  });
+  if (leegCount) console.log(leegCount + ' pagina(\'s) met "tijdelijk geen aanbod" behouden (noindex)');
+  schrijfPaginaRegister(register);
 
   updateHomepageMerkenLinks(merkCounts);
   updateHomepageStedenLinks(STEDEN);
@@ -1273,6 +1521,8 @@ function main() {
   // Merk/model-URLs verzamelen voor de sitemap (encodeURIComponent i.v.m.
   // merknamen met een spatie, zoals "alfa romeo" of "aston martin").
   const generatedMerkUrls = [];
+  // "Tijdelijk geen aanbod"-pagina's (noindexUrls) horen niet in de sitemap:
+  // een sitemap hoort alleen indexeerbare URL's te bevatten.
   for (const merkSlug of Object.keys(validModelDirs)) {
     generatedMerkUrls.push('occasions/' + encodeURIComponent(merkSlug) + '/');
     for (const modelSlug of validModelDirs[merkSlug]) {
@@ -1284,6 +1534,7 @@ function main() {
       generatedMerkUrls.push('marktanalyse/' + encodeURIComponent(merkSlug) + '/' + encodeURIComponent(modelSlug) + '/');
     }
   }
+  const indexeerbareMerkUrls = generatedMerkUrls.filter(function(u){ return !noindexUrls.has(u); });
 
   // Regiopagina's per stad
   const OUT_STAD = OUT_DIR;
@@ -1357,14 +1608,21 @@ function main() {
   // Eerder ontbraken hier /occasions/ zelf, /tco/, en alle merk/model-pagina's
   // (alleen de stad-pagina's werden toegevoegd) -- 400+ pagina's stonden
   // daardoor niet in de sitemap.
-  const sitemapPath = path.join(process.cwd(), 'sitemap.xml');
+  const sitemapPath = path.join(ROOT, 'sitemap.xml');
   if (fs.existsSync(sitemapPath)) {
     let sitemap = fs.readFileSync(sitemapPath, 'utf-8');
     const today = new Date().toISOString().slice(0,10);
     const base = 'https://carkijker.nl/';
     const vasteUrls = ['occasions/', 'tco/', 'inruilwaarde/', 'kentekencheck/', 'marktanalyse/', 'over-ons/'];
-    const allUrls = [...vasteUrls, ...generatedMerkUrls, ...generatedStadUrls];
+    const allUrls = [...vasteUrls, ...indexeerbareMerkUrls, ...generatedStadUrls];
     let added = 0;
+    // scrape.js schrijft de basis-sitemap elke run opnieuw, maar voor het geval
+    // er toch nog een entry van een inmiddels lege pagina in staat: eruit.
+    let removed = 0;
+    for (const u of noindexUrls) {
+      const re = new RegExp('[ \\t]*<url><loc>' + (base + u).replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '</loc>.*?</url>\\n?', 'g');
+      sitemap = sitemap.replace(re, function(){ removed++; return ''; });
+    }
     for (const u of allUrls) {
       const full = base + u;
       // Exacte <loc>-match i.p.v. sitemap.includes(full): "occasions/" zit
@@ -1378,7 +1636,7 @@ function main() {
       }
     }
     fs.writeFileSync(sitemapPath, sitemap, 'utf-8');
-    console.log('Sitemap bijgewerkt: '+added+' nieuwe URLs (van '+allUrls.length+' gecontroleerd)');
+    console.log('Sitemap bijgewerkt: '+added+' nieuwe URLs (van '+allUrls.length+' gecontroleerd)'+(removed?', '+removed+' noindex-URL(s) verwijderd':''));
   }
 
   console.log('\nKlaar: '+pageCount+' pagina\'s gegenereerd in '+OUT_DIR);

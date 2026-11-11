@@ -1,0 +1,3558 @@
+{
+  "merken": {
+    "abarth": {
+      "laatstActief": "2026-11-11",
+      "modellen": {
+        "595c": {
+          "eersteKeer": null,
+          "laatstActief": "2026-09-23",
+          "laatsteAantal": 2,
+          "laatsteMediaanprijs": 16950
+        },
+        "600e": {
+          "eersteKeer": null,
+          "laatstActief": "2026-09-06",
+          "laatsteAantal": 2,
+          "laatsteMediaanprijs": 34950
+        },
+        "punto": {
+          "eersteKeer": null,
+          "laatstActief": "2026-09-30",
+          "laatsteAantal": 2,
+          "laatsteMediaanprijs": 11950
+        }
+      }
+    },
+    "alfa-romeo": {
+      "laatstActief": "2026-11-11",
+      "modellen": {
+        "alfa-romeo": {
+          "eersteKeer": null,
+          "laatstActief": "2026-09-07",
+          "laatsteAantal": 11,
+          "laatsteMediaanprijs": 10000
+        },
+        "brera": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 21,
+          "laatsteMediaanprijs": 7950
+        },
+        "giulia": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 119,
+          "laatsteMediaanprijs": 26950
+        },
+        "giulietta": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 245,
+          "laatsteMediaanprijs": 7100
+        },
+        "gt": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 76,
+          "laatsteMediaanprijs": 13800
+        },
+        "gtv": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 24,
+          "laatsteMediaanprijs": 27950
+        },
+        "junior": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 73,
+          "laatsteMediaanprijs": 29850
+        },
+        "mito": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 222,
+          "laatsteMediaanprijs": 3945
+        },
+        "spider": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 64,
+          "laatsteMediaanprijs": 10950
+        },
+        "stelvio": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 135,
+          "laatsteMediaanprijs": 27950
+        },
+        "tonale": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 95,
+          "laatsteMediaanprijs": 29950
+        }
+      }
+    },
+    "aston-martin": {
+      "laatstActief": "2026-11-11",
+      "modellen": {
+        "db9": {
+          "eersteKeer": null,
+          "laatstActief": "2026-10-19",
+          "laatsteAantal": 3,
+          "laatsteMediaanprijs": 124950
+        },
+        "dbx": {
+          "eersteKeer": null,
+          "laatstActief": "2026-09-30",
+          "laatsteAantal": 3,
+          "laatsteMediaanprijs": 299950
+        },
+        "vantage": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 5,
+          "laatsteMediaanprijs": 225950
+        }
+      }
+    },
+    "audi": {
+      "laatstActief": "2026-11-11",
+      "modellen": {
+        "a1": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 242,
+          "laatsteMediaanprijs": 9950
+        },
+        "a3": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 505,
+          "laatsteMediaanprijs": 15450
+        },
+        "a4": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 290,
+          "laatsteMediaanprijs": 9749
+        },
+        "a5": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 153,
+          "laatsteMediaanprijs": 13750
+        },
+        "a6": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 229,
+          "laatsteMediaanprijs": 22950
+        },
+        "e-tron": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-09",
+          "laatsteAantal": 175,
+          "laatsteMediaanprijs": 26750
+        },
+        "q2": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 110,
+          "laatsteMediaanprijs": 18750
+        },
+        "q3": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 207,
+          "laatsteMediaanprijs": 25950
+        },
+        "q4": {
+          "eersteKeer": null,
+          "laatstActief": "2026-09-08",
+          "laatsteAantal": 38,
+          "laatsteMediaanprijs": 29940
+        },
+        "q5": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 227,
+          "laatsteMediaanprijs": 29450
+        },
+        "q6": {
+          "eersteKeer": null,
+          "laatstActief": "2026-08-22",
+          "laatsteAantal": 19,
+          "laatsteMediaanprijs": 68949
+        },
+        "q7": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 70,
+          "laatsteMediaanprijs": 31999
+        },
+        "q8": {
+          "eersteKeer": null,
+          "laatstActief": "2026-08-18",
+          "laatsteAantal": 8,
+          "laatsteMediaanprijs": 79950
+        },
+        "rs6": {
+          "eersteKeer": null,
+          "laatstActief": "2026-08-15",
+          "laatsteAantal": 5,
+          "laatsteMediaanprijs": 104995
+        },
+        "tt": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 799,
+          "laatsteMediaanprijs": 25900
+        }
+      }
+    },
+    "bentley": {
+      "laatstActief": "2026-11-11",
+      "modellen": {
+        "bentayga": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-05",
+          "laatsteAantal": 2,
+          "laatsteMediaanprijs": 159995
+        },
+        "continental": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 4,
+          "laatsteMediaanprijs": 49950
+        },
+        "flying": {
+          "eersteKeer": null,
+          "laatstActief": "2026-09-24",
+          "laatsteAantal": 2,
+          "laatsteMediaanprijs": 189950
+        }
+      }
+    },
+    "bmw": {
+      "laatstActief": "2026-11-11",
+      "modellen": {
+        "1-serie": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 285,
+          "laatsteMediaanprijs": 8250
+        },
+        "2-serie": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 90,
+          "laatsteMediaanprijs": 15950
+        },
+        "3-serie": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 392,
+          "laatsteMediaanprijs": 10950
+        },
+        "4-serie": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 45,
+          "laatsteMediaanprijs": 20850
+        },
+        "5-serie": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 259,
+          "laatsteMediaanprijs": 12550
+        },
+        "i3": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-09",
+          "laatsteAantal": 45,
+          "laatsteMediaanprijs": 19945
+        },
+        "i4": {
+          "eersteKeer": null,
+          "laatstActief": "2026-09-01",
+          "laatsteAantal": 14,
+          "laatsteMediaanprijs": 45950
+        },
+        "i5": {
+          "eersteKeer": null,
+          "laatstActief": "2026-08-17",
+          "laatsteAantal": 3,
+          "laatsteMediaanprijs": 63900
+        },
+        "ix1": {
+          "eersteKeer": null,
+          "laatstActief": "2026-09-04",
+          "laatsteAantal": 14,
+          "laatsteMediaanprijs": 45850
+        },
+        "ix3": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 46,
+          "laatsteMediaanprijs": 40900
+        },
+        "m5": {
+          "eersteKeer": null,
+          "laatstActief": "2026-08-15",
+          "laatsteAantal": 3,
+          "laatsteMediaanprijs": 62999
+        },
+        "x1": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 230,
+          "laatsteMediaanprijs": 22950
+        },
+        "x2": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 49,
+          "laatsteMediaanprijs": 26950
+        },
+        "x3": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 207,
+          "laatsteMediaanprijs": 34950
+        },
+        "x4": {
+          "eersteKeer": null,
+          "laatstActief": "2026-07-30",
+          "laatsteAantal": 14,
+          "laatsteMediaanprijs": 42950
+        },
+        "x5": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 231,
+          "laatsteMediaanprijs": 51950
+        },
+        "x6": {
+          "eersteKeer": null,
+          "laatstActief": "2026-08-22",
+          "laatsteAantal": 9,
+          "laatsteMediaanprijs": 18998
+        },
+        "z4": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-03",
+          "laatsteAantal": 42,
+          "laatsteMediaanprijs": 18500
+        }
+      }
+    },
+    "byd": {
+      "laatstActief": "2026-11-11",
+      "modellen": {
+        "atto": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 92,
+          "laatsteMediaanprijs": 27500
+        },
+        "dolphin": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 36,
+          "laatsteMediaanprijs": 25250
+        },
+        "seal": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 160,
+          "laatsteMediaanprijs": 34900
+        },
+        "sealion": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 23,
+          "laatsteMediaanprijs": 49950
+        },
+        "tang": {
+          "eersteKeer": null,
+          "laatstActief": "2026-10-19",
+          "laatsteAantal": 2,
+          "laatsteMediaanprijs": 44835
+        }
+      }
+    },
+    "chevrolet": {
+      "laatstActief": "2026-11-11",
+      "modellen": {
+        "aveo": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 3,
+          "laatsteMediaanprijs": 2450
+        },
+        "camaro": {
+          "eersteKeer": null,
+          "laatstActief": "2026-09-23",
+          "laatsteAantal": 2,
+          "laatsteMediaanprijs": 50000
+        },
+        "captiva": {
+          "eersteKeer": null,
+          "laatstActief": "2026-09-17",
+          "laatsteAantal": 3,
+          "laatsteMediaanprijs": 2950
+        },
+        "corvette": {
+          "eersteKeer": null,
+          "laatstActief": "2026-10-23",
+          "laatsteAantal": 2,
+          "laatsteMediaanprijs": 129950
+        },
+        "cruze": {
+          "eersteKeer": null,
+          "laatstActief": "2026-10-14",
+          "laatsteAantal": 2,
+          "laatsteMediaanprijs": 2900
+        },
+        "kalos": {
+          "eersteKeer": null,
+          "laatstActief": "2026-10-29",
+          "laatsteAantal": 3,
+          "laatsteMediaanprijs": 1249
+        },
+        "malibu": {
+          "eersteKeer": null,
+          "laatstActief": "2026-09-22",
+          "laatsteAantal": 2,
+          "laatsteMediaanprijs": 12000
+        },
+        "matiz": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-10",
+          "laatsteAantal": 2,
+          "laatsteMediaanprijs": 2000
+        },
+        "nubira": {
+          "eersteKeer": null,
+          "laatstActief": "2026-08-06",
+          "laatsteAantal": 2,
+          "laatsteMediaanprijs": 2250
+        },
+        "orlando": {
+          "eersteKeer": null,
+          "laatstActief": "2026-10-09",
+          "laatsteAantal": 2,
+          "laatsteMediaanprijs": 1799
+        },
+        "silverado": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 2,
+          "laatsteMediaanprijs": 49900
+        },
+        "spark": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 3,
+          "laatsteMediaanprijs": 2650
+        },
+        "ssr": {
+          "eersteKeer": null,
+          "laatstActief": "2026-09-08",
+          "laatsteAantal": 2,
+          "laatsteMediaanprijs": 37995
+        },
+        "suburban": {
+          "eersteKeer": null,
+          "laatstActief": "2026-08-15",
+          "laatsteAantal": 3,
+          "laatsteMediaanprijs": 13950
+        },
+        "usa": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 3,
+          "laatsteMediaanprijs": 6945
+        }
+      }
+    },
+    "chrysler": {
+      "laatstActief": "2026-11-11",
+      "modellen": {
+        "300c": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-10",
+          "laatsteAantal": 2,
+          "laatsteMediaanprijs": 3950
+        },
+        "crossfire": {
+          "eersteKeer": null,
+          "laatstActief": "2026-09-23",
+          "laatsteAantal": 2,
+          "laatsteMediaanprijs": 8888
+        },
+        "grand": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-08",
+          "laatsteAantal": 8,
+          "laatsteMediaanprijs": 9950
+        },
+        "pacifica": {
+          "eersteKeer": null,
+          "laatstActief": "2026-09-03",
+          "laatsteAantal": 2,
+          "laatsteMediaanprijs": 59950
+        },
+        "pt": {
+          "eersteKeer": null,
+          "laatstActief": "2026-08-15",
+          "laatsteAantal": 5,
+          "laatsteMediaanprijs": 2499
+        },
+        "sebring": {
+          "eersteKeer": null,
+          "laatstActief": "2026-07-30",
+          "laatsteAantal": 2,
+          "laatsteMediaanprijs": 3450
+        },
+        "town": {
+          "eersteKeer": null,
+          "laatstActief": "2026-10-04",
+          "laatsteAantal": 2,
+          "laatsteMediaanprijs": 15000
+        }
+      }
+    },
+    "citroen": {
+      "laatstActief": "2026-11-11",
+      "modellen": {
+        "berlingo": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 15,
+          "laatsteMediaanprijs": 14900
+        },
+        "c1": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 22,
+          "laatsteMediaanprijs": 3395
+        },
+        "c3": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 30,
+          "laatsteMediaanprijs": 5550
+        },
+        "c4": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 31,
+          "laatsteMediaanprijs": 5450
+        },
+        "c5": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 7,
+          "laatsteMediaanprijs": 16900
+        },
+        "ds": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 139,
+          "laatsteMediaanprijs": 4900
+        },
+        "ds3": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 84,
+          "laatsteMediaanprijs": 3999
+        },
+        "ds4": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 19,
+          "laatsteMediaanprijs": 4744
+        },
+        "ds5": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 21,
+          "laatsteMediaanprijs": 6945
+        },
+        "e-c4": {
+          "eersteKeer": null,
+          "laatstActief": "2026-10-28",
+          "laatsteAantal": 7,
+          "laatsteMediaanprijs": 17990
+        },
+        "grand": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-09",
+          "laatsteAantal": 8,
+          "laatsteMediaanprijs": 9250
+        },
+        "jumper": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-07",
+          "laatsteAantal": 6,
+          "laatsteMediaanprijs": 18950
+        },
+        "jumpy": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 6,
+          "laatsteMediaanprijs": 19750
+        }
+      }
+    },
+    "cupra": {
+      "laatstActief": "2026-11-11",
+      "modellen": {
+        "ateca": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 79,
+          "laatsteMediaanprijs": 29995
+        },
+        "born": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 119,
+          "laatsteMediaanprijs": 24950
+        },
+        "cupra": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 995,
+          "laatsteMediaanprijs": 26995
+        },
+        "formentor": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 480,
+          "laatsteMediaanprijs": 27850
+        },
+        "leon": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 222,
+          "laatsteMediaanprijs": 24750
+        },
+        "raval": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 20,
+          "laatsteMediaanprijs": 32590
+        },
+        "tavascan": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-09",
+          "laatsteAantal": 18,
+          "laatsteMediaanprijs": 42745
+        },
+        "terramar": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 57,
+          "laatsteMediaanprijs": 42950
+        }
+      }
+    },
+    "dacia": {
+      "laatstActief": "2026-11-11",
+      "modellen": {
+        "bigster": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 49,
+          "laatsteMediaanprijs": 33200
+        },
+        "dokker": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 75,
+          "laatsteMediaanprijs": 6950
+        },
+        "duster": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 290,
+          "laatsteMediaanprijs": 13400
+        },
+        "jogger": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 136,
+          "laatsteMediaanprijs": 18950
+        },
+        "lodgy": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 57,
+          "laatsteMediaanprijs": 6741
+        },
+        "logan": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 172,
+          "laatsteMediaanprijs": 4495
+        },
+        "sandero": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 490,
+          "laatsteMediaanprijs": 8900
+        },
+        "spring": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 62,
+          "laatsteMediaanprijs": 12900
+        }
+      }
+    },
+    "daihatsu": {
+      "laatstActief": "2026-11-11",
+      "modellen": {
+        "charade": {
+          "eersteKeer": null,
+          "laatstActief": "2026-09-14",
+          "laatsteAantal": 2,
+          "laatsteMediaanprijs": 1999
+        },
+        "cuore": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 3,
+          "laatsteMediaanprijs": 2440
+        },
+        "feroza": {
+          "eersteKeer": null,
+          "laatstActief": "2026-09-25",
+          "laatsteAantal": 2,
+          "laatsteMediaanprijs": 3850
+        },
+        "materia": {
+          "eersteKeer": null,
+          "laatstActief": "2026-10-18",
+          "laatsteAantal": 2,
+          "laatsteMediaanprijs": 2499
+        },
+        "sirion": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 8,
+          "laatsteMediaanprijs": 1599
+        },
+        "terios": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 2,
+          "laatsteMediaanprijs": 5650
+        },
+        "trevis": {
+          "eersteKeer": null,
+          "laatstActief": "2026-10-24",
+          "laatsteAantal": 2,
+          "laatsteMediaanprijs": 1250
+        },
+        "young": {
+          "eersteKeer": null,
+          "laatstActief": "2026-08-15",
+          "laatsteAantal": 2,
+          "laatsteMediaanprijs": 2995
+        }
+      }
+    },
+    "dodge": {
+      "laatstActief": "2026-11-11",
+      "modellen": {
+        "caliber": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-04",
+          "laatsteAantal": 2,
+          "laatsteMediaanprijs": 999
+        },
+        "challenger": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-09",
+          "laatsteAantal": 2,
+          "laatsteMediaanprijs": 32500
+        },
+        "dodge": {
+          "eersteKeer": null,
+          "laatstActief": "2026-10-06",
+          "laatsteAantal": 61,
+          "laatsteMediaanprijs": 54995
+        },
+        "grand": {
+          "eersteKeer": null,
+          "laatstActief": "2026-07-30",
+          "laatsteAantal": 2,
+          "laatsteMediaanprijs": 10950
+        },
+        "nitro": {
+          "eersteKeer": null,
+          "laatstActief": "2026-10-29",
+          "laatsteAantal": 2,
+          "laatsteMediaanprijs": 8250
+        },
+        "ram": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 40,
+          "laatsteMediaanprijs": 64950
+        }
+      }
+    },
+    "ds": {
+      "laatstActief": "2026-11-11",
+      "modellen": {
+        "automobiles": {
+          "eersteKeer": null,
+          "laatstActief": "2026-10-22",
+          "laatsteAantal": 2,
+          "laatsteMediaanprijs": 17900
+        },
+        "crossback": {
+          "eersteKeer": null,
+          "laatstActief": "2026-07-30",
+          "laatsteAantal": 250,
+          "laatsteMediaanprijs": 19925
+        },
+        "ds": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 543,
+          "laatsteMediaanprijs": 18990
+        },
+        "n4": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-09",
+          "laatsteAantal": 5,
+          "laatsteMediaanprijs": 38720
+        },
+        "n8": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-07",
+          "laatsteAantal": 7,
+          "laatsteMediaanprijs": 58820
+        },
+        "no": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 85,
+          "laatsteMediaanprijs": 26400
+        }
+      }
+    },
+    "ferrari": {
+      "laatstActief": "2026-11-09",
+      "modellen": {
+        "california": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-04",
+          "laatsteAantal": 2,
+          "laatsteMediaanprijs": 94950
+        },
+        "ff": {
+          "eersteKeer": null,
+          "laatstActief": "2026-09-19",
+          "laatsteAantal": 2,
+          "laatsteMediaanprijs": 159800
+        },
+        "sf90": {
+          "eersteKeer": null,
+          "laatstActief": "2026-10-23",
+          "laatsteAantal": 2,
+          "laatsteMediaanprijs": 374950
+        }
+      }
+    },
+    "fiat": {
+      "laatstActief": "2026-11-11",
+      "modellen": {
+        "500c": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 130,
+          "laatsteMediaanprijs": 8750
+        },
+        "500e": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 31,
+          "laatsteMediaanprijs": 15995
+        },
+        "500l": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-06",
+          "laatsteAantal": 32,
+          "laatsteMediaanprijs": 5250
+        },
+        "500x": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 43,
+          "laatsteMediaanprijs": 11445
+        },
+        "doblo": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 49,
+          "laatsteMediaanprijs": 4235
+        },
+        "ducato": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 68,
+          "laatsteMediaanprijs": 12950
+        },
+        "e-scudo": {
+          "eersteKeer": null,
+          "laatstActief": "2026-08-29",
+          "laatsteAantal": 3,
+          "laatsteMediaanprijs": 24000
+        },
+        "fiorino": {
+          "eersteKeer": null,
+          "laatstActief": "2026-09-11",
+          "laatsteAantal": 24,
+          "laatsteMediaanprijs": 3950
+        },
+        "grande": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 50,
+          "laatsteMediaanprijs": 2250
+        },
+        "panda": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 349,
+          "laatsteMediaanprijs": 2750
+        },
+        "punto": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 216,
+          "laatsteMediaanprijs": 2475
+        },
+        "scudo": {
+          "eersteKeer": null,
+          "laatstActief": "2026-10-19",
+          "laatsteAantal": 38,
+          "laatsteMediaanprijs": 13950
+        },
+        "sedici": {
+          "eersteKeer": null,
+          "laatstActief": "2026-09-03",
+          "laatsteAantal": 5,
+          "laatsteMediaanprijs": 3450
+        },
+        "talento": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 34,
+          "laatsteMediaanprijs": 12950
+        },
+        "tipo": {
+          "eersteKeer": null,
+          "laatstActief": "2026-09-10",
+          "laatsteAantal": 22,
+          "laatsteMediaanprijs": 7995
+        },
+        "topolino": {
+          "eersteKeer": null,
+          "laatstActief": "2026-09-04",
+          "laatsteAantal": 4,
+          "laatsteMediaanprijs": 9625
+        }
+      }
+    },
+    "ford": {
+      "laatstActief": "2026-11-11",
+      "modellen": {
+        "c-max": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 72,
+          "laatsteMediaanprijs": 4400
+        },
+        "capri": {
+          "eersteKeer": null,
+          "laatstActief": "2026-09-06",
+          "laatsteAantal": 39,
+          "laatsteMediaanprijs": 43400
+        },
+        "e-transit": {
+          "eersteKeer": null,
+          "laatstActief": "2026-10-28",
+          "laatsteAantal": 96,
+          "laatsteMediaanprijs": 36250
+        },
+        "ecosport": {
+          "eersteKeer": null,
+          "laatstActief": "2026-09-08",
+          "laatsteAantal": 43,
+          "laatsteMediaanprijs": 12500
+        },
+        "explorer": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 133,
+          "laatsteMediaanprijs": 40300
+        },
+        "fiesta": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 294,
+          "laatsteMediaanprijs": 5999
+        },
+        "focus": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 455,
+          "laatsteMediaanprijs": 6950
+        },
+        "ka": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 136,
+          "laatsteMediaanprijs": 2499
+        },
+        "kuga": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 199,
+          "laatsteMediaanprijs": 19899
+        },
+        "mondeo": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 59,
+          "laatsteMediaanprijs": 5245
+        },
+        "mustang": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 289,
+          "laatsteMediaanprijs": 28964
+        },
+        "puma": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 74,
+          "laatsteMediaanprijs": 20850
+        },
+        "transit": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 467,
+          "laatsteMediaanprijs": 18750
+        }
+      }
+    },
+    "honda": {
+      "laatstActief": "2026-11-11",
+      "modellen": {
+        "accord": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 57,
+          "laatsteMediaanprijs": 4999
+        },
+        "civic": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 398,
+          "laatsteMediaanprijs": 6275
+        },
+        "cr-v": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 179,
+          "laatsteMediaanprijs": 13895
+        },
+        "cr-z": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 13,
+          "laatsteMediaanprijs": 5995
+        },
+        "crx": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 23,
+          "laatsteMediaanprijs": 7250
+        },
+        "fr-v": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 28,
+          "laatsteMediaanprijs": 2999
+        },
+        "hr-v": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 139,
+          "laatsteMediaanprijs": 19900
+        },
+        "insight": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 55,
+          "laatsteMediaanprijs": 5750
+        },
+        "jazz": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 241,
+          "laatsteMediaanprijs": 7240
+        },
+        "prelude": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-08",
+          "laatsteAantal": 14,
+          "laatsteMediaanprijs": 8900
+        },
+        "s2000": {
+          "eersteKeer": null,
+          "laatstActief": "2026-09-21",
+          "laatsteAantal": 13,
+          "laatsteMediaanprijs": 29499
+        },
+        "zr-v": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 13,
+          "laatsteMediaanprijs": 38900
+        }
+      }
+    },
+    "hyundai": {
+      "laatstActief": "2026-11-11",
+      "modellen": {
+        "atos": {
+          "eersteKeer": null,
+          "laatstActief": "2026-10-21",
+          "laatsteAantal": 64,
+          "laatsteMediaanprijs": 1500
+        },
+        "bayon": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 57,
+          "laatsteMediaanprijs": 18950
+        },
+        "getz": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-04",
+          "laatsteAantal": 58,
+          "laatsteMediaanprijs": 1450
+        },
+        "i10": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 405,
+          "laatsteMediaanprijs": 5950
+        },
+        "i20": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 230,
+          "laatsteMediaanprijs": 9900
+        },
+        "i30": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 168,
+          "laatsteMediaanprijs": 11245
+        },
+        "inster": {
+          "eersteKeer": null,
+          "laatstActief": "2026-09-02",
+          "laatsteAantal": 10,
+          "laatsteMediaanprijs": 25400
+        },
+        "ioniq": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 114,
+          "laatsteMediaanprijs": 33885
+        },
+        "ix20": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 77,
+          "laatsteMediaanprijs": 6700
+        },
+        "ix35": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 83,
+          "laatsteMediaanprijs": 7850
+        },
+        "kona": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 277,
+          "laatsteMediaanprijs": 20850
+        },
+        "nexo": {
+          "eersteKeer": null,
+          "laatstActief": "2026-09-04",
+          "laatsteAantal": 9,
+          "laatsteMediaanprijs": 13900
+        },
+        "santa": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 60,
+          "laatsteMediaanprijs": 28900
+        },
+        "tucson": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 270,
+          "laatsteMediaanprijs": 20945
+        }
+      }
+    },
+    "iveco": {
+      "laatstActief": "2026-11-11",
+      "modellen": {
+        "40c18": {
+          "eersteKeer": null,
+          "laatstActief": "2026-08-15",
+          "laatsteAantal": 3,
+          "laatsteMediaanprijs": 32945
+        },
+        "daily": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 53,
+          "laatsteMediaanprijs": 28750
+        },
+        "eurocargo": {
+          "eersteKeer": null,
+          "laatstActief": "2026-09-14",
+          "laatsteAantal": 2,
+          "laatsteMediaanprijs": 57500
+        }
+      }
+    },
+    "jaguar": {
+      "laatstActief": "2026-11-11",
+      "modellen": {
+        "e-pace": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 57,
+          "laatsteMediaanprijs": 24999
+        },
+        "e-type": {
+          "eersteKeer": null,
+          "laatstActief": "2026-08-19",
+          "laatsteAantal": 15,
+          "laatsteMediaanprijs": 84980
+        },
+        "f-pace": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 100,
+          "laatsteMediaanprijs": 23649
+        },
+        "f-type": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 43,
+          "laatsteMediaanprijs": 39950
+        },
+        "i-pace": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 62,
+          "laatsteMediaanprijs": 21750
+        },
+        "s-type": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 69,
+          "laatsteMediaanprijs": 3750
+        },
+        "x-type": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 40,
+          "laatsteMediaanprijs": 2000
+        },
+        "xe": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 163,
+          "laatsteMediaanprijs": 8450
+        },
+        "xf": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 114,
+          "laatsteMediaanprijs": 8250
+        },
+        "xj": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 185,
+          "laatsteMediaanprijs": 11500
+        },
+        "xk": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 115,
+          "laatsteMediaanprijs": 24950
+        },
+        "xk8": {
+          "eersteKeer": null,
+          "laatstActief": "2026-10-24",
+          "laatsteAantal": 41,
+          "laatsteMediaanprijs": 11950
+        },
+        "xkr": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-05",
+          "laatsteAantal": 43,
+          "laatsteMediaanprijs": 25950
+        }
+      }
+    },
+    "jeep": {
+      "laatstActief": "2026-11-11",
+      "modellen": {
+        "avenger": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 187,
+          "laatsteMediaanprijs": 25875
+        },
+        "cherokee": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 158,
+          "laatsteMediaanprijs": 12500
+        },
+        "cj": {
+          "eersteKeer": null,
+          "laatstActief": "2026-09-14",
+          "laatsteAantal": 13,
+          "laatsteMediaanprijs": 13500
+        },
+        "cj5": {
+          "eersteKeer": null,
+          "laatstActief": "2026-09-03",
+          "laatsteAantal": 3,
+          "laatsteMediaanprijs": 15900
+        },
+        "cj7": {
+          "eersteKeer": null,
+          "laatstActief": "2026-08-15",
+          "laatsteAantal": 8,
+          "laatsteMediaanprijs": 18250
+        },
+        "commander": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-10",
+          "laatsteAantal": 4,
+          "laatsteMediaanprijs": 7950
+        },
+        "compass": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 339,
+          "laatsteMediaanprijs": 19900
+        },
+        "gladiator": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 9,
+          "laatsteMediaanprijs": 60000
+        },
+        "grand": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 101,
+          "laatsteMediaanprijs": 15950
+        },
+        "patriot": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 23,
+          "laatsteMediaanprijs": 4950
+        },
+        "renegade": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 209,
+          "laatsteMediaanprijs": 13940
+        },
+        "wagoneer": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-09",
+          "laatsteAantal": 5,
+          "laatsteMediaanprijs": 21900
+        },
+        "willys": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-03",
+          "laatsteAantal": 8,
+          "laatsteMediaanprijs": 28500
+        },
+        "wrangler": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 201,
+          "laatsteMediaanprijs": 29950
+        }
+      }
+    },
+    "kia": {
+      "laatstActief": "2026-11-11",
+      "modellen": {
+        "ceed": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 284,
+          "laatsteMediaanprijs": 19800
+        },
+        "e-niro": {
+          "eersteKeer": null,
+          "laatstActief": "2026-10-01",
+          "laatsteAantal": 48,
+          "laatsteMediaanprijs": 21995
+        },
+        "ev2": {
+          "eersteKeer": null,
+          "laatstActief": "2026-08-26",
+          "laatsteAantal": 13,
+          "laatsteMediaanprijs": 31590
+        },
+        "ev3": {
+          "eersteKeer": null,
+          "laatstActief": "2026-09-01",
+          "laatsteAantal": 8,
+          "laatsteMediaanprijs": 40895
+        },
+        "ev4": {
+          "eersteKeer": null,
+          "laatstActief": "2026-08-27",
+          "laatsteAantal": 11,
+          "laatsteMediaanprijs": 40195
+        },
+        "ev5": {
+          "eersteKeer": null,
+          "laatstActief": "2026-08-22",
+          "laatsteAantal": 7,
+          "laatsteMediaanprijs": 47390
+        },
+        "ev6": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 53,
+          "laatsteMediaanprijs": 34445
+        },
+        "ev9": {
+          "eersteKeer": null,
+          "laatstActief": "2026-09-01",
+          "laatsteAantal": 8,
+          "laatsteMediaanprijs": 74940
+        },
+        "niro": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 309,
+          "laatsteMediaanprijs": 20900
+        },
+        "picanto": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 640,
+          "laatsteMediaanprijs": 7250
+        },
+        "proceed": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 57,
+          "laatsteMediaanprijs": 20500
+        },
+        "pv5": {
+          "eersteKeer": null,
+          "laatstActief": "2026-08-18",
+          "laatsteAantal": 4,
+          "laatsteMediaanprijs": 46995
+        },
+        "rio": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 183,
+          "laatsteMediaanprijs": 6095
+        },
+        "sorento": {
+          "eersteKeer": null,
+          "laatstActief": "2026-10-26",
+          "laatsteAantal": 46,
+          "laatsteMediaanprijs": 30900
+        },
+        "sportage": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 239,
+          "laatsteMediaanprijs": 12999
+        },
+        "stonic": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 128,
+          "laatsteMediaanprijs": 17435
+        },
+        "venga": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 59,
+          "laatsteMediaanprijs": 6995
+        },
+        "xceed": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 51,
+          "laatsteMediaanprijs": 19900
+        }
+      }
+    },
+    "lamborghini": {
+      "laatstActief": "2026-11-11",
+      "modellen": {
+        "urus": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 2,
+          "laatsteMediaanprijs": 354950
+        }
+      }
+    },
+    "lancia": {
+      "laatstActief": "2026-11-09",
+      "modellen": {
+        "delta": {
+          "eersteKeer": null,
+          "laatstActief": "2026-10-22",
+          "laatsteAantal": 2,
+          "laatsteMediaanprijs": 2399
+        },
+        "kappa": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-08",
+          "laatsteAantal": 2,
+          "laatsteMediaanprijs": 11950
+        },
+        "musa": {
+          "eersteKeer": null,
+          "laatstActief": "2026-09-16",
+          "laatsteAantal": 2,
+          "laatsteMediaanprijs": 4450
+        },
+        "thema": {
+          "eersteKeer": null,
+          "laatstActief": "2026-08-29",
+          "laatsteAantal": 2,
+          "laatsteMediaanprijs": 17999
+        },
+        "ypsilon": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-09",
+          "laatsteAantal": 4,
+          "laatsteMediaanprijs": 3999
+        }
+      }
+    },
+    "land-rover": {
+      "laatstActief": "2026-11-11",
+      "modellen": {
+        "defender": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 185,
+          "laatsteMediaanprijs": 67500
+        },
+        "discovery": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 171,
+          "laatsteMediaanprijs": 17999
+        },
+        "evoque": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 374,
+          "laatsteMediaanprijs": 22950
+        },
+        "freelander": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 26,
+          "laatsteMediaanprijs": 4500
+        },
+        "land": {
+          "eersteKeer": null,
+          "laatstActief": "2026-10-16",
+          "laatsteAantal": 1609,
+          "laatsteMediaanprijs": 32440
+        },
+        "range": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 1013,
+          "laatsteMediaanprijs": 32750
+        },
+        "santana": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 4,
+          "laatsteMediaanprijs": 19500
+        },
+        "series": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 39,
+          "laatsteMediaanprijs": 15950
+        }
+      }
+    },
+    "lexus": {
+      "laatstActief": "2026-11-11",
+      "modellen": {
+        "ct": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 116,
+          "laatsteMediaanprijs": 12995
+        },
+        "ct-h": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-02",
+          "laatsteAantal": 14,
+          "laatsteMediaanprijs": 8700
+        },
+        "es": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 249,
+          "laatsteMediaanprijs": 26950
+        },
+        "gs": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 58,
+          "laatsteMediaanprijs": 18900
+        },
+        "is": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 160,
+          "laatsteMediaanprijs": 14995
+        },
+        "is-serie": {
+          "eersteKeer": null,
+          "laatstActief": "2026-09-06",
+          "laatsteAantal": 22,
+          "laatsteMediaanprijs": 20900
+        },
+        "lbx": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 80,
+          "laatsteMediaanprijs": 36495
+        },
+        "ls": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 33,
+          "laatsteMediaanprijs": 14950
+        },
+        "nx": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 115,
+          "laatsteMediaanprijs": 33299
+        },
+        "rc": {
+          "eersteKeer": null,
+          "laatstActief": "2026-10-29",
+          "laatsteAantal": 22,
+          "laatsteMediaanprijs": 26950
+        },
+        "rx": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 187,
+          "laatsteMediaanprijs": 21950
+        },
+        "rx-serie": {
+          "eersteKeer": null,
+          "laatstActief": "2026-09-10",
+          "laatsteAantal": 42,
+          "laatsteMediaanprijs": 43440
+        },
+        "rz": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-10",
+          "laatsteAantal": 17,
+          "laatsteMediaanprijs": 53995
+        },
+        "ux": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 176,
+          "laatsteMediaanprijs": 27950
+        }
+      }
+    },
+    "lynk-co": {
+      "laatstActief": "2026-11-11",
+      "modellen": {
+        "en": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 6,
+          "laatsteMediaanprijs": 23000
+        }
+      }
+    },
+    "maxus": {
+      "laatstActief": "2026-11-11",
+      "modellen": {
+        "deliver": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-08",
+          "laatsteAantal": 19,
+          "laatsteMediaanprijs": 31850
+        },
+        "edeliver": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 16,
+          "laatsteMediaanprijs": 35400
+        },
+        "ev80": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-03",
+          "laatsteAantal": 2,
+          "laatsteMediaanprijs": 18985
+        },
+        "t90": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 2,
+          "laatsteMediaanprijs": 28950
+        }
+      }
+    },
+    "mazda": {
+      "laatstActief": "2026-11-11",
+      "modellen": {
+        "6e": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 17,
+          "laatsteMediaanprijs": 42885
+        },
+        "cx-3": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 261,
+          "laatsteMediaanprijs": 17900
+        },
+        "cx-30": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 126,
+          "laatsteMediaanprijs": 22445
+        },
+        "cx-5": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 417,
+          "laatsteMediaanprijs": 18950
+        },
+        "cx-60": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 60,
+          "laatsteMediaanprijs": 38900
+        },
+        "cx-6e": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-03",
+          "laatsteAantal": 6,
+          "laatsteMediaanprijs": 49440
+        },
+        "cx-7": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 11,
+          "laatsteMediaanprijs": 4595
+        },
+        "cx-80": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 10,
+          "laatsteMediaanprijs": 55995
+        },
+        "cx-9": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-10",
+          "laatsteAantal": 8,
+          "laatsteMediaanprijs": 7750
+        },
+        "demio": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 20,
+          "laatsteMediaanprijs": 1450
+        },
+        "mx-30": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 54,
+          "laatsteMediaanprijs": 14450
+        },
+        "mx-5": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 145,
+          "laatsteMediaanprijs": 12280
+        },
+        "mx5": {
+          "eersteKeer": null,
+          "laatstActief": "2026-10-09",
+          "laatsteAantal": 9,
+          "laatsteMediaanprijs": 5950
+        },
+        "tribute": {
+          "eersteKeer": null,
+          "laatstActief": "2026-09-11",
+          "laatsteAantal": 7,
+          "laatsteMediaanprijs": 2995
+        }
+      }
+    },
+    "mercedes-benz": {
+      "laatstActief": "2026-11-11",
+      "modellen": {
+        "a-klasse": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 380,
+          "laatsteMediaanprijs": 19500
+        },
+        "b-klasse": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 93,
+          "laatsteMediaanprijs": 9950
+        },
+        "c-klasse": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 349,
+          "laatsteMediaanprijs": 22950
+        },
+        "citan": {
+          "eersteKeer": null,
+          "laatstActief": "2026-10-02",
+          "laatsteAantal": 68,
+          "laatsteMediaanprijs": 14800
+        },
+        "cla": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 221,
+          "laatsteMediaanprijs": 18450
+        },
+        "cla-klasse": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 106,
+          "laatsteMediaanprijs": 21940
+        },
+        "e-klasse": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 200,
+          "laatsteMediaanprijs": 25195
+        },
+        "ecitan": {
+          "eersteKeer": null,
+          "laatstActief": "2026-09-03",
+          "laatsteAantal": 23,
+          "laatsteMediaanprijs": 26850
+        },
+        "eqa": {
+          "eersteKeer": null,
+          "laatstActief": "2026-08-22",
+          "laatsteAantal": 20,
+          "laatsteMediaanprijs": 39940
+        },
+        "evito": {
+          "eersteKeer": null,
+          "laatstActief": "2026-09-04",
+          "laatsteAantal": 25,
+          "laatsteMediaanprijs": 24850
+        },
+        "gla": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 85,
+          "laatsteMediaanprijs": 18850
+        },
+        "gla-klasse": {
+          "eersteKeer": null,
+          "laatstActief": "2026-09-06",
+          "laatsteAantal": 34,
+          "laatsteMediaanprijs": 20950
+        },
+        "glb-klasse": {
+          "eersteKeer": null,
+          "laatstActief": "2026-08-17",
+          "laatsteAantal": 7,
+          "laatsteMediaanprijs": 68351
+        },
+        "glc": {
+          "eersteKeer": null,
+          "laatstActief": "2026-10-12",
+          "laatsteAantal": 139,
+          "laatsteMediaanprijs": 34900
+        },
+        "glc-klasse": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 61,
+          "laatsteMediaanprijs": 42950
+        },
+        "gle-klasse": {
+          "eersteKeer": null,
+          "laatstActief": "2026-09-03",
+          "laatsteAantal": 26,
+          "laatsteMediaanprijs": 64900
+        },
+        "s-klasse": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-09",
+          "laatsteAantal": 63,
+          "laatsteMediaanprijs": 19500
+        },
+        "sprinter": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 271,
+          "laatsteMediaanprijs": 27950
+        },
+        "v-klasse": {
+          "eersteKeer": null,
+          "laatstActief": "2026-08-18",
+          "laatsteAantal": 12,
+          "laatsteMediaanprijs": 46245
+        },
+        "vito": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 161,
+          "laatsteMediaanprijs": 21450
+        }
+      }
+    },
+    "mg": {
+      "laatstActief": "2026-11-11",
+      "modellen": {
+        "ehs": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 77,
+          "laatsteMediaanprijs": 19888
+        },
+        "hs": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 127,
+          "laatsteMediaanprijs": 22950
+        },
+        "marvel": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 21,
+          "laatsteMediaanprijs": 24950
+        },
+        "mg": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 722,
+          "laatsteMediaanprijs": 20900
+        },
+        "mg3": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 34,
+          "laatsteMediaanprijs": 18595
+        },
+        "mg4": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 25,
+          "laatsteMediaanprijs": 23490
+        },
+        "mg5": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 15,
+          "laatsteMediaanprijs": 18900
+        },
+        "mgb": {
+          "eersteKeer": null,
+          "laatstActief": "2026-10-30",
+          "laatsteAantal": 30,
+          "laatsteMediaanprijs": 16900
+        },
+        "mgs5": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 14,
+          "laatsteMediaanprijs": 33950
+        },
+        "mgs6": {
+          "eersteKeer": null,
+          "laatstActief": "2026-07-30",
+          "laatsteAantal": 21,
+          "laatsteMediaanprijs": 44400
+        },
+        "midget": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 15,
+          "laatsteMediaanprijs": 12000
+        },
+        "td": {
+          "eersteKeer": null,
+          "laatstActief": "2026-10-03",
+          "laatsteAantal": 13,
+          "laatsteMediaanprijs": 24950
+        },
+        "tf": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 33,
+          "laatsteMediaanprijs": 6975
+        },
+        "zs": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 152,
+          "laatsteMediaanprijs": 21995
+        }
+      }
+    },
+    "mini": {
+      "laatstActief": "2026-11-11",
+      "modellen": {
+        "3-deurs": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 229,
+          "laatsteMediaanprijs": 9445
+        },
+        "5-deurs": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 126,
+          "laatsteMediaanprijs": 15000
+        },
+        "aceman": {
+          "eersteKeer": null,
+          "laatstActief": "2026-08-15",
+          "laatsteAantal": 19,
+          "laatsteMediaanprijs": 35600
+        },
+        "cabrio": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 185,
+          "laatsteMediaanprijs": 13440
+        },
+        "clubman": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 238,
+          "laatsteMediaanprijs": 9950
+        },
+        "cooper": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 1342,
+          "laatsteMediaanprijs": 12900
+        },
+        "countryman": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 427,
+          "laatsteMediaanprijs": 17750
+        },
+        "electric": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 76,
+          "laatsteMediaanprijs": 19950
+        },
+        "hatchback": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 137,
+          "laatsteMediaanprijs": 18950
+        },
+        "john": {
+          "eersteKeer": null,
+          "laatstActief": "2026-09-07",
+          "laatsteAantal": 78,
+          "laatsteMediaanprijs": 27900
+        },
+        "mini": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 1986,
+          "laatsteMediaanprijs": 11995
+        },
+        "one": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-10",
+          "laatsteAantal": 363,
+          "laatsteMediaanprijs": 5499
+        }
+      }
+    },
+    "mitsubishi": {
+      "laatstActief": "2026-11-11",
+      "modellen": {
+        "asx": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 172,
+          "laatsteMediaanprijs": 12835
+        },
+        "canter": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 12,
+          "laatsteMediaanprijs": 11950
+        },
+        "carisma": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 12,
+          "laatsteMediaanprijs": 1850
+        },
+        "colt": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 247,
+          "laatsteMediaanprijs": 2250
+        },
+        "eclipse": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 139,
+          "laatsteMediaanprijs": 21400
+        },
+        "galant": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-04",
+          "laatsteAantal": 12,
+          "laatsteMediaanprijs": 6499
+        },
+        "grandis": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 39,
+          "laatsteMediaanprijs": 2450
+        },
+        "l200": {
+          "eersteKeer": null,
+          "laatstActief": "2026-10-04",
+          "laatsteAantal": 6,
+          "laatsteMediaanprijs": 11250
+        },
+        "lancer": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 32,
+          "laatsteMediaanprijs": 4499
+        },
+        "mitsubishi": {
+          "eersteKeer": null,
+          "laatstActief": "2026-08-21",
+          "laatsteAantal": 910,
+          "laatsteMediaanprijs": 14295
+        },
+        "outlander": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 446,
+          "laatsteMediaanprijs": 9850
+        },
+        "pajero": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 42,
+          "laatsteMediaanprijs": 8445
+        },
+        "space": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 324,
+          "laatsteMediaanprijs": 6499
+        }
+      }
+    },
+    "nissan": {
+      "laatstActief": "2026-11-11",
+      "modellen": {
+        "almera": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-04",
+          "laatsteAantal": 20,
+          "laatsteMediaanprijs": 1500
+        },
+        "ariya": {
+          "eersteKeer": null,
+          "laatstActief": "2026-09-05",
+          "laatsteAantal": 6,
+          "laatsteMediaanprijs": 39940
+        },
+        "e-nv200": {
+          "eersteKeer": null,
+          "laatstActief": "2026-10-23",
+          "laatsteAantal": 19,
+          "laatsteMediaanprijs": 10850
+        },
+        "interstar": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 24,
+          "laatsteMediaanprijs": 28750
+        },
+        "juke": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 182,
+          "laatsteMediaanprijs": 12750
+        },
+        "leaf": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 56,
+          "laatsteMediaanprijs": 13940
+        },
+        "micra": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 222,
+          "laatsteMediaanprijs": 6250
+        },
+        "navara": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-02",
+          "laatsteAantal": 23,
+          "laatsteMediaanprijs": 11950
+        },
+        "note": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 117,
+          "laatsteMediaanprijs": 3945
+        },
+        "nv200": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 32,
+          "laatsteMediaanprijs": 8950
+        },
+        "patrol": {
+          "eersteKeer": null,
+          "laatstActief": "2026-09-29",
+          "laatsteAantal": 21,
+          "laatsteMediaanprijs": 9500
+        },
+        "pixo": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 89,
+          "laatsteMediaanprijs": 2150
+        },
+        "primastar": {
+          "eersteKeer": null,
+          "laatstActief": "2026-10-15",
+          "laatsteAantal": 19,
+          "laatsteMediaanprijs": 18500
+        },
+        "pulsar": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 29,
+          "laatsteMediaanprijs": 7950
+        },
+        "qashqai": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 727,
+          "laatsteMediaanprijs": 11749
+        },
+        "skyline": {
+          "eersteKeer": null,
+          "laatstActief": "2026-08-26",
+          "laatsteAantal": 3,
+          "laatsteMediaanprijs": 299995
+        },
+        "townstar": {
+          "eersteKeer": null,
+          "laatstActief": "2026-09-22",
+          "laatsteAantal": 16,
+          "laatsteMediaanprijs": 21885
+        },
+        "x-trail": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 59,
+          "laatsteMediaanprijs": 15950
+        }
+      }
+    },
+    "opel": {
+      "laatstActief": "2026-11-11",
+      "modellen": {
+        "agila": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 94,
+          "laatsteMediaanprijs": 2750
+        },
+        "astra": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 375,
+          "laatsteMediaanprijs": 5490
+        },
+        "combo": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 81,
+          "laatsteMediaanprijs": 8950
+        },
+        "corsa": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 482,
+          "laatsteMediaanprijs": 3999
+        },
+        "corsa-e": {
+          "eersteKeer": null,
+          "laatstActief": "2026-09-05",
+          "laatsteAantal": 22,
+          "laatsteMediaanprijs": 16450
+        },
+        "crossland": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 108,
+          "laatsteMediaanprijs": 9950
+        },
+        "frontera": {
+          "eersteKeer": null,
+          "laatstActief": "2026-08-28",
+          "laatsteAantal": 18,
+          "laatsteMediaanprijs": 26735
+        },
+        "grandland": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 124,
+          "laatsteMediaanprijs": 13995
+        },
+        "insignia": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 88,
+          "laatsteMediaanprijs": 6945
+        },
+        "karl": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-09",
+          "laatsteAantal": 93,
+          "laatsteMediaanprijs": 6940
+        },
+        "meriva": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 126,
+          "laatsteMediaanprijs": 2750
+        },
+        "mokka": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 115,
+          "laatsteMediaanprijs": 10995
+        },
+        "mokka-e": {
+          "eersteKeer": null,
+          "laatstActief": "2026-09-04",
+          "laatsteAantal": 22,
+          "laatsteMediaanprijs": 21900
+        },
+        "movano": {
+          "eersteKeer": null,
+          "laatstActief": "2026-09-07",
+          "laatsteAantal": 51,
+          "laatsteMediaanprijs": 19800
+        },
+        "vivaro": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 125,
+          "laatsteMediaanprijs": 13000
+        },
+        "vivaro-e": {
+          "eersteKeer": null,
+          "laatstActief": "2026-08-20",
+          "laatsteAantal": 8,
+          "laatsteMediaanprijs": 23250
+        },
+        "zafira": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 80,
+          "laatsteMediaanprijs": 3695
+        }
+      }
+    },
+    "overig": {
+      "laatstActief": "2026-11-11",
+      "modellen": {
+        "berlingo": {
+          "eersteKeer": null,
+          "laatstActief": "2026-09-07",
+          "laatsteAantal": 15,
+          "laatsteMediaanprijs": 5950
+        },
+        "c1": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 21,
+          "laatsteMediaanprijs": 5950
+        },
+        "c3": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 50,
+          "laatsteMediaanprijs": 10950
+        },
+        "c4": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 41,
+          "laatsteMediaanprijs": 9950
+        },
+        "c5": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-08",
+          "laatsteAantal": 20,
+          "laatsteMediaanprijs": 24240
+        },
+        "ds3": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 163,
+          "laatsteMediaanprijs": 3950
+        },
+        "ds4": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 35,
+          "laatsteMediaanprijs": 5950
+        },
+        "ds5": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-10",
+          "laatsteAantal": 20,
+          "laatsteMediaanprijs": 6395
+        },
+        "e-c4": {
+          "eersteKeer": null,
+          "laatstActief": "2026-08-20",
+          "laatsteAantal": 6,
+          "laatsteMediaanprijs": 15895
+        },
+        "fiat": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-10",
+          "laatsteAantal": 37,
+          "laatsteMediaanprijs": 5000
+        },
+        "ford": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-10",
+          "laatsteAantal": 29,
+          "laatsteMediaanprijs": 5950
+        },
+        "grand": {
+          "eersteKeer": null,
+          "laatstActief": "2026-08-18",
+          "laatsteAantal": 6,
+          "laatsteMediaanprijs": 11450
+        },
+        "jaguar": {
+          "eersteKeer": null,
+          "laatstActief": "2026-09-03",
+          "laatsteAantal": 11,
+          "laatsteMediaanprijs": 13500
+        },
+        "jeep": {
+          "eersteKeer": null,
+          "laatstActief": "2026-09-10",
+          "laatsteAantal": 31,
+          "laatsteMediaanprijs": 19500
+        },
+        "koop": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 70,
+          "laatsteMediaanprijs": 4950
+        },
+        "mini": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 40,
+          "laatsteMediaanprijs": 8900
+        },
+        "mooie": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-09",
+          "laatsteAantal": 49,
+          "laatsteMediaanprijs": 7450
+        },
+        "nette": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 84,
+          "laatsteMediaanprijs": 3950
+        },
+        "rover": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 84,
+          "laatsteMediaanprijs": 21500
+        },
+        "seres": {
+          "eersteKeer": null,
+          "laatstActief": "2026-08-19",
+          "laatsteAantal": 4,
+          "laatsteMediaanprijs": 14649
+        },
+        "smart": {
+          "eersteKeer": null,
+          "laatstActief": "2026-09-08",
+          "laatsteAantal": 23,
+          "laatsteMediaanprijs": 2800
+        },
+        "tge": {
+          "eersteKeer": null,
+          "laatstActief": "2026-09-08",
+          "laatsteAantal": 20,
+          "laatsteMediaanprijs": 25800
+        },
+        "volkswagen": {
+          "eersteKeer": null,
+          "laatstActief": "2026-10-08",
+          "laatsteAantal": 33,
+          "laatsteMediaanprijs": 6950
+        },
+        "wrangler": {
+          "eersteKeer": null,
+          "laatstActief": "2026-09-05",
+          "laatsteAantal": 13,
+          "laatsteMediaanprijs": 24950
+        }
+      }
+    },
+    "peugeot": {
+      "laatstActief": "2026-11-11",
+      "modellen": {
+        "bipper": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 7,
+          "laatsteMediaanprijs": 3500
+        },
+        "boxer": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 35,
+          "laatsteMediaanprijs": 13250
+        },
+        "e-2008": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 23,
+          "laatsteMediaanprijs": 18450
+        },
+        "e-208": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 32,
+          "laatsteMediaanprijs": 15950
+        },
+        "e-3008": {
+          "eersteKeer": null,
+          "laatstActief": "2026-09-09",
+          "laatsteAantal": 3,
+          "laatsteMediaanprijs": 53579
+        },
+        "e-308": {
+          "eersteKeer": null,
+          "laatstActief": "2026-09-04",
+          "laatsteAantal": 3,
+          "laatsteMediaanprijs": 42800
+        },
+        "e-5008": {
+          "eersteKeer": null,
+          "laatstActief": "2026-08-30",
+          "laatsteAantal": 3,
+          "laatsteMediaanprijs": 53890
+        },
+        "e-expert": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 11,
+          "laatsteMediaanprijs": 22900
+        },
+        "e-rifter": {
+          "eersteKeer": null,
+          "laatstActief": "2026-09-05",
+          "laatsteAantal": 3,
+          "laatsteMediaanprijs": 26899
+        },
+        "expert": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 68,
+          "laatsteMediaanprijs": 14950
+        },
+        "partner": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 108,
+          "laatsteMediaanprijs": 6500
+        },
+        "rcz": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 15,
+          "laatsteMediaanprijs": 6950
+        },
+        "rifter": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 9,
+          "laatsteMediaanprijs": 16700
+        }
+      }
+    },
+    "porsche": {
+      "laatstActief": "2026-11-11",
+      "modellen": {
+        "356b": {
+          "eersteKeer": null,
+          "laatstActief": "2026-09-19",
+          "laatsteAantal": 2,
+          "laatsteMediaanprijs": 99950
+        },
+        "911e": {
+          "eersteKeer": null,
+          "laatstActief": "2026-09-17",
+          "laatsteAantal": 2,
+          "laatsteMediaanprijs": 115000
+        },
+        "924s": {
+          "eersteKeer": null,
+          "laatstActief": "2026-10-29",
+          "laatsteAantal": 2,
+          "laatsteMediaanprijs": 19900
+        },
+        "boxster": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 74,
+          "laatsteMediaanprijs": 21950
+        },
+        "boxter": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-08",
+          "laatsteAantal": 2,
+          "laatsteMediaanprijs": 8750
+        },
+        "carrera": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-03",
+          "laatsteAantal": 267,
+          "laatsteMediaanprijs": 75000
+        },
+        "cayenne": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 517,
+          "laatsteMediaanprijs": 47999
+        },
+        "cayman": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 32,
+          "laatsteMediaanprijs": 41981
+        },
+        "macan": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 174,
+          "laatsteMediaanprijs": 36950
+        },
+        "panamera": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 207,
+          "laatsteMediaanprijs": 54800
+        },
+        "targa": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 39,
+          "laatsteMediaanprijs": 79945
+        },
+        "taycan": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 91,
+          "laatsteMediaanprijs": 61700
+        }
+      }
+    },
+    "renault": {
+      "laatstActief": "2026-11-11",
+      "modellen": {
+        "arkana": {
+          "eersteKeer": null,
+          "laatstActief": "2026-08-28",
+          "laatsteAantal": 19,
+          "laatsteMediaanprijs": 20950
+        },
+        "captur": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 231,
+          "laatsteMediaanprijs": 9445
+        },
+        "clio": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 395,
+          "laatsteMediaanprijs": 5350
+        },
+        "grand": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 94,
+          "laatsteMediaanprijs": 5399
+        },
+        "kadjar": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-04",
+          "laatsteAantal": 87,
+          "laatsteMediaanprijs": 12445
+        },
+        "kangoo": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 100,
+          "laatsteMediaanprijs": 4999
+        },
+        "master": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 155,
+          "laatsteMediaanprijs": 20800
+        },
+        "megane": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 84,
+          "laatsteMediaanprijs": 9450
+        },
+        "trafic": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 131,
+          "laatsteMediaanprijs": 15949
+        },
+        "twingo": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 275,
+          "laatsteMediaanprijs": 3250
+        },
+        "zoe": {
+          "eersteKeer": null,
+          "laatstActief": "2026-09-05",
+          "laatsteAantal": 31,
+          "laatsteMediaanprijs": 10440
+        }
+      }
+    },
+    "saab": {
+      "laatstActief": "2026-11-11",
+      "modellen": {
+        "9-3": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 8,
+          "laatsteMediaanprijs": 5500
+        },
+        "9-5": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-08",
+          "laatsteAantal": 6,
+          "laatsteMediaanprijs": 3999
+        }
+      }
+    },
+    "seat": {
+      "laatstActief": "2026-11-11",
+      "modellen": {
+        "alhambra": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 26,
+          "laatsteMediaanprijs": 6950
+        },
+        "altea": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 113,
+          "laatsteMediaanprijs": 2450
+        },
+        "arona": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 172,
+          "laatsteMediaanprijs": 14950
+        },
+        "arosa": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 22,
+          "laatsteMediaanprijs": 1249
+        },
+        "ateca": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 162,
+          "laatsteMediaanprijs": 17000
+        },
+        "cupra": {
+          "eersteKeer": null,
+          "laatstActief": "2026-09-01",
+          "laatsteAantal": 53,
+          "laatsteMediaanprijs": 13000
+        },
+        "exeo": {
+          "eersteKeer": null,
+          "laatstActief": "2026-08-25",
+          "laatsteAantal": 2,
+          "laatsteMediaanprijs": 2445
+        },
+        "ibiza": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 660,
+          "laatsteMediaanprijs": 6499
+        },
+        "leon": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 700,
+          "laatsteMediaanprijs": 11945
+        },
+        "mii": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 125,
+          "laatsteMediaanprijs": 6350
+        },
+        "tarraco": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 71,
+          "laatsteMediaanprijs": 24850
+        },
+        "toledo": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 21,
+          "laatsteMediaanprijs": 3650
+        }
+      }
+    },
+    "skoda": {
+      "laatstActief": "2026-11-11",
+      "modellen": {
+        "citigo": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 95,
+          "laatsteMediaanprijs": 6000
+        },
+        "elroq": {
+          "eersteKeer": null,
+          "laatstActief": "2026-09-04",
+          "laatsteAantal": 10,
+          "laatsteMediaanprijs": 44849
+        },
+        "enyaq": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 115,
+          "laatsteMediaanprijs": 26840
+        },
+        "epiq": {
+          "eersteKeer": null,
+          "laatstActief": "2026-08-25",
+          "laatsteAantal": 9,
+          "laatsteMediaanprijs": 34990
+        },
+        "fabia": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 401,
+          "laatsteMediaanprijs": 6250
+        },
+        "kamiq": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 134,
+          "laatsteMediaanprijs": 18600
+        },
+        "karoq": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 130,
+          "laatsteMediaanprijs": 19999
+        },
+        "kodiaq": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 194,
+          "laatsteMediaanprijs": 26888
+        },
+        "octavia": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 458,
+          "laatsteMediaanprijs": 12950
+        },
+        "peaq": {
+          "eersteKeer": null,
+          "laatstActief": "2026-08-19",
+          "laatsteAantal": 3,
+          "laatsteMediaanprijs": 67860
+        },
+        "rapid": {
+          "eersteKeer": null,
+          "laatstActief": "2026-10-16",
+          "laatsteAantal": 57,
+          "laatsteMediaanprijs": 7950
+        },
+        "scala": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 75,
+          "laatsteMediaanprijs": 15940
+        },
+        "superb": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 179,
+          "laatsteMediaanprijs": 17409
+        },
+        "yeti": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 70,
+          "laatsteMediaanprijs": 6150
+        }
+      }
+    },
+    "smart": {
+      "laatstActief": "2026-11-11",
+      "modellen": {
+        "brabus": {
+          "eersteKeer": null,
+          "laatstActief": "2026-10-29",
+          "laatsteAantal": 81,
+          "laatsteMediaanprijs": 33990
+        },
+        "cabrio": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 72,
+          "laatsteMediaanprijs": 5999
+        },
+        "crossblade": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 2,
+          "laatsteMediaanprijs": 31950
+        },
+        "eq": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-09",
+          "laatsteAantal": 32,
+          "laatsteMediaanprijs": 12490
+        },
+        "for": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 313,
+          "laatsteMediaanprijs": 5499
+        },
+        "forfour": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 117,
+          "laatsteMediaanprijs": 5750
+        },
+        "fortwo": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 164,
+          "laatsteMediaanprijs": 5450
+        },
+        "microlino": {
+          "eersteKeer": null,
+          "laatstActief": "2026-09-26",
+          "laatsteAantal": 2,
+          "laatsteMediaanprijs": 12950
+        },
+        "roadster": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 48,
+          "laatsteMediaanprijs": 5450
+        },
+        "smart": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 436,
+          "laatsteMediaanprijs": 6000
+        }
+      }
+    },
+    "subaru": {
+      "laatstActief": "2026-11-11",
+      "modellen": {
+        "crosstrek": {
+          "eersteKeer": null,
+          "laatstActief": "2026-09-16",
+          "laatsteAantal": 5,
+          "laatsteMediaanprijs": 46750
+        },
+        "forester": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 191,
+          "laatsteMediaanprijs": 9250
+        },
+        "impreza": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 77,
+          "laatsteMediaanprijs": 8475
+        },
+        "justy": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 30,
+          "laatsteMediaanprijs": 1999
+        },
+        "legacy": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 50,
+          "laatsteMediaanprijs": 3450
+        },
+        "levorg": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-09",
+          "laatsteAantal": 8,
+          "laatsteMediaanprijs": 14400
+        },
+        "outback": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 73,
+          "laatsteMediaanprijs": 9999
+        },
+        "solterra": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 12,
+          "laatsteMediaanprijs": 29950
+        },
+        "trezia": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 11,
+          "laatsteMediaanprijs": 4950
+        },
+        "uncharted": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-09",
+          "laatsteAantal": 8,
+          "laatsteMediaanprijs": 43350
+        },
+        "wrx": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-09",
+          "laatsteAantal": 38,
+          "laatsteMediaanprijs": 19999
+        },
+        "xv": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 67,
+          "laatsteMediaanprijs": 14450
+        }
+      }
+    },
+    "suzuki": {
+      "laatstActief": "2026-11-11",
+      "modellen": {
+        "alto": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 247,
+          "laatsteMediaanprijs": 2750
+        },
+        "baleno": {
+          "eersteKeer": null,
+          "laatstActief": "2026-08-15",
+          "laatsteAantal": 7,
+          "laatsteMediaanprijs": 9494
+        },
+        "celerio": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 59,
+          "laatsteMediaanprijs": 5900
+        },
+        "e-vitara": {
+          "eersteKeer": null,
+          "laatstActief": "2026-07-30",
+          "laatsteAantal": 61,
+          "laatsteMediaanprijs": 36400
+        },
+        "grand": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-10",
+          "laatsteAantal": 59,
+          "laatsteMediaanprijs": 6000
+        },
+        "ignis": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 171,
+          "laatsteMediaanprijs": 14690
+        },
+        "jimny": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 67,
+          "laatsteMediaanprijs": 8950
+        },
+        "s-cross": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 160,
+          "laatsteMediaanprijs": 21499
+        },
+        "splash": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 105,
+          "laatsteMediaanprijs": 3750
+        },
+        "swift": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 619,
+          "laatsteMediaanprijs": 7950
+        },
+        "sx4": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 86,
+          "laatsteMediaanprijs": 4250
+        },
+        "vitara": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 329,
+          "laatsteMediaanprijs": 18950
+        },
+        "wagon": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 61,
+          "laatsteMediaanprijs": 1450
+        }
+      }
+    },
+    "tesla": {
+      "laatstActief": "2026-11-11",
+      "modellen": {
+        "hearse": {
+          "eersteKeer": null,
+          "laatstActief": "2026-07-30",
+          "laatsteAantal": 2,
+          "laatsteMediaanprijs": 105950
+        },
+        "model": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 912,
+          "laatsteMediaanprijs": 29950
+        },
+        "motors": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 3,
+          "laatsteMediaanprijs": 22950
+        },
+        "roadster": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-07",
+          "laatsteAantal": 2,
+          "laatsteMediaanprijs": 109950
+        }
+      }
+    },
+    "toyota": {
+      "laatstActief": "2026-11-11",
+      "modellen": {
+        "auris": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 109,
+          "laatsteMediaanprijs": 9750
+        },
+        "avensis": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 48,
+          "laatsteMediaanprijs": 5450
+        },
+        "aygo": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 603,
+          "laatsteMediaanprijs": 4750
+        },
+        "bz4x": {
+          "eersteKeer": null,
+          "laatstActief": "2026-09-08",
+          "laatsteAantal": 30,
+          "laatsteMediaanprijs": 39900
+        },
+        "c-hr": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 162,
+          "laatsteMediaanprijs": 19995
+        },
+        "corolla": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 156,
+          "laatsteMediaanprijs": 19995
+        },
+        "land": {
+          "eersteKeer": null,
+          "laatstActief": "2026-10-27",
+          "laatsteAantal": 81,
+          "laatsteMediaanprijs": 26450
+        },
+        "landcruiser": {
+          "eersteKeer": null,
+          "laatstActief": "2026-10-02",
+          "laatsteAantal": 32,
+          "laatsteMediaanprijs": 19900
+        },
+        "mirai": {
+          "eersteKeer": null,
+          "laatstActief": "2026-10-09",
+          "laatsteAantal": 32,
+          "laatsteMediaanprijs": 18450
+        },
+        "prius": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 78,
+          "laatsteMediaanprijs": 9000
+        },
+        "proace": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 82,
+          "laatsteMediaanprijs": 18950
+        },
+        "rav4": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 153,
+          "laatsteMediaanprijs": 18900
+        },
+        "starlet": {
+          "eersteKeer": null,
+          "laatstActief": "2026-10-13",
+          "laatsteAantal": 30,
+          "laatsteMediaanprijs": 2350
+        },
+        "urban": {
+          "eersteKeer": null,
+          "laatstActief": "2026-08-28",
+          "laatsteAantal": 10,
+          "laatsteMediaanprijs": 37600
+        },
+        "verso": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 97,
+          "laatsteMediaanprijs": 5995
+        },
+        "yaris": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 624,
+          "laatsteMediaanprijs": 11445
+        }
+      }
+    },
+    "volkswagen": {
+      "laatstActief": "2026-11-11",
+      "modellen": {
+        "caddy": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 135,
+          "laatsteMediaanprijs": 8950
+        },
+        "crafter": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 88,
+          "laatsteMediaanprijs": 23900
+        },
+        "golf": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 661,
+          "laatsteMediaanprijs": 11495
+        },
+        "passat": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 102,
+          "laatsteMediaanprijs": 11450
+        },
+        "polo": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 532,
+          "laatsteMediaanprijs": 8950
+        },
+        "t-cross": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-10",
+          "laatsteAantal": 49,
+          "laatsteMediaanprijs": 18885
+        },
+        "t-roc": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 149,
+          "laatsteMediaanprijs": 19900
+        },
+        "taigo": {
+          "eersteKeer": null,
+          "laatstActief": "2026-07-30",
+          "laatsteAantal": 55,
+          "laatsteMediaanprijs": 23440
+        },
+        "tiguan": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 239,
+          "laatsteMediaanprijs": 19895
+        },
+        "touran": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 49,
+          "laatsteMediaanprijs": 7750
+        },
+        "transporter": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 166,
+          "laatsteMediaanprijs": 18950
+        }
+      }
+    },
+    "volvo": {
+      "laatstActief": "2026-11-11",
+      "modellen": {
+        "c30": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 59,
+          "laatsteMediaanprijs": 3795
+        },
+        "c40": {
+          "eersteKeer": null,
+          "laatstActief": "2026-09-03",
+          "laatsteAantal": 100,
+          "laatsteMediaanprijs": 29800
+        },
+        "c70": {
+          "eersteKeer": null,
+          "laatstActief": "2026-09-12",
+          "laatsteAantal": 109,
+          "laatsteMediaanprijs": 6450
+        },
+        "es90": {
+          "eersteKeer": null,
+          "laatstActief": "2026-08-26",
+          "laatsteAantal": 15,
+          "laatsteMediaanprijs": 72900
+        },
+        "ex30": {
+          "eersteKeer": null,
+          "laatstActief": "2026-09-06",
+          "laatsteAantal": 32,
+          "laatsteMediaanprijs": 35900
+        },
+        "ex40": {
+          "eersteKeer": null,
+          "laatstActief": "2026-09-04",
+          "laatsteAantal": 18,
+          "laatsteMediaanprijs": 47900
+        },
+        "ex90": {
+          "eersteKeer": null,
+          "laatstActief": "2026-08-31",
+          "laatsteAantal": 11,
+          "laatsteMediaanprijs": 100790
+        },
+        "s60": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 113,
+          "laatsteMediaanprijs": 9900
+        },
+        "s80": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-06",
+          "laatsteAantal": 64,
+          "laatsteMediaanprijs": 4999
+        },
+        "v40": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 240,
+          "laatsteMediaanprijs": 8645
+        },
+        "v50": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 101,
+          "laatsteMediaanprijs": 2800
+        },
+        "v60": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 335,
+          "laatsteMediaanprijs": 17900
+        },
+        "v70": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 256,
+          "laatsteMediaanprijs": 4900
+        },
+        "v90": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 74,
+          "laatsteMediaanprijs": 23409
+        },
+        "xc40": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 233,
+          "laatsteMediaanprijs": 25850
+        },
+        "xc60": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 285,
+          "laatsteMediaanprijs": 31400
+        },
+        "xc70": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-10",
+          "laatsteAantal": 63,
+          "laatsteMediaanprijs": 7950
+        },
+        "xc90": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-11",
+          "laatsteAantal": 219,
+          "laatsteMediaanprijs": 25950
+        }
+      }
+    },
+    "zeekr": {
+      "laatstActief": "2026-11-07",
+      "modellen": {
+        "7x": {
+          "eersteKeer": null,
+          "laatstActief": "2026-11-06",
+          "laatsteAantal": 2,
+          "laatsteMediaanprijs": 53899
+        }
+      }
+    }
+  }
+}

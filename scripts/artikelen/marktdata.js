@@ -146,6 +146,11 @@ function stats(items) {
   };
 }
 
+function heeftAanbod(bestand) {
+  if (!fs.existsSync(bestand)) return false;
+  return !/<meta name="robots" content="noindex/.test(fs.readFileSync(bestand, 'utf-8'));
+}
+
 // Zelfde mapnaam-logica als occasions/, maar dan voor de marktanalyse-pagina's
 // (prijstrend/afschrijving) -- een sterk interne-linkdoel voor modelgidsen.
 function paginaUrl(sectie, merk, model, rootDir) {
@@ -155,10 +160,13 @@ function paginaUrl(sectie, merk, model, rootDir) {
   if (!fs.existsSync(merkDir)) return null;
   // marktanalyse/ heeft (anders dan occasions/) geen merk-indexpagina, dus de
   // merk-URL is alleen een geldige fallback als die index ook echt bestaat.
-  const merkUrl = fs.existsSync(path.join(merkDir, 'index.html')) ? '/' + sectie + '/' + merkSlug + '/' : null;
+  const merkUrl = heeftAanbod(path.join(merkDir, 'index.html')) ? '/' + sectie + '/' + merkSlug + '/' : null;
   if (!model) return merkUrl;
   const want = String(model).toLowerCase();
-  const hit = fs.readdirSync(merkDir).filter(d => fs.existsSync(path.join(merkDir, d, 'index.html')))
+  // Pagina's met "tijdelijk geen aanbod" (noindex, zie buildGeenAanbodPage()
+  // in generate-occasions.js) bestaan wel, maar zijn een zwak linkdoel voor
+  // een nieuw artikel -- dan liever de merkpagina.
+  const hit = fs.readdirSync(merkDir).filter(d => heeftAanbod(path.join(merkDir, d, 'index.html')))
     .find(d => d === want || d === want.replace(/\s+/g, '-') || d === slugifyMerk(want));
   return hit ? '/' + sectie + '/' + merkSlug + '/' + hit + '/' : merkUrl;
 }
