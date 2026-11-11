@@ -163,8 +163,14 @@ naar de beurthistorie").
 
 **Scanbaarheid**
 - Korte alinea's (2-4 zinnen), korte zinnen, actieve vorm.
-- Gebruik bullets voor opsommingen (prijsranges, aandachtspunten, stappen) in plaats van
-  lopende tekst met veel komma's.
+- Bullets spaarzaam: hooguit één korte lijst (3-5 punten) per artikel, alleen waar het echt
+  een opsomming is (bv. stappen bij een proefrit). Prijzen per bouwjaar, verdelingen en
+  budgetadvies schrijf je als lopende tekst met ranges ("een Golf 7 uit 2013 begint rond
+  €8.500, een late uit 2019 staat rond €16.500"), niet als rijtje getallen.
+- Cijfers doseren: per alinea hooguit twee of drie getallen. Rond af (€8.500, ruim
+  150.000 km) en kies de cijfers die de vraag beantwoorden, niet alles wat de data levert.
+  Steekproef en peildatum noem je in de intro, bij het eerste marktcijfer en in de
+  verantwoording, niet in elke sectie opnieuw.
 - Vet de kernterm of het kerncijfer in een alinea aan als dat het scannen vergemakkelijkt —
   niet overmatig.
 

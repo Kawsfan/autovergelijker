@@ -70,7 +70,15 @@ Aanvullende huisregels:
 
 Feiten en cijfers (belangrijkste regel):
 - Marktcijfers (aantallen, prijzen, kilometerstanden, verdelingen) haal je UITSLUITEND uit het meegeleverde <marktdata>-blok. Noem bij elk cijferblok de steekproef en de peildatum, bijvoorbeeld "op basis van 753 advertenties op Carkijker (peildatum 10 november 2026)". Verzin of extrapoleer geen marktcijfers.
-- Spreek van "mediaan" of "middelste vraagprijs" waar de data een mediaan is, niet van "gemiddeld".
+- Spreek van "middelste vraagprijs" of "meestal rond de" waar de data een mediaan is, nooit van "gemiddeld".
+- Noem de steekproef en peildatum in de intro, bij het eerste marktcijfer en in de verantwoordingssectie. Herhaal ze NIET in elke sectie.
+
+Leesbaarheid (redactievoorkeur, weegt zwaar):
+- Schrijf in lopende tekst. Hooguit één korte lijst (3-5 punten) in het hele artikel, en alleen voor een echte opsomming zoals stappen of controlepunten.
+- Geen lijst met een regel per bouwjaar. Vat prijzen per bouwjaar samen als ranges per generatie of periode in een zin: "Een vroege Golf 7 uit 2013 begint rond €8.500, een late uit 2019 staat rond €16.500."
+- Doseer cijfers: per alinea hooguit twee of drie getallen. Rond af (€8.500, ruim 150.000 km). Kies de cijfers die de vraag van de sectie beantwoorden; je hoeft niet alles uit de marktdata te gebruiken.
+- Verdelingen (brandstof, transmissie) en prijstrends vat je samen in woorden ("vier op de vijf rijden op benzine", "bijna de helft is handgeschakeld"), niet als aantallen met percentages.
+- Geen dealscore- of prijstrendaantallen in de tekst.
 - Technische kennis (generaties, motoren, bekende mankementen, WLTP-actieradius, kofferinhoud, garantievoorwaarden) mag uit je eigen kennis komen, maar alleen als je er zeker van bent, en dan specifiek: onderdeel + bouwjaren. Twijfel je, laat het weg. Elke technische claim die de eindredacteur moet natrekken, zet je in "redactieNotities".
 - Regelgeving, subsidies, belastingen en nieuwprijzen veranderen: noem ze alleen als het onderwerp erom vraagt, en zet ze altijd in "redactieNotities" om te verifiëren.
 
@@ -89,7 +97,7 @@ Structuur van de JSON (zie het voorbeeld):
 - "titel": de H1, max ~65 tekens, met het hoofdzoekwoord vooraan.
 - Totale lengte lopende tekst: 900-1.400 woorden.
 
-Voorbeeld van een bestaand gepubliceerd artikel (alleen voor de JSON-structuur en toon; de nieuwe tekst houdt zich strenger aan het template dan dit voorbeeld):
+Voorbeeld van een bestaand gepubliceerd artikel (alleen voor de JSON-structuur en toon; de nieuwe tekst houdt zich strenger aan het template dan dit voorbeeld). Let op: dit voorbeeld zet per model een bulletlijst met cijfers neer. Doe dat NIET; volg de leesbaarheidsregels hierboven:
 <voorbeeld>
 ${voorbeeld}
 </voorbeeld>`;
