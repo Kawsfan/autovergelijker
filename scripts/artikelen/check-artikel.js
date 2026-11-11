@@ -109,6 +109,13 @@ function checkArtikel(art, opties) {
   }
   if (/>\s*(klik hier|hier|deze link)\s*</i.test(alles)) fouten.push('Linktekst "klik hier"/"hier" (template §5: beschrijvende linktekst)');
 
+  // Redactievoorkeur (zie template §5 Scanbaarheid): lopende tekst, hooguit
+  // één korte lijst. Waarschuwing, geen fout: de eindredactie beslist.
+  const html = (art.secties || []).map(s => s.html || '').join('');
+  const nLijsten = (html.match(/<(ul|ol)[\s>]/gi) || []).length;
+  const nItems = (html.match(/<li[\s>]/gi) || []).length;
+  if (nLijsten > 1 || nItems > 6) waarschuwingen.push(nLijsten + ' lijsten / ' + nItems + ' bullets; redactievoorkeur is hooguit één korte lijst (3-5 punten)');
+
   const totaal = woorden(art.intro) + (art.secties || []).reduce((n, s) => n + woorden(s.html), 0);
   if (totaal < 700) waarschuwingen.push('Artikel is ' + totaal + ' woorden; dun voor een gids (streef 900-1.400)');
   if (totaal > 1800) waarschuwingen.push('Artikel is ' + totaal + ' woorden; scanbaarheid lijdt boven ~1.800');
