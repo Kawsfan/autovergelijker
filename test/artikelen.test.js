@@ -37,7 +37,7 @@ test('stats: mediaan, kwartielen en prijs per bouwjaar (alleen jaren met >=5 stu
   assert.equal(s.prijs.mediaan, 11000);
   assert.deepEqual(s.prijsPerBouwjaar.map(r => r.bouwjaar), [2016]);
   assert.equal(s.prijsPerBouwjaar[0].mediaanPrijs, 10000);
-  assert.equal(s.aanbieder.particulier, 6);
+  assert.equal(s.aanbieder, undefined, 'onbetrouwbare dealer/particulier-verdeling hoort niet in de marktdata');
 });
 
 test('filters en uitsluiting van verdacht goedkope advertenties', () => {
