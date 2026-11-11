@@ -10,7 +10,7 @@
 
 const fs = require('fs');
 const path = require('path');
-const { slugifyMerk, isDealer } = require('../../lib/carkijker-core');
+const { slugifyMerk } = require('../../lib/carkijker-core');
 
 const ROOT = path.join(__dirname, '..', '..');
 
@@ -121,9 +121,11 @@ function stats(items) {
       return { bouwjaar: j, aantal: p.length, mediaanPrijs: rond(kwantiel(p, 0.5), 50), mediaanKm: rond(kwantiel(k, 0.5), 1000) };
     });
 
-  const dealer = items.map(isDealer);
-  const nDealer = dealer.filter(d => d === true).length;
-  const nParticulier = dealer.filter(d => d === false).length;
+  // Bewust GEEN dealer/particulier-verdeling: isDealer() telt elke
+  // Marktplaats-advertentie zonder "dealer"/"garage" e.d. in de titel als
+  // particulier, terwijl veel dealers dat niet in de titel zetten. Prima voor
+  // een badge per advertentie, maar als percentage in een artikel misleidend
+  // (het Golf-concept, PR #178, noemde zo "87% particulier").
   const scores = items.map(a => a.dealScore).filter(s => typeof s === 'number');
 
   return {
@@ -139,7 +141,6 @@ function stats(items) {
     prijsPerBouwjaar,
     brandstof: verdeling(items, a => normBrandstof(a.brandstof)),
     transmissie: verdeling(items, a => normTransmissie(a.transmissie)),
-    aanbieder: { dealer: nDealer, particulier: nParticulier, onbekend: items.length - nDealer - nParticulier },
     prijsTrend: verdeling(items, a => a.priceTrend || 'onbekend'),
     mediaanDealScore: scores.length ? kwantiel(scores.sort((x, y) => x - y), 0.5) : null,
   };
