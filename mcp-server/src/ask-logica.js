@@ -50,6 +50,8 @@ function valideerVraag(vraag) {
 async function voerAskLoop(vraag, anthropicCall, toolCall, toolDefs) {
   var berichten = [{ role: 'user', content: vraag }];
   var laatsteZoekresultaat = null;
+  var laatsteTotaalGevonden = null;
+  var laatsteMarktStats = null;
 
   for (var i = 0; i < MAX_TOOL_ITERATIES; i++) {
     var response = await anthropicCall(berichten, toolDefs);
@@ -58,7 +60,12 @@ async function voerAskLoop(vraag, anthropicCall, toolCall, toolDefs) {
 
     if (!toolUses.length) {
       var tekstBlok = inhoud.find(function (b) { return b.type === 'text'; });
-      return { antwoord: tekstBlok ? tekstBlok.text : '', resultaten: laatsteZoekresultaat };
+      return {
+        antwoord: tekstBlok ? tekstBlok.text : '',
+        resultaten: laatsteZoekresultaat,
+        totaalGevonden: laatsteTotaalGevonden,
+        marktStats: laatsteMarktStats,
+      };
     }
 
     berichten.push({ role: 'assistant', content: inhoud });
@@ -70,7 +77,12 @@ async function voerAskLoop(vraag, anthropicCall, toolCall, toolDefs) {
         // dataVoorFrontend (optioneel, bevat o.a. imgSrc) gaat NIET naar het
         // taalmodel -- alleen uitkomst.data (zonder imgSrc) komt in het
         // tool_result hieronder terecht. Zie tools.js: compacteListing().
-        laatsteZoekresultaat = (uitkomst.dataVoorFrontend || uitkomst.data).resultaten;
+        var frontendData = uitkomst.dataVoorFrontend || uitkomst.data;
+        laatsteZoekresultaat = frontendData.resultaten;
+        laatsteTotaalGevonden = frontendData.totaalGevonden;
+      }
+      if (tu.name === 'get_market_stats' && uitkomst.ok) {
+        laatsteMarktStats = uitkomst.data;
       }
       toolResults.push({
         type: 'tool_result',
@@ -86,6 +98,8 @@ async function voerAskLoop(vraag, anthropicCall, toolCall, toolDefs) {
     antwoord: 'Kon binnen het aantal zoekstappen geen eenduidig antwoord vinden. ' +
       'Probeer je vraag specifieker te stellen (bijv. met merk, prijs of bouwjaar).',
     resultaten: laatsteZoekresultaat,
+    totaalGevonden: laatsteTotaalGevonden,
+    marktStats: laatsteMarktStats,
   };
 }
 
