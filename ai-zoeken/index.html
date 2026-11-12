@@ -130,6 +130,74 @@
 
   .disclaimer { font-size: 11.5px; color: var(--muted); line-height: 1.6; margin-top: 20px; text-align: center; }
   .disclaimer a { color: var(--oranje); }
+
+  /* Favorieten/vergelijk-knoppen op resultaatkaarten -- zelfde idee en
+     localStorage-sleutel (_av_favs) als de hoofdsite (js/18-favorieten-
+     vergelijk.js), maar hier zelfstandig geimplementeerd: deze pagina heeft
+     niet de favorietenpanel-/vergelijk-modal-DOM van de hoofdsite
+     beschikbaar (en wil ook niet alle hoofdsite-JS/afhankelijkheden
+     meeslepen voor één knopje). */
+  .rk-acties { display: flex; flex-direction: column; gap: 5px; flex: 0 0 auto; }
+  .rk-actie-btn {
+    width: 24px; height: 24px; border-radius: 50%; border: 1px solid var(--border); background: #fff;
+    display: flex; align-items: center; justify-content: center; font-size: 13px; cursor: pointer;
+    color: var(--muted); line-height: 1; padding: 0;
+  }
+  .rk-actie-btn.fav-actief { color: #ef4444; border-color: #fecaca; }
+  .rk-actie-btn.vgl-actief { color: var(--oranje); border-color: var(--oranje); background: #fdf1ec; }
+
+  .rk-chip svg { vertical-align: -1.5px; margin-right: 3px; }
+  .chip svg { vertical-align: -2px; margin-right: 4px; }
+
+  .top-acties { display: flex; justify-content: center; margin-top: 14px; }
+  .nieuw-gesprek-btn {
+    background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.2); color: rgba(255,255,255,.85);
+    font-size: 12.5px; padding: 6px 14px; border-radius: 999px; cursor: pointer; display: none;
+  }
+  .nieuw-gesprek-btn:hover { background: rgba(255,255,255,.18); }
+
+  .telling { font-size: 12px; color: var(--muted); margin-top: 10px; }
+
+  .markt-kaart {
+    border: 1px solid var(--border); border-radius: var(--radius); background: var(--card);
+    padding: 14px 16px; margin-top: 12px;
+  }
+  .markt-kaart h4 { font-size: 13px; font-weight: 800; margin-bottom: 10px; }
+  .markt-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(90px, 1fr)); gap: 10px; }
+  .markt-stat .label { font-size: 10.5px; color: var(--muted); text-transform: uppercase; letter-spacing: .3px; }
+  .markt-stat .waarde { font-size: 15px; font-weight: 800; margin-top: 2px; }
+  .markt-trend { font-size: 11.5px; font-weight: 700; margin-top: 10px; }
+  .markt-trend.op { color: #991b1b; }
+  .markt-trend.neer { color: #166534; }
+
+  .toast-ai {
+    position: fixed; bottom: 86px; left: 50%; transform: translateX(-50%); background: var(--text); color: #fff;
+    padding: 9px 16px; border-radius: 20px; font-size: 12.5px; font-weight: 600; z-index: 999; opacity: 0;
+    transition: opacity .2s; pointer-events: none; white-space: nowrap;
+  }
+
+  .vgl-bar {
+    display: none; position: fixed; bottom: 0; left: 0; right: 0; background: #fff; border-top: 2px solid var(--oranje);
+    padding: 10px 16px; z-index: 350; box-shadow: 0 -4px 20px rgba(0,0,0,.12); align-items: center; gap: 10px; flex-wrap: wrap;
+  }
+  .vgl-slots { display: flex; gap: 8px; flex: 1; flex-wrap: wrap; min-width: 0; }
+  .vgl-slot { display: flex; align-items: center; gap: 6px; background: var(--bg); border-radius: 8px; padding: 6px 10px; min-width: 0; }
+  .vgl-slot .naam { font-weight: 700; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 120px; }
+  .vgl-slot .prijs { color: var(--oranje); font-weight: 700; font-size: 12px; }
+  .vgl-slot button { background: none; border: none; cursor: pointer; color: var(--muted); font-size: 16px; padding: 0; line-height: 1; }
+  .vgl-ga-btn { background: var(--oranje); color: #fff; border: none; border-radius: 8px; padding: 9px 16px; font-size: 13px; font-weight: 700; cursor: pointer; }
+  .vgl-wis-btn { background: none; border: none; color: var(--muted); font-size: 12px; cursor: pointer; text-decoration: underline; }
+
+  .vgl-modal { display: none; position: fixed; inset: 0; z-index: 500; overflow-y: auto; background: rgba(0,0,0,.55); padding: 24px 16px; }
+  .vgl-modal-inner { background: #fff; max-width: 720px; margin: 0 auto; border-radius: var(--radius); overflow: hidden; }
+  .vgl-modal-head { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; border-bottom: 1px solid var(--border); }
+  .vgl-modal-head h3 { font-size: 15px; font-weight: 800; }
+  .vgl-modal-head button { background: none; border: none; font-size: 22px; cursor: pointer; color: var(--muted); line-height: 1; }
+  .vgl-tabel { padding: 20px; overflow-x: auto; }
+  .vgl-tabel table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .vgl-tabel th, .vgl-tabel td { padding: 10px 8px; border-bottom: 1px solid var(--border); text-align: left; }
+  .vgl-tabel th.kenmerk { font-size: 10.5px; color: var(--muted); text-transform: uppercase; letter-spacing: .3px; font-weight: 700; width: 26%; }
+  .vgl-tabel .vgl-link { display: block; margin-top: 10px; text-align: center; background: var(--oranje); color: #fff; padding: 10px 16px; border-radius: 8px; text-decoration: none; font-weight: 700; font-size: 13px; }
 </style>
 </head>
 <body>
@@ -148,9 +216,12 @@
     <button class="vraag-btn" id="vraagBtn" type="submit">Vraag &rarr;</button>
   </form>
   <div class="chips">
-    <button class="chip" onclick="stelVraagMet('Automaat Golf met weinig kilometers onder 15000 euro')">Automaat Golf &lt; €15.000</button>
-    <button class="chip" onclick="stelVraagMet('Wat is een redelijke prijs voor een Volkswagen Polo?')">Prijs Volkswagen Polo</button>
-    <button class="chip" onclick="stelVraagMet('Elektrische auto onder 25000 euro met veel actieradius')">Elektrisch &lt; €25.000</button>
+    <button class="chip" onclick="stelVraagMet('Automaat Golf met weinig kilometers onder 15000 euro')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>Automaat Golf &lt; €15.000</button>
+    <button class="chip" onclick="stelVraagMet('Wat is een redelijke prijs voor een Volkswagen Polo?')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>Prijs Volkswagen Polo</button>
+    <button class="chip" onclick="stelVraagMet('Elektrische auto onder 25000 euro met veel actieradius')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>Elektrisch &lt; €25.000</button>
+  </div>
+  <div class="top-acties">
+    <button class="nieuw-gesprek-btn" id="nieuwGesprekBtn" onclick="nieuwGesprek()">&#8634; Nieuw gesprek</button>
   </div>
 </div>
 
@@ -167,6 +238,24 @@
     Controleer prijs en kenmerken altijd bij de originele advertentie voordat je een beslissing neemt.
     Carkijker is een vergelijker, geen verkoper. &middot; <a href="/voor-agents/">Voor developers &amp; AI-agents (MCP)</a>
   </p>
+</div>
+
+<div class="toast-ai" id="aiToast"></div>
+
+<div class="vgl-bar" id="vglBarAi">
+  <div class="vgl-slots" id="vglSlotsAi"></div>
+  <button class="vgl-wis-btn" onclick="wisVgl()">Wis</button>
+  <button class="vgl-ga-btn" id="vglGaBtnAi" onclick="openVglModalAi()">Vergelijk &rarr;</button>
+</div>
+
+<div class="vgl-modal" id="vglModalAi" onclick="if(event.target===this)sluitVglModalAi()">
+  <div class="vgl-modal-inner">
+    <div class="vgl-modal-head">
+      <h3>Auto&rsquo;s vergelijken</h3>
+      <button onclick="sluitVglModalAi()">&times;</button>
+    </div>
+    <div class="vgl-tabel" id="vglTabelAi"></div>
+  </div>
 </div>
 
 <script>
@@ -193,10 +282,127 @@ var BRON_KLEUR = {
   AutoScout24: '#FF6600', AutoTrack: '#1B5FA8',
 };
 
+var ICON_JAAR = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>';
+var ICON_KM = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>';
+var ICON_BRANDSTOF = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"></path></svg>';
+
+// ── Favorieten/vergelijken: zelfde localStorage-sleutel (_av_favs) als de
+// hoofdsite (js/18-favorieten-vergelijk.js), zodat een auto die je hier
+// favoriet maakt ook op de hoofdsite als favoriet staat. _vglAi/_autoData
+// zijn bewust pagina-lokaal (niet persistent) -- vergelijken is hier een
+// sessie-dingetje binnen het gesprek, geen hoofdsite-functie die hier
+// gedeeld kan worden zonder de hele favorietenpanel-/vergelijk-modal-DOM
+// van de hoofdsite over te nemen.
+var _favs = new Set(JSON.parse(localStorage.getItem('_av_favs') || '[]'));
+var _vglAi = [];
+var _autoData = {};
+
+function toastAi(msg) {
+  var t = document.getElementById('aiToast');
+  if (!t) return;
+  t.textContent = msg;
+  t.style.opacity = '1';
+  clearTimeout(window._aiToastTimer);
+  window._aiToastTimer = setTimeout(function () { t.style.opacity = '0'; }, 2200);
+}
+
+function toggleAiFav(event, id) {
+  event.preventDefault();
+  event.stopPropagation();
+  var had = _favs.has(id);
+  had ? _favs.delete(id) : _favs.add(id);
+  localStorage.setItem('_av_favs', JSON.stringify([..._favs]));
+  if (!had && typeof gtag === 'function') gtag('event', 'favoriet_toegevoegd');
+  document.querySelectorAll('[data-fav="' + id + '"]').forEach(function (b) {
+    b.classList.toggle('fav-actief', !had);
+    b.innerHTML = !had ? '&hearts;' : '&#9825;';
+  });
+  toastAi(!had ? '❤️ Opgeslagen als favoriet' : '🗑️ Verwijderd uit favorieten');
+}
+
+function toggleAiVgl(event, id) {
+  event.preventDefault();
+  event.stopPropagation();
+  var i = _vglAi.indexOf(id);
+  if (i >= 0) {
+    _vglAi.splice(i, 1);
+  } else {
+    if (_vglAi.length >= 3) { toastAi('Max. 3 auto’s vergelijken'); return; }
+    _vglAi.push(id);
+    toastAi(_vglAi.length < 2 ? 'Geselecteerd — selecteer nog 1 auto om te vergelijken' : '✓ Klik op Vergelijk om te bekijken');
+  }
+  document.querySelectorAll('[data-vgl="' + id + '"]').forEach(function (b) {
+    b.classList.toggle('vgl-actief', _vglAi.indexOf(id) >= 0);
+  });
+  renderVglBar();
+}
+
+function renderVglBar() {
+  var bar = document.getElementById('vglBarAi');
+  var slots = document.getElementById('vglSlotsAi');
+  if (!bar || !slots) return;
+  if (!_vglAi.length) { bar.style.display = 'none'; document.body.style.paddingBottom = ''; return; }
+  bar.style.display = 'flex';
+  document.body.style.paddingBottom = '70px';
+  slots.innerHTML = _vglAi.map(function (id) {
+    var a = _autoData[id];
+    var titel = a && a.titel ? a.titel : id;
+    var naam = escHtml(titel.substring(0, 22)) + (titel.length > 22 ? '…' : '');
+    var prijs = a && a.prijs != null ? '€' + a.prijs.toLocaleString('nl-NL') : '';
+    return '<div class="vgl-slot"><div><div class="naam">' + naam + '</div><div class="prijs">' + prijs + '</div></div>' +
+      '<button onclick="toggleAiVgl(event,\'' + id + '\')" aria-label="Verwijder">&times;</button></div>';
+  }).join('');
+  var gb = document.getElementById('vglGaBtnAi');
+  if (gb) gb.style.opacity = _vglAi.length < 2 ? '0.5' : '1';
+}
+
+function wisVgl() {
+  _vglAi.length = 0;
+  document.querySelectorAll('.vgl-actief').forEach(function (el) { el.classList.remove('vgl-actief'); });
+  renderVglBar();
+}
+
+function openVglModalAi() {
+  if (_vglAi.length < 2) { toastAi('Selecteer minimaal 2 auto’s'); return; }
+  var sel = _vglAi.map(function (id) { return _autoData[id]; }).filter(Boolean);
+  var rows = [
+    { l: 'Foto', r: function (a) { return a.imgSrc ? '<img src="' + escHtml(a.imgSrc) + '" alt="" style="width:100%;max-width:140px;height:85px;object-fit:cover;border-radius:8px" onerror="this.style.display=\'none\'">' : '—'; } },
+    { l: 'Prijs', r: function (a) { return '<b style="font-size:16px">' + (a.prijs != null ? '€' + a.prijs.toLocaleString('nl-NL') : '—') + '</b>'; } },
+    { l: 'Bouwjaar', r: function (a) { return a.jaar || '—'; } },
+    { l: 'Km-stand', r: function (a) { return a.km != null ? a.km.toLocaleString('nl-NL') + ' km' : '—'; } },
+    { l: 'Brandstof', r: function (a) { return a.brandstof || '—'; } },
+    { l: 'Transmissie', r: function (a) { return a.transmissie || '—'; } },
+    { l: 'Bron', r: function (a) { var c = BRON_KLEUR[a.bron] || '#9ca3af'; return '<span style="font-weight:700;color:' + c + '">' + escHtml(a.bron || '—') + '</span>'; } },
+    { l: 'Dealscore', r: function (a) { return typeof a.dealScore === 'number' ? '<span class="rk-score ' + scoreKlasse(a.dealScore) + '">' + Math.round(a.dealScore) + '</span>' : '—'; } },
+  ];
+  var cw = Math.floor(74 / sel.length);
+  var html = '<table><thead><tr><th class="kenmerk">Kenmerk</th>' +
+    sel.map(function (a) { return '<th style="width:' + cw + '%">' + escHtml((a.titel || '').substring(0, 30)) + '</th>'; }).join('') +
+    '</tr></thead><tbody>' +
+    rows.map(function (row) {
+      return '<tr><td class="kenmerk">' + row.l + '</td>' + sel.map(function (a) { return '<td>' + row.r(a) + '</td>'; }).join('') + '</tr>';
+    }).join('') +
+    '</tbody></table>' +
+    sel.map(function (a) { return '<a class="vgl-link" href="' + escHtml(a.url || '#') + '" target="_blank" rel="noopener">Bekijk op ' + escHtml(a.bron || 'bron') + ' &rarr;</a>'; }).join('');
+  document.getElementById('vglTabelAi').innerHTML = html;
+  document.getElementById('vglModalAi').style.display = 'block';
+  document.body.style.overflow = 'hidden';
+}
+
+function sluitVglModalAi() {
+  document.getElementById('vglModalAi').style.display = 'none';
+  document.body.style.overflow = '';
+}
+
 function renderResultaatKaart(a) {
-  var chips = [a.jaar, a.km != null ? a.km.toLocaleString('nl-NL') + ' km' : null, a.brandstof]
+  if (a.id) _autoData[a.id] = a;
+  var chips = [
+    a.jaar ? ICON_JAAR + escHtml(a.jaar) : null,
+    a.km != null ? ICON_KM + escHtml(a.km.toLocaleString('nl-NL')) + ' km' : null,
+    a.brandstof ? ICON_BRANDSTOF + escHtml(a.brandstof) : null,
+  ]
     .filter(Boolean)
-    .map(function (v) { return '<span class="rk-chip">' + escHtml(v) + '</span>'; })
+    .map(function (v) { return '<span class="rk-chip">' + v + '</span>'; })
     .join('');
   var scoreHtml = typeof a.dealScore === 'number'
     ? '<div class="rk-score ' + scoreKlasse(a.dealScore) + '">Dealscore ' + Math.round(a.dealScore) + '</div>'
@@ -212,6 +418,12 @@ function renderResultaatKaart(a) {
   var waarschuwingHtml = a.verdachtGoedkoop
     ? '<span class="rk-waarschuwing">&#9888; Extra check: prijs wijkt sterk af</span>'
     : '';
+  var actiesHtml = a.id
+    ? '<div class="rk-acties">' +
+        '<button class="rk-actie-btn' + (_favs.has(a.id) ? ' fav-actief' : '') + '" data-fav="' + a.id + '" onclick="toggleAiFav(event,\'' + a.id + '\')" title="Favoriet">' + (_favs.has(a.id) ? '&hearts;' : '&#9825;') + '</button>' +
+        '<button class="rk-actie-btn' + (_vglAi.indexOf(a.id) >= 0 ? ' vgl-actief' : '') + '" data-vgl="' + a.id + '" onclick="toggleAiVgl(event,\'' + a.id + '\')" title="Vergelijk">&oplus;</button>' +
+      '</div>'
+    : '';
 
   return (
     '<a class="resultaat-kaart" href="' + escHtml(a.url || '#') + '" target="_blank" rel="noopener">' +
@@ -226,7 +438,34 @@ function renderResultaatKaart(a) {
         '<div class="rk-prijs">' + (a.prijs != null ? '&euro;' + a.prijs.toLocaleString('nl-NL') : '?') + '</div>' +
         scoreHtml +
       '</div>' +
+      actiesHtml +
     '</a>'
+  );
+}
+
+function renderMarktKaart(s) {
+  if (!s) return '';
+  var trendHtml = '';
+  if (s.trend30Dagen && typeof s.trend30Dagen.percentage === 'number') {
+    var p = s.trend30Dagen.percentage;
+    trendHtml = '<div class="markt-trend ' + (p >= 0 ? 'op' : 'neer') + '">' +
+      (p >= 0 ? '&#8599;' : '&#8600;') + ' ' + (p >= 0 ? '+' : '') + p.toLocaleString('nl-NL') + '% t.o.v. ~30 dagen geleden</div>';
+  }
+  var rangeHtml = s.prijsRange && s.prijsRange.min != null && s.prijsRange.max != null
+    ? '<div class="markt-stat"><div class="label">Prijsrange</div><div class="waarde">&euro;' +
+        Math.round(s.prijsRange.min).toLocaleString('nl-NL') + '&ndash;&euro;' + Math.round(s.prijsRange.max).toLocaleString('nl-NL') + '</div></div>'
+    : '';
+  return (
+    '<div class="markt-kaart">' +
+      '<h4>Marktdata' + (s.merk ? ' ' + escHtml(s.merk) : '') + '</h4>' +
+      '<div class="markt-grid">' +
+        '<div class="markt-stat"><div class="label">Advertenties</div><div class="waarde">' + (s.aantalAdvertenties != null ? s.aantalAdvertenties.toLocaleString('nl-NL') : '—') + '</div></div>' +
+        '<div class="markt-stat"><div class="label">Gemiddeld</div><div class="waarde">' + (s.gemiddeldePrijs != null ? '&euro;' + Math.round(s.gemiddeldePrijs).toLocaleString('nl-NL') : '—') + '</div></div>' +
+        '<div class="markt-stat"><div class="label">Mediaan</div><div class="waarde">' + (s.mediaanPrijs != null ? '&euro;' + Math.round(s.mediaanPrijs).toLocaleString('nl-NL') : '—') + '</div></div>' +
+        rangeHtml +
+      '</div>' +
+      trendHtml +
+    '</div>'
   );
 }
 
@@ -256,12 +495,31 @@ function stelVraagMet(tekst) {
   stelVraag();
 }
 
+function nieuwGesprek() {
+  document.getElementById('gesprek').innerHTML = '';
+  document.getElementById('leeg').style.display = '';
+  document.getElementById('nieuwGesprekBtn').style.display = 'none';
+  document.getElementById('vraagInput').focus();
+}
+
+// Roterende laadtekst i.p.v. één statische regel -- geeft tijdens het
+// wachten (de agentic tool-use-loop kan een paar seconden duren, zie
+// ask-logica.js) een idee dat er daadwerkelijk iets gebeurt i.p.v. dat de
+// pagina dood aanvoelt.
+var LAAD_TEKSTEN = [
+  'Carkijker AI zoekt&hellip;',
+  'Vergelijkt het actuele aanbod van 6 platforms&hellip;',
+  'Rekent dealscores uit&hellip;',
+  'Bijna klaar&hellip;',
+];
+
 function stelVraag() {
   var input = document.getElementById('vraagInput');
   var vraag = input.value.trim();
   if (!vraag) return;
 
   document.getElementById('leeg').style.display = 'none';
+  document.getElementById('nieuwGesprekBtn').style.display = 'inline-block';
   var btn = document.getElementById('vraagBtn');
   btn.disabled = true;
   if (typeof gtag === 'function') gtag('event', 'ai_zoeken_vraag_gesteld');
@@ -271,12 +529,17 @@ function stelVraag() {
   beurt.className = 'beurt';
   beurt.innerHTML =
     '<div class="vraag-bubbel">' + escHtml(vraag) + '</div>' +
-    '<div class="antwoord-bubbel laden">Carkijker AI zoekt&hellip;</div>';
+    '<div class="antwoord-bubbel laden">' + LAAD_TEKSTEN[0] + '</div>';
   gesprek.appendChild(beurt);
   beurt.scrollIntoView({ behavior: 'smooth', block: 'end' });
   input.value = '';
 
   var antwoordEl = beurt.querySelector('.antwoord-bubbel');
+  var laadIndex = 0;
+  var laadTimer = setInterval(function () {
+    laadIndex = (laadIndex + 1) % LAAD_TEKSTEN.length;
+    antwoordEl.innerHTML = LAAD_TEKSTEN[laadIndex];
+  }, 1700);
 
   fetch(ASK_URL, {
     method: 'POST',
@@ -294,8 +557,13 @@ function stelVraag() {
         return;
       }
       var html = renderAntwoordTekst(res.data.antwoord || '');
+      html += renderMarktKaart(res.data.marktStats);
       if (Array.isArray(res.data.resultaten) && res.data.resultaten.length) {
         html += '<div class="resultaten-grid">' + res.data.resultaten.map(renderResultaatKaart).join('') + '</div>';
+        if (typeof res.data.totaalGevonden === 'number' && res.data.totaalGevonden > res.data.resultaten.length) {
+          html += '<div class="telling">Toont ' + res.data.resultaten.length + ' van de ' +
+            res.data.totaalGevonden.toLocaleString('nl-NL') + ' gevonden advertenties</div>';
+        }
       }
       antwoordEl.innerHTML = html || 'Geen antwoord ontvangen.';
     })
@@ -305,6 +573,7 @@ function stelVraag() {
       antwoordEl.textContent = 'Kon geen verbinding maken met de AI-zoekassistent. Probeer het later opnieuw.';
     })
     .finally(function () {
+      clearInterval(laadTimer);
       btn.disabled = false;
       beurt.scrollIntoView({ behavior: 'smooth', block: 'end' });
     });
