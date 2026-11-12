@@ -491,36 +491,38 @@ function parseerGaspedaal(html, gezien, label) {
     return [];
   }
 
-  // Was: zoek eerst naar \"portalen\":[ en kijk dan in de 800 tekens erna naar
-  // een redirect-url. Brak stil op 8/9 nov -- Gaspedaal wijzigde kennelijk de
-  // pagina-structuur rond die "portalen"-sleutel (JSON-LD bleef intact, dus
-  // ${items.length} items hierboven klopte nog gewoon, maar klikUrls viel
-  // naar 0 op elke pagina -- gevonden via de GitHub Actions-run-logs van
-  // 8 nov, "0 klikUrls gevonden" op alle 44 pagina's). Simpeler en
-  // robuuster: zoek het redirect-url-patroon direct over de hele pagina,
-  // zonder aanname over WAAR in de JSON het staat -- dedupliceer op
-  // voertuig-id (zelfde auto kan 2x voorkomen, bv. nav + data-blob) en
-  // behoud volgorde van eerste voorkomen (zelfde paarings-aanname als
-  // voorheen: klikUrls[i] hoort bij items[i]).
-  const klikUrls = [];
-  const gezienVoertuigIds = new Set();
-  for (const m of html.matchAll(/https:\/\/api\.gaspedaal\.nl\/redirect\/vehicle\/(\d+)/g)) {
-    if (gezienVoertuigIds.has(m[1])) continue;
-    gezienVoertuigIds.add(m[1]);
-    klikUrls.push(m[0]);
+  // Was 1: zoek eerst naar \"portalen\":[ en kijk dan in de 800 tekens erna
+  // naar een redirect-url -- brak stil op 8/9 nov toen Gaspedaal de
+  // pagina-structuur rond die sleutel wijzigde (JSON-LD bleef intact, dus
+  // ${items.length} items hierboven klopte nog, maar klikUrls viel naar 0).
+  // Was 2 (PR #176): redirect-url-patroon over de hele pagina zoeken en
+  // positioneel aan items[i] koppelen (ervan uitgaand dat elk voertuig
+  // precies 1 klikUrl had, in dezelfde volgorde) -- bleek zelf ook kapot:
+  // Gaspedaal is intussen naar www.gaspedaal.nl/api/proxy/redirect/vehicle/
+  // overgestapt (was api.gaspedaal.nl/redirect/vehicle/), dus matchte nog
+  // steeds 0x. Bovendien klopte de positionele aanname niet meer: op 12 nov
+  // stonden er 119 klikUrls tegenover 100 JSON-LD items (sommige advertenties
+  // hebben >1 "portalen"-entry), dus items[i] zou met het oude patroon vaak
+  // de verkeerde klikUrl krijgen.
+  // Robuuster: elke advertentie in de pagina-payload heeft zijn eigen
+  // \"advertentieId\":<id>,...,\"portalen\":[{\"klikUrl\":\"...\"}] -- en
+  // item['@id'] (https://www.gaspedaal.nl/zoeken#<id>) is exact die
+  // advertentieId. Koppel dus op id in plaats van op positie: pak per
+  // advertentieId de eerste klikUrl die volgt vóór de volgende advertentieId.
+  const klikUrlPerId = new Map();
+  for (const m of html.matchAll(/\\"advertentieId\\":(\d+),(?:(?!\\"advertentieId\\":)[\s\S])*?\\"klikUrl\\":\\"([^\\"]+)\\"/g)) {
+    if (!klikUrlPerId.has(m[1])) klikUrlPerId.set(m[1], m[2]);
   }
 
-  console.log(` ${label}: ${klikUrls.length} klikUrls gevonden`);
+  console.log(` ${label}: ${klikUrlPerId.size} klikUrls gevonden`);
 
   const results = [];
-  const limit = Math.min(items.length, klikUrls.length);
 
-  for (let i = 0; i < limit; i++) {
-    const item = items[i];
-    const url = klikUrls[i];
-
+  for (const item of items) {
     const rawId = item['@id']?.split('#')[1];
     if (!rawId) continue;
+    const url = klikUrlPerId.get(rawId);
+    if (!url) continue;
     const id = 'gp-' + rawId;
     if (gezien.has(id)) continue;
     gezien.add(id);
