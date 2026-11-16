@@ -491,36 +491,38 @@ function parseerGaspedaal(html, gezien, label) {
     return [];
   }
 
-  // Was: zoek eerst naar \"portalen\":[ en kijk dan in de 800 tekens erna naar
-  // een redirect-url. Brak stil op 8/9 nov -- Gaspedaal wijzigde kennelijk de
-  // pagina-structuur rond die "portalen"-sleutel (JSON-LD bleef intact, dus
-  // ${items.length} items hierboven klopte nog gewoon, maar klikUrls viel
-  // naar 0 op elke pagina -- gevonden via de GitHub Actions-run-logs van
-  // 8 nov, "0 klikUrls gevonden" op alle 44 pagina's). Simpeler en
-  // robuuster: zoek het redirect-url-patroon direct over de hele pagina,
-  // zonder aanname over WAAR in de JSON het staat -- dedupliceer op
-  // voertuig-id (zelfde auto kan 2x voorkomen, bv. nav + data-blob) en
-  // behoud volgorde van eerste voorkomen (zelfde paarings-aanname als
-  // voorheen: klikUrls[i] hoort bij items[i]).
-  const klikUrls = [];
-  const gezienVoertuigIds = new Set();
-  for (const m of html.matchAll(/https:\/\/api\.gaspedaal\.nl\/redirect\/vehicle\/(\d+)/g)) {
-    if (gezienVoertuigIds.has(m[1])) continue;
-    gezienVoertuigIds.add(m[1]);
-    klikUrls.push(m[0]);
+  // Was 1: zoek eerst naar \"portalen\":[ en kijk dan in de 800 tekens erna
+  // naar een redirect-url -- brak stil op 8/9 nov toen Gaspedaal de
+  // pagina-structuur rond die sleutel wijzigde (JSON-LD bleef intact, dus
+  // ${items.length} items hierboven klopte nog, maar klikUrls viel naar 0).
+  // Was 2 (PR #176): redirect-url-patroon over de hele pagina zoeken en
+  // positioneel aan items[i] koppelen (ervan uitgaand dat elk voertuig
+  // precies 1 klikUrl had, in dezelfde volgorde) -- bleek zelf ook kapot:
+  // Gaspedaal is intussen naar www.gaspedaal.nl/api/proxy/redirect/vehicle/
+  // overgestapt (was api.gaspedaal.nl/redirect/vehicle/), dus matchte nog
+  // steeds 0x. Bovendien klopte de positionele aanname niet meer: op 12 nov
+  // stonden er 119 klikUrls tegenover 100 JSON-LD items (sommige advertenties
+  // hebben >1 "portalen"-entry), dus items[i] zou met het oude patroon vaak
+  // de verkeerde klikUrl krijgen.
+  // Robuuster: elke advertentie in de pagina-payload heeft zijn eigen
+  // \"advertentieId\":<id>,...,\"portalen\":[{\"klikUrl\":\"...\"}] -- en
+  // item['@id'] (https://www.gaspedaal.nl/zoeken#<id>) is exact die
+  // advertentieId. Koppel dus op id in plaats van op positie: pak per
+  // advertentieId de eerste klikUrl die volgt vóór de volgende advertentieId.
+  const klikUrlPerId = new Map();
+  for (const m of html.matchAll(/\\"advertentieId\\":(\d+),(?:(?!\\"advertentieId\\":)[\s\S])*?\\"klikUrl\\":\\"([^\\"]+)\\"/g)) {
+    if (!klikUrlPerId.has(m[1])) klikUrlPerId.set(m[1], m[2]);
   }
 
-  console.log(` ${label}: ${klikUrls.length} klikUrls gevonden`);
+  console.log(` ${label}: ${klikUrlPerId.size} klikUrls gevonden`);
 
   const results = [];
-  const limit = Math.min(items.length, klikUrls.length);
 
-  for (let i = 0; i < limit; i++) {
-    const item = items[i];
-    const url = klikUrls[i];
-
+  for (const item of items) {
     const rawId = item['@id']?.split('#')[1];
     if (!rawId) continue;
+    const url = klikUrlPerId.get(rawId);
+    if (!url) continue;
     const id = 'gp-' + rawId;
     if (gezien.has(id)) continue;
     gezien.add(id);
@@ -1352,23 +1354,23 @@ const ATR_URLS = [
   'https://www.autotrader.nl/auto?fuel=2%2C3',
   'https://www.autotrader.nl/auto?fuel=2%2C3&page=2',
 
-  // Diagnostische merk-filter-probe (sessie-analyse "waarom stokt het totaal
-  // aanbod"): AutoTrader heeft, anders dan Marktplaats/Gaspedaal/AutoScout24/
-  // AutoTrack, nog geen enkele merk-specifieke query -- alleen ?fuel=<code>
-  // is bekend, en die codes zijn cryptische nummers (2,3 voor hybride-
-  // varianten), geen leesbare merknaam zoals bij AutoScout24's /lst/<merk> of
-  // AutoTrack's /aanbod/merk/<merk>. Simpelweg 22x /auto?merk=<naam> gokken
-  // zoals bij die andere bronnen is hier dus veel onzekerder: een onbekende
-  // parameter wordt op dit soort platforms vaak stilzwijgend genegeerd
-  // (levert dan gewoon de algemene lijst terug, geen fout) i.p.v. een
-  // duidelijke 404/lege respons zoals bij AutoWereld's paden. Daarom eerst 3
-  // varianten proberen op één groot merk (Volkswagen) i.p.v. blind alle 22 --
-  // parseerAutoTrader() logt bij deze URL's de merkverdeling van de
-  // resultaten, zodat uit de eerstvolgende run-log blijkt welke (als die er
-  // is) daadwerkelijk filtert.
-  'https://www.autotrader.nl/auto?make=volkswagen',
-  'https://www.autotrader.nl/auto?brand=volkswagen',
-  'https://www.autotrader.nl/auto?merk=volkswagen',
+  // Was: 3x een merk-filter-probe (?make=/?brand=/?merk=volkswagen) om te
+  // ontdekken of AutoTrader een leesbare merk-query ondersteunt (anders dan
+  // Marktplaats/Gaspedaal/AutoScout24/AutoTrack, die dat wel hebben).
+  // Afgesloten (wekelijkse healthcheck, 16 nov): de merkverdeling-diagnose
+  // in parseerAutoTrader() bevestigde over meerdere runs dat alle drie
+  // gewoon de ongefilterde algemene lijst teruggeven (mix van merken i.p.v.
+  // uitsluitend Volkswagen) -- AutoTrader negeert deze parameternamen
+  // stilzwijgend. Geen leesbare merk-query gevonden; die 3 sloten leverden
+  // dus vrijwel alleen duplicaten van p1-3 op (gemiddeld 0-1 nieuw) i.p.v.
+  // echte extra dekking, en droegen zo bij aan de aanhoudende daling van het
+  // AutoTrader-totaal. Vervangen door 3 verdere algemene pagina's: p1-3
+  // leverden elk nog 19-20 NIEUWE advertenties op (geen tekenen van
+  // uitputting), dus p4-6 breiden de effectieve dekking echt uit i.p.v. de
+  // bestaande p1-3 te herhalen zoals bij de probe-URL's.
+  'https://www.autotrader.nl/auto?page=4',
+  'https://www.autotrader.nl/auto?page=5',
+  'https://www.autotrader.nl/auto?page=6',
 ];
 
 async function scrapeAutoTrader() {
@@ -1383,11 +1385,7 @@ async function scrapeAutoTrader() {
       console.log(` ${label}: HTTP ${resp.status}`);
       if (!resp.ok) continue;
       const html = await resp.text();
-      // Diagnose alleen voor de merk-filter-probes hierboven (zie ATR_URLS) --
-      // logt de merkverdeling van de resultaten zodat blijkt of het gegokte
-      // queryparam daadwerkelijk filtert of stilzwijgend genegeerd wordt.
-      const isDiagProbe = /[?&](make|brand|merk)=volkswagen/i.test(url);
-      const found = parseerAutoTrader(html, gezien, label, isDiagProbe);
+      const found = parseerAutoTrader(html, gezien, label);
       all.push(...found);
       console.log(` ${label}: ${found.length} nieuw ÃÂÃÂ¢ÃÂÃÂÃÂÃÂ totaal ATR ${all.length}`);
     } catch (e) {
@@ -1404,7 +1402,7 @@ function titleCaseLocatie(s) {
   return String(s).toLowerCase().replace(/(^|[\s-])(\p{L})/gu, (m, sep, c) => sep + c.toUpperCase());
 }
 
-function parseerAutoTrader(html, gezien, label, uitgebreideDiagnose) {
+function parseerAutoTrader(html, gezien, label) {
   const results = [];
 
   // AutoTrader.nl draait tegenwoordig op het AutoScout24-platform; de listings
@@ -1423,20 +1421,6 @@ function parseerAutoTrader(html, gezien, label, uitgebreideDiagnose) {
   } catch (e) {
     console.log(` ${label}: __NEXT_DATA__ parse fout - ${e.message}`);
     return results;
-  }
-
-  // Diagnose voor de merk-filter-probes in ATR_URLS: telt de merkverdeling
-  // van de RUWE (ongefilterde) resultaten. Bij een werkend filter hoort dit
-  // vrijwel uitsluitend "Volkswagen" te zijn; blijft het een brede mix van
-  // merken, dan negeert AutoTrader het gegokte queryparam stilzwijgend en
-  // kregen we gewoon de algemene lijst terug.
-  if (uitgebreideDiagnose) {
-    const merkTelling = {};
-    for (const item of listings) {
-      const m = (item.vehicle && item.vehicle.make) || '(onbekend)';
-      merkTelling[m] = (merkTelling[m] || 0) + 1;
-    }
-    console.log(`   diagnose ${label}: merkverdeling ruwe resultaten: ${JSON.stringify(merkTelling)}`);
   }
 
   for (const item of listings) {

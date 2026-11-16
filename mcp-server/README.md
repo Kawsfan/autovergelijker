@@ -39,7 +39,10 @@ secret geeft `/ask` netjes een `503` i.p.v. te crashen -- de MCP-tools
 > een betaalde Anthropic-call doet -- overweeg een Cloudflare **Rate
 > Limiting rule** op `/ask` in het dashboard (Security → WAF →
 > Rate limiting rules) als misbruik/kosten een zorg worden. Kon dat niet
-> vanuit deze sandbox instellen (geen dashboard-toegang).
+> vanuit deze sandbox instellen (geen dashboard-toegang) -- vereist sowieso
+> eerst een custom domain op deze Worker (zie hieronder), want Rate
+> Limiting rules werken alleen op verkeer door een zone die je zelf beheert,
+> niet op het kale `*.workers.dev`-adres.
 
 ## Lokaal draaien / testen
 
@@ -89,15 +92,26 @@ deployen -- zie `.assetsignore`, die deze map daar nu expliciet van uitsluit).
    bouwen bij een PR-push, en verdwijnt de storende "Workers Builds:
    carkijker-mcp"-check op elke PR in deze repo -- productie-deploys via
    `main` (stap 3 hierboven) blijven onveranderd werken.
-5. Na de eerste deploy krijg je een `*.workers.dev`-URL. Optioneel: koppel er
-   een custom domain aan (bijv. `mcp.carkijker.nl`) via **Settings → Domains
-   & Routes** op het nieuwe Worker-project.
+5. Na de eerste deploy krijg je een `*.workers.dev`-URL. Koppel er een custom
+   domain aan (bijv. `mcp.carkijker.nl`) via **Settings → Domains & Routes**
+   op het nieuwe Worker-project -- **Add Domain**, dan het subdomein
+   invullen op het volgende scherm (niet de volledige hostname in één keer
+   in het zoekveld typen, dat matcht niet als de zone zelf al wel bestaat).
+
+   > **Val op:** als een ANDERE Worker in dezelfde zone een brede Route heeft
+   > staan (bijv. `*.carkijker.nl/*`, zoals de hoofdsite-Worker hier had),
+   > vangt die stilletjes ook het nieuwe custom domain af -- je krijgt dan
+   > een kale `405` terug i.p.v. een JSON-antwoord, zonder duidelijke
+   > foutmelding. Check **Websites → carkijker.nl → Custom Domains and
+   > Routes op de andere Worker(s)** en maak die route specifiek (bijv.
+   > `carkijker.nl/*` + een losse `www.carkijker.nl/*` i.p.v. de wildcard)
+   > voor je verder zoekt naar wat er mis is met het nieuwe domein zelf.
 6. Test de live endpoint, bijv.:
    ```bash
-   curl -X POST https://<jouw-worker-url>/ \
+   curl -X POST https://mcp.carkijker.nl/ \
      -H 'Content-Type: application/json' \
      -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}'
    ```
 
-Zodra dit live staat: laat het weten, dan voeg ik de endpoint-URL toe aan
-`/voor-agents/` en `llms.txt` zodat agents 'm ook daadwerkelijk vinden.
+Live op `https://mcp.carkijker.nl/` (sinds 12 nov 2026) -- staat verwerkt in
+`/voor-agents/`, `llms.txt` en `ASK_URL` in `ai-zoeken/index.html`.

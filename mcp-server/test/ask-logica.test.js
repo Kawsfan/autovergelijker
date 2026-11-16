@@ -21,6 +21,8 @@ test('voerAskLoop -- direct tekstantwoord zonder tool-gebruik', async () => {
   var r = await ask.voerAskLoop('hoi', anthropicCall, toolCall, []);
   assert.equal(r.antwoord, 'Hoi, waarmee kan ik helpen?');
   assert.equal(r.resultaten, null);
+  assert.equal(r.totaalGevonden, null);
+  assert.equal(r.marktStats, null);
 });
 
 test('voerAskLoop -- een tool-call ronde (search_listings), dan eindantwoord', async () => {
@@ -47,6 +49,29 @@ test('voerAskLoop -- een tool-call ronde (search_listings), dan eindantwoord', a
   var r = await ask.voerAskLoop('goedkope vw golf', anthropicCall, toolCall, []);
   assert.equal(r.antwoord, 'Hier zijn een paar Volkswagen Golfs.');
   assert.deepEqual(r.resultaten, [{ titel: 'VW Golf 1.4 TSI' }]);
+  assert.equal(r.totaalGevonden, 1);
+});
+
+test('voerAskLoop -- get_market_stats-call komt als marktStats terug', async () => {
+  var call = 0;
+  var anthropicCall = async () => {
+    call++;
+    if (call === 1) {
+      return {
+        content: [{ type: 'tool_use', id: 'tu_1', name: 'get_market_stats', input: { merk: 'Volkswagen' } }],
+      };
+    }
+    return { content: [{ type: 'text', text: 'Volkswagen staat gemiddeld op ongeveer dat bedrag.' }] };
+  };
+  var stats = { merk: 'Volkswagen', aantalAdvertenties: 120, gemiddeldePrijs: 18500, mediaanPrijs: 17250 };
+  var toolCall = async (naam) => {
+    assert.equal(naam, 'get_market_stats');
+    return { ok: true, data: stats };
+  };
+
+  var r = await ask.voerAskLoop('wat is een redelijke prijs voor een volkswagen?', anthropicCall, toolCall, []);
+  assert.deepEqual(r.marktStats, stats);
+  assert.equal(r.resultaten, null);
 });
 
 test('voerAskLoop -- dataVoorFrontend (met imgSrc) gaat naar resultaten, niet naar het taalmodel', async () => {
@@ -100,4 +125,5 @@ test('voerAskLoop -- stopt na MAX_TOOL_ITERATIES met een eerlijke fallback', asy
   assert.equal(pogingen, ask.MAX_TOOL_ITERATIES);
   assert.match(r.antwoord, /zoekstappen/);
   assert.deepEqual(r.resultaten, []);
+  assert.equal(r.totaalGevonden, 0);
 });

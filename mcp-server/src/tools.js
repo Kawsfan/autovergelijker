@@ -62,6 +62,12 @@ function sorteerOpDealscore(listings) {
 function compacteListing(a, opts) {
   opts = opts || {};
   var basis = {
+    // id gaat altijd mee (ook naar MCP-agents, al hebben die er zelf weinig
+    // aan) -- de /ask-frontend heeft 'm nodig om een auto te kunnen
+    // favorieten/vergelijken met dezelfde id als op de hoofdsite (zelfde
+    // localStorage-sleutel _av_favs), en 'id' stond al ongefilterd in de
+    // publieke listings-top.json/merken-bestanden die hier worden opgehaald.
+    id: a.id,
     titel: a.titel, merk: a.merk, model: a.model, prijs: a.prijs, jaar: a.jaar, km: a.km,
     brandstof: a.brandstof, carrosserie: a.carrosserie, transmissie: a.transmissie,
     dealScore: a.dealScore, bron: a.bron, locatie: a.locatie, url: a.url,

@@ -1,7 +1,7 @@
 # Carkijker
 
 <!-- INTRO:START -->
-> Carkijker is een gratis Nederlandse zoekmachine voor auto's die het aanbod van 6 grote platforms aggregeert op één plek. Met 58.000+ actuele advertenties, een unieke deal score en dagelijkse updates.
+> Carkijker is een gratis Nederlandse zoekmachine voor auto's die het aanbod van 6 grote platforms aggregeert op één plek. Met 62.000+ actuele advertenties, een unieke deal score en dagelijkse updates.
 <!-- INTRO:END -->
 
 Carkijker vergelijkt het volledige auto-aanbod van Nederland — zowel tweedehands als nieuw — op één plek. Gebruikers filteren op merk, model, prijs, kilometerstand, bouwjaar, brandstof en carrosserie. Een algoritme berekent per auto een "deal score" (z-score per merk/model) zodat kopers direct zien of een auto goedkoop of duur is ten opzichte van vergelijkbare exemplaren. Databronnen: Marktplaats, Gaspedaal, AutoScout24, ViaBOVAG, AutoTrack en AutoTrader, dagelijks bijgewerkt. Gratis, geen account nodig. Doelgroep: Nederlanders die een auto willen kopen en het complete aanbod van alle grote platforms in één overzicht willen zien, met een eerlijke prijsindicatie.
@@ -15,7 +15,7 @@ Carkijker vergelijkt het volledige auto-aanbod van Nederland — zowel tweedehan
 - [Sitemap](https://carkijker.nl/sitemap.xml): volledige lijst van geïndexeerde pagina's
 - [Over Carkijker](https://carkijker.nl/over-ons/): missie, hoe de site werkt (favorieten, vergelijken, marktanalyse, dealscore, TCO-tool) en contactgegevens (info@carkijker.nl)
 - [Voor developers en AI-agents](https://carkijker.nl/voor-agents/): databestanden (JSON), veldbeschrijving en spelregels voor geautomatiseerd/programmatisch gebruik van de occasion-data
-- MCP-server (`POST https://carkijker-mcp.fergusknies.workers.dev/`): Model Context Protocol-endpoint voor AI-agents, met tools om direct te zoeken/filteren (search_listings), marktstatistieken per merk op te vragen (get_market_stats) en de dealscore-methodiek uit te leggen (get_dealscore_uitleg) — zie /voor-agents/ voor details
+- MCP-server (`POST https://mcp.carkijker.nl/`): Model Context Protocol-endpoint voor AI-agents, met tools om direct te zoeken/filteren (search_listings), marktstatistieken per merk op te vragen (get_market_stats) en de dealscore-methodiek uit te leggen (get_dealscore_uitleg) — zie /voor-agents/ voor details
 
 ## Occasions per merk
 
@@ -49,6 +49,8 @@ Carkijker vergelijkt het volledige auto-aanbod van Nederland — zowel tweedehan
 <!-- ARTIKELEN:START -->
 ## Artikelen
 
+- [Tweedehands elektrische auto onder €20.000: 12 modellen vergeleken](https://carkijker.nl/artikelen/beste-elektrische-autos-onder-20000-euro/): Tweedehands elektrische auto onder €20.000: 12 modellen met echte vraagprijzen uit 966 advertenties, WLTP-actieradius en waar je op de accu let.
+- [Tweedehands Volkswagen Golf kopen: prijzen en aandachtspunten](https://carkijker.nl/artikelen/tweedehands-volkswagen-golf-kopen/): Tweedehands Volkswagen Golf: mediane vraagprijs €11.500 (659 advertenties). Prijs per bouwjaar, Golf 7 vs Golf 8 en DSG-aandachtspunten.
 - [De beste stationwagens onder €15.000: 7 modellen met actuele Carkijker-cijfers](https://carkijker.nl/artikelen/beste-stationwagens-onder-15000-euro/): Een ruime, betaalbare stationwagon onder €15.000? Deze 7 modellen combineren veel bagageruimte met een lage instapprijs, met actueel aanbod en gemiddelde prijzen van Carkijker.
 - [Dealer of particulier: wat is de beste keuze bij een tweedehands auto?](https://carkijker.nl/artikelen/dealer-of-particulier-auto-kopen/): Auto kopen bij een dealer of een particulier: wat scheelt het in prijs, garantie en risico? Een eerlijke vergelijking, inclusief wat de DEALER/PRIVÉ-badge op Carkijker betekent.
 - [Carkijker dealscore uitgelegd: zo herken je een goede autodeal](https://carkijker.nl/artikelen/dealscore-uitgelegd/): Wat betekent de dealscore op Carkijker precies? Uitleg over hoe de score wordt berekend, wat de kleuren betekenen en wanneer je 'm wel of niet kunt vertrouwen.

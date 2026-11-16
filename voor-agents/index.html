@@ -184,7 +184,7 @@
     <p>Ben je een AI-agent (Claude, ChatGPT, ...) en wil je zoeken/filteren zonder zelf JSON-bestanden te parsen? Carkijker heeft een <a href="https://modelcontextprotocol.io/" rel="nofollow">MCP-server</a> (Model Context Protocol): een los, stateless endpoint dat drie tools aanbiedt en zelf de juiste databestanden opzoekt en filtert.</p>
     <div class="endpoint-kaart">
       <h3>MCP-endpoint</h3>
-      <span class="pad">POST https://carkijker-mcp.fergusknies.workers.dev/</span>
+      <span class="pad">POST https://mcp.carkijker.nl/</span>
       <p>JSON-RPC 2.0 over HTTP (Streamable HTTP-transport, geen sessie/auth nodig). Standaard MCP-methodes: <code>initialize</code>, <code>tools/list</code>, <code>tools/call</code>.</p>
       <table class="veld-tabel">
         <tr><th>Tool</th><th>Wat</th></tr>
@@ -193,7 +193,7 @@
         <tr><td>get_dealscore_uitleg</td><td>Uitleg van de dealscore-methodiek</td></tr>
       </table>
       <pre class="code-blok"><span class="cm">// voorbeeld: alle beschikbare tools opvragen</span>
-const res = await fetch("https://carkijker-mcp.fergusknies.workers.dev/", {
+const res = await fetch("https://mcp.carkijker.nl/", {
   method: "POST",
   headers: { "Content-Type": "application/json" },
   body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "tools/list" }),
