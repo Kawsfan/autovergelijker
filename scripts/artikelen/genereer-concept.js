@@ -71,6 +71,7 @@ Aanvullende huisregels:
 Feiten en cijfers (belangrijkste regel):
 - Marktcijfers (aantallen, prijzen, kilometerstanden, verdelingen) haal je UITSLUITEND uit het meegeleverde <marktdata>-blok. Noem bij elk cijferblok de steekproef en de peildatum, bijvoorbeeld "op basis van 753 advertenties op Carkijker (peildatum 10 november 2026)". Verzin of extrapoleer geen marktcijfers.
 - Spreek van "middelste vraagprijs" of "meestal rond de" waar de data een mediaan is, nooit van "gemiddeld".
+- Staat er bij een model "uitgeslotenVarianten" (bv. Yaris Cross onder Yaris), dan zijn dat andere modellen die in de brondata hetzelfde modelveld delen. Ze tellen niet mee in de cijfers. Zeg dat één keer in de verantwoordingssectie ("zonder Yaris Cross en GR Yaris") en schrijf de rest van het artikel over het basismodel.
 - Noem de steekproef en peildatum in de intro, bij het eerste marktcijfer en in de verantwoordingssectie. Herhaal ze NIET in elke sectie.
 
 Leesbaarheid (redactievoorkeur, weegt zwaar):

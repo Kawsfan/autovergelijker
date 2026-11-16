@@ -152,3 +152,29 @@ test('meld-concept: telt alleen open punten onder "Te verifiëren"', () => {
   assert.equal(telVerificatiepunten(body), 2);
   assert.equal(telVerificatiepunten(''), 0);
 });
+
+const { variantVan } = require('../scripts/artikelen/marktdata');
+
+test('variantVan: andere modellen onder hetzelfde modelveld, maar geen trims', () => {
+  const t = (merk, model, titel) => variantVan({ merk, model, titel });
+  assert.equal(t('Toyota', 'Yaris', 'Toyota Yaris Cross 1.5 Hybrid 130 Dynamic'), 'Yaris Cross');
+  assert.equal(t('Toyota', 'Yaris', 'Toyota GR Yaris | 317 PK'), 'GR Yaris');
+  assert.equal(t('Toyota', 'Yaris', 'Toyota Yaris GR 1.6 Turbo 261pk 2023'), 'GR Yaris');
+  assert.equal(t('Toyota', 'Yaris', 'Toyota Yaris 1.5 Hybrid GR Sport | Panoramadak'), null, 'GR Sport is een trim');
+  assert.equal(t('Toyota', 'Corolla', 'Toyota Corolla Verso 1.8 VVT-i'), 'Corolla Verso');
+  assert.equal(t('Volkswagen', 'Golf', 'Volkswagen Golf Plus 1.4 TSI'), 'Golf Plus');
+  assert.equal(t('Volkswagen', 'Golf', 'Volkswagen Golf 1.4 TSI Variant Highline'), null, 'Variant is een carrosserie');
+  assert.equal(variantVan({ merk: 'Kia', model: 'Niro', titel: 'Kia Niro 1.6 GDi Hybrid' }, ['plug-?in']), null);
+  assert.equal(variantVan({ merk: 'Kia', model: 'Niro', titel: 'Kia Niro Plug-in Hybrid' }, ['plug-?in']), 'plug-?in');
+});
+
+test('berekenMarktdata: modelgids sluit varianten uit en rapporteert ze', () => {
+  const rows = [
+    auto({ merk: 'Toyota', model: 'Yaris', titel: 'Toyota Yaris 1.5 Hybrid', prijs: 9000 }),
+    auto({ merk: 'Toyota', model: 'Yaris', titel: 'Toyota Yaris Cross Hybrid', prijs: 25000 }),
+  ];
+  const md = berekenMarktdata(rows, { modellen: [{ merk: 'Toyota', model: 'Yaris' }] }, { rootDir: ROOT });
+  assert.equal(md.modellen[0].aantal, 1);
+  assert.equal(md.modellen[0].prijs.mediaan, 9000);
+  assert.deepEqual(md.modellen[0].uitgeslotenVarianten, { 'Yaris Cross': 1 });
+});
