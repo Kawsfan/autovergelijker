@@ -92,10 +92,12 @@ jobs:
 
       - name: Branch + PR aanmaken
         if: steps.concept.outputs.slug != ''
+        id: pr
         env:
           GH_TOKEN: ${{ github.token }}
           SLUG: ${{ steps.concept.outputs.slug }}
           TITEL: ${{ steps.concept.outputs.titel }}
+          EIGENAAR: ${{ github.repository_owner }}
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
@@ -111,10 +113,34 @@ jobs:
           gh label create artikel-concept --color D14413 --description "Door de pipeline gegenereerd artikelconcept, wacht op eindredactie" 2>/dev/null || true
           if gh pr view "$branch" --json state --jq .state 2>/dev/null | grep -q OPEN; then
             gh pr edit "$branch" --body-file "$RUNNER_TEMP/pr-body.md"
+            status=bijgewerkt
           else
             gh pr create --base main --head "$branch" --title "Artikelconcept: $TITEL" \
               --body-file "$RUNNER_TEMP/pr-body.md" --label artikel-concept
+            status=nieuw
           fi
+          url=$(gh pr view "$branch" --json url --jq .url)
+          echo "url=$url" >> "$GITHUB_OUTPUT"
+          echo "status=$status" >> "$GITHUB_OUTPUT"
+          # PR's van de Actions-bot geven de eigenaar standaard geen melding;
+          # een review-aanvraag wel (GitHub-notificatie + "Review requests").
+          # Niet fataal: de PR staat er dan gewoon, de mail hieronder volgt.
+          gh pr edit "$branch" --add-reviewer "$EIGENAAR" \
+            || echo "::warning::Kon $EIGENAAR niet als reviewer aanvragen."
+
+      - name: Concept per mail melden
+        if: steps.pr.outputs.url != ''
+        # Zelfde Resend-secrets als de failure-alert. Een mislukte mail mag de
+        # run niet rood maken: de PR (en de review-aanvraag) staat er al.
+        continue-on-error: true
+        run: node scripts/artikelen/meld-concept.js
+        env:
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          ALERT_EMAIL: ${{ secrets.ALERT_EMAIL }}
+          SLUG: ${{ steps.concept.outputs.slug }}
+          PR_URL: ${{ steps.pr.outputs.url }}
+          STATUS: ${{ steps.pr.outputs.status }}
+          PR_BODY: ${{ runner.temp }}/pr-body.md
 
       - name: Stuur alert bij failure
         if: failure()

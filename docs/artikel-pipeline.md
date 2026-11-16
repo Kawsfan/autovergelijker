@@ -25,7 +25,10 @@ docs/artikel-planning.json ──► artikel-concept.yml (ma/wo/vr 05:17 UTC)
 
 ## Wekelijks ritme
 
-- Maandag, woensdag en vrijdag staat om ±06:20 (NL-tijd) een concept-PR klaar.
+- Maandag, woensdag en vrijdag komt er een concept-PR. Gepland op 05:17 UTC, maar GitHub start
+  geplande runs in de praktijk uren later (gezien: 7-8 uur), dus reken op de middag.
+- Je krijgt per concept een mail (Resend, naar `ALERT_EMAIL`) met titel, intro, preview- en
+  PR-link, en een review-aanvraag op GitHub. PR's van de Actions-bot geven anders geen melding.
 - Staan er al 3 concepten onbeoordeeld open, dan slaat de run over. Zo stapelt de wachtrij niet op.
 - Review per concept: ±10-15 minuten. Werk de verificatielijst in de PR-body af, check de preview en merge.
 

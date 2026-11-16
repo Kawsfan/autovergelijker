@@ -133,3 +133,22 @@ test('publiceer: stempel zet beide datums', () => {
   assert.deepEqual(stempel({ slug: 'x', gepubliceerd: '2026-01-01', bijgewerkt: '2026-01-01' }, '2026-11-12'),
     { slug: 'x', gepubliceerd: '2026-11-12', bijgewerkt: '2026-11-12' });
 });
+
+const { bouwMail, telVerificatiepunten } = require('../scripts/artikelen/meld-concept');
+
+test('meld-concept: mail bevat titel, preview- en PR-link, en escapet HTML', () => {
+  const art = { slug: 'x-y', titel: 'Golf <b>test</b>', intro: 'Prijs & km', categorie: 'Kopen', leestijdMinuten: 6 };
+  const m = bouwMail({ art, prUrl: 'https://github.com/Kawsfan/autovergelijker/pull/185', status: 'nieuw', nVerifieren: 4 });
+  assert.equal(m.onderwerp, 'Nieuw artikelconcept: Golf <b>test</b>');
+  assert.equal(m.preview, 'https://deploy-preview-185--classy-ganache-4cfb6b.netlify.app/artikelen/x-y/');
+  assert.match(m.html, /Golf &lt;b&gt;test&lt;\/b&gt;/);
+  assert.match(m.html, /Prijs &amp; km/);
+  assert.match(m.html, /4 claims om na te lopen/);
+  assert.match(bouwMail({ art, prUrl: 'x', status: 'bijgewerkt' }).onderwerp, /^Artikelconcept bijgewerkt/);
+});
+
+test('meld-concept: telt alleen open punten onder "Te verifiëren"', () => {
+  const body = '### Te verifiëren door de eindredactie\n- [ ] a\n- [ ] b\n\n### Publicatiechecklist\n- [ ] c\n';
+  assert.equal(telVerificatiepunten(body), 2);
+  assert.equal(telVerificatiepunten(''), 0);
+});
