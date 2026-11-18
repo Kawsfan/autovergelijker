@@ -201,6 +201,14 @@ function prBody(item, art, check, notities, marktdata) {
   const rijen = marktdata.modellen.map(m =>
     '| ' + m.merk + ' ' + (m.model || '') + ' | ' + m.aantal + ' | ' + fmt(m.prijs.p25) + ' | ' + fmt(m.prijs.mediaan) + ' | ' + fmt(m.prijs.p75) +
     ' | ' + (m.kilometerstand.mediaan != null ? m.kilometerstand.mediaan.toLocaleString('nl-NL') + ' km' : 'n.b.') + ' |').join('\n');
+  const signalen = marktdata.modellen.filter(m => m.mogelijkeVarianten && m.mogelijkeVarianten.length);
+  const variantSectie = signalen.length
+    ? '### Mogelijk andere modellen onder één modelnaam\n' +
+      'Deze titelwoorden vormen een groep met een duidelijk afwijkende prijs. Vaak is dat een ander model dat in de brondata dezelfde modelnaam heeft (zoals Yaris Cross onder Yaris), soms een dure of goedkope uitvoering. Is het een ander model, dan tellen de cijfers in het artikel het mee: laat het dan toevoegen aan `VARIANTEN` in `scripts/artikelen/marktdata.js` en het concept opnieuw genereren.\n\n' +
+      signalen.map(m => m.mogelijkeVarianten.map(v =>
+        '- [ ] **' + m.merk + ' ' + m.model + ' "' + v.titelwoord + '"**: ' + v.aantal + ' advertenties, middelste prijs ' + fmt(v.mediaanPrijs) +
+        ' (' + (v.afwijkingProcent > 0 ? '+' : '') + v.afwijkingProcent + '% t.o.v. het model)').join('\n')).join('\n') + '\n\n'
+    : '';
   return `## Artikelconcept: ${art.titel}
 
 **Hoofdzoekwoord:** \`${item.hoofdzoekwoord}\` · **Type:** ${item.type} · **Categorie:** ${art.categorie} · **${check.woorden} woorden** (${art.leestijdMinuten} min)
@@ -212,7 +220,7 @@ Preview: zie de Netlify/Cloudflare deploy-preview hieronder, pad \`/artikelen/${
 ### Te verifiëren door de eindredactie
 ${notities.length ? notities.map(n => '- [ ] ' + n).join('\n') : '- [ ] (model meldde geen te verifiëren claims, controleer toch de technische feiten)'}
 
-### Publicatiechecklist (template §7)
+${variantSectie}### Publicatiechecklist (template §7)
 - [ ] Openingsalinea geeft het directe antwoord met minstens één hard cijfer
 - [ ] Elk marktcijfer klopt met de snapshot hieronder (steekproef + peildatum genoemd)
 - [ ] Technische claims zijn specifiek (onderdeel + bouwjaren) en kloppen
@@ -269,7 +277,10 @@ async function main(opties, client) {
   const template = fs.readFileSync(TEMPLATE, 'utf-8');
   const voorbeeld = fs.readFileSync(path.join(ART_DIR, VOORBEELD + '.json'), 'utf-8');
   const system = systeemPrompt(template, voorbeeld);
-  const berichten = [{ role: 'user', content: gebruikersPrompt(item, marktdata, linkdoelen) }];
+  // mogelijkeVarianten is een signaal voor de eindredactie (PR-body), niet
+  // voor het model: dat zou er anders zelf conclusies aan verbinden.
+  const voorPrompt = Object.assign({}, marktdata, { modellen: marktdata.modellen.map(m => { const c = Object.assign({}, m); delete c.mogelijkeVarianten; return c; }) });
+  const berichten = [{ role: 'user', content: gebruikersPrompt(item, voorPrompt, linkdoelen) }];
 
   if (opties.droog) {
     console.log(berichten[0].content);
@@ -311,7 +322,7 @@ async function main(opties, client) {
   }
 }
 
-module.exports = { main, kiesOnderwerp, naarArtikel, SCHEMA };
+module.exports = { main, kiesOnderwerp, naarArtikel, prBody, SCHEMA };
 
 if (require.main === module) {
   main(args()).catch(e => { console.error(e); process.exit(1); });
