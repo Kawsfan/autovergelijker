@@ -164,6 +164,9 @@ test('variantVan: andere modellen onder hetzelfde modelveld, maar geen trims', (
   assert.equal(t('Toyota', 'Corolla', 'Toyota Corolla Verso 1.8 VVT-i'), 'Corolla Verso');
   assert.equal(t('Volkswagen', 'Golf', 'Volkswagen Golf Plus 1.4 TSI'), 'Golf Plus');
   assert.equal(t('Volkswagen', 'Golf', 'Volkswagen Golf 1.4 TSI Variant Highline'), null, 'Variant is een carrosserie');
+  assert.equal(t('Land Rover', 'Range Rover', 'Land Rover Range Rover Sport 3.0 TDV6 HSE'), 'Range Rover Sport');
+  assert.equal(t('Land Rover', 'Range Rover', 'Land Rover Range Rover Evoque 2.0 eD4'), 'Range Rover Evoque');
+  assert.equal(t('Land Rover', 'Range Rover', 'Land Rover Range Rover 4.4 SDV8 Vogue'), null, 'klassieke Range Rover');
   assert.equal(variantVan({ merk: 'Kia', model: 'Niro', titel: 'Kia Niro 1.6 GDi Hybrid' }, ['plug-?in']), null);
   assert.equal(variantVan({ merk: 'Kia', model: 'Niro', titel: 'Kia Niro Plug-in Hybrid' }, ['plug-?in']), 'plug-?in');
 });

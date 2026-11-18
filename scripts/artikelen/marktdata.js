@@ -179,6 +179,7 @@ const VARIANTEN = {
   'toyota|yaris': { 'Yaris Cross': /\byaris\s+cross\b/i, 'GR Yaris': /\bgr[\s-]*yaris\b|\byaris\s+gr\b(?![\s-]*sport)/i },
   'toyota|corolla': { 'Corolla Cross': /\bcorolla\s+cross\b/i, 'Corolla Verso': /\bverso\b/i },
   'volkswagen|golf': { 'Golf Plus': /\bgolf\s+plus\b/i, 'Golf Sportsvan': /\bsportsvan\b/i },
+  'land rover|range rover': { 'Range Rover Sport': /\brange\s*rover\s+sport\b/i, 'Range Rover Evoque': /\bevoque\b/i, 'Range Rover Velar': /\bvelar\b/i },
 };
 
 // Naam van het afwijkende model als deze advertentie er een is, anders null.
