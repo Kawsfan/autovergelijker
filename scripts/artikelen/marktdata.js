@@ -201,7 +201,7 @@ function variantVan(a, extra) {
 // Range Rover Sport en Golf Sportsvan niet (prijs te gelijk / te weinig).
 const GEEN_VARIANT = new Set(['hybrid', 'hybride', 'electric', 'elektrisch', 'ev', 'phev', 'plug-in', 'hev', 'mhev',
   'tsi', 'tdi', 'tfsi', 'e-tsi', 'etsi', 'vvt-i', 'vvti', 'dig-t', 'gdi', 't-gdi', 'automaat', 'aut', 'benzine', 'diesel',
-  'variant', 'combi', 'touring', 'tourer', 'sportback', 'avant', 'estate', 'sw', 'break', 'wagon', 'sedan', 'hatchback',
+  'variant', 'combi', 'touring', 'st', 'sc', 'sportstourer', 'sports', 'tourer', 'sportback', 'avant', 'estate', 'sw', 'break', 'wagon', 'sedan', 'hatchback',
   'cabrio', 'cabriolet', 'coupe', 'coupé', 'apk', 'nap', 'btw', 'nieuw', 'nieuwe', 'dealer', 'van', 'met', 'en', 'de']);
 
 function signaleerVarianten(model, items) {
