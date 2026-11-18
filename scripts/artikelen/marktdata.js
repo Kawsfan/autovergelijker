@@ -191,6 +191,42 @@ function variantVan(a, extra) {
   return null;
 }
 
+// Signaal voor de eindredactie (in de PR-body): woorden die in de titel direct
+// na de modelnaam staan en een groep met een duidelijk afwijkende prijs vormen
+// ("Yaris Cross" +140%, "Golf Plus" -64%). Vaak een ander model dat de brondata
+// onder dezelfde modelnaam zet, soms een dure/goedkope uitvoering (AMG, John
+// Cooper Works). Bewust een hint, geen automatische uitsluiting: de mens beslist
+// en zet echte andere modellen in VARIANTEN hierboven. Achteraf getoetst: had
+// Yaris Cross, Corolla Cross/Verso, Golf Plus en Range Rover Evoque gevonden,
+// Range Rover Sport en Golf Sportsvan niet (prijs te gelijk / te weinig).
+const GEEN_VARIANT = new Set(['hybrid', 'hybride', 'electric', 'elektrisch', 'ev', 'phev', 'plug-in', 'hev', 'mhev',
+  'tsi', 'tdi', 'tfsi', 'e-tsi', 'etsi', 'vvt-i', 'vvti', 'dig-t', 'gdi', 't-gdi', 'automaat', 'aut', 'benzine', 'diesel',
+  'variant', 'combi', 'touring', 'tourer', 'sportback', 'avant', 'estate', 'sw', 'break', 'wagon', 'sedan', 'hatchback',
+  'cabrio', 'cabriolet', 'coupe', 'coupé', 'apk', 'nap', 'btw', 'nieuw', 'nieuwe', 'dealer', 'van', 'met', 'en', 'de']);
+
+function signaleerVarianten(model, items) {
+  if (!model || items.length < 20) return [];
+  const ml = String(model).toLowerCase();
+  const laatste = ml.split(' ').pop();
+  const med = l => { const p = [...l].sort((x, y) => x - y); return p[Math.floor(p.length / 2)]; };
+  const alle = med(items.map(a => a.prijs));
+  const groepen = {};
+  items.forEach(a => {
+    const t = String(a.titel || '').toLowerCase();
+    const i = t.indexOf(ml);
+    if (i < 0) return;
+    const w = t.slice(i + ml.length).trim().split(/[\s,|/()]+/)[0];
+    if (!w || w.length < 2 || /\d/.test(w) || w === laatste || GEEN_VARIANT.has(w)) return;
+    (groepen[w] = groepen[w] || []).push(a.prijs);
+  });
+  return Object.entries(groepen)
+    .filter(([, p]) => p.length >= 8 && p.length / items.length >= 0.04)
+    .map(([w, p]) => ({ titelwoord: w, aantal: p.length, mediaanPrijs: med(p), afwijkingProcent: Math.round((med(p) / alle - 1) * 100) }))
+    .filter(x => Math.abs(x.afwijkingProcent) >= 30)
+    .sort((x, y) => Math.abs(y.afwijkingProcent) - Math.abs(x.afwijkingProcent))
+    .slice(0, 3);
+}
+
 function matchModel(a, m) {
   if (String(a.merk || '').toLowerCase() !== String(m.merk).toLowerCase()) return false;
   if (!m.model) return true;
@@ -219,7 +255,8 @@ function berekenMarktdata(rows, item, opties) {
         if (v) uitgesloten[v] = (uitgesloten[v] || 0) + 1; else items.push(a);
       });
       uit.modellen.push(Object.assign({ merk: m.merk, model: m.model || null, occasionUrl: occasionUrl(m.merk, m.model, opties.rootDir), marktanalyseUrl: marktanalyseUrl(m.merk, m.model, opties.rootDir) },
-        stats(items), Object.keys(uitgesloten).length ? { uitgeslotenVarianten: uitgesloten } : {}));
+        stats(items), Object.keys(uitgesloten).length ? { uitgeslotenVarianten: uitgesloten } : {},
+        { mogelijkeVarianten: signaleerVarianten(m.model, items) }));
     }
   } else {
     // Segmentartikel ("beste automaat onder €10.000"): de meest aangeboden
@@ -237,7 +274,8 @@ function berekenMarktdata(rows, item, opties) {
       .slice(0, opties.topN || 12)
       .forEach(([k, items]) => {
         const [merk, model, basisModel] = k.split('|');
-        uit.modellen.push(Object.assign({ merk, model, occasionUrl: occasionUrl(merk, basisModel, opties.rootDir), marktanalyseUrl: marktanalyseUrl(merk, basisModel, opties.rootDir) }, stats(items)));
+        uit.modellen.push(Object.assign({ merk, model, occasionUrl: occasionUrl(merk, basisModel, opties.rootDir), marktanalyseUrl: marktanalyseUrl(merk, basisModel, opties.rootDir) },
+          stats(items), { mogelijkeVarianten: signaleerVarianten(model, items) }));
       });
   }
   // Selectie-brede cijfers alleen als die iets zeggen: bij een segment (filters)
@@ -247,6 +285,6 @@ function berekenMarktdata(rows, item, opties) {
 }
 
 module.exports = {
-  laadListings, berekenMarktdata, stats, voldoetAanFilters, occasionUrl, marktanalyseUrl, variantVan,
+  laadListings, berekenMarktdata, stats, voldoetAanFilters, occasionUrl, marktanalyseUrl, variantVan, signaleerVarianten,
   normBrandstof, normCarrosserie, normTransmissie,
 };

@@ -181,3 +181,31 @@ test('berekenMarktdata: modelgids sluit varianten uit en rapporteert ze', () => 
   assert.equal(md.modellen[0].prijs.mediaan, 9000);
   assert.deepEqual(md.modellen[0].uitgeslotenVarianten, { 'Yaris Cross': 1 });
 });
+
+const { signaleerVarianten } = require('../scripts/artikelen/marktdata');
+const { prBody } = require('../scripts/artikelen/genereer-concept');
+
+test('signaleerVarianten: vindt een afwijkend geprijsde groep, negeert carrosserie en ruis', () => {
+  const items = [];
+  for (let i = 0; i < 60; i++) items.push(auto({ merk: 'Toyota', model: 'Yaris', titel: 'Toyota Yaris 1.5 Hybrid Dynamic', prijs: 9000 + i * 10 }));
+  for (let i = 0; i < 10; i++) items.push(auto({ merk: 'Toyota', model: 'Yaris', titel: 'Toyota Yaris Cross Hybrid 130', prijs: 27000 }));
+  for (let i = 0; i < 10; i++) items.push(auto({ merk: 'Toyota', model: 'Yaris', titel: 'Toyota Yaris Touring 1.3', prijs: 3000 }));
+  for (let i = 0; i < 10; i++) items.push(auto({ merk: 'Toyota', model: 'Yaris', titel: 'Toyota Yaris Yaris 1.0', prijs: 2000 }));
+  const s = signaleerVarianten('Yaris', items);
+  assert.deepEqual(s.map(x => x.titelwoord), ['cross']);
+  assert.equal(s[0].aantal, 10);
+  assert.ok(s[0].afwijkingProcent > 100);
+  assert.deepEqual(signaleerVarianten('Yaris', items.slice(0, 10)), [], 'te weinig data: geen signaal');
+});
+
+test('prBody: toont de variantwaarschuwing alleen als er signalen zijn', () => {
+  const art = { slug: 'x', titel: 'T', intro: 'I', categorie: 'Kopen', leestijdMinuten: 5 };
+  const item = { hoofdzoekwoord: 'k', type: 'modelgids', invalshoek: 'i' };
+  const check = { woorden: 1000, waarschuwingen: [] };
+  const md = sig => ({ peildatum: '2026-11-18', filters: {}, totaalInSelectie: 1, modellen: [{
+    merk: 'Toyota', model: 'Yaris', aantal: 80, prijs: { p25: 1, mediaan: 2, p75: 3 }, kilometerstand: { mediaan: 1000 }, mogelijkeVarianten: sig }] });
+  const met = prBody(item, art, check, [], md([{ titelwoord: 'cross', aantal: 10, mediaanPrijs: 27000, afwijkingProcent: 140 }]));
+  assert.match(met, /Mogelijk andere modellen onder één modelnaam/);
+  assert.match(met, /Toyota Yaris "cross"\*\*: 10 advertenties, middelste prijs €27\.000 \(\+140%/);
+  assert.doesNotMatch(prBody(item, art, check, [], md([])), /Mogelijk andere modellen/);
+});

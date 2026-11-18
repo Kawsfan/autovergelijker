@@ -62,5 +62,10 @@ geen /occasions/-link, interne link naar een niet-bestaande pagina.
 
 Waarschuwing (in de PR-body): lengte titel/meta/intro/artikel, >3 zinnen in de intro, geen cijfer in de intro.
 
+Signaal (in de PR-body, sectie "Mogelijk andere modellen onder één modelnaam"): titelwoorden direct na de
+modelnaam met een duidelijk afwijkende prijs, zoals "Yaris Cross" onder Yaris. Is het een ander model, voeg het
+toe aan `VARIANTEN` in `scripts/artikelen/marktdata.js` en genereer het concept opnieuw (Run workflow met slug).
+Het is een hint: Range Rover Sport en Golf Sportsvan had hij bijvoorbeeld niet gevonden.
+
 Niet te automatiseren, dus aan de eindredactie: kloppen de cijfers en technische claims, en zit er een
 echt onderscheidend inzicht in (template §5 "Expertise laten zien").
